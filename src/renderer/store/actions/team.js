@@ -73,7 +73,7 @@ export function onTeamMembers (obj) {
   store.commit('updateTeamMembers', obj)
 }
 
-export function onCreateTeam ({team, owner}) {
+export function onCreateTeam (team, owner) {
   onTeams(team)
   onTeamMembers({
     teamId: team.teamId,

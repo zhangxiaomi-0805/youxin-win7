@@ -17,7 +17,7 @@ import {onSysMsgs, onSysMsg, onSysMsgUnread, onCustomSysMsgs} from './sysMsgs'
 import {onTeams, onSynCreateTeam, onCreateTeam, onUpdateTeam, onTeamMembers, onUpdateTeamMember, onAddTeamMembers, onRemoveTeamMembers, onUpdateTeamManagers, onDismissTeam, onUpdateTeamMembersMute, onTeamMsgReceipt} from './team'
 const electron = require('electron')
 const ipcRenderer = electron.ipcRenderer
-const SDK = require('../../nim_sdk/NIM_Web_SDK_v5.5.0')
+const SDK = require('../../nim_sdk/NIM_Web_SDK_v5.7.0')
 
 // 重新初始化 NIM SDK
 export function initNimSDK ({ state, commit, dispatch }, loginInfo) {

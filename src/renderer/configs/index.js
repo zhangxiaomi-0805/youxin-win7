@@ -1,5 +1,5 @@
 var config = {
-  sdk: 'NIM_Web_SDK_v5.5.0',
+  sdk: 'NIM_Web_SDK_v5.7.0',
   // 用户自定义的登录注册地址
   loginUrl: '#/',
   registUrl: '/webdemo/h5/regist.html',
@@ -29,12 +29,15 @@ const env = 'online'
 let appConfig = {
   // 用户的appkey
   // 用于在web demo中注册账号异步请求demo 服务器中使用
+  // 开发测试环境：f5ffcda3b27dc463b668fef67cc3a3da
+  // 线上环境： 393f9c3f3dabdc573cc634303f09573e
+  // 私有化环境：8d7e0c79e15ede7eff6bb41631a1f986
   test: {
     appkey: 'fe416640c8e8a72734219e1847ad2547',
     postUrl: 'https://apptest.netease.im'
   },
   online: {
-    appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
+    appkey: '393f9c3f3dabdc573cc634303f09573e',
     postUrl: 'https://app.netease.im'
   }
 }
