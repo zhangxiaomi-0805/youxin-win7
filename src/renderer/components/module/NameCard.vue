@@ -1,0 +1,354 @@
+<template>
+  <div class="g-hbf-container">
+    <div class="g-hbf-header m-header"></div>
+    <div class="nc-body">
+      <div class="nc-p2p" v-if="pageType === 'p2p'">
+        <div class="m-modify">
+          <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
+          <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
+          <!-- <div>
+            <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
+            <div class="remarks">
+              <span style="margin-right: 8px;">备注名</span>
+              <a v-if="!isActive" class="edit" @click="showInput" style="margin-right: 5px;"></a>
+              <input
+                ref="input"
+                :disabled="!isActive"
+                :class="isActive ? 'memo-input active' : 'memo-input'"
+                type="text"
+                v-model="userInfos.alias"
+                maxlength="16"
+                placeholder="添加备注名">
+            </div>
+          </div> -->
+        </div>
+        <div class="user-tel"><span>职位</span><span class="line" :style="{color: userInfos.position ? '#333' : '#999'}" :title="userInfos.position">{{userInfos.position || '未设置'}}</span></div>
+        <div class="user-tel"><span>工号</span><span class="line" :style="{color: userInfos.jobNum ? '#333' : '#999'}" :title="userInfos.jobNum">{{userInfos.jobNum || '未设置'}}</span></div>
+        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
+        <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
+        <div class="user-email"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
+        <a v-if="userInfos.userStatus === 2" class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
+        <a v-else class="notActive">该成员未激活</a>
+      </div>
+      <div class="nc-team" v-else-if="pageType === 'team'">
+        <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
+        <div>{{cardInfo.name}}</div>
+        <div class="num">{{memberCount || cardInfo.memberNum + '人'}}</div>
+        <a class="button" @click="sendMsg(cardInfo.teamId)">进入群聊</a>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import configs from '../../configs/index.js'
+import Fetch from '../../utils/fetch.js'
+export default {
+  name: 'namecard',
+  data () {
+    return {
+      defaultIcon: './static/img/orgnize/team-head.png',
+      defaultUserIcon: configs.defaultUserIcon,
+      isActive: false
+    }
+  },
+  mounted () {
+    this.getUserInfos()
+  },
+  computed: {
+    pageType () {
+      return this.$route.query.pageType
+    },
+    id () {
+      return this.$route.query.id
+    },
+    accid () {
+      return this.$route.query.accid
+    },
+    sessionlist () {
+      return this.$store.state.sessionlist
+    },
+    userInfos () {
+      // 通讯录用户信息中查找
+      let contactslist = this.$store.state.contactslist
+      for (let i in contactslist) {
+        let user = contactslist[i]
+        if (this.accid && (user.accid === this.accid)) {
+          return user
+        }
+        if (user.id === this.id) {
+          return user
+        }
+      }
+      return {}
+    },
+    cardInfo () {
+      let teamlist = this.$store.state.teamlist
+      let cardInfo = teamlist.find(item => {
+        return item.teamId === this.id
+      })
+      return cardInfo || {}
+    },
+    memberCount () {
+      let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]
+      let memberCount = members && members.length
+      return memberCount || 0
+    }
+  },
+  watch: {
+    $route () {
+      this.getUserInfos()
+    }
+  },
+  methods: {
+    sendMsg (account) {
+      // 发送消息、创建群聊
+      let sessionId = ''
+      for (let i in this.sessionlist) {
+        if (this.sessionlist[i].to === account) {
+          sessionId = this.sessionlist[i].id
+          break
+        }
+      }
+      if (sessionId) {
+        this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+        this.eventBus.$emit('toggleSelect', {sessionId})
+        this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+      } else {
+        this.$store.dispatch('insertLocalSession', {
+          scene: this.pageType,
+          account: account,
+          callback: (sessionId) => {
+            this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+            this.eventBus.$emit('toggleSelect', {sessionId})
+            this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+          }
+        })
+      }
+    },
+    getUserInfos () {
+      if (this.pageType === 'p2p') {
+        let params = []
+        if (this.accid) {
+          params = [
+            {
+              tag: this.userInfos.tag || 0,
+              accid: this.accid
+            }
+          ]
+        } else {
+          params = [
+            {
+              tag: this.userInfos.tag || 0,
+              id: this.id
+            }
+          ]
+        }
+        /*
+         * 获取用户信息
+         * @params  JSON字符串(对象数组)
+         */
+        Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json').then(ret => {
+          if (ret) {
+            this.$store.commit('updateContactslist', {data: ret, type: 'update'})
+          }
+        }).catch(() => {
+        })
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+  .g-hbf-container .g-hbf-header.m-header {
+    height: 31px;
+  }
+
+  .nc-body {
+    position: absolute;
+    top: 31px;
+    bottom: 0;
+    padding-bottom: 56px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nc-body .nc-team {
+    text-align: center;
+    font-size: 16px;
+    color: #000;
+  }
+
+  .nc-team > img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 3px;
+  }
+
+  .nc-team .num {
+    color: rgba(179,179,186,1);
+    margin: 5px 0 30px;
+    font-size: 14px;
+  }
+
+  .nc-team .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 160px;
+    height: 36px;
+    background: rgba(79,141,255,1);
+    border-radius: 4px;
+    font-size: 14px;
+    color: #fff;
+    transition: background .2s linear;
+  }
+  .nc-team .button:hover {
+    background: rgb(69, 122, 219);
+  }
+
+  .nc-p2p {
+    width: 276px;
+  }
+
+  .nc-p2p .m-modify {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid rgba(214,214,214,1);
+    padding-bottom: 30px;
+    margin-bottom: 30px;
+  }
+
+  .nc-p2p .m-modify .user-info img {
+    vertical-align: middle
+  }
+
+  .nc-p2p .m-modify .nick {
+    width: 100%;
+    font-size: 18px;
+    color: #000;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    cursor: default;
+  }
+
+  .nc-p2p .m-modify .remarks {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 14px;
+    color: #999;
+    margin-top: 8px;
+  }
+
+  .nc-p2p .m-modify img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 10px;
+  } 
+
+  .nc-p2p .user-tel, .nc-p2p .user-email {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 15px;
+  }
+
+  .nc-p2p .user-email {
+    margin-bottom: 31px;
+  }
+
+  .nc-p2p .sendmsg,
+  .nc-p2p .notActive {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #fff;
+    font-size: 14px;
+    background-color: rgba(79,141,255,1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .2s linear;
+  }
+  .nc-p2p .sendmsg:hover {
+    background: rgb(69, 122, 219);
+  }
+
+  .nc-p2p .notActive {
+    background-color: rgba(242,242,242,1);
+    color: rgba(179,179,186,1);
+    cursor: default;
+  }
+
+  .nc-p2p .call {
+    box-sizing: border-box;
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    font-size: 14px;
+    text-align: center;
+    background-color: rgba(242,242,242,1);
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .nc-p2p .line {
+    display: inline-block;
+    width: 75%;
+    font-size: 14px;
+    color: #000;
+    margin-left: 28px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    cursor: default;
+  }
+
+  .nc-p2p .memo-input {
+    padding: 0;
+    margin: 0;
+    border: none;
+    border-color: transparent;
+    background-color: #fff;
+    font-size: 14px;
+    color: #000;
+    width: 50%;
+    font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    overflow:hidden;
+    text-overflow:ellipsis; 
+    text-align:left;
+    white-space:nowrap
+  }
+  .nc-p2p .memo-input::-webkit-input-placeholder {
+    color: #ccc;
+  }
+  .nc-p2p .memo-input.active {
+    border: 1px solid rgba(79,141,255,1);
+    border-radius: 4px;
+  }
+
+  .nc-p2p .edit {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: all .2s linear;
+    background-image: url('../../../../static/img/setting/edit.png');
+    background-size: 100% 100%;
+  }
+  .nc-p2p .edit:hover, .edit:focus {
+    background-image: url('../../../../static/img/setting/edit-h.png');
+  }
+</style>
