@@ -26,7 +26,7 @@
       </div>
     </div>
   </div>
-  <div v-if="showTeam">
+  <div v-if="showTeam" style="marginBottom: 5px;">
     <a class="t-list" @click="teamopen = !teamopen">
       <div class="t-center t-title">
         <div class="t-center"><span class="t-team"></span><span style="line-height: 14px;">{{grouplist.length > 0 ? `群组（${grouplist.length}）` : '群组'}}</span></div>
@@ -49,10 +49,35 @@
       <div v-else class="empty">您还没有加入、创建任何群组哦~</div>
     </div>
   </div>
+  <div>
+    <a class="t-list" @click="contactopen = !contactopen">
+      <div class="t-center t-title">
+        <div class="t-center"><span class="t-team"></span><span style="line-height: 14px;">{{contactlength > 0 ? `历史联系人（${contactlength}）` : '历史联系人'}}</span></div>
+        <span :class="contactopen ? 't-up' : 't-down'"/>
+      </div>
+    </a>
+    <div :class="contactopen ? 't-body active' : 't-body'">
+      <ul class="t-u-list" v-if="contactlength > 0">
+        <li 
+          :class="contact.to === contactSelectId ? 't-u-list-item t-center active' : 't-u-list-item t-center'"
+          v-for="contact in contactHistoryObj" 
+          :key="contact.id" 
+          :id="contact.id"
+          @click="contactSelectHandle(contact)"
+        >
+          <span v-if="showCheck" :class="className(contact)"></span>
+          <img :src="contact.avatar || defaultUserIcon"/>
+          <span class="teamname" :title="contact.name">{{contact.name}}</span>
+        </li>
+      </ul>
+      <div v-else class="empty">您还没有历史联系人哦~</div>
+    </div>
+  </div>
 </div>
 </template>
 
 <script>
+import configs from '../../configs/index.js'
 import TreeItem from './TreeItem.vue'
 import Fetch from '../../utils/fetch.js'
 // import listSort from '../../utils/listSort.js'
@@ -66,13 +91,16 @@ export default {
   data () {
     return {
       defaultIcon: './static/img/orgnize/team-head.png',
+      defaultUserIcon: configs.defaultUserIcon,
       orginzeopen: false, // 组织机构展开状态
       teamopen: false, // 群展开状态
       companyopen: false, // 公司展开状态
+      contactopen: false, // 历史联系人展开状态
       companyInfo: {}, // 公司信息
       orgSelectId: -1, // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
-      groupSelectId: -1 // 选中群组id
+      groupSelectId: -1, // 选中群组id
+      contactSelectId: -1 // 选中历史联系人id
     }
   },
   mounted () {
@@ -87,9 +115,28 @@ export default {
         return item.valid && item.validToCurrentUser
       })
       return grouplist
+    },
+    contactHistoryObj () {
+      return this.$store.state.contactHistoryObj
+    },
+    contactlength () {
+      console.log(this.contactHistoryObj)
+      return Object.keys(this.contactHistoryObj).length
+    },
+    createTeamSelect () {
+      return this.$store.state.createTeamSelect
     }
   },
   methods: {
+    className (contact) {
+      for (let i in this.createTeamSelect) {
+        let item = this.createTeamSelect[i]
+        if (item.id === contact.to || item.accid === contact.to) {
+          return 'checked common'
+        }
+      }
+      return 'check common'
+    },
     toggleOrg () {
       // 组织架构展开、收起
       this.orginzeopen = !this.orginzeopen
@@ -100,8 +147,9 @@ export default {
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', user})
         return false
       }
-      // 清空群组选中状态
+      // 清空群组、历史联系人选中状态
       this.groupSelectId = -1
+      this.contactSelectId = -1
       if ((user.id === this.orgSelectId) && (user.level === this.orgSelectLevel)) {
         return false
       }
@@ -111,15 +159,33 @@ export default {
       this.$router.push({name: 'namecard', query: {pageType: 'p2p', id: user.id, accid: user.accid}})
     },
     groupSelectHandle (teamId) {
-      // 清空组织选中状态
+      // 清空组织、历史联系人选中状态
       this.orgSelectId = -1
       this.orgSelectLevel = -1
+      this.contactSelectId = -1
       if (teamId === this.groupSelectId) {
         return false
       }
       this.groupSelectId = teamId
       this.$store.commit('upadteContactSelectObj', {type: 'team', id: teamId})
       this.$router.push({name: 'namecard', query: {pageType: 'team', id: teamId}})
+    },
+    contactSelectHandle (contact) {
+      if (this.showCheck) {
+        contact.accid = contact.to
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', user: contact})
+        return false
+      }
+      // 清空组织、群组选中状态
+      this.orgSelectId = -1
+      this.orgSelectLevel = -1
+      this.groupSelectId = -1
+      if (contact.to === this.contactSelectId) {
+        return false
+      }
+      this.contactSelectId = contact.to
+      this.$store.commit('upadteContactSelectObj', {type: 'p2p', accid: contact.to})
+      this.$router.push({name: 'namecard', query: {pageType: 'p2p', accid: contact.to}})
     },
     toggleCheck () {
       // 切换公司展开状态
@@ -241,7 +307,7 @@ export default {
     width: 100%;
     height: 32px;
     padding-left: 32px;
-    background-color: #fff;
+    /* background-color: #fff; */
     transition: all .3s linear;
     cursor: default;
   }
@@ -347,6 +413,28 @@ export default {
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
+  }
+
+  .t-u-list .t-u-list-item .common {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 6px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: all .2s linear;
+  }
+
+  .t-u-list .t-u-list-item .check {
+    background-image: url('../../../../static/img/setting/checkboxborder.png');
+    background-size: 100% 100%;
+  }
+  .t-u-list .t-u-list-item .check:hover, .check:focus {
+    background-image: url('../../../../static/img/setting/checkboxborder-p.png');
+  }
+  .t-u-list .t-u-list-item .checked {
+    background-image: url('../../../../static/img/setting/checkbox-c.png');
+    background-size: 100% 100%;
   }
 </style>
 

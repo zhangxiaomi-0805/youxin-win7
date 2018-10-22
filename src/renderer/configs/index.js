@@ -28,17 +28,21 @@ const env = 'online'
 
 let appConfig = {
   // 用户的appkey
-  // 用于在web demo中注册账号异步请求demo 服务器中使用
-  // 开发测试环境：f5ffcda3b27dc463b668fef67cc3a3da
-  // 线上环境： 393f9c3f3dabdc573cc634303f09573e
-  // 私有化环境：8d7e0c79e15ede7eff6bb41631a1f986
+  dev: {
+    appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
+    postUrl: 'http://59.111.148.80:8088/'
+  },
   test: {
-    appkey: 'fe416640c8e8a72734219e1847ad2547',
-    postUrl: 'https://apptest.netease.im'
+    appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
+    postUrl: 'https://nicetest.yunxin.163.com/'
   },
   online: {
     appkey: '393f9c3f3dabdc573cc634303f09573e',
-    postUrl: 'https://app.netease.im'
+    postUrl: 'https://nice.yunxin.163.com/'
+  },
+  self: {
+    appkey: '8d7e0c79e15ede7eff6bb41631a1f986',
+    postUrl: 'http://59.111.110.176:8181/'
   }
 }
 

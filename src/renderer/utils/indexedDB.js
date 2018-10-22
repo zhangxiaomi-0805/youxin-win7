@@ -19,6 +19,7 @@ class IndexedDB {
           // 设置标识为key
           db.createObjectStore('orgnizeObj', { keyPath: 'key' })
           db.createObjectStore('contactslist', { keyPath: 'key' })
+          db.createObjectStore('contactHistoryObj', { keyPath: 'key' })
         }
         request.onsuccess = () => {
           this.db = request.result
@@ -37,7 +38,7 @@ class IndexedDB {
     return new Promise((resolve, reject) => {
       const request = db.transaction([name], 'readwrite')
         .objectStore(name)
-        .get(key || 'orgnizeObj')
+        .get(key || 'Object')
       request.onsuccess = (event) => {
         resolve(request.result)
       }
@@ -52,7 +53,7 @@ class IndexedDB {
   async setItem (name, obj, key) {
     const db = await this.openDB()
     // 将key值合并至对象
-    const newObj = Object.assign(obj, { key: key || 'orgnizeObj' })
+    const newObj = Object.assign(obj, { key: key || 'Object' })
     return new Promise((resolve, reject) => {
       const request = db.transaction([name], 'readwrite')
         .objectStore(name)
@@ -72,7 +73,7 @@ class IndexedDB {
     return new Promise((resolve, reject) => {
       const request = db.transaction([name], 'readwrite')
         .objectStore(name)
-        .delete(key || 'orgnizeObj')
+        .delete(key || 'Object')
       request.onsuccess = function (event) {
         resolve()
       }
@@ -84,17 +85,22 @@ class IndexedDB {
   }
 
   // 遍历表内所有数据
-  async getAll (name) {
+  async getAll (name, type) {
     const db = await this.openDB()
     return new Promise((resolve, reject) => {
       let arr = []
+      if (type === 'object') arr = {}
       const request = db.transaction([name], 'readwrite')
         .objectStore(name)
         .openCursor()
       request.onsuccess = function (event) {
         let cursor = event.target.result
         if (cursor) {
-          arr.push(cursor.value)
+          if (type === 'object') {
+            arr[cursor.value.to] = cursor.value
+          } else {
+            arr.push(cursor.value)
+          }
           cursor.continue()
         } else {
           resolve(arr)

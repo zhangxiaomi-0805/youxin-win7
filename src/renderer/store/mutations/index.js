@@ -197,6 +197,7 @@ export default {
         }
       })
     }
+    store.commit('updateContactHistoryObj', {type: 'update', sessionId: sessions[0].id})
   },
   deleteSessions (state, sessionIds) {
     const nim = state.nim
@@ -803,15 +804,53 @@ export default {
         return false
       }
       obj.set(state.orgnizeObj, obj.currentId, orgnizeObj)
+      SortOrgFn(state.orgnizeObj[obj.currentId].orgnizelist)
+      SortUserFn(state.orgnizeObj[obj.currentId].userlist)
       return true
+    }
+    let SortOrgFn = (sortOrgList) => {
+      IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
+      // 组织排序
+      for (let i = 0; i < sortOrgList.length; i++) {
+        for (let j = 0; j < sortOrgList.length - 1 - i; j++) {
+          let orgSeqBef = sortOrgList[j].orgSeq
+          let orgSeqAft = sortOrgList[j + 1].orgSeq
+          if (orgSeqBef > orgSeqAft) {
+            let t = sortOrgList[j]
+            sortOrgList[j] = sortOrgList[j + 1]
+            sortOrgList[j + 1] = t
+          }
+        }
+      }
+    }
+    let SortUserFn = (sortUserList) => {
+      IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
+      // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
+      let superManger = []
+      let manager = []
+      let member = []
+      for (let i in sortUserList) {
+        let obj = sortUserList[i]
+        if (obj.userType === 2) {
+          superManger.push(obj)
+        } else if (obj.userType === 3) {
+          manager.push(obj)
+        } else {
+          member.push(obj)
+        }
+      }
+      superManger = listSort(superManger)
+      manager = listSort(manager)
+      member = listSort(member)
+      sortUserList = [...superManger, ...manager, ...member]
     }
     // 更新组织数据
     if (obj.type === 'init') {
-      if (!InitFn()) return
+      if (!InitFn()) return false
     } else if (obj.type === 'update') {
       // pullTag 拉取标识，1-全量拉取；2-增量拉取（当传入的tag与当前时间相差30天（暂定）以上，那么就会全量返回数据，需对已有数据做替换）
       if (obj.pullTag === 1) {
-        if (!InitFn()) return
+        if (!InitFn()) return false
       } else {
         let currentOrgObj = state.orgnizeObj[obj.currentId]
         if (currentOrgObj) {
@@ -842,6 +881,7 @@ export default {
                 currentOrgList.push(objUpdate)
               }
             }
+            SortOrgFn(currentOrgList)
           }
           // 更新成员
           for (let i in obj.userlist) {
@@ -868,46 +908,11 @@ export default {
                 currentUserList.push(objUpdate)
               }
             }
+            SortUserFn(currentUserList)
           }
           currentOrgObj.tag = obj.tag
         }
       }
-    }
-    IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
-    // 排序
-    let sortOrgObj = state.orgnizeObj[obj.currentId]
-    if (sortOrgObj) {
-      // 组织排序
-      let sortOrgList = sortOrgObj.orgnizelist
-      for (let i = 0; i < sortOrgList.length; i++) {
-        for (let j = 0; j < sortOrgList.length - 1 - i; j++) {
-          let orgSeqBef = sortOrgList[j].orgSeq
-          let orgSeqAft = sortOrgList[j + 1].orgSeq
-          if (orgSeqBef > orgSeqAft) {
-            let t = sortOrgList[j]
-            sortOrgList[j] = sortOrgList[j + 1]
-            sortOrgList[j + 1] = t
-          }
-        }
-      }
-      // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
-      let superManger = []
-      let manager = []
-      let member = []
-      for (let i in sortOrgObj.userlist) {
-        let obj = sortOrgObj.userlist[i]
-        if (obj.userType === 2) {
-          superManger.push(obj)
-        } else if (obj.userType === 3) {
-          manager.push(obj)
-        } else {
-          member.push(obj)
-        }
-      }
-      superManger = listSort(superManger)
-      manager = listSort(manager)
-      member = listSort(member)
-      sortOrgObj.userlist = [...superManger, ...manager, ...member]
     }
   },
   upadteContactSelectObj (state, obj) {
@@ -918,7 +923,7 @@ export default {
     // 更新通讯录选中状态
     if (obj.type === 'update') {
       for (let i in state.createTeamSelect) {
-        if (state.createTeamSelect[i].id === obj.user.id) {
+        if (state.createTeamSelect[i].accid === obj.user.accid) {
           // 已存在
           state.createTeamSelect.splice(i, 1)
           return false
@@ -946,14 +951,14 @@ export default {
               contact = user
               contact.tag = data.tag
               hasExit = true
+              IndexedDB.setItem('contactslist', contact, contact.id)
               break
             }
           }
           if (!hasExit) {
             let contact = user
             contact.tag = data.tag
-            let key = contact.accid || contact.id
-            IndexedDB.setItem('contactslist', contact, key)
+            IndexedDB.setItem('contactslist', contact, contact.id)
             state.contactslist.push(contact)
           }
         }
@@ -976,5 +981,21 @@ export default {
   },
   updateLoginInfo (state, obj) {
     state.loginInfo = obj
+  },
+  updateContactHistoryObj (state, obj) {
+    if (obj.type === 'init') {
+      state.contactHistoryObj = obj.data || {}
+    } else if (obj.type === 'update') {
+      // 更新历史联系人
+      obj.sessionId = util.parseSession(obj.sessionId)
+      if (obj.sessionId.to === state.userUID || obj.sessionId.scene !== 'p2p') return false
+      let contactObj = state.sessionlist.find(item => {
+        return item.to === obj.sessionId.to
+      })
+      if (contactObj) {
+        Vue.set(state.contactHistoryObj, obj.sessionId.to, contactObj)
+        IndexedDB.setItem('contactHistoryObj', contactObj, obj.sessionId.to)
+      }
+    }
   }
 }

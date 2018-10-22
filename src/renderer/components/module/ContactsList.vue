@@ -1,6 +1,11 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <div class="u-search"><h3>通讯录</h3></div>
+  <div class="u-search">
+    <div class="u-cont">
+      <input type="text" v-model="searchValue" placeholder="搜索" />
+      <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
+    </div>
+  </div>
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop"><tree showTeam/></div>
   <div class="border" id="resize-we"></div>
 </div>
@@ -13,7 +18,8 @@ export default {
   components: {Tree},
   data () {
     return {
-      scrollTop: 0
+      scrollTop: 0,
+      searchValue: ''
     }
   },
   activated () {

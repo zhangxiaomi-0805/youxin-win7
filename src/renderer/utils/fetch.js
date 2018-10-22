@@ -1,12 +1,9 @@
 /**
  * Encapsulation of the fetch method
  */
+import configs from '../configs/index'
 var Fetch = {
-  last_url: null,
-  DOMAINNAME: 'http://59.111.148.80:8088/',
-  DOMAINNAME_TEST: 'https://nicetest.yunxin.163.com/',
-  DOMAINNAME_ONLINE: 'https://nice.yunxin.163.com/',
-  DOMAINNAME_SELF: 'http://59.111.110.176:8181/'
+  last_url: null
 }
 
 /**
@@ -64,7 +61,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
       localStorage.removeItem('AUTOLOGIN')
       ipcRenderer.send('relaunch-app')
     }
-    fetch(this.DOMAINNAME_ONLINE + url, {
+    fetch(configs.postUrl + url, {
       method: 'POST',
       headers,
       body: uriParams

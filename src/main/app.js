@@ -82,7 +82,7 @@ APP.prototype.initApp = function () {
       if (error) { console.error('Failed to register protocol') }
     })
 
-    _this.modifyFilePath()
+    // _this.modifyFilePath()
     _this.createMainWindow()
     _this.dockMenu.setDockMenu()
     _this.appMenu.setAppMenu()

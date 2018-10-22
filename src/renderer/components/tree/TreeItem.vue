@@ -91,7 +91,7 @@ export default {
       if (this.isDisabled(user.accid)) {
         return 'disabled common'
       }
-      if (this.isChecked(user.id)) {
+      if (this.isChecked(user.accid)) {
         return 'checked common'
       }
       return 'check common'
@@ -132,9 +132,9 @@ export default {
       if (this.personInfos.accid === accid) return true
       return false
     },
-    isChecked (id) {
+    isChecked (accid) {
       for (let i in this.createTeamSelect) {
-        if (this.createTeamSelect[i].id === id) {
+        if (this.createTeamSelect[i].accid === accid) {
           return true
         }
       }

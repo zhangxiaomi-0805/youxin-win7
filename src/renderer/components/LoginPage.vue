@@ -435,15 +435,22 @@
             LocalStorage.setItem('uid', ret.accid)
             LocalStorage.setItem('sdktoken', ret.token)
             this.$store.commit('updatePersonInfos', ret)
-            // 初始化组织架构与联系列表
+            // 初始化组织架构、联系、历史联系人列表
             IndexedDB.getItem('orgnizeObj')
               .then(data => {
                 this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
               })
+              .catch(() => {})
             IndexedDB.getAll('contactslist')
               .then(data => {
                 this.$store.commit('updateContactslist', {data, type: 'replace'})
               })
+              .catch(() => {})
+            IndexedDB.getAll('contactHistoryObj', 'object')
+              .then(data => {
+                this.$store.commit('updateContactHistoryObj', {data, type: 'init'})
+              })
+              .catch(() => {})
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {

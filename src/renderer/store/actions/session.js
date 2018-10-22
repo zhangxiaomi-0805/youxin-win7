@@ -112,29 +112,8 @@ export function setTopSession ({state}, obj) {
 export function deleteSession ({state, commit}, obj) {
   const nim = state.nim
   let sessionId = obj.id || ''
-  let { curSessionId, sessionIdArr, that } = obj
   let scene = null
   let account = null
-  if (curSessionId === sessionId) {
-    let arrLength = sessionIdArr.length
-    let curIndex = sessionIdArr.indexOf(curSessionId)
-    let queryId = null
-    if (arrLength - 1 <= 0) {
-      queryId = null
-    } else if (curIndex < arrLength - 1) {
-      queryId = sessionIdArr[curIndex + 1]
-    } else {
-      queryId = sessionIdArr[curIndex - 1]
-    }
-    if (!queryId) {
-      state.currSessionId = null
-      that.$router.push({name: 'session-default'})
-    } else {
-      that.$router.push({name: 'chat', query: {sessionId: queryId, firstFlag: true}})
-      that.eventBus.$emit('toggleSelect', {sessionId: queryId})
-    }
-    store.commit('toggleSlideMenuStatus', 4)
-  }
   if (/^p2p-/.test(sessionId)) {
     scene = 'p2p'
     account = sessionId.replace(/^p2p-/, '')
@@ -146,15 +125,46 @@ export function deleteSession ({state, commit}, obj) {
     nim.deleteSession({
       scene,
       to: account,
-      done: function deleteServerSessionDone (error, obj) {
+      done: function deleteServerSessionDone (error, session) {
         if (error) {
+          store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: error.message
+          })
           return
         }
         nim.deleteLocalSession({
           id: sessionId,
-          done: function deleteLocalSessionDone (error, obj) {
+          done: function deleteLocalSessionDone (error, session) {
             if (error) {
+              store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: error.message
+              })
               return
+            }
+            let { curSessionId, sessionIdArr, that } = obj
+            if (curSessionId === sessionId) {
+              let arrLength = sessionIdArr.length
+              let curIndex = sessionIdArr.indexOf(curSessionId)
+              let queryId = null
+              if (arrLength - 1 <= 0) {
+                queryId = null
+              } else if (curIndex < arrLength - 1) {
+                queryId = sessionIdArr[curIndex + 1]
+              } else {
+                queryId = sessionIdArr[curIndex - 1]
+              }
+              if (!queryId) {
+                state.currSessionId = null
+                that.$router.push({name: 'session-default'})
+              } else {
+                that.$router.push({name: 'chat', query: {sessionId: queryId, firstFlag: true}})
+                that.eventBus.$emit('toggleSelect', {sessionId: queryId})
+              }
+              store.commit('toggleSlideMenuStatus', 4)
             }
             commit('deleteSessions', [sessionId])
           }

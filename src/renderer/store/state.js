@@ -143,5 +143,7 @@ export default {
   // 组织架构禁用成员列表
   orgDisabledlist: [],
   // 登录信息保存
-  loginInfo: {}
+  loginInfo: {},
+  // 历史联系人
+  contactHistoryObj: {}
 }

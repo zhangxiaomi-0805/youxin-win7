@@ -198,7 +198,6 @@
             }
           }
         } else if (item.type === 'image') {
-          // item.file.url = this.$store.state.nim.viewImageSync({url: item.file.url})
           // 原始图片全屏显示
           item.originLink = item.file.url
           if (item.file.w < 180) {
@@ -279,7 +278,6 @@
             }
           }
         }
-        console.log(item)
         return item
       },
       toMyPhone () {

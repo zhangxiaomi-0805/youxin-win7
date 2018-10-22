@@ -6,12 +6,15 @@
           我的手机
       </div>
   </router-link>-->
-  <div class="u-search" v-if="sessionlist.length > 0">
-    <!-- <input type="text" placeholder="搜索" /> -->
-    <h3>消息</h3>
+  <div v-if="sessionlist.length > 0" class="u-search">
+    <div class="u-cont">
+      <input type="text" v-model="searchValue" placeholder="搜索" />
+      <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
+    </div>
   </div>
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
+  <search v-if="searchValue" type="session" :value="searchValue" />
   <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : '56px'}" ref="nsessionList" @scroll="scrollTop = $event.target.scrollTop">
     <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
@@ -49,8 +52,10 @@
 import util from '../../utils'
 import config from '../../configs'
 import pageUtil from '../../utils/page'
+import Search from '../search/index'
 export default {
   name: 'session-list',
+  components: {Search},
   mounted () {
     var _this = this
     this.eventBus.$on('locationMainListItem', function (data) {
@@ -101,20 +106,12 @@ export default {
     return {
       activeId: '',
       scrollTop: 0,
-      delSessionId: null,
-      stopBubble: false,
+      searchValue: '',
       noticeIcon: config.noticeIcon,
       myPhoneIcon: config.myPhoneIcon,
       myGroupIcon: config.defaultGroupIcon,
       myAdvancedIcon: config.defaultAdvancedIcon,
-      menuId: '',
-      sessionMenuData: {
-        menuName: 'sessionMenu',
-        axios: {x: null, y: null},
-        menulists: [
-          {fnHandler: 'delete', btnName: '删除会话'}
-        ]
-      }
+      menuId: ''
     }
   },
   computed: {
@@ -383,10 +380,8 @@ export default {
     },
     showCheckUser (event, userInfos) {
       // 查看个人资料
-      if (!userInfos) {
-        if (userInfos.accid === this.myInfo.account) {
-          userInfos = 1
-        } else return
+      if (!userInfos || userInfos.accid === this.myInfo.account) {
+        userInfos = 1
       }
       this.eventBus.$emit('checkUser', {event, userInfos})
     },
@@ -486,28 +481,40 @@ export default {
 .u-search{
   box-sizing: border-box;
   display: flex;
-  padding-top: 25px;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 56px;
-  padding-left: 12px;
 }
-.u-search input{
+.u-search .u-cont {
+  position: relative;
   width: 90%;
   height: 28px;
+}
+.u-search input{
+  width: 100%;
+  height: 100%;
   background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
+  background-size: 14px 14px;
   border-radius: 2px;
   border: none;
   text-indent: 24px;
   font-size: 12px;
-  color: #7D807E;
+  color: #333;
+}
+.u-search .clear {
+  position: absolute;
+  right: 8px;
+  top: 6.5px;
+  display: block;
+  width: 14px;
+  height: 14px;
+  background-image: url('../../../../static/img/setting/delete.png');
+  background-size: 100% 100%;
+  cursor: pointer;
 }
 input::-webkit-input-placeholder {
   color: #7D807E;
-}
-.u-search > h3 {
-  font-size: 20px;
-  line-height: 18px;
-  color: rgba(11,13,12,1);
 }
 .u-neterr {
   display: flex;

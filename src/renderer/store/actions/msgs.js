@@ -374,7 +374,6 @@ export function sendFileMsg ({state, commit}, obj) {
           to,
           type,
           file,
-          needMsgReceipt: true,
           uploadprogress: function (_data) {
             // console.log('uploadprogress,上传进度:' + _data.percentage)
           },
