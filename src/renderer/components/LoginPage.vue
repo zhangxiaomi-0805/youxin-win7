@@ -2,86 +2,26 @@
   <div class="g-window g-bg">
     <div class="g-inherit">
         <system-caption :resizable="false"/>
-        <select-area/>
         <div v-if="loading" class="m-cover"/>
-        <!-- 手机号或邮箱登录 -->
-        <div v-if="type === 'phoneEmail'" class="m-login-con">
+        <!-- 账号登录 -->
+        <div v-if="type === 'accountNumber'" class="m-login-con">
           <div class="m-login-logo"><img class="logo" :src="logo"></div>
+
+          <!-- 账号 -->
           <div class="m-login-ipt" ref="loginIpt">
             <input 
               class="ipt"
               maxlength="64"
               autofocus
               v-model="account"
-              placeholder="请输入手机号/邮箱地址"
+              placeholder="请输入账号"
               @focus="focusFn($refs.loginIpt)"
               @blur="blurFn($refs.loginIpt)"
               @keyup="keyToNext($event, 1)"/>
-              <span v-if="account.length > 0" class="clear" @click="account = ''"/>
+              <div class="m-click-down"><img class="clickDown" :src="clickDown"></div>
           </div>
-          <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
-          <login-button text="下一步" :disabled="!account" :loading="loading" :callBack="accountNext"/>
-          <div class="m-login-type"><a @click="toggleType('overseasCode', 3)">海外手机号登录</a></div>
-        </div>
-        <!-- 获取验证码 -->
-        <div v-if="type === 'getCode'" class="m-login-con">
-          <div class="m-login-logo"><img class="logo" :src="logo"></div>
-          <div class="m-login-ipt sendcode" ref="loginIpt">
-            <input
-              class="ipt"
-              style="width: 50%;"
-              maxlength="6"
-              autofocus
-              v-model="vertifyCode"
-              placeholder="请输入验证码"
-              @focus="focusFn($refs.loginIpt)"
-              @blur="blurFn($refs.loginIpt)"
-              @keyup="keyToNext($event, 2)"/>
-            <span v-if="vertifyCode.length > 0" class="clear" @click="vertifyCode = ''" style="right: 105px;"/>
-            <send-code :account="account" :areacode="areacode" :codeType="isForget ? '2' : '1'" :loginType="loginType"/>
-          </div>
-          <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
-          <login-button :text="isActive ? '登录' : '下一步'" :disabled="!vertifyCode" :loading="loading" :callBack="codeNext"/>
-          <div class="m-login-type"><a @click="toggleType(befObj.type, befObj.loginType, true)">上一步</a></div>
-        </div>
-        <!-- 设置密码 -->
-        <div v-if="type === 'setPassword'" class="m-login-con">
-          <h3>{{isForget ? '设置新密码' : '设置密码'}}</h3>
-          <div class="m-login-ipt" ref="loginIpt">
-            <input
-              type="password" 
-              class="ipt"
-              style="fontSize: 19px;letterSpacing: 2px;"
-              maxlength="20"
-              autofocus
-              v-model="password"
-              :placeholder="isForget ? '请输入新密码' : '请输入密码'"
-              @focus="focusFn($refs.loginIpt)"
-              @blur="blurFn($refs.loginIpt)"/>
-              <span v-if="password.length > 0" class="clear" @click="password = ''"/>
-          </div>
-          <div class="toast-text">密码长度6-20位数字、字母组合</div>
-          <div class="m-login-errmsg" style="height: 18px;"><span>{{errMsgOth}}</span></div>
-          <div class="m-login-ipt" ref="loginIptAgain">
-            <input
-              type="password" 
-              class="ipt"
-              style="fontSize: 19px;letterSpacing: 2px;"
-              maxlength="20"
-              v-model="confirmPassword"
-              :placeholder="isForget ? '请再次确认新密码' : '请再次确认密码'"
-              @focus="focusFn($refs.loginIptAgain)"
-              @blur="blurFn($refs.loginIptAgain)"
-              @keyup="keyToNext($event, 3)"/>
-              <span v-if="confirmPassword.length > 0" class="clear" @click="confirmPassword = ''"/>
-          </div>
-          <div class="toast-text">密码长度6-20位数字、字母组合</div>
-          <div class="m-login-errmsg" style="height: 31px;"><span>{{errMsg}}</span></div>
-          <login-button text="完成" :disabled="!(password && confirmPassword)" :loading="loading" :callBack="setPwdNext"/>
-        </div>
-        <!-- 密码登录 -->
-        <div v-if="type === 'passwordActive'" class="m-login-con">
-          <div class="m-login-logo" style="paddingBottom: 50px;"><img class="logo" :src="logo"></div>
+
+          <!-- 密码 -->
           <div class="m-login-ipt" ref="loginIpt">
             <input
               type="password" 
@@ -93,8 +33,8 @@
               @focus="focusFn($refs.loginIpt)"
               @blur="blurFn($refs.loginIpt)"
               @keyup="keyToNext($event, 4)"/>
-              <span v-if="password.length > 0" class="clear" @click="password = ''"/>
           </div>
+
           <div class="m-login-ctl">
             <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
             <a 
@@ -104,33 +44,53 @@
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
             </a>
-            <a @click="getBackPwd">忘记密码</a>
+            <a @click="remberPwd">
+              <span :class="isRember ? 'common checked' : 'common check'"></span><span>记住密码</span>
+            </a>
           </div>
-          <div class="m-login-errmsg" style="height: 31px;"><span>{{errMsg}}</span></div>
-          <login-button text="登录" :disabled="!password" :loading="loading" :callBack="pwdNext"/>
-        </div>
-        <!-- 海外手机号登录 -->
-        <div v-if="type === 'overseasCode'" class="m-login-con">
-          <div class="m-login-logo"><img class="logo" :src="logo"></div>
-          <div class="m-login-ipt" ref="loginIpt">
-            <a class="areacode" @click="selectArea"><span style="marginRight: 6px;">{{areacode}}</span><span class="dropdown"></span></a>
-            <input
-              class="ipt"
-              style="width: 60%;"
-              maxlength="15"
-              autofocus
-              v-model="account"
-              placeholder="请输入手机号"
-              @focus="focusFn($refs.loginIpt)"
-              @blur="blurFn($refs.loginIpt)"
-              @keyup="keyToNext($event, 6)"/>
-              <span v-if="account.length > 0" class="clear" @click="account = ''"/>
-          </div>
+
+          <login-button :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password"  :callBack="accountNext"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
-          <login-button text="下一步" :disabled="!account" :loading="loading" :callBack="accountNext"/>
-          <div class="m-login-type"><a @click="toggleType('phoneEmail', 1)">手机号或邮箱登录</a></div>
+          
+        </div>
+       
+        <!-- 设置密码 -->
+        <div v-if="type === 'setPassword'" class="m-login-con">
+          <h3>{{'设置新密码'}}</h3>
+          <div class="m-login-ipt" ref="loginIpt">
+            <input
+              type="password" 
+              class="ipt"
+              style="fontSize: 19px;letterSpacing: 2px;"
+              maxlength="20"
+              autofocus
+              v-model="password"
+              placeholder="请输入新密码"
+              @focus="focusFn($refs.loginIpt)"
+              @blur="blurFn($refs.loginIpt)"/>
+              <span v-if="password.length > 0" class="clear" @click="password = ''"/>
+          </div>
+          <div class="toast-text">密码长度8-20位数字、字母组合</div>
+          <div class="m-login-errmsg" style="height: 18px;"><span>{{errMsgOth}}</span></div>
+          <div class="m-login-ipt" ref="loginIptAgain">
+            <input
+              type="password" 
+              class="ipt"
+              style="fontSize: 19px;letterSpacing: 2px;"
+              maxlength="20"
+              v-model="confirmPassword"
+              placeholder="请再次确认新密码"
+              @focus="focusFn($refs.loginIptAgain)"
+              @blur="blurFn($refs.loginIptAgain)"
+              @keyup="keyToNext($event, 3)"/>
+              <span v-if="confirmPassword.length > 0" class="clear" @click="confirmPassword = ''"/>
+          </div>
+          <div class="toast-text">密码长度8-20位数字、字母组合</div>
+          <div class="m-login-errmsg" style="height: 31px;"><span>{{errMsg}}</span></div>
+          <login-button text="完成" :disabled="!(password && confirmPassword)" :loading="loading" :callBack="setPwdNext"/>
         </div>
     </div>
+
     <toast/>
   </div>
 </template>
@@ -142,7 +102,6 @@
   import LocalStorage from 'localStorage'
   import LoginButton from './login/LoginButton.vue'
   import SendCode from './login/SendCode.vue'
-  import SelectArea from './login/SelectArea.vue'
   import Toast from './toast/toast.vue'
   import Fetch from '../utils/fetch.js'
   import util from '../utils'
@@ -152,16 +111,17 @@
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'login-page',
-    components: {SystemCaption, LoginButton, SendCode, SelectArea, Toast},
+    components: {SystemCaption, LoginButton, SendCode, Toast},
     data () {
       return {
-        type: 'phoneEmail', // 登录首页渲染类型：phoneEmail-手机号或邮箱登录， getCode-获取验证码，setPassword-未激活设置密码，passwordActive-已激活密码登录，overseasCode-海外手机号登录
+        type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录， getCode-获取验证码，setPassword-未激活设置密码，passwordActive-已激活密码登录，
         logo: './static/img/logo.png',
+        clickDown: './static/img/click-down.png',
         loading: false,
-        loginType: 1, // 1-手机号或邮箱，3-海外手机号
+        loginType: 1, // 1-账号登录
         isActive: false, // 是否激活
         autoLogin: false, // 是否自动登录
-        isForget: false, // 是否为忘记密码类型
+        isRember: false, // 是否为记住密码类型
         showPrompt: false,
         errMsg: '',
         errMsgOth: '',
@@ -353,7 +313,6 @@
           password: DES.encryptByDES(this.password)
         }
         let url = 'api/niceAccount/setPassword'
-        if (this.isForget) url = 'api/appPc/resetPassword'
         if (this.loginType === 3) params.account = this.areacode + '-' + this.account
         Fetch.post(url, params, this).then(ret => {
           if (ret) {
@@ -424,13 +383,13 @@
          */
         Fetch.post('api/appPc/userInfo', {}, this).then(ret => {
           if (ret) {
-            if (this.isForget) {
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'success',
-                toastText: '密码设置成功'
-              })
-            }
+            // if (this.isForget) {
+            //   this.$store.commit('toastConfig', {
+            //     show: true,
+            //     type: 'success',
+            //     toastText: '密码设置成功'
+            //   })
+            // }
             // 登录sdk
             LocalStorage.setItem('uid', ret.accid)
             LocalStorage.setItem('sdktoken', ret.token)
@@ -469,7 +428,7 @@
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
                 this.$store.commit('updateLoginInfo', {
-                  type: this.loginType === 1 ? 'phoneEmail' : 'overseasCode',
+                  type: 'accountNumber',
                   account: this.account,
                   areacode: this.areacode,
                   loginType: this.loginType
@@ -489,37 +448,8 @@
           if (err) this.errMsg = err.msg
         })
       },
-      toggleType (type, loginType, empty) {
-        // 切换登录方式
-        this.type = type
-        this.loginType = loginType
-        this.loading = false
-        this.autoLogin = false
-        this.isForget = false
-        this.showPrompt = false
-        this.errMsg = ''
-        this.errMsgOth = ''
-        if (!empty && type !== 'getCode') {
-          this.account = ''
-          this.areacode = '+86'
-        }
-        this.vertifyCode = ''
-        this.password = ''
-        this.confirmPassword = ''
-        this.befPage = ''
-      },
-      selectArea () {
-        let $this = this
-        this.eventBus.$emit('selectArea', {
-          callback: (area) => {
-            if (area) {
-              $this.areacode = '+' + area.code
-            }
-          }
-        })
-      },
-      getBackPwd () {
-        // 忘记密码
+      remberPwd () {
+        // 记住密码
         this.errMsg = ''
         this.befObj = {
           type: this.type,
@@ -585,7 +515,7 @@
     align-items: center;
     height: 36px;
     font-size: 12px;
-    color: rgba(245,99,97,1);
+    color: rgba(255,45,40,1);
   }
 
   .m-login-con .m-login-ipt {
@@ -729,5 +659,9 @@
   }
   .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
     opacity: 0;
+  }
+  .m-login-con .m-click-down{
+    width: 24px;
+    height: 24px
   }
 </style>
