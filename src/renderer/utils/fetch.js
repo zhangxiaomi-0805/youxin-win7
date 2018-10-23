@@ -22,7 +22,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
   // 不需要携带token
   let noTokenUrl = [
     'api/niceAccount/isActivated', 'api/niceAccount/genAuthCode',
-    'api/niceAccount/activeAccount', 'api/niceAccount/setPassword',
+    'api/niceAccount/activeAccount', 'api/appPc/resetPassword',
     'api/appPc/getLoginCode', 'api/appPc/login/auth',
     'api/appPc/getForgetPasswordCode', 'api/appPc/validForgetPasswordCode',
     'api/appPc/resetPassword'
@@ -75,18 +75,18 @@ Fetch.post = async function (url, params, $this, ContentType) {
         case 200: // 成功
           resolve(respResult.ret)
           break
-        case 411: // 账号已激活
-          resolve({isActive: 1})
+        // case 411: // 账号已激活
+        //   resolve({isActive: 1})
+        //   break
+        case 412: // 账号未激活---去设置新密码
+          resolve({type: 'setPassword'})
           break
-        case 412: // 账号未激活
-          resolve({isActive: 2})
-          break
-        case 414: // 验证码失效
-          resolve({invalid: 1})
-          break
-        case 415: // 验证码错误
-          resolve({invalid: 2})
-          break
+        // case 414: // 验证码失效
+        //   resolve({invalid: 1})
+        //   break
+        // case 415: // 验证码错误
+        //   resolve({invalid: 2})
+        //   break
         case 404: // 请求资源不存在
           resolve({msg: '请求资源不存在'})
           break
@@ -116,7 +116,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
       $this.$store.commit('toastConfig', {
         show: true,
         type: 'fail',
-        toastText: '网络不佳，请检查网络连接'
+        toastText: '当前网络异常，请检查您的网络设置'
       })
       reject(error)
     })

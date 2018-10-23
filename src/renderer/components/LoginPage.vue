@@ -8,21 +8,18 @@
           <div class="m-login-logo"><img class="logo" :src="logo"></div>
 
           <!-- 账号 -->
-          <div class="m-login-ipt" ref="loginIpt">
+          <div :class="account ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input 
               class="ipt"
               maxlength="64"
               autofocus
               v-model="account"
-              placeholder="请输入账号"
-              @focus="focusFn($refs.loginIpt)"
-              @blur="blurFn($refs.loginIpt)"
-              @keyup="keyToNext($event, 1)"/>
+              placeholder="请输入账号"/>
               <div class="m-click-down"><img class="clickDown" :src="clickDown"></div>
           </div>
 
           <!-- 密码 -->
-          <div class="m-login-ipt" ref="loginIpt">
+          <div  :class="password ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input
               type="password" 
               class="ipt"
@@ -30,9 +27,7 @@
               maxlength="20"
               v-model="password"
               placeholder="请输入密码"
-              @focus="focusFn($refs.loginIpt)"
-              @blur="blurFn($refs.loginIpt)"
-              @keyup="keyToNext($event, 4)"/>
+              @keyup="keyToNext($event)"/>
           </div>
 
           <div class="m-login-ctl">
@@ -44,12 +39,12 @@
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
             </a>
-            <a @click="remberPwd">
+            <a @click="isRember = !isRember">
               <span :class="isRember ? 'common checked' : 'common check'"></span><span>记住密码</span>
             </a>
           </div>
 
-          <login-button :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password"  :callBack="accountNext"/>
+          <login-button :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password"  :callBack="login"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
           
         </div>
@@ -57,7 +52,7 @@
         <!-- 设置密码 -->
         <div v-if="type === 'setPassword'" class="m-login-con">
           <h3>{{'设置新密码'}}</h3>
-          <div class="m-login-ipt" ref="loginIpt">
+          <div :class="password ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input
               type="password" 
               class="ipt"
@@ -72,7 +67,7 @@
           </div>
           <div class="toast-text">密码长度8-20位数字、字母组合</div>
           <div class="m-login-errmsg" style="height: 18px;"><span>{{errMsgOth}}</span></div>
-          <div class="m-login-ipt" ref="loginIptAgain">
+          <div :class="confirmPassword ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIptAgain">
             <input
               type="password" 
               class="ipt"
@@ -82,12 +77,13 @@
               placeholder="请再次确认新密码"
               @focus="focusFn($refs.loginIptAgain)"
               @blur="blurFn($refs.loginIptAgain)"
-              @keyup="keyToNext($event, 3)"/>
+              @keyup="keyToNext($event)"
+              />
               <span v-if="confirmPassword.length > 0" class="clear" @click="confirmPassword = ''"/>
           </div>
           <div class="toast-text">密码长度8-20位数字、字母组合</div>
           <div class="m-login-errmsg" style="height: 31px;"><span>{{errMsg}}</span></div>
-          <login-button text="完成" :disabled="!(password && confirmPassword)" :loading="loading" :callBack="setPwdNext"/>
+          <login-button text="完成" :disabled="!(password && confirmPassword)" :loading="loading" :callBack="setNewPwd"/>
         </div>
     </div>
 
@@ -98,23 +94,23 @@
 <script>
   import SystemCaption from './controls/SystemCaption.vue'
   import DES from '../utils/des.js'
-  import config from '../configs'
-  import LocalStorage from 'localStorage'
+  // import config from '../configs'
+  // import LocalStorage from 'localStorage'
   import LoginButton from './login/LoginButton.vue'
   import SendCode from './login/SendCode.vue'
   import Toast from './toast/toast.vue'
   import Fetch from '../utils/fetch.js'
-  import util from '../utils'
-  import IndexedDB from '../utils/indexedDB'
+  // import util from '../utils'
+  // import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
-  const electron = require('electron')
-  const ipcRenderer = electron.ipcRenderer
+  // const electron = require('electron')
+  // const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'login-page',
     components: {SystemCaption, LoginButton, SendCode, Toast},
     data () {
       return {
-        type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录， getCode-获取验证码，setPassword-未激活设置密码，passwordActive-已激活密码登录，
+        type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录，setPassword-未激活设置密码
         logo: './static/img/logo.png',
         clickDown: './static/img/click-down.png',
         loading: false,
@@ -139,160 +135,43 @@
       }
     },
     mounted () {
-      if (localStorage.AUTOLOGIN) {
-        // 已开启自动登录(30天内)
-        let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
-        let nowDate = new Date().getTime()
-        if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
-          this.type = 'passwordActive'
-          this.loading = true
-          this.autoLogin = true
-          this.account = USERINFO.account
-          this.password = DES.decryptByDESModeEBC(USERINFO.password)
-          this.pwdNext()
-        } else {
-          localStorage.removeItem('AUTOLOGIN')
-        }
-      } else if (localStorage.LOGININFO) {
-        // 退出登录记住账号
-        let loginInfo = JSON.parse(localStorage.LOGININFO)
-        this.type = loginInfo.type
-        this.account = loginInfo.account
-        this.areacode = loginInfo.areacode
-        this.loginType = loginInfo.loginType
-      }
+      // if (localStorage.AUTOLOGIN) {
+      //   // 已开启自动登录(30天内)
+      //   let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
+      //   let nowDate = new Date().getTime()
+      //   if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
+      //     this.type = 'passwordActive'
+      //     this.loading = true
+      //     this.autoLogin = true
+      //     this.account = USERINFO.account
+      //     this.password = DES.decryptByDESModeEBC(USERINFO.password)
+      //     this.pwdNext()
+      //   } else {
+      //     localStorage.removeItem('AUTOLOGIN')
+      //   }
+      // } else if (localStorage.LOGININFO) {
+      //   // 退出登录记住账号
+      //   let loginInfo = JSON.parse(localStorage.LOGININFO)
+      //   this.type = loginInfo.type
+      //   this.account = loginInfo.account
+      //   this.areacode = loginInfo.areacode
+      //   this.loginType = loginInfo.loginType
+      // }
     },
     methods: {
-      keyToNext (e, type) {
+      keyToNext (e) {
         if (e.keyCode === 13) {
           e.target.blur()
-          switch (type) {
-            case 1 :
-              this.accountNext()
-              break
-            case 2 :
-              this.codeNext()
-              break
-            case 3 :
-              this.setPwdNext()
-              break
-            case 4 :
-              this.pwdNext()
-              break
-            case 5 :
-              break
-            case 6 :
-              this.accountNext()
-              break
-          }
+          this.login()
         }
       },
-      accountNext () {
-        // 手机号或邮箱登录
-        if (this.account.length <= 0) return
-        this.loading = true
-        let errMsg = ''
-        if (this.loginType === 1) {
-          let regPhone = util.regExp.regPhone
-          let regEmail = util.regExp.regEmail
-          if (this.account.indexOf('@') > -1) {
-            // 邮箱
-            if (!regEmail.test(this.account)) {
-              errMsg = '账号格式不正确，请重新输入'
-            }
-          } else {
-            if (!regPhone.test(this.account)) {
-              errMsg = '账号格式不正确，请重新输入'
-            }
-          }
-        } else {
-          if (!/^[0-9]*$/.test(this.account)) {
-            errMsg = '账号格式不正确，请重新输入'
-          }
-          if (this.areacode === '+86' && (this.account.length > 11 || !/^1[345678]\d{9}$/.test(this.account))) {
-            errMsg = '账号格式不正确，请重新输入'
-          }
-        }
-        this.errMsg = errMsg
-        if (errMsg) {
-          this.loading = false
-          return
-        }
-        /*
-         * 校验账号是否已激活
-         * @params  account: 账号 后台注册的 手机号或者邮箱 注意:海外手机号 格式:+xx-xxxx
-         * @receive isActive  1-已激活，2-未激活
-         */
-        let params = { account: this.account }
-        if (this.loginType === 3) params.account = this.areacode + '-' + this.account
-        Fetch.post('api/niceAccount/isActivated', params, this).then(ret => {
-          this.loading = false
-          if (ret) {
-            switch (ret.isActive) {
-              case 1 :
-                this.isActive = true
-                this.type = 'passwordActive'
-                break
-              case 2 :
-                this.isActive = false
-                this.befObj = {
-                  type: this.type,
-                  loginType: this.loginType
-                }
-                this.type = 'getCode'
-                break
-            }
-          }
-        }).catch(err => {
-          this.loading = false
-          if (err) this.errMsg = err.msg
-        })
-      },
-      codeNext () {
-        // 获取验证码
-        if (this.vertifyCode.length <= 0) return
-        this.loading = true
-        /*
-         * 账号激活  api/niceAccount/activeAccount
-         * 校验忘记密码验证码  api/appPc/validForgetPasswordCode
-         * @params  account: 账号 后台注册的 手机号或者邮箱 注意:海外手机号 格式:+xx-xxxx
-         * @params  code: 验证码
-         * @receive invalid  1-验证码失效，2-验证码错误
-         */
-        let params = {
-          account: this.account,
-          code: this.vertifyCode
-        }
-        let url = 'api/niceAccount/activeAccount'
-        if (this.isForget) url = 'api/appPc/validForgetPasswordCode'
-        if (this.loginType === 3) params.account = this.areacode + '-' + this.account
-        Fetch.post(url, params, this).then(ret => {
-          this.loading = false
-          if (ret) {
-            switch (ret.invalid) {
-              case 1 :
-                this.errMsg = '验证码失效'
-                break
-              case 2 :
-                this.errMsg = '验证码错误'
-                break
-            }
-          } else {
-            this.errMsg = ''
-            this.type = 'setPassword'
-          }
-        }).catch((err) => {
-          this.loading = false
-          if (err) this.errMsg = err.msg
-        })
-      },
-      setPwdNext () {
-        // 设置密码
+      setNewPwd () {
+        // 设置新密码
         if (!(this.password && this.confirmPassword)) return
         this.loading = true
         let errMsg = ''
         let errMsgOth = ''
-        if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 6) {
+        if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
           errMsgOth = '密码格式不正确'
         } else if (this.password !== this.confirmPassword) {
           errMsg = '两次输入的密码不一致'
@@ -304,16 +183,17 @@
           return
         }
         /*
-         * 设置密码
-         * @params  account: 账号 后台注册的 手机号或者邮箱 注意:海外手机号 格式:+xx-xxxx
+         * 设置新密码
+         * @params  account: 账号
          * @params  password: 要设置的密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
+         * @params  resetPassword: 要设置的确认密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
          */
         let params = {
           account: this.account,
-          password: DES.encryptByDES(this.password)
+          password: DES.encryptByDES(this.password),
+          resetPassword: DES.encryptByDES(this.confirmPassword)
         }
-        let url = 'api/niceAccount/setPassword'
-        if (this.loginType === 3) params.account = this.areacode + '-' + this.account
+        let url = 'api/appPc/resetPassword'
         Fetch.post(url, params, this).then(ret => {
           if (ret) {
             localStorage.setItem('sessionToken', ret.token)
@@ -326,120 +206,28 @@
           if (err) this.errMsg = err.msg
         })
       },
-      pwdNext () {
-        // 已激活密码登录
-        if (!this.password) return
+      login () {
         this.loading = true
         let errMsg = ''
-        if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 6) {
-          errMsg = '密码格式不正确'
+        if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
+          errMsg = '用户或账号密码错误，登录失败'
         }
         this.errMsg = errMsg
         if (errMsg) {
           this.loading = false
           return
         }
-        /*
-         * PC端登录
-         * @params  isQuickLogin: 是否是快捷登录 是-true 否-false
-         * @params  username: 账号 后台注册的 手机号或者邮箱 注意:海外手机号 格式:+xx-xxxx
-         * @params  password: 输入密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-         */
+
+        // 登录鉴权
         let params = {
-          isQuickLogin: false,
-          username: this.account,
+          account: this.account,
           password: DES.encryptByDES(this.password)
         }
-        if (this.loginType === 3) params.username = this.areacode + '-' + params.username
-        Fetch.post('api/appPc/login/auth', params, this).then(ret => {
+        let url = 'api/appPc/login/auth'
+        Fetch.post(url, params, this).then(ret => {
+          console.log(ret)
           if (ret) {
             localStorage.setItem('sessionToken', ret.token)
-            this.login()
-          } else {
-            this.loading = false
-          }
-        }).catch((err) => {
-          this.loading = false
-          if (err) {
-            if (err.code === 416) {
-              this.errMsg = '账号或密码错误，请重新输入'
-            } else {
-              this.errMsg = err.msg
-            }
-          }
-        })
-      },
-      focusFn (dom) {
-        dom.style.borderBottomColor = 'rgba(79,141,255,1)'
-      },
-      blurFn (dom) {
-        dom.style.borderBottomColor = 'rgba(216,220,222,1)'
-      },
-      login () {
-        /*
-         * 获取用户基本信息
-         * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
-         * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
-         */
-        Fetch.post('api/appPc/userInfo', {}, this).then(ret => {
-          if (ret) {
-            // if (this.isForget) {
-            //   this.$store.commit('toastConfig', {
-            //     show: true,
-            //     type: 'success',
-            //     toastText: '密码设置成功'
-            //   })
-            // }
-            // 登录sdk
-            LocalStorage.setItem('uid', ret.accid)
-            LocalStorage.setItem('sdktoken', ret.token)
-            this.$store.commit('updatePersonInfos', ret)
-            // 初始化组织架构、联系、历史联系人列表
-            IndexedDB.getItem('orgnizeObj')
-              .then(data => {
-                this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            IndexedDB.getAll('contactslist')
-              .then(data => {
-                this.$store.commit('updateContactslist', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            IndexedDB.getAll('contactHistoryObj', 'object')
-              .then(data => {
-                this.$store.commit('updateContactHistoryObj', {data, type: 'init'})
-              })
-              .catch(() => {})
-            this.$store.dispatch('connect', {
-              force: true,
-              done: (error) => {
-                if (error !== 200) {
-                  this.errMsg = error
-                  this.loading = false
-                  return
-                }
-                if (this.autoLogin && !localStorage.AUTOLOGIN) {
-                  // 开启自动登录
-                  let USERINFO = {
-                    account: this.account,
-                    password: DES.encryptByDES(this.password),
-                    dateTime: new Date().getTime()
-                  }
-                  localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
-                }
-                this.$store.commit('updateLoginInfo', {
-                  type: 'accountNumber',
-                  account: this.account,
-                  areacode: this.areacode,
-                  loginType: this.loginType
-                })
-                if (localStorage.LOGININFO) {
-                  localStorage.removeItem('LOGININFO')
-                }
-                ipcRenderer.send('onReset')
-                location.href = config.homeUrl
-              }
-            })
           } else {
             this.loading = false
           }
@@ -447,6 +235,78 @@
           this.loading = false
           if (err) this.errMsg = err.msg
         })
+
+        /*
+         * 获取用户基本信息
+         * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
+         * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
+         */
+        // Fetch.post('api/appPc/userInfo', {}, this).then(ret => {
+        //   if (ret) {
+        //     // if (this.isForget) {
+        //     //   this.$store.commit('toastConfig', {
+        //     //     show: true,
+        //     //     type: 'success',
+        //     //     toastText: '密码设置成功'
+        //     //   })
+        //     // }
+        //     // 登录sdk
+        //     LocalStorage.setItem('uid', ret.accid)
+        //     LocalStorage.setItem('sdktoken', ret.token)
+        //     this.$store.commit('updatePersonInfos', ret)
+        //     // 初始化组织架构、联系、历史联系人列表
+        //     IndexedDB.getItem('orgnizeObj')
+        //       .then(data => {
+        //         this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+        //       })
+        //       .catch(() => {})
+        //     IndexedDB.getAll('contactslist')
+        //       .then(data => {
+        //         this.$store.commit('updateContactslist', {data, type: 'replace'})
+        //       })
+        //       .catch(() => {})
+        //     IndexedDB.getAll('contactHistoryObj', 'object')
+        //       .then(data => {
+        //         this.$store.commit('updateContactHistoryObj', {data, type: 'init'})
+        //       })
+        //       .catch(() => {})
+        //     this.$store.dispatch('connect', {
+        //       force: true,
+        //       done: (error) => {
+        //         if (error !== 200) {
+        //           this.errMsg = error
+        //           this.loading = false
+        //           return
+        //         }
+        //         if (this.autoLogin && !localStorage.AUTOLOGIN) {
+        //           // 开启自动登录
+        //           let USERINFO = {
+        //             account: this.account,
+        //             password: DES.encryptByDES(this.password),
+        //             dateTime: new Date().getTime()
+        //           }
+        //           localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
+        //         }
+        //         this.$store.commit('updateLoginInfo', {
+        //           type: 'accountNumber',
+        //           account: this.account,
+        //           areacode: this.areacode,
+        //           loginType: this.loginType
+        //         })
+        //         if (localStorage.LOGININFO) {
+        //           localStorage.removeItem('LOGININFO')
+        //         }
+        //         ipcRenderer.send('onReset')
+        //         location.href = config.homeUrl
+        //       }
+        //     })
+        //   } else {
+        //     this.loading = false
+        //   }
+        // }).catch((err) => {
+        //   this.loading = false
+        //   if (err) this.errMsg = err.msg
+        // })
       },
       remberPwd () {
         // 记住密码
@@ -492,12 +352,11 @@
     justify-content: center;
     width: 100%;
     padding-top: 15px;
-    padding-bottom: 60px;
   }
 
   .m-login-con .m-login-logo img {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
   }
 
   .m-login-con .m-login-type {
@@ -523,36 +382,21 @@
     display: flex;
     align-items: center;
     width: 100%;
-    height: 40px;
+    height: 45px;
     border-bottom: 1px solid rgba(216,220,222,1);
     transition: all .2s linear;
   }
+
+   .m-login-con .m-login-ipt-active {
+    border-bottom: 1px solid rgba(79,141,255,1);
+  }
+
   .m-login-con .m-login-ipt.sendcode {
     flex-direction: row;
     justify-content: space-between;
   }
 
-  .m-login-con .m-login-ipt .areacode {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding-right: 5px;
-    width: 61px;
-    height: 24px;
-    border-right: 1px solid rgba(146,152,163,1);
-    margin-right: 15px;
-  }
-  .m-login-con .m-login-ipt .areacode span {
-    vertical-align: middle;
-    font-size: 14px;
-    color: #333;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap
-  }
-
-  .m-login-con .m-login-ipt .ipt {
+  .m-login-con .ipt {
     width: 90%;
     border: 0;
     padding: 0;
@@ -560,7 +404,7 @@
     color: #333;
     font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
-  .m-login-con .m-login-ipt .ipt::-webkit-input-placeholder {
+  .m-login-con .ipt::-webkit-input-placeholder {
     font-size: 14px;
     color: rgba(198,203,212,1);
   }
@@ -661,7 +505,12 @@
     opacity: 0;
   }
   .m-login-con .m-click-down{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
     width: 24px;
-    height: 24px
+    height: 24px;
   }
+  
 </style>
