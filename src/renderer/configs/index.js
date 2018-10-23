@@ -27,10 +27,10 @@ var config = {
 const env = 'online'
 
 let appConfig = {
-  // 用户的appkey
+  // 用户的appkey dev-postUrl: 'http://59.111.148.80:8088/'
   dev: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
-    postUrl: 'http://59.111.148.80:8088/'
+    postUrl: 'http://192.168.2.198:10080'
   },
   test: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
