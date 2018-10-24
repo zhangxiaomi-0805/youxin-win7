@@ -3,10 +3,12 @@
   <div class="u-nav-avatar" :style="{marginTop}">
     <img @click="showUserCard($event)" :src="myInfo.avatar"/>
   </div>
-  <!-- <div class="u-nav-status"><span>在线</span><i></i></div> -->
+  <div class="u-nav-status"><span>在线</span><i></i></div>
   <div @click="navTo('session')" :class="selectedItem === 'session' ? 'u-nav-session z-sel' : 'u-nav-session'"></div>
-  <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'u-nav-work z-sel' : 'u-nav-work'"></div>
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'u-nav-friends z-sel' : 'u-nav-friends'"></div>
+  <div @click="navTo('team')" :class="selectedItem === 'team' ? 'u-nav-work z-sel' : 'u-nav-work'"></div>
+  <div @click="navTo('orgnize')" :class="selectedItem === 'orgnize' ? 'u-nav-friends z-sel' : 'u-nav-friends'"></div>
+  <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'u-nav-work z-sel' : 'u-nav-work'"></div>
   <div @click="launchChat($event)" class="u-nav-add"></div>
   <div class="u-nav-setting" @click="eventBus.$emit('generalSetting', {show: true})"></div>
 </div>

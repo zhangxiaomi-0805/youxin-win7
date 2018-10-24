@@ -16,7 +16,7 @@
 <script>
 import SystemCaption from '../controls/SystemCaption.vue'
 export default {
-  name: 'team-page',
+  name: 'orgnize',
   components: {SystemCaption},
   data () {
     return {

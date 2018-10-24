@@ -75,6 +75,11 @@ export default new Router({
               name: 'team-default'
             }
           ]
+        },
+        {
+          path: '/orgnize',
+          component: require('@/components/page/Orgnize').default,
+          name: 'orgnize'
         }
       ]
     },
