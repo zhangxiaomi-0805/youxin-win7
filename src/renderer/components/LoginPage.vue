@@ -5,6 +5,10 @@
         <div v-if="loading" class="m-cover"/>
         <!-- 账号登录 -->
         <div v-if="type === 'accountNumber'" class="m-login-con">
+          <!-- 历史账号弹框 -->
+          <history-account></history-account>
+         
+          <!-- logo -->
           <div class="m-login-logo"><img class="logo" :src="logo"></div>
 
           <!-- 账号 -->
@@ -15,7 +19,9 @@
               autofocus
               v-model="account"
               placeholder="请输入账号"/>
-              <div class="m-click-down"><img class="clickDown" :src="clickDown"></div>
+              <!-- 下拉箭头 -->
+              <div @click.stop = "showHistoryAccount($event)" :class="showModal ? 'm-click-up' : 'm-click-down'">
+              </div>
           </div>
 
           <!-- 密码 -->
@@ -49,23 +55,21 @@
           
         </div>
        
-        <!-- 设置密码 -->
+        <!-- 设置新密码 -->
         <div v-if="type === 'setPassword'" class="m-login-con">
           <h3>{{'设置新密码'}}</h3>
-          <div :class="password ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
+          <div :class="newPassword ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input
               type="password" 
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="20"
               autofocus
-              v-model="password"
-              placeholder="请输入新密码"
-              @focus="focusFn($refs.loginIpt)"
-              @blur="blurFn($refs.loginIpt)"/>
-              <span v-if="password.length > 0" class="clear" @click="password = ''"/>
+              v-model="newPassword"
+              placeholder="请输入新密码"/>
+              <span v-if="newPassword.length > 0" class="clear" @click="newPassword = ''"/>
           </div>
-          <div class="toast-text">密码长度8-20位数字、字母组合</div>
+          <div class="toast-text">密码长度8-20位</div>
           <div class="m-login-errmsg" style="height: 18px;"><span>{{errMsgOth}}</span></div>
           <div :class="confirmPassword ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIptAgain">
             <input
@@ -75,15 +79,12 @@
               maxlength="20"
               v-model="confirmPassword"
               placeholder="请再次确认新密码"
-              @focus="focusFn($refs.loginIptAgain)"
-              @blur="blurFn($refs.loginIptAgain)"
-              @keyup="keyToNext($event)"
               />
               <span v-if="confirmPassword.length > 0" class="clear" @click="confirmPassword = ''"/>
           </div>
-          <div class="toast-text">密码长度8-20位数字、字母组合</div>
+          <div class="toast-text">密码长度8-20位</div>
           <div class="m-login-errmsg" style="height: 31px;"><span>{{errMsg}}</span></div>
-          <login-button text="完成" :disabled="!(password && confirmPassword)" :loading="loading" :callBack="setNewPwd"/>
+          <login-button text="完成" :disabled="!(newPassword && confirmPassword)" :loading="loading" :callBack="setNewPwd"/>
         </div>
     </div>
 
@@ -94,7 +95,7 @@
 <script>
   import SystemCaption from './controls/SystemCaption.vue'
   import DES from '../utils/des.js'
-  // import config from '../configs'
+  import config from '../configs'
   // import LocalStorage from 'localStorage'
   import LoginButton from './login/LoginButton.vue'
   import SendCode from './login/SendCode.vue'
@@ -103,16 +104,16 @@
   // import util from '../utils'
   // import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
-  // const electron = require('electron')
-  // const ipcRenderer = electron.ipcRenderer
+  import HistoryAccount from './float/HistoryAccount'
+  const electron = require('electron')
+  const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'login-page',
-    components: {SystemCaption, LoginButton, SendCode, Toast},
+    components: {SystemCaption, LoginButton, SendCode, Toast, HistoryAccount},
     data () {
       return {
         type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录，setPassword-未激活设置密码
         logo: './static/img/logo.png',
-        clickDown: './static/img/click-down.png',
         loading: false,
         loginType: 1, // 1-账号登录
         isActive: false, // 是否激活
@@ -123,10 +124,13 @@
         errMsgOth: '',
         account: '',
         vertifyCode: '',
-        password: '',
-        confirmPassword: '',
+        password: '', // 密码
+        newPassword: '', // 新密码
+        confirmPassword: '', // 确认新密码
         areacode: '+86',
-        befObj: {}
+        befObj: {},
+        showModal: false,
+        rememberAccount: [] // 保存记住用户的信息
       }
     },
     computed: {
@@ -135,6 +139,9 @@
       }
     },
     mounted () {
+      if (localStorage.HistoryAccount) {
+        this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
+      }
       // if (localStorage.AUTOLOGIN) {
       //   // 已开启自动登录(30天内)
       //   let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
@@ -159,21 +166,30 @@
       // }
     },
     methods: {
-      keyToNext (e) {
-        if (e.keyCode === 13) {
-          e.target.blur()
-          this.login()
-        }
+      showHistoryAccount (event) {
+        this.showModal = !this.showModal
+        // 展开历史账号，最多保存最近5条
+        this.eventBus.$emit('showAccountModal', {isShow: this.showModal, rememberAccount: this.rememberAccount, event})
       },
+      closeAccountHistory () {
+        console.log('2222')
+        this.modalShow = false
+      },
+      // keyToNext (e) {
+      //   if (e.keyCode === 13) {
+      //     e.target.blur()
+      //     this.login()
+      //   }
+      // },
       setNewPwd () {
         // 设置新密码
-        if (!(this.password && this.confirmPassword)) return
+        if (!(this.newPassword && this.confirmPassword)) return
         this.loading = true
         let errMsg = ''
         let errMsgOth = ''
-        if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
-          errMsgOth = '密码格式不正确'
-        } else if (this.password !== this.confirmPassword) {
+        if (this.newPassword.length < 8) {
+          errMsgOth = '新密码格式不正确'
+        } else if (this.newPassword !== this.confirmPassword) {
           errMsg = '两次输入的密码不一致'
         }
         this.errMsg = errMsg
@@ -186,18 +202,19 @@
          * 设置新密码
          * @params  account: 账号
          * @params  password: 要设置的密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-         * @params  resetPassword: 要设置的确认密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
+         * @params  confirmPassword: 要设置的确认密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
          */
         let params = {
           account: this.account,
-          password: DES.encryptByDES(this.password),
-          resetPassword: DES.encryptByDES(this.confirmPassword)
+          password: DES.encryptByDES(this.newPassword),
+          confirmPassword: DES.encryptByDES(this.confirmPassword)
         }
         let url = 'api/appPc/resetPassword'
         Fetch.post(url, params, this).then(ret => {
           if (ret) {
             localStorage.setItem('sessionToken', ret.token)
-            this.login()
+            ipcRenderer.send('onReset')
+            location.href = config.homeUrl
           } else {
             this.loading = false
           }
@@ -206,9 +223,11 @@
           if (err) this.errMsg = err.msg
         })
       },
-      login () {
+      login (type) {
+        // type===1?直接密码登录，type===2,首次登录密码激活后登录
         this.loading = true
         let errMsg = ''
+        this.password = type && type === 2 ? this.newPassword : this.password
         if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
           errMsg = '用户或账号密码错误，登录失败'
         }
@@ -226,10 +245,31 @@
         let url = 'api/appPc/login/auth'
         Fetch.post(url, params, this).then(ret => {
           console.log(ret)
-          if (ret) {
-            localStorage.setItem('sessionToken', ret.token)
+          if (ret.type === 'setPassword') {
+            this.type = 'setPassword'
+            this.loading = false
           } else {
             this.loading = false
+            if (this.isRember) {
+              let accountInfo = {
+                id: ret.userInfo.userId,
+                account: this.account,
+                password: this.password,
+                isRember: true
+              }
+              if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
+                this.rememberAccount.pop()
+              }
+              this.rememberAccount.map((item, index) => { // 登录账号相同则合并
+                if (this.account === item.account) {
+                  this.rememberAccount.splice(index, 1)
+                }
+              })
+              this.rememberAccount.unshift(accountInfo)
+              localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
+            }
+            ipcRenderer.send('onReset')
+            location.href = config.homeUrl
           }
         }).catch((err) => {
           this.loading = false
@@ -400,7 +440,7 @@
     width: 90%;
     border: 0;
     padding: 0;
-    font-size: 14px;
+    font-size: 18px;
     color: #333;
     font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
@@ -505,12 +545,31 @@
     opacity: 0;
   }
   .m-login-con .m-click-down{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
+    position: absolute;
+    right: -8px;
+    bottom: -15px;
+    display: block;
     width: 24px;
-    height: 24px;
+    height: 40px;
+    background-image: url('../../../static/img/click-down.png');
+    background-repeat: no-repeat;
+    background-size: 13px 7px;
+  }
+  .m-login-con .m-click-up{
+    position: absolute;
+    right: 0;
+    bottom: 15px;
+    display: block;
+    width: 24px;
+    height: 40px;
+    background-image: url('../../../static/img/click-down.png');
+    background-repeat: no-repeat;
+    background-size: 13px 7px;
+    transform: rotate(180deg);
+    -ms-transform: rotate(180deg); 	/* IE 9 */
+    -moz-transform: rotate(180deg); 	/* Firefox */
+    -webkit-transform: rotate(180deg); /* Safari 和 Chrome */
+    -o-transform: rotate(180deg); 
   }
   
 </style>
