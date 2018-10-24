@@ -1,4 +1,5 @@
 <template>
+<!-- 联系人 -->
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
   <div class="u-search">
     <div class="u-cont">
