@@ -24,17 +24,17 @@ var config = {
   localMsglimit: 36
 }
 
-const env = 'online'
+const env = 'test'
 
 let appConfig = {
   // 用户的appkey dev-postUrl: 'http://59.111.148.80:8088/'
   dev: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
-    postUrl: 'http://192.168.2.198:10080'
+    postUrl: 'http://192.168.2.198:10080/'
   },
   test: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
-    postUrl: 'https://nicetest.yunxin.163.com/'
+    postUrl: 'http://imapi.eyuntx.com/'
   },
   online: {
     appkey: '393f9c3f3dabdc573cc634303f09573e',

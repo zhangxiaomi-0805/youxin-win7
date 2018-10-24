@@ -71,22 +71,14 @@ Fetch.post = async function (url, params, $this, ContentType) {
         return response.json()
       }
     }).then((respResult) => {
+      console.log(respResult)
       switch (respResult.code) {
         case 200: // 成功
           resolve(respResult.ret)
           break
-        // case 411: // 账号已激活
-        //   resolve({isActive: 1})
-        //   break
         case 412: // 账号未激活---去设置新密码
           resolve({type: 'setPassword'})
           break
-        // case 414: // 验证码失效
-        //   resolve({invalid: 1})
-        //   break
-        // case 415: // 验证码错误
-        //   resolve({invalid: 2})
-        //   break
         case 404: // 请求资源不存在
           resolve({msg: '请求资源不存在'})
           break
