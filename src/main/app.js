@@ -163,7 +163,7 @@ APP.prototype.initIPC = function () {
     _this.logined = true
 
     const menubarPic = process.platform === 'darwin' ? `${__static}/img/logo-mac-menu.png` : `${__static}/img/logo.png`
-    _this.sysTray.create(menubarPic, '网易云信NICE客户端')
+    _this.sysTray.create(menubarPic, '江苏优信客户端')
     _this.sysTray.enableMenuItem('login', false)
     _this.sysTray.enableMenuItem('logout', true)
     _this.sysTray.enableMenuItem('status', true)

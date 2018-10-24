@@ -4,7 +4,7 @@ import { StatusMenuImpl } from './MenuImpl.js'
 function AppMenu (opts) {
   var template = [
     {
-      label: 'NICE',
+      label: '优信',
       submenu: [
         { label: '关于' },
         {
