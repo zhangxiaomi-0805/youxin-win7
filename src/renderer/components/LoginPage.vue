@@ -5,8 +5,6 @@
         <div v-if="loading" class="m-cover"/>
         <!-- 账号登录 -->
         <div v-if="type === 'accountNumber'" class="m-login-con">
-          <!-- 历史账号弹框 -->
-          <history-account></history-account>
          
           <!-- logo -->
           <div class="m-login-logo"><img class="logo" :src="logo"></div>
@@ -32,8 +30,7 @@
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="20"
               v-model="password"
-              placeholder="请输入密码"
-              @keyup="keyToNext($event)"/>
+              placeholder="请输入密码"/>
           </div>
 
           <div class="m-login-ctl">
@@ -96,20 +93,18 @@
   import SystemCaption from './controls/SystemCaption.vue'
   import DES from '../utils/des.js'
   import config from '../configs'
-  // import LocalStorage from 'localStorage'
+  import LocalStorage from 'localStorage'
   import LoginButton from './login/LoginButton.vue'
   import SendCode from './login/SendCode.vue'
   import Toast from './toast/toast.vue'
   import Fetch from '../utils/fetch.js'
-  // import util from '../utils'
-  // import IndexedDB from '../utils/indexedDB'
+  import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
-  import HistoryAccount from './float/HistoryAccount'
   const electron = require('electron')
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'login-page',
-    components: {SystemCaption, LoginButton, SendCode, Toast, HistoryAccount},
+    components: {SystemCaption, LoginButton, SendCode, Toast},
     data () {
       return {
         type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录，setPassword-未激活设置密码
@@ -172,15 +167,8 @@
         this.eventBus.$emit('showAccountModal', {isShow: this.showModal, rememberAccount: this.rememberAccount, event})
       },
       closeAccountHistory () {
-        console.log('2222')
         this.modalShow = false
       },
-      // keyToNext (e) {
-      //   if (e.keyCode === 13) {
-      //     e.target.blur()
-      //     this.login()
-      //   }
-      // },
       setNewPwd () {
         // 设置新密码
         if (!(this.newPassword && this.confirmPassword)) return
@@ -226,127 +214,145 @@
       login (type) {
         // type===1?直接密码登录，type===2,首次登录密码激活后登录
         this.loading = true
-        let errMsg = ''
-        this.password = type && type === 2 ? this.newPassword : this.password
-        if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
-          errMsg = '用户或账号密码错误，登录失败'
-        }
-        this.errMsg = errMsg
-        if (errMsg) {
-          this.loading = false
-          return
-        }
+        // let errMsg = ''
+        // this.password = type && type === 2 ? this.newPassword : this.password
+        // if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
+        //   errMsg = '用户或账号密码错误，登录失败'
+        // }
+        // this.errMsg = errMsg
+        // if (errMsg) {
+        //   this.loading = false
+        //   return
+        // }
 
         // 登录鉴权
         let params = {
-          account: this.account,
+          isQuickLogin: false,
+          username: this.account,
           password: DES.encryptByDES(this.password)
         }
-        let url = 'api/appPc/login/auth'
-        Fetch.post(url, params, this).then(ret => {
-          console.log(ret)
-          if (ret.type === 'setPassword') {
-            this.type = 'setPassword'
-            this.loading = false
+        Fetch.post('api/appPc/login/auth', params, this).then(ret => {
+          if (ret) {
+            localStorage.setItem('sessionToken', ret.token)
+            this.loginPC()
           } else {
             this.loading = false
-            if (this.isRember) {
-              let accountInfo = {
-                id: ret.userInfo.userId,
-                account: this.account,
-                password: this.password,
-                isRember: true
-              }
-              if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
-                this.rememberAccount.pop()
-              }
-              this.rememberAccount.map((item, index) => { // 登录账号相同则合并
-                if (this.account === item.account) {
-                  this.rememberAccount.splice(index, 1)
-                }
-              })
-              this.rememberAccount.unshift(accountInfo)
-              localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
-            }
-            ipcRenderer.send('onReset')
-            location.href = config.homeUrl
           }
         }).catch((err) => {
           this.loading = false
-          if (err) this.errMsg = err.msg
+          if (err) {
+            if (err.code === 416) {
+              this.errMsg = '账号或密码错误，请重新输入'
+            } else {
+              this.errMsg = err.msg
+            }
+          }
         })
-
-        /*
-         * 获取用户基本信息
-         * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
-         * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
-         */
-        // Fetch.post('api/appPc/userInfo', {}, this).then(ret => {
-        //   if (ret) {
-        //     // if (this.isForget) {
-        //     //   this.$store.commit('toastConfig', {
-        //     //     show: true,
-        //     //     type: 'success',
-        //     //     toastText: '密码设置成功'
-        //     //   })
-        //     // }
-        //     // 登录sdk
-        //     LocalStorage.setItem('uid', ret.accid)
-        //     LocalStorage.setItem('sdktoken', ret.token)
-        //     this.$store.commit('updatePersonInfos', ret)
-        //     // 初始化组织架构、联系、历史联系人列表
-        //     IndexedDB.getItem('orgnizeObj')
-        //       .then(data => {
-        //         this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
-        //       })
-        //       .catch(() => {})
-        //     IndexedDB.getAll('contactslist')
-        //       .then(data => {
-        //         this.$store.commit('updateContactslist', {data, type: 'replace'})
-        //       })
-        //       .catch(() => {})
-        //     IndexedDB.getAll('contactHistoryObj', 'object')
-        //       .then(data => {
-        //         this.$store.commit('updateContactHistoryObj', {data, type: 'init'})
-        //       })
-        //       .catch(() => {})
-        //     this.$store.dispatch('connect', {
-        //       force: true,
-        //       done: (error) => {
-        //         if (error !== 200) {
-        //           this.errMsg = error
-        //           this.loading = false
-        //           return
-        //         }
-        //         if (this.autoLogin && !localStorage.AUTOLOGIN) {
-        //           // 开启自动登录
-        //           let USERINFO = {
-        //             account: this.account,
-        //             password: DES.encryptByDES(this.password),
-        //             dateTime: new Date().getTime()
-        //           }
-        //           localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
-        //         }
-        //         this.$store.commit('updateLoginInfo', {
-        //           type: 'accountNumber',
-        //           account: this.account,
-        //           areacode: this.areacode,
-        //           loginType: this.loginType
-        //         })
-        //         if (localStorage.LOGININFO) {
-        //           localStorage.removeItem('LOGININFO')
-        //         }
-        //         ipcRenderer.send('onReset')
-        //         location.href = config.homeUrl
-        //       }
-        //     })
+        // let url = 'api/appPc/login/auth'
+        // Fetch.post(url, params, this).then(ret => {
+        //   if (ret.type === 'setPassword') {
+        //     this.type = 'setPassword'
+        //     this.loading = false
         //   } else {
         //     this.loading = false
+        //     if (this.isRember) {
+        //       let accountInfo = {
+        //         id: ret.userInfo.userId,
+        //         account: this.account,
+        //         password: this.password,
+        //         isRember: true
+        //       }
+        //       if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
+        //         this.rememberAccount.pop()
+        //       }
+        //       this.rememberAccount.map((item, index) => { // 登录账号相同则合并
+        //         if (this.account === item.account) {
+        //           this.rememberAccount.splice(index, 1)
+        //         }
+        //       })
+        //       this.rememberAccount.unshift(accountInfo)
+        //       localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
+        //     }
+        //     ipcRenderer.send('onReset')
+        //     location.href = config.homeUrl
         //   }
         // }).catch((err) => {
         //   this.loading = false
         //   if (err) this.errMsg = err.msg
         // })
+      },
+      loginPC () {
+        /*
+         * 获取用户基本信息
+         * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
+         * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
+         */
+        Fetch.post('api/appPc/userInfo', {}, this).then(ret => {
+          if (ret) {
+            if (this.isForget) {
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'success',
+                toastText: '密码设置成功'
+              })
+            }
+            // 登录sdk
+            LocalStorage.setItem('uid', ret.accid)
+            LocalStorage.setItem('sdktoken', ret.token)
+            this.$store.commit('updatePersonInfos', ret)
+            // 初始化组织架构、联系、历史联系人列表
+            IndexedDB.getItem('orgnizeObj')
+              .then(data => {
+                this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+              })
+              .catch(() => {})
+            IndexedDB.getAll('contactslist')
+              .then(data => {
+                this.$store.commit('updateContactslist', {data, type: 'replace'})
+              })
+              .catch(() => {})
+            IndexedDB.getAll('contactHistoryObj', 'object')
+              .then(data => {
+                this.$store.commit('updateContactHistoryObj', {data, type: 'init'})
+              })
+              .catch(() => {})
+            this.$store.dispatch('connect', {
+              force: true,
+              done: (error) => {
+                if (error !== 200) {
+                  this.errMsg = error
+                  this.loading = false
+                  return
+                }
+                if (this.autoLogin && !localStorage.AUTOLOGIN) {
+                  // 开启自动登录
+                  let USERINFO = {
+                    account: this.account,
+                    password: DES.encryptByDES(this.password),
+                    dateTime: new Date().getTime()
+                  }
+                  localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
+                }
+                this.$store.commit('updateLoginInfo', {
+                  type: this.loginType === 1 ? 'phoneEmail' : 'overseasCode',
+                  account: this.account,
+                  areacode: this.areacode,
+                  loginType: this.loginType
+                })
+                if (localStorage.LOGININFO) {
+                  localStorage.removeItem('LOGININFO')
+                }
+                ipcRenderer.send('onReset')
+                location.href = config.homeUrl
+              }
+            })
+          } else {
+            this.loading = false
+          }
+        }).catch((err) => {
+          this.loading = false
+          if (err) this.errMsg = err.msg
+        })
       },
       remberPwd () {
         // 记住密码

@@ -24,13 +24,13 @@ var config = {
   localMsglimit: 36
 }
 
-const env = 'test'
+const env = 'dev'
 
 let appConfig = {
-  // 用户的appkey dev-postUrl: 'http://59.111.148.80:8088/'
+  // 用户的appkey dev-postUrl: 'http://192.168.2.198:10080/'
   dev: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
-    postUrl: 'http://192.168.2.198:10080/'
+    postUrl: 'http://59.111.148.80:8088/'
   },
   test: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
