@@ -3,7 +3,7 @@
   <div class="u-nav-avatar" :style="{marginTop}">
     <img @click="showUserCard($event)" :src="myInfo.avatar"/>
   </div>
-  <!-- <div class="u-nav-status"><span>在线</span><i></i></div> -->
+  <div class="u-nav-status"><span>在线</span><i></i></div>
   <div @click="navTo('session')" :class="selectedItem === 'session' ? 'u-nav-session z-sel' : 'u-nav-session'"></div>
   <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'u-nav-work z-sel' : 'u-nav-work'"></div>
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'u-nav-friends z-sel' : 'u-nav-friends'"></div>
@@ -38,7 +38,8 @@ export default {
       this.$router.push({name: to})
     },
     showUserCard (event) {
-      this.eventBus.$emit('checkUser', {userInfos: 1, event})
+      console.log('222')
+      this.eventBus.$emit('showMyInfo', {userInfos: 1, event})
     },
     launchChat (e) {
       // 发起群聊

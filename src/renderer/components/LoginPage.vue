@@ -9,6 +9,21 @@
           <!-- logo -->
           <div class="m-login-logo"><img class="logo" :src="logo"></div>
 
+          <!-- 记住密码账号弹框 -->
+          <div v-if="showModal" class="account-box" v-clickoutside="closeModal">
+            <div class='account-title'>使用以下账号登录:</div>
+            <ul class='account-content'>
+              <li :class="selectedId == item.id ? 'account-item account-item-select' : 'account-item'" v-for="(item, index) in rememberAccount" :key="item.id"
+                @mouseenter="onMouseenter(item.id)" 
+                @mouseleave="onMouseleave(item.id)"
+                @click.stop="selectAccount(item)"
+                >
+                  <div>{{item.account}}</div>
+                  <span v-if="selectedId == item.id" class="clear" @click.stop="deleteAccount(index)"/>
+              </li>
+            </ul>
+          </div>
+
           <!-- 账号 -->
           <div :class="account ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input 
@@ -18,7 +33,7 @@
               v-model="account"
               placeholder="请输入账号"/>
               <!-- 下拉箭头 -->
-              <div @click.stop = "showHistoryAccount($event)" :class="showModal ? 'm-click-up' : 'm-click-down'">
+              <div @click= "showAccountModal" :class="showModal ? 'm-click-up' : 'm-click-down'">
               </div>
           </div>
 
@@ -100,10 +115,12 @@
   import Fetch from '../utils/fetch.js'
   import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
+  import clickoutside from '../utils/clickoutside.js'
   const electron = require('electron')
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'login-page',
+    directives: {clickoutside},
     components: {SystemCaption, LoginButton, SendCode, Toast},
     data () {
       return {
@@ -122,9 +139,9 @@
         password: '', // 密码
         newPassword: '', // 新密码
         confirmPassword: '', // 确认新密码
-        areacode: '+86',
         befObj: {},
         showModal: false,
+        selectedId: 0, // 历史账号当前选中的id
         rememberAccount: [] // 保存记住用户的信息
       }
     },
@@ -134,9 +151,10 @@
       }
     },
     mounted () {
-      if (localStorage.HistoryAccount) {
-        this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
-      }
+      this.rememberAccount = [{id: 1, account: '1234566tt', password: '1234aaaa'}, {id: 2, account: 'aaaa111111', password: '1234aaaa'}, {id: 3, account: '4555ssdfdd', password: '1234aaaa'}, {id: 4, account: 'qwd12334', password: '1234aaaa'}] // 保存记住用户的信息
+      // if (localStorage.HistoryAccount) {
+      //   this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
+      // }
       // if (localStorage.AUTOLOGIN) {
       //   // 已开启自动登录(30天内)
       //   let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
@@ -156,18 +174,40 @@
       //   let loginInfo = JSON.parse(localStorage.LOGININFO)
       //   this.type = loginInfo.type
       //   this.account = loginInfo.account
-      //   this.areacode = loginInfo.areacode
       //   this.loginType = loginInfo.loginType
       // }
     },
     methods: {
-      showHistoryAccount (event) {
-        this.showModal = !this.showModal
-        // 展开历史账号，最多保存最近5条
-        this.eventBus.$emit('showAccountModal', {isShow: this.showModal, rememberAccount: this.rememberAccount, event})
+      showAccountModal () {
+        if (this.rememberAccount.length > 0) {
+          this.showModal = !this.showModal
+          console.log(this.showModal)
+        } else {
+          return null
+        }
       },
-      closeAccountHistory () {
-        this.modalShow = false
+      onMouseenter (id) {
+        console.log(id)
+        this.selectedId = id
+      },
+      onMouseleave (id) {
+        this.selectedId = id
+      },
+      closeModal () {
+        this.showModal = false
+      },
+      deleteAccount (index) {
+        this.rememberAccount.map((obj, i) => {
+          if (index === i) {
+            this.rememberAccount.splice(index, 1)
+          }
+        })
+      },
+      selectAccount (item) {
+        this.account = item.account
+        this.password = item.password
+        this.isRember = true
+        this.showModal = false
       },
       setNewPwd () {
         // 设置新密码
@@ -336,7 +376,6 @@
                 this.$store.commit('updateLoginInfo', {
                   type: this.loginType === 1 ? 'phoneEmail' : 'overseasCode',
                   account: this.account,
-                  areacode: this.areacode,
                   loginType: this.loginType
                 })
                 if (localStorage.LOGININFO) {
@@ -455,7 +494,7 @@
     color: rgba(198,203,212,1);
   }
 
-  .m-login-con .clear {
+  .m-login-con .m-login-ipt .clear {
     position: absolute;
     right: 0;
     top: 13.5px;
@@ -552,24 +591,28 @@
   }
   .m-login-con .m-click-down{
     position: absolute;
-    right: -8px;
-    bottom: -15px;
+    right: 0;
+    bottom: 0;
     display: block;
-    width: 24px;
+    width: 26px;
     height: 40px;
     background-image: url('../../../static/img/click-down.png');
     background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: center;
     background-size: 13px 7px;
   }
   .m-login-con .m-click-up{
     position: absolute;
     right: 0;
-    bottom: 15px;
+    bottom: 0;
     display: block;
-    width: 24px;
+    width: 26px;
     height: 40px;
     background-image: url('../../../static/img/click-down.png');
     background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: center;
     background-size: 13px 7px;
     transform: rotate(180deg);
     -ms-transform: rotate(180deg); 	/* IE 9 */
@@ -577,5 +620,54 @@
     -webkit-transform: rotate(180deg); /* Safari 和 Chrome */
     -o-transform: rotate(180deg); 
   }
-  
+  /* 记住登录账号弹框 */
+  .account-box {
+  position: absolute;
+  top: 200px;
+  width: 260px;
+  height: 132px;
+  background: #fff;
+  border: 1px solid #049AFF;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+.account-box .account-title {
+  height: 34px;
+  line-height: 34px;
+  color: #666666;
+  font-size: 12px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+.account-box .account-content {
+  height: 90px;
+  width: 100%;
+  overflow-y: scroll;
+}
+.account-box .account-content .account-item {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  height: 30px;
+  line-height: 30px;
+  color: #333;
+  font-size: 14px;
+  transition: all .2s;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+.account-box .account-content .account-item-select{
+  background: rgba(4,254,255,0.15);
+}
+.account-box .account-content .clear {
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-image: url('../../../static/img/setting/delete.png');
+    background-size: 100% 100%;
+    cursor: pointer;
+}
 </style>

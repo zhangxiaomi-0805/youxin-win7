@@ -13,6 +13,7 @@
             <list-options />
             <unread-modal />
             <check-user/>
+            <my-Info/>
             <select-contact/>
             <select-orgnize/>
             <clear-record/>
@@ -29,6 +30,7 @@
 
 <script>
   import NavBar from './controls/NavBar.vue'
+  import MyInfo from './float/MyInfo.vue'
   import SelectUser from './float/SelectUser.vue'
   import util from '../utils'
   import FindX from './float/FindX.vue'
@@ -51,7 +53,7 @@
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'main-page',
-    components: {NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail},
+    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
