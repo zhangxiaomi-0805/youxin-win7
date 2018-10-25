@@ -1,18 +1,30 @@
 <template>
-<div class="m-main-list">
-  <ul class="u-list">
-    <li class="u-list-item" @click="activeId = team.teamId" :class="team.teamId === activeId ? 'u-list-item-active' : ''" v-for="team in teamList" :key="team.teamId">
-      <router-link :to="{name:'teamcard', query:{teamId: team.teamId, firstFlag: true}}">
-        <div class="u-list-item-container">
-          <img class="icon" slot="icon" :src="team.avatar"/>
-          <div class="single-content">
-            {{team.name}}
-          </div>      
+<!-- 群组 -->
+<div class="m-main-list" id="resize-side-lf" style="width:270px;">
+  <div class="u-search">
+    <div class="u-cont">
+      <input type="text" v-model="searchValue" placeholder="搜索" />
+      <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
+    </div>
+  </div>
+  <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
+    <ul class="u-list t-u-list" v-if="grouplist.length > 0">
+      <li
+        class="u-list-item t-u-list-item t-center"
+        v-for="group in grouplist"
+        :key="group.id" 
+        :id="group.id"
+      >
+        <div class="t-list-item-left t-center">
+          <img :src="group.avatar || defaultIcon"/>
+          <span class="teamname" :title="group.name">{{group.name}}</span>
         </div>
-      </router-link>
-    </li>
-  </ul>
-</div>   
+        <span class="t-num">{{group.memberNum}}</span>
+      </li>
+    </ul>
+  </div>
+  <div class="border" id="resize-we"></div>
+</div>
 </template>
 
 <script>
@@ -20,19 +32,71 @@ export default {
   name: 'team-list',
   data () {
     return {
-      activeId: ''
+      scrollTop: 0,
+      searchValue: ''
     }
   },
   computed: {
-    teamList: function () {
-      return this.$store.state.teamlist && this.$store.state.teamlist.filter(team => {
-        return team.type === 'advanced' && team.validToCurrentUser
+    grouplist () {
+      let grouplist = this.$store.state.teamlist.filter(item => {
+        return item.valid && item.validToCurrentUser
       })
+      return grouplist
     }
+  },
+  activated () {
+    // 重置滚动条位置
+    this.$refs.contactCon.scrollTop = this.scrollTop
   }
 }
 </script>
 
-<style>
+<style scoped>
+  .contact-con {
+    position: absolute;
+    top: 60px;
+    bottom: 0;
+    width: 100%;
+  }
 
+  .t-center {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .t-u-list {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    overflow-y: auto;
+  }
+
+  .t-u-list-item {
+    justify-content: space-between;
+    width: 100%;
+    height: 70px;
+    box-sizing: border-box;
+    padding: 10px 16px;
+  }
+  .t-u-list-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .t-list-item-left {
+    width: 90%;
+  }
+
+  .t-u-list-item .teamname {
+    font-size: 14px;
+    padding-left: 10px;
+  }
+
+  .t-u-list-item .t-num {
+    font-size: 13px;
+    color: #999;
+  }
 </style>
