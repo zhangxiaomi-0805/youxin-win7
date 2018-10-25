@@ -6,7 +6,7 @@
     <div class="c-default">
       <div class="title" style="borderBottomWidth: 0"></div>
       <div class="body" style="backgroundColor: #fff">
-        <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">江苏优信</div></div>
+        <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
       </div>
     </div>
   </div>

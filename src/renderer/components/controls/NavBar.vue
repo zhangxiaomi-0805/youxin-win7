@@ -4,11 +4,11 @@
     <img @click="showUserCard($event)" :src="myInfo.avatar"/>
   </div>
   <div class="u-nav-status"><span>在线</span><i></i></div>
-  <div @click="navTo('session')" :class="selectedItem === 'session' ? 'u-nav-session z-sel' : 'u-nav-session'"></div>
-  <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'u-nav-friends z-sel' : 'u-nav-friends'"></div>
-  <div @click="navTo('team')" :class="selectedItem === 'team' ? 'u-nav-work z-sel' : 'u-nav-work'"></div>
-  <div @click="navTo('orgnize')" :class="selectedItem === 'orgnize' ? 'u-nav-friends z-sel' : 'u-nav-friends'"></div>
-  <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'u-nav-work z-sel' : 'u-nav-work'"></div>
+  <div @click="navTo('session')" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'"></div>
+  <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'nav-item u-nav-friends z-sel' : 'u-nav-friends'"></div>
+  <div @click="navTo('team')" :class="selectedItem === 'team' ? 'nav-item u-nav-work z-sel' : 'u-nav-work'"></div>
+  <div @click="navTo('orgnize')" :class="selectedItem === 'orgnize' ? 'nav-item u-nav-jiagou z-sel' : 'u-nav-jiagou'"></div>
+  <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'nav-item u-nav-yingyong z-sel' : 'u-nav-yingyong'"></div>
   <div @click="launchChat($event)" class="u-nav-add"></div>
   <div class="u-nav-setting" @click="eventBus.$emit('generalSetting', {show: true})"></div>
 </div>
@@ -106,61 +106,118 @@ export default {
   }
   .u-nav-session{
     margin-top: 30px;
-    width: 22px;
-    height: 22px;
+    width: 69px;
+    height: 40px;
     -webkit-app-region: no-drag;
-    background-image: url(../../../../static/img/nav/main-tab-session-normal.png);
-    background-size: 100%;
+    background: url(../../../../static/img/nav/main-tab-session-normal.png) no-repeat center center;
+    background-size: 25px 25px;
+    
   }
   .u-nav-session a{
     display: block;
     width: 100%;
     height: 100%;
   }
-  .u-nav-session:active{
-    background-image: url(../../../../static/img/nav/main-tab-session-pushed.png);
-  }
+  /* .u-nav-session:active{
+    background: url(../../../../static/img/nav/main-tab-session-pushed.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
   .u-nav-session.z-sel{
-    background-image: url(../../../../static/img/nav/main-tab-session-activated.png);
+    background: url(../../../../static/img/nav/main-tab-session-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+    background-color: #0089E4;
   }
-  .u-nav-session.z-sel:active{
-    background-image: url(../../../../static/img/nav/main-tab-session-activated-pushed.png);
-  }
+  /* .u-nav-session.z-sel:active{
+    background: url(../../../../static/img/nav/main-tab-session-activated-pushed.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
 
   .u-nav-work{
     margin-top: 20px;
-    width: 22px;
-    height: 22px;
+    width: 69px;
+    height: 40px;
     -webkit-app-region: no-drag;
-    background-image: url(../../../../static/img/nav/main-tab-work-normal.png);
-    background-size: 100%;
+    background: url(../../../../static/img/nav/main-tab-qun-normal.png) no-repeat center center;
+    background-size: 25px 25px;
   }
-  .u-nav-work:active{
-    background-image: url(../../../../static/img/nav/main-tab-work-pushed.png);
-  }
+  /* .u-nav-work:active{
+   background: url(../../../../static/img/nav/main-tab-qun-normal.png) no-repeat center center;
+   background-size: 25px 25px;
+  } */
   .u-nav-work.z-sel{
-    background-image: url(../../../../static/img/nav/main-tab-work-activated.png);
+    background: url(../../../../static/img/nav/main-tab-qun-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+    background-color: #0089E4;
   }
-  .u-nav-work.z-sel:active{
-    background-image: url(../../../../static/img/nav/main-tab-work-activated-pushed.png);
-  }
+  /* .u-nav-work.z-sel:active{
+    background: url(../../../../static/img/nav/main-tab-qun-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
 
   .u-nav-friends{
     margin-top: 20px;
-    width: 22px;
-    height: 22px;
+    width: 69px;
+    height: 40px;
     -webkit-app-region: no-drag;
-    background-image: url(../../../../static/img/nav/main-tab-friends-normal.png);
-    background-size: 100%;
+    background: url(../../../../static/img/nav/main-tab-friends-normal.png) no-repeat center center;
+    background-size: 25px 25px;
   }
-  .u-nav-friends:active{
-    background-image: url(../../../../static/img/nav/main-tab-friends-pushed.png);
-  }
+  /* .u-nav-friends:active{
+    background: url(../../../../static/img/nav/main-tab-friends-pushed.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
   .u-nav-friends.z-sel{
-    background-image: url(../../../../static/img/nav/main-tab-friends-activated.png);
+    background: url(../../../../static/img/nav/main-tab-friends-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+    background-color: #0089E4;
   }
-  .u-nav-friends.z-sel:active{
-    background-image: url(../../../../static/img/nav/main-tab-friends-activated-pushed.png);
+  /* .u-nav-friends.z-sel:active{
+    background: url(../../../../static/img/nav/main-tab-friends-activated-pushed.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
+
+  .u-nav-jiagou{
+    margin-top: 20px;
+    width: 69px;
+    height: 40px;
+    -webkit-app-region: no-drag;
+    background: url(../../../../static/img/nav/main-tab-jiagou-normal.png) no-repeat center center;
+    background-size: 25px 25px;
+  }
+  /* .u-nav-jiagou:active{
+    background: url(../../../../static/img/nav/main-tab-jiagou-normal.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
+  .u-nav-jiagou.z-sel{
+    background: url(../../../../static/img/nav/main-tab-jiagou-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+    background-color: #0089E4;
+  }
+  /* .u-nav-jiagou.z-sel:active{
+    background: url(../../../../static/img/nav/main-tab-jiagou-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+  } */
+
+  .u-nav-yingyong{
+    margin-top: 20px;
+    width: 69px;
+    height: 40px;
+    -webkit-app-region: no-drag;
+    background: url(../../../../static/img/nav/main-tab-third-normal.png) no-repeat center center;
+    background-size: 25px 25px;
+  }
+  .u-nav-yingyong:active{
+    background: url(../../../../static/img/nav/main-tab-third-normal.png) no-repeat center center;
+    background-size: 25px 25px;
+  }
+  .u-nav-yingyong.z-sel{
+    background: url(../../../../static/img/nav/main-tab-third-activated.png) no-repeat center center;
+    background-size: 25px 25px;
+    background-color: #0089E4;
+  }
+  .u-nav-yingyong.z-sel:active{
+    background: url(../../../../static/img/nav/main-tab-third-activated.png) no-repeat center center;
+    background-size: 25px 25px;
   }
 
   .u-nav-setting, 
@@ -169,23 +226,25 @@ export default {
     bottom: 18px;
     left: 50%;
     margin-left: -11px;
-    width: 22px;
-    height: 22px;
+    width: 25px;
+    height: 25px;
     -webkit-app-region: no-drag;
-    background-image: url(../../../../static/img/nav/main-tab-setting-normal.png);
-    background-size: 100% 100%;
+    background: url(../../../../static/img/nav/main-tab-setting-normal.png) no-repeat center center; 
+    background-size: 25px 25px;
   }
   .u-nav-setting:active{
-    background-image: url(../../../../static/img/nav/main-tab-setting-pushed.png);
+    background: url(../../../../static/img/nav/main-tab-setting-pushed.png) no-repeat center center;
+    background-size: 25px 25px;
   }
 
   .u-nav-add {
     bottom: 60px;
-    background-image: url(../../../../static/img/nav/main-tab-add-normal.png);
-    background-size: 100% 100%;
+    background: url(../../../../static/img/nav/main-tab-add-normal.png) no-repeat center center;
+    background-size: 25px 25px;
   }
   .u-nav-add:active{
-    background-image: url(../../../../static/img/nav/main-tab-add-pushed.png);
+    background: url(../../../../static/img/nav/main-tab-add-pushed.png) no-repeat center center;
+    background-size: 25px 25px;
   }
 </style>
 
