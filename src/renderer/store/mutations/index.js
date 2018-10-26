@@ -197,7 +197,6 @@ export default {
         }
       })
     }
-    store.commit('updateContactHistoryObj', {type: 'update', sessionId: sessions[0].id})
   },
   deleteSessions (state, sessionIds) {
     const nim = state.nim
@@ -981,21 +980,5 @@ export default {
   },
   updateLoginInfo (state, obj) {
     state.loginInfo = obj
-  },
-  updateContactHistoryObj (state, obj) {
-    if (obj.type === 'init') {
-      state.contactHistoryObj = obj.data || {}
-    } else if (obj.type === 'update') {
-      // 更新历史联系人
-      obj.sessionId = util.parseSession(obj.sessionId)
-      if (obj.sessionId.to === state.userUID || obj.sessionId.scene !== 'p2p') return false
-      let contactObj = state.sessionlist.find(item => {
-        return item.to === obj.sessionId.to
-      })
-      if (contactObj) {
-        Vue.set(state.contactHistoryObj, obj.sessionId.to, contactObj)
-        IndexedDB.setItem('contactHistoryObj', contactObj, obj.sessionId.to)
-      }
-    }
   }
 }

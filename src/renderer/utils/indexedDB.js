@@ -19,7 +19,6 @@ class IndexedDB {
           // 设置标识为key
           db.createObjectStore('orgnizeObj', { keyPath: 'key' })
           db.createObjectStore('contactslist', { keyPath: 'key' })
-          db.createObjectStore('contactHistoryObj', { keyPath: 'key' })
         }
         request.onsuccess = () => {
           this.db = request.result
@@ -85,22 +84,17 @@ class IndexedDB {
   }
 
   // 遍历表内所有数据
-  async getAll (name, type) {
+  async getAll (name) {
     const db = await this.openDB()
     return new Promise((resolve, reject) => {
       let arr = []
-      if (type === 'object') arr = {}
       const request = db.transaction([name], 'readwrite')
         .objectStore(name)
         .openCursor()
       request.onsuccess = function (event) {
         let cursor = event.target.result
         if (cursor) {
-          if (type === 'object') {
-            arr[cursor.value.to] = cursor.value
-          } else {
-            arr.push(cursor.value)
-          }
+          arr.push(cursor.value)
           cursor.continue()
         } else {
           resolve(arr)

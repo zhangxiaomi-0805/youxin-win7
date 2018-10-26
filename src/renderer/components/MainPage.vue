@@ -3,7 +3,7 @@
         <div class="g-inherit">
             <nav-bar/>
             <div class="m-main">
-              <keep-alive :include="['session-page', 'contacts-page', 'team-page']">
+              <keep-alive :include="['session-page', 'orgnize', 'team']">
                 <router-view></router-view>
               </keep-alive>
             </div>

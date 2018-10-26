@@ -18,7 +18,7 @@ import SystemCaption from '../controls/SystemCaption.vue'
 import TeamList from '../module/TeamList.vue'
 import Resize from '../../utils/resize.js'
 export default {
-  name: 'team-page',
+  name: 'team',
   components: {TeamList, SystemCaption},
   mounted () {
     // 初始化窗口拖拽函数
