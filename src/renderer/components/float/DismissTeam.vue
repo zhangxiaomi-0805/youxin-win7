@@ -6,6 +6,7 @@
     <div class="m-clear-body m-dismiss-body" style="width: 380px;height: 197px;">
       <div class="drag" id="dismissTeamDrag">
         <span class="title">操作确认</span>
+
         <div class="u-sysbtn close"><a class="btn-close" @click="closeModal"/></div>
       </div>
       <div class="content"><span class="warning"></span><span style="width: 88%">{{config.content}}</span></div>
@@ -38,13 +39,19 @@ export default {
         leave: {
           content: '退出群聊后，所有群聊消息记录将被永久删除，群成员可以看到您退出群聊的状态变更消息。',
           btn: '仍然退出'
+        },
+        update: {
+          content: '当前群聊人数上限200人，升级后上限人数为500人',
+          btn: '确认升级'
         }
       }
       this.type = data.type
       if (this.type === 1) {
         this.config = Config.dismiss
-      } else {
+      } else if (this.type === 2) {
         this.config = Config.leave
+      } else {
+        this.config = Config.update
       }
       this.showDismissTeam = true
       this.teamId = data.teamId
@@ -99,12 +106,24 @@ export default {
             }, 100)
           }
         })
-      } else {
+      } else if (this.type === 2) {
         // 退出群
         this.$store.dispatch('leaveTeam', {
           teamId: this.teamId,
           teamName: this.teamName,
           that: this,
+          callback: () => {
+            this.showDismissTeam = false
+            setTimeout(() => {
+              this.loading = false
+            }, 100)
+          }
+        })
+      } else {
+        // 升级群
+        this.$store.dispatch('updateTeam', {
+          teamId: this.teamId,
+          name: this.teamName,
           callback: () => {
             this.showDismissTeam = false
             setTimeout(() => {

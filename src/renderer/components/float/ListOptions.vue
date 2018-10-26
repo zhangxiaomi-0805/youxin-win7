@@ -52,8 +52,7 @@ export default {
   position: absolute;
   width: auto;
   height: auto;
-  background: rgba(246,246,246,1);
-  border: 1px solid #BEBEBE;
+  background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.16);
   border-radius: 10px;
   z-index: 1000;
@@ -70,7 +69,7 @@ export default {
   transition: all .2s;
 }
 .m-options .item:hover{
-  color: #4F8DFF;
+  color: #049AFF;
 }
 
 </style>

@@ -12,13 +12,21 @@
         <div class="side-list left">
           <div class="title">{{tipTitle}}</div>
           <ul class="u-list">
-            <li class="u-list-item" v-for="(friend, $index) in sidelist" :key="$index" :id="friend.id" @click="add($index)">
+            <li 
+              class="u-list-item" v-for="(friend, $index) in sidelist" :key="$index" :id="friend.id" @click="add($index)"
+              @mouseover="selectedIndex = $index"
+              @mouseout="selectedIndex = -1"
+            >
+              <div style="width: 80%; display: flex; flex-direction: row; align-items: center">
+                <img class="msg-img" :src="friend.avatar">
+                <span class="inline">{{friend.alias || friend.nick || friend.name}}</span>
+                <span v-if="friend.memberNum" style="margin-left: 5px;">({{friend.memberNum}}人)</span>
+                <span :class="friend.type" v-show="(type === 4 || type === 6) && friend.type !== 'normal'"/>
+              </div>
+              
               <span v-if="type === 4" :class="friend.checked ? 'radio-active common' : 'radio common'"></span>
-              <span v-else :class="friend.disabled ? 'disabled common' : friend.checked ? 'checked common' : 'check common'"></span>
-              <img class="msg-img" :src="friend.avatar">
-              <span class="inline">{{friend.alias || friend.nick || friend.name}}</span>
-              <span v-if="friend.memberNum" style="margin-left: 5px;">({{friend.memberNum}}人)</span>
-              <span :class="friend.type" v-show="(type === 4 || type === 6) && friend.type !== 'normal'"/>
+              <span v-else :class="friend.checked ? 'checked common' : 'common'"></span>
+              <span v-if="selectedIndex === $index && !friend.checked && !friend.disabled" class="check common"></span>
             </li>
           </ul>
         </div>
@@ -26,9 +34,11 @@
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
           <ul class="u-list" v-show="chooselist.length > 0">
             <li class="u-list-item" v-for="(item, $index) in chooselist" :key="$index" :id="item.id">
-              <img class="msg-img" :src="item.avatar">
-              <span class="inline">{{item.alias || item.nick || item.name}}</span>
-              <span v-if="item.memberNum" style="margin-left: 5px;">({{item.memberNum}}人)</span>
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <img class="msg-img" :src="item.avatar">
+                <span class="inline">{{item.alias || item.nick || item.name}}</span>
+                <span v-if="item.memberNum" style="margin-left: 5px;">({{item.memberNum}}人)</span>
+              </div>
               <span class="delete" @click="deleted($index)"></span>
             </li>
           </ul>
@@ -95,13 +105,14 @@ export default {
   },
   data () {
     return {
+      selectedIndex: -1,
       showSelectContact: false,
       showConfirmCover: false,
       loading: false,
       sidelist: [],
       chooselist: [],
       teamId: null,
-      type: 1, // 类型:  1-选择联系人创建群组, 2-添加管理员, 3-移除管理员, 4-转让群, 5-添加群成员，6-移出群成员, 7-转发消息
+      type: 1, // 类型:  1-选择联系人创建群组, 2-添加管理员, 3-移除管理员, 4-转让群, 5-添加成员，6-移出成员, 7-转发消息
       msg: null // 转发消息
     }
   },
@@ -134,10 +145,10 @@ export default {
           title = '转让群'
           break
         case 5 :
-          title = '添加群成员'
+          title = '添加成员'
           break
         case 6 :
-          title = '移出群成员'
+          title = '移出成员'
           break
         case 7 :
           title = '选择聊天'
@@ -610,6 +621,7 @@ export default {
     display:flex;
     align-items:center;
     flex-direction:row;
+    justify-content: space-between;
     height: 42px;
     box-sizing: border-box;
     font-size: 14px;
@@ -630,28 +642,29 @@ export default {
 
   .m-selectcontact .u-list .u-list-item .common {
     display: inline-block;
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     background-repeat: no-repeat;
     background-position: center center;
     transition: all .2s linear;
   }
 
-  .m-selectcontact .u-list .u-list-item .check {
+  /* .m-selectcontact .u-list .u-list-item .check {
     background-image: url('../../../../static/img/setting/checkboxborder.png');
     background-size: 100% 100%;
-  }
-  .m-selectcontact .u-list .u-list-item .check:hover, .check:focus {
-    background-image: url('../../../../static/img/setting/checkboxborder-p.png');
+  } */
+  .m-selectcontact .u-list .u-list-item .check {
+    background-image: url('../../../../static/img/setting/add-2.png');
+    background-size: 18px 18px;
   }
 
- .m-selectcontact .u-list .u-list-item .disabled {
+ /* .m-selectcontact .u-list .u-list-item .disabled {
     background-image: url('../../../../static/img/setting/checkbox-d.png');
     background-size: 100% 100%;
-  }
+  } */
 
   .m-selectcontact .u-list .u-list-item .checked {
-    background-image: url('../../../../static/img/setting/checkbox-c.png');
+    background-image: url('../../../../static/img/setting/checked.png');
     background-size: 100% 100%;
   }
 
@@ -765,14 +778,14 @@ export default {
   }
 
   .m-selectcontact .m-confirm-body .b-release {
-    color: rgba(79,141,255,1);
+    color: #FF3732;
     margin-right: 20px;
   }
 
   .m-selectcontact .loading {
     display: inline-block;
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
     background: url('../../../../static/img/setting/loading-blur.gif') no-repeat center center;
     background-size: 100% 100%;
     margin-top: 5px;

@@ -33,7 +33,7 @@
               v-model="account"
               placeholder="请输入账号"/>
               <!-- 下拉箭头 -->
-              <div @click= "showAccountModal" :class="showModal ? 'm-click-up' : 'm-click-down'">
+              <div @click.stop= "showAccountModal" :class="showModal ? 'm-click-up' : 'm-click-down'">
               </div>
           </div>
 

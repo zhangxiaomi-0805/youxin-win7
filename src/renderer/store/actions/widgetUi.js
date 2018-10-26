@@ -98,7 +98,7 @@ export function showListOptions ({state, commit}, obj) {
     callBack: () => obj.callBack(1)
   }
   let event8 = {
-    title: '删除会话',
+    title: '删除聊天',
     callBack: () => obj.callBack(2)
   }
   let event9 = {
@@ -110,10 +110,17 @@ export function showListOptions ({state, commit}, obj) {
     callBack: () => obj.callBack(4)
   }
   let event19 = {
-    title: '查看个人资料',
+    title: '查看资料',
     callBack: () => obj.callBack(5)
   }
-  // chatNotice
+  let event20 = {
+    title: '+常用联系人',
+    callBack: () => obj.callBack(6)
+  }
+  let event21 = {
+    title: '消息免打扰',
+    callBack: () => obj.callBack(7)
+  }
   let event10 = {
     title: '添加成员',
     callBack: () => obj.callBack(1)
@@ -121,6 +128,10 @@ export function showListOptions ({state, commit}, obj) {
   let event11 = {
     title: '移出成员',
     callBack: () => obj.callBack(2)
+  }
+  let event00 = {
+    title: '搜索成员',
+    callBack: () => obj.callBack(3)
   }
   let event12 = {
     title: '发消息',
@@ -142,9 +153,18 @@ export function showListOptions ({state, commit}, obj) {
     title: '添加联系人',
     callBack: () => obj.callBack(5)
   }
-  let event18 = {
-    title: '发起群聊',
-    callBack: () => obj.callBack()
+  // let event18 = {
+  //   title: '发起群聊',
+  //   callBack: () => obj.callBack()
+  // }
+  // 创建
+  let event30 = {
+    title: '创建群',
+    callBack: () => obj.callBack(1)
+  }
+  let event31 = {
+    title: '创建讨论组',
+    callBack: () => obj.callBack(2)
   }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {
@@ -160,22 +180,22 @@ export function showListOptions ({state, commit}, obj) {
   // 选择会话
   if (obj.key === 'p2p-notTop') {
     items = [
-      event7, event8, event19
+      event7, event19, event8, event20
     ]
   }
   if (obj.key === 'p2p-isTop') {
     items = [
-      event9, event8, event19
+      event9, event19, event8, event20
     ]
   }
   if (obj.key === 'team-notTop') {
     items = [
-      event7, event8, event17
+      event7, event21, event8, event17
     ]
   }
   if (obj.key === 'team-isTop') {
     items = [
-      event9, event8, event17
+      event9, event21, event8, event17
     ]
   }
   // 选择自己的text
@@ -214,16 +234,16 @@ export function showListOptions ({state, commit}, obj) {
       event5, event4
     ]
   }
-  // 群设置（添加、移出成员）
+  // 群成员管理（添加、移出成员）---群主
   if (obj.key === 'team-member') {
     items = [
-      event10, event11
+      event00, event10, event11
     ]
   }
   // 群设置（群主）
   if (obj.key === 'owner-send-set') {
     items = [
-      event12, event13, event15
+      event12, event20, event15
     ]
   }
   if (obj.key === 'owner-send-remove') {
@@ -273,10 +293,10 @@ export function showListOptions ({state, commit}, obj) {
       event16
     ]
   }
-  // 发起群聊
+  // 创建群&讨论组
   if (obj.key === 'launch-chat') {
     items = [
-      event18
+      event30, event31
     ]
   }
 

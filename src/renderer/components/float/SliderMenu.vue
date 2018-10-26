@@ -1,7 +1,13 @@
 <template>
 <!-- 侧滑菜单 -->
 <div id="sliderMenu" :class="className" v-clickoutside="closeMenu">
-  <h4>{{this.scene === 'p2p' ? '聊天设置' : '群设置'}}</h4>
+  <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
+    <h4>{{this.scene === 'p2p' ? '聊天设置' : '群设置'}}</h4>
+    <div style="width: 24px; height: 24px" v-if="this.scene !== 'p2p'">
+      <img src="../../../../static/img/setting/er-wei-ma.png" alt="" style="width: 100%">
+    </div>
+  </div> 
+
   <div v-if='scene === "p2p"'>
     <ul class="m-u-list">
       <li class="m-u-list-item"><a class="add-parentNode" @click="createTeam()"><div class="b-add"/><div class="t-style t-add">添加</div></a></li>
@@ -52,19 +58,26 @@
     </div>
     <div class="team-block">
       <div style="display:none;">{{nickInTeam}}</div>
-      <div class="team-title" style="margin-bottom:0;">我在本群的昵称</div>
+      <div style="display: flex; flex-direction：row">
+        <div class="team-title" style="margin-bottom:0;" >我在本群的昵称</div>
+        <div style="width: 14px; height: 14px">
+          <img src="../../../../static/img/setting/edit-nick-name.png" alt="" style="width: 100%">
+        </div>
+      </div>
       <input
-        ref="myNick"
-        :class="isActive2 ? 'team-input active' : 'team-input'"
-        type="text"
-        maxlength="16"
-        placeholder="请输入你在本群的昵称"
-        v-model="myNick"
-        @focus="setStyle(2)"
-        @blur="modifyNickInTeam"
-        @keyup="keyupModifyNickInTeam($event)">
+          @mouseover="showEditIcon = true"
+          @mouseout="showEditIcon = false"
+          ref="myNick"
+          :class="isActive2 ? 'team-input active' : 'team-input'"
+          type="text"
+          maxlength="16"
+          placeholder="请输入你在本群的昵称"
+          v-model="myNick"
+          @focus="setStyle(2)"
+          @blur="modifyNickInTeam"
+          @keyup="keyupModifyNickInTeam($event)">
     </div>
-    <!-- <div class="team-block">
+    <div class="team-block">
       <div style="display:none;">{{muteNotiType}}</div>
       <div class="team-title">消息提醒</div>
       <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
@@ -76,7 +89,7 @@
       <a class="t-btn" @click="toggleRemindType(1)">
         <a :class="remindMsgType === 1 ? 'radio-active' : 'radio'"></a><span>不提醒任何消息</span>
       </a>
-    </div> -->
+    </div>
     <div class="team-block">
       <div class="team-title">置顶聊天</div>
       <a 
@@ -87,7 +100,7 @@
         <a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span>
       </a>
     </div>
-    <div class="team-block" v-if="power !== 'normal'">
+    <!-- <div class="team-block" v-if="power !== 'normal'">
       <div class="team-title">群资料修改权限</div>
       <a 
         class="t-btn" 
@@ -103,14 +116,16 @@
       >
         <a :class="teamMode === 'all' ? 'radio-active' : 'radio'"></a><span>所有人</span>
       </a>
-    </div>
+    </div> -->
     <div class="team-block" v-if="power === 'owner'">
-      <div class="team-title">
-        <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span>
+      <div class="team-title-two">
+        <!-- <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span> -->
+        <span>当前群聊人数上限200，升级为500人</span>
       </div>
       <div class="set-manager">
-        <a class="b-add-manager" @click="addManager"><i></i><span>添加管理员</span></a>
-        <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a>
+        <a class="b-update-manager"  @click="updateTeam"><span>升级</span></a>
+        <!-- <a class="b-add-manager" @click="addManager"><i></i><span>添加管理员</span></a>
+        <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a> -->
       </div>
     </div>  
     <div class="team-block" v-if="power !== 'owner'">
@@ -120,7 +135,7 @@
       <div class="team-title">群转让：</div><a class="b-edit" @click="transferTeam">群转让</a>
     </div>
     <div class="team-block" v-if="power === 'owner'">
-      <div class="team-title">解散群：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="dismissTeam">解散群</a>
+      <div class="team-title">群解散：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="dismissTeam">解散群</a>
     </div>
   </div>
 </div>
@@ -150,7 +165,8 @@ export default {
       avatar: '',
       isActive1: false,
       isActive2: false,
-      remindMsgType: 1
+      remindMsgType: 1,
+      showEditIcon: false
     }
   },
   computed: {
@@ -526,6 +542,11 @@ export default {
       this.$store.commit('toggleSlideMenuStatus', 3)
       this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 2, teamInfo: this.teamInfo})
     },
+    updateTeam () {
+      // 升级群
+      this.$store.commit('toggleSlideMenuStatus', 3)
+      this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 3})
+    },
     toggleRemindType (type) {
       if (this.remindMsgType === type) return
       // 消息提醒
@@ -546,11 +567,11 @@ export default {
     position: absolute;
     top: 31px;
     right: -226px;
-    width: 220px;
+    width: 240px;
     height: 100%;
     background-color: #fff;
     box-shadow: -0.2rem 0 0.4rem -0.1rem #ccc;
-    padding: 24px 20px 56px;
+    padding: 24px 12px 40px 17px;
     background: rgba(250,250,250,1);
     z-index: 50;
     overflow-y: auto;
@@ -558,7 +579,7 @@ export default {
   }
   .m-slidermenu.team {
     right: -266px;
-    width: 260px;
+    width: 268px;
   }
 
   .m-slidermenu > h4 {
@@ -830,6 +851,13 @@ export default {
     text-overflow:ellipsis;
     white-space:nowrap;
   }
+  .m-slidermenu .team-block .team-title-two {
+    width: 100%;
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 7px;
+    word-break: break-all
+  }
 
   .m-slidermenu .team-block .team-input {
     box-sizing: border-box;
@@ -866,7 +894,7 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: 97px;
+    width: 50px;
     height: 26px;
     background: rgba(242,242,242,1);
     border-radius: 2px;

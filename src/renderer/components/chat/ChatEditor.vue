@@ -25,22 +25,39 @@
       </div>
     </div>
     <div class="u-editor-icons">
-      <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
-        <a class="b-common b-emoji"/>
+      <div style="display: flex, flex-direction: row, align-items: center, ">   
+        <!-- 表情 -->
+        <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
+          <a class="b-common b-emoji"/>
+        </div>
+        <!-- 截图 -->
+        <div v-if="!isRobot" class="u-editor-icon" @click="screenShot">
+          <a class="b-common b-screenshot"/>
+        </div>
+        <!-- 图片 -->
+        <div v-if="!isRobot" class="u-editor-icon" @click="createInput" style="cursor: pointer">
+          <!-- <i class="u-icon-img">
+            <img :src="icon2"/>
+          </i> -->
+          <a class="b-common b-image" style="cursor: pointer;"> 
+          </a>  
+        </div>
+        <!-- 文件 -->
+        <div v-if="!isRobot" class="u-editor-icon" @click="createInput" >
+          <a class="b-common b-file"/>
+        </div>
+        <!-- 远程协助 -->
+        <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
+          <a class="b-common b-remote"/>
+        </div>
       </div>
-      <div v-if="!isRobot" class="u-editor-icon" @click="screenShot">
-        <a class="b-common b-screenshot"/>
+      <!-- 短信发送 -->
+      <div v-if="!isRobot" class="u-editor-icon" 
+        style="padding-right: 30px"
+        @click.stop="showEmoji">
+        <a class="b-common b-message"/>
       </div>
-      <div v-if="!isRobot" class="u-editor-icon" @click="createInput" style="cursor: pointer">
-        <!-- <i class="u-icon-img">
-          <img :src="icon2"/>
-        </i> -->
-        <a class="b-common b-image" style="cursor: pointer;"> 
-        </a>  
-      </div>
-      <!-- <div v-if="!isRobot" class="u-editor-icon">
-        <a class="b-common b-file"/>
-      </div> -->
+       
       <!-- <div v-if="!isRobot" class="u-editor-icon">
         <a class="b-common b-microphone"/>
       </div>
@@ -48,6 +65,7 @@
         <a class="b-common b-camera"/>
       </div> -->
     </div>
+    
     <a class="u-positive-btn btn-send" @click="sendBlendMsg">发 送</a>
   </div>
 </div>
@@ -1154,12 +1172,13 @@ export default {
     display: inline-block;
     left: 0;
     top: 0;
-    width: 11rem;
+    width: 100%;
     height: 2rem;
     padding-left: 16px;
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: space-between
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .u-editor-icon{
@@ -1230,6 +1249,50 @@ export default {
 
 .g-window .m-chat-editor-main .u-editor-icons .b-file:active {
   background-image: url('../../../../static/img/edit/file-p.png');
+}
+
+/* 发送文件 */
+.g-window .m-chat-editor-main .u-editor-icons .b-file {
+  background-image: url('../../../../static/img/edit/file.png');
+  background-size: 100% 100%;
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .b-file:hover, .b-file:focus {
+  background-image: url('../../../../static/img/edit/file-h.png');
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .b-file:active {
+  background-image: url('../../../../static/img/edit/file-p.png');
+}
+
+/* 远程协助 */
+.g-window .m-chat-editor-main .u-editor-icons .b-remote {
+  background-image: url('../../../../static/img/edit/remote.png');
+  background-size: 100% 100%;
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .b-remote:hover, .b-remote:focus {
+  background-image: url('../../../../static/img/edit/remote-h.png');
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .b-remote:active {
+  background-image: url('../../../../static/img/edit/remote-p.png');
+}
+
+/* 短信发送 */
+.g-window .m-chat-editor-main .u-editor-icons .b-message {
+  background-image: url('../../../../static/img/edit/message.png');
+  background-size: 22px 22px;
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .b-message:hover, .b-message:focus {
+  background-image: url('../../../../static/img/edit/message-h.png');
+  background-size: 22px 22px;
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .b-message:active {
+  background-image: url('../../../../static/img/edit/message-p.png');
+  background-size: 22px 22px;
 }
 
 /* 语音聊天 */

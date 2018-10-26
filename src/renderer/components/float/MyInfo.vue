@@ -11,17 +11,13 @@
           <a class="edit" @click="showInput" style="margin-right: 5px;"></a>
         </div>
         <div class="remarks" v-else>
-          <textarea
-            rows="2"
-            ref="input"
-            @focus="isActive = true"
-            @blur="updateFriend"
-            @keyup="keyToUpdate($event)"
-            :class="userInfos.alias ? 'memo-textarea active' : 'memo-textarea'"
-            type="text"
-            v-model="userInfos.alias"
-            maxsize="64"
-            placeholder="添加签名"/>
+            <div class="remarks-input">
+                <div @selectstart="preventDefault($event)" contenteditable="true"
+                  ref="editDiv" class="edit-div" 
+                  @input="changeMsg($event)"
+                  @click="changeEditRange($event)"
+                />
+            </div>
         </div>
       </div>
     </div>
@@ -46,8 +42,8 @@
             </ul>
         </div>
     </div>
-    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position}}</span></div>
-    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
+    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : '-'}}</span></div>
+    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.position ? userInfos.position : '-'}}</span></div>
  
   </div>
 </transition>
@@ -100,6 +96,13 @@ export default {
     }
   },
   methods: {
+    // 键盘输入
+    changeMsg (e) {
+      console.log(e.data)
+      if (e.data && e.data.length > 64) {
+        e.data = e.data.substring(0, 65)
+      }
+    },
     selectSex (index) {
       this.selectedIndex = index
       this.userInfos.sex = index + 1
@@ -229,7 +232,7 @@ export default {
     white-space:nowrap;
     cursor: default;
   }
-
+  /* 签名 */
   .m-checkuser-con .user-info-box .remarks {
     display: flex;
     flex-direction: row;
@@ -239,6 +242,35 @@ export default {
     margin-top: 8px;
     width: 200px
   }
+  .m-checkuser-con .user-info-box .remarks-input {
+    position: relative;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    border-bottom: 1px solid #049AFF
+  }
+  .m-checkuser-con .user-info-box .remarks-input .edit-div {
+    position: relative;
+    left: 0;
+    top: 0;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: none;
+    cursor: text;
+    font-size: 12px;
+    color: #333333;
+    height: 100%;
+    width: 100%;
+    word-break:break-all;
+    line-height: 21px;
+    text-align: left;
+    resize:none;
+    overflow-x:hidden;
+    overflow-y:auto;
+    outline: none;
+}
 
   .m-checkuser-con .user-info-box img {
     width: 42px;
@@ -296,33 +328,6 @@ export default {
     cursor: default;
   }
 
-  .m-checkuser-con .memo-textarea {
-    padding: 0;
-    margin: 0;
-    border: none;
-    border-color: transparent;
-    background-color: #fff;
-    font-size: 12px;
-    color: #333;
-    width: 100%;
-    font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    overflow:hidden;
-    text-overflow:ellipsis; 
-    text-align:left;
-    white-space:nowrap;
-    word-wrap: break-word;
-    word-break: break-all;
-    resize: none;
-    display: table-cell; 
-    vertical-align: middle
-  }
-  .m-checkuser-con .memo-textarea::-webkit-input-placeholder {
-    color: #ccc;
-  }
-  .m-checkuser-con .memo-textarea.active {
-    border-bottom: 1px solid rgba(79,141,255,1);
-  }
-
   .m-checkuser-con .edit {
     display: inline-block;
     width: 13px;
@@ -330,11 +335,8 @@ export default {
     background-repeat: no-repeat;
     background-position: center center;
     transition: all .2s linear;
-    background-image: url('../../../../static/img/setting/edit.png');
+    background-image: url('../../../../static/img/setting/edit-nick-name.png');
     background-size: 100% 100%;
-  }
-  .m-checkuser-con .edit:hover, .edit:focus {
-    background-image: url('../../../../static/img/setting/edit-h.png');
   }
   .select-sex-box {
     width: 44px;
@@ -360,7 +362,7 @@ export default {
     height: 60px;
     width: 52px;
     position: absolute;
-    bottom: 44px;
+    bottom: 68px;
     left: 96px;
     z-index: 100;
     border: 1px solid #ccc

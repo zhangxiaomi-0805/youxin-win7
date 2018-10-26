@@ -4,12 +4,19 @@
     <img @click="showUserCard($event)" :src="myInfo.avatar"/>
   </div>
   <div class="u-nav-status"><span>在线</span><i></i></div>
+  <!-- 单聊 -->
   <div @click="navTo('session')" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'"></div>
+  <!-- 常用联系人 -->
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'nav-item u-nav-friends z-sel' : 'u-nav-friends'"></div>
+  <!-- 群&讨论组 -->
   <div @click="navTo('team')" :class="selectedItem === 'team' ? 'nav-item u-nav-work z-sel' : 'u-nav-work'"></div>
+  <!-- 组织架构 -->
   <div @click="navTo('orgnize')" :class="selectedItem === 'orgnize' ? 'nav-item u-nav-jiagou z-sel' : 'u-nav-jiagou'"></div>
+  <!-- 第三方应用 -->
   <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'nav-item u-nav-yingyong z-sel' : 'u-nav-yingyong'"></div>
+  <!-- 添加-发起群聊 -->
   <div @click="launchChat($event)" class="u-nav-add"></div>
+  <!-- 设置 -->
   <div class="u-nav-setting" @click="eventBus.$emit('generalSetting', {show: true})"></div>
 </div>
 </template>
@@ -125,7 +132,7 @@ export default {
   .u-nav-session.z-sel{
     background: url(../../../../static/img/nav/main-tab-session-activated.png) no-repeat center center;
     background-size: 25px 25px;
-    background-color: #0089E4;
+    /* background-color: #0089E4; */
   }
   /* .u-nav-session.z-sel:active{
     background: url(../../../../static/img/nav/main-tab-session-activated-pushed.png) no-repeat center center;
@@ -147,7 +154,7 @@ export default {
   .u-nav-work.z-sel{
     background: url(../../../../static/img/nav/main-tab-qun-activated.png) no-repeat center center;
     background-size: 25px 25px;
-    background-color: #0089E4;
+    /* background-color: #0089E4; */
   }
   /* .u-nav-work.z-sel:active{
     background: url(../../../../static/img/nav/main-tab-qun-activated.png) no-repeat center center;
@@ -169,7 +176,7 @@ export default {
   .u-nav-friends.z-sel{
     background: url(../../../../static/img/nav/main-tab-friends-activated.png) no-repeat center center;
     background-size: 25px 25px;
-    background-color: #0089E4;
+    /* background-color: #0089E4; */
   }
   /* .u-nav-friends.z-sel:active{
     background: url(../../../../static/img/nav/main-tab-friends-activated-pushed.png) no-repeat center center;
@@ -191,7 +198,7 @@ export default {
   .u-nav-jiagou.z-sel{
     background: url(../../../../static/img/nav/main-tab-jiagou-activated.png) no-repeat center center;
     background-size: 25px 25px;
-    background-color: #0089E4;
+    /* background-color: #0089E4; */
   }
   /* .u-nav-jiagou.z-sel:active{
     background: url(../../../../static/img/nav/main-tab-jiagou-activated.png) no-repeat center center;
@@ -213,7 +220,7 @@ export default {
   .u-nav-yingyong.z-sel{
     background: url(../../../../static/img/nav/main-tab-third-activated.png) no-repeat center center;
     background-size: 25px 25px;
-    background-color: #0089E4;
+    /* background-color: #0089E4; */
   }
   .u-nav-yingyong.z-sel:active{
     background: url(../../../../static/img/nav/main-tab-third-activated.png) no-repeat center center;

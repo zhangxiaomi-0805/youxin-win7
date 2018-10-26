@@ -21,8 +21,10 @@
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
           <ul class="u-list" v-show="chooselist.length > 0">
             <li class="u-list-item" v-for="item in chooselist" :key="item.id" :id="item.id">
-              <img class="msg-img" :src="item.avatar || defaultUserIcon">
-              <span class="inline">{{item.name}}</span>
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <img class="msg-img" :src="item.avatar || defaultUserIcon">
+                <span class="inline">{{item.name}}</span>
+              </div>
               <span class="delete" @click="deleted(item)"></span>
             </li>
           </ul>
