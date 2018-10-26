@@ -351,11 +351,6 @@
                 this.$store.commit('updateContactslist', {data, type: 'replace'})
               })
               .catch(() => {})
-            IndexedDB.getAll('contactHistoryObj', 'object')
-              .then(data => {
-                this.$store.commit('updateContactHistoryObj', {data, type: 'init'})
-              })
-              .catch(() => {})
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {

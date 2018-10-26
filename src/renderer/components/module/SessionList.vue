@@ -460,9 +460,6 @@ export default {
   width: 2px;
   height: 100%;
   cursor: w-resize;
-  border-right-style: solid; 
-  border-right-width: 1px; 
-  border-color:rgb(210,212,214);
 }
 
 .u-list-item-isTop {

@@ -163,7 +163,8 @@ body,
     height:100%;
     margin-left: 69px;
     background: rgba(255,255,255,0.92);
-    /* border: 1px solid rgba(0,0,0,0.33); */
+    border: 0.5px solid rgba(0,0,0,0.33);
+    box-shadow: 1px 0 4px 0 #D1D1D1, 1px 0 0 0 #D6D6D6;
     border-left-width: 0;
 }
 
@@ -176,7 +177,7 @@ body,
     height:100%;
     background-color:white;
     border-right: 1px solid rgba(214,214,214,1);
-    /* box-shadow: 1px 0 4px 0 #D1D1D1, 1px 0 0 0 #D6D6D6; */
+    box-shadow: 1px 0 4px 0 #D1D1D1, 0.1px 0 0 0 #D6D6D6;
 }
 
 /* 主界面右侧内容容器样式 */
