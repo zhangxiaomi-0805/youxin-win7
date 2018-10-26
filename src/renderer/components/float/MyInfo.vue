@@ -5,19 +5,33 @@
     <div class="user-info-box">
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div>
-        <div class="nick" :title="userInfos.nick">{{userInfos.nick}}</div>
+        <transition name="fade">
+          <div v-if="showPrompt"
+            class="prompt"
+          >
+            {{userInfos.alias}}
+          </div>
+        </transition>
+        <div class="nick" >
+          {{userInfos.nick}}
+        </div>
         <div class="remarks" v-if="!hasSignMame" @click="hasSignMame = true">
           <span style="margin-right: 8px;">签名</span>
           <a class="edit" @click="showInput" style="margin-right: 5px;"></a>
         </div>
-        <div class="remarks" v-else>
-            <div class="remarks-input">
-                <div @selectstart="preventDefault($event)" contenteditable="true"
-                  ref="editDiv" class="edit-div" 
-                  @input="changeMsg($event)"
-                  @click="changeEditRange($event)"
-                />
-            </div>
+        <div class="remarks" v-else
+          @mouseover="showPrompt = true"
+          @mouseout="showPrompt = false">
+          <input
+            ref="input"
+            @blur="updateFriend"
+            @keyup="keyToUpdate($event)"
+            :class="isActive ? 'memo-input active' : 'memo-input'"
+            type="text"
+            style="width: 200px; border-bottom: 1px solid #049AFF"
+            v-model="userInfos.alias"
+            maxlength="128"
+            placeholder="添加签名">
         </div>
       </div>
     </div>
@@ -81,7 +95,8 @@ export default {
       isActive: false,
       sexList: [{name: '男'}, {name: '女'}, {name: '保密'}],
       showSexModal: false,
-      selectedIndex: 0
+      selectedIndex: 0,
+      showPrompt: false
     }
   },
   computed: {
@@ -233,6 +248,7 @@ export default {
     cursor: default;
   }
   /* 签名 */
+
   .m-checkuser-con .user-info-box .remarks {
     display: flex;
     flex-direction: row;
@@ -240,44 +256,31 @@ export default {
     font-size: 14px;
     color: #999;
     margin-top: 8px;
-    width: 200px
+    width: 200px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
-  .m-checkuser-con .user-info-box .remarks-input {
-    position: relative;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    border-bottom: 1px solid #049AFF
-  }
-  .m-checkuser-con .user-info-box .remarks-input .edit-div {
-    position: relative;
-    left: 0;
-    top: 0;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border: none;
-    cursor: text;
-    font-size: 12px;
-    color: #333333;
-    height: 100%;
-    width: 100%;
-    word-break:break-all;
-    line-height: 21px;
-    text-align: left;
-    resize:none;
-    overflow-x:hidden;
-    overflow-y:auto;
-    outline: none;
-}
-
   .m-checkuser-con .user-info-box img {
     width: 42px;
     height: 42px;
     border-radius: 50%;
     margin-right: 10px;
   } 
+  .m-checkuser-con .user-info-box .prompt {
+    position: absolute;
+    top: 100px; 
+    left: 90px;
+    z-index: 1002;
+    background-color: #fff;
+    padding: 5px;
+    font-size: 12px;
+    line-height: 16px;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
+    width: 200px;
+    word-break:break-all;
+    cursor: default;
+  }
 
   .m-checkuser-con .user-tel, .m-checkuser-con .user-sex {
     display: flex;
