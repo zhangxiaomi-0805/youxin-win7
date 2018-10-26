@@ -1,5 +1,5 @@
 <template>
-<!-- 联系人 -->
+<!-- 组织架构 -->
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
   <div class="u-search">
     <div class="u-cont">
@@ -7,20 +7,25 @@
       <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
     </div>
   </div>
-  <div class="contact-con">
-
-  </div>
+  <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop"><tree/></div>
   <div class="border" id="resize-we"></div>
 </div>
 </template>
 
 <script>
+import Tree from '../tree/Tree.vue'
 export default {
-  name: 'contacts-list',
+  name: 'orgnize-list',
+  components: {Tree},
   data () {
     return {
+      scrollTop: 0,
       searchValue: ''
     }
+  },
+  activated () {
+    // 重置滚动条位置、重置路由
+    this.$refs.contactCon.scrollTop = this.scrollTop
   }
 }
 </script>

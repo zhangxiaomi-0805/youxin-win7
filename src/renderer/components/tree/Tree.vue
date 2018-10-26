@@ -26,29 +26,6 @@
       </div>
     </div>
   </div>
-  <div v-if="showTeam" style="marginBottom: 5px;">
-    <a class="t-list" @click="teamopen = !teamopen">
-      <div class="t-center t-title">
-        <div class="t-center"><span class="t-team"></span><span style="line-height: 14px;">{{grouplist.length > 0 ? `群组（${grouplist.length}）` : '群组'}}</span></div>
-        <span :class="teamopen ? 't-up' : 't-down'"/>
-      </div>
-    </a>
-    <div :class="teamopen ? 't-body active' : 't-body'">
-      <ul class="t-u-list" v-if="grouplist.length > 0">
-        <li 
-          :class="group.teamId === groupSelectId ? 't-u-list-item t-center active' : 't-u-list-item t-center'"
-          v-for="group in grouplist" 
-          :key="group.id" 
-          :id="group.id"
-          @click="groupSelectHandle(group.teamId)"
-        >
-          <img :src="group.avatar || defaultIcon"/>
-          <span class="teamname" :title="group.name">{{group.name}}</span>
-        </li>
-      </ul>
-      <div v-else class="empty">您还没有加入、创建任何群组哦~</div>
-    </div>
-  </div>
 </div>
 </template>
 
@@ -56,7 +33,6 @@
 import configs from '../../configs/index.js'
 import TreeItem from './TreeItem.vue'
 import Fetch from '../../utils/fetch.js'
-// import listSort from '../../utils/listSort.js'
 export default {
   name: 'tree',
   props: {
@@ -69,12 +45,10 @@ export default {
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
       orginzeopen: false, // 组织机构展开状态
-      teamopen: false, // 群展开状态
       companyopen: false, // 公司展开状态
       companyInfo: {}, // 公司信息
       orgSelectId: -1, // 选中组织成员id
-      orgSelectLevel: -1, // 选中组织成员所属组织
-      groupSelectId: -1 // 选中群组id
+      orgSelectLevel: -1 // 选中组织成员所属组织
     }
   },
   mounted () {
@@ -83,12 +57,6 @@ export default {
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
-    },
-    grouplist () {
-      let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser
-      })
-      return grouplist
     },
     createTeamSelect () {
       return this.$store.state.createTeamSelect
@@ -114,8 +82,6 @@ export default {
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', user})
         return false
       }
-      // 清空群组选中状态
-      this.groupSelectId = -1
       if ((user.id === this.orgSelectId) && (user.level === this.orgSelectLevel)) {
         return false
       }
@@ -123,17 +89,6 @@ export default {
       this.orgSelectLevel = user.level
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', id: user.id, accid: user.accid})
       this.$router.push({name: 'namecard', query: {pageType: 'p2p', id: user.id, accid: user.accid}})
-    },
-    groupSelectHandle (teamId) {
-      // 清空组织选中状态
-      this.orgSelectId = -1
-      this.orgSelectLevel = -1
-      if (teamId === this.groupSelectId) {
-        return false
-      }
-      this.groupSelectId = teamId
-      this.$store.commit('upadteContactSelectObj', {type: 'team', id: teamId})
-      this.$router.push({name: 'namecard', query: {pageType: 'team', id: teamId}})
     },
     toggleCheck () {
       // 切换公司展开状态
