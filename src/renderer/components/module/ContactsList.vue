@@ -1,11 +1,5 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <!--<router-link :to="{name:'sysmsgs'}">
-      <div class="contacts-box-item">
-          <img class="icon" slot="icon" width="24" :src="myPhoneIcon">
-          我的手机
-      </div>
-  </router-link>-->
 
   <div v-if="contactslist.length > 0" class="u-search">
     <div class="u-cont">
@@ -15,7 +9,7 @@
   </div>
  
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
-  <div class="u-nomsg" v-if="contactslist.length <= 0">暂无聊天消息~~</div>
+  <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>
   <search v-if="searchValue" type="contacts" :value="searchValue" />
 
    <div class="contacts-title">
@@ -109,6 +103,7 @@ export default {
   },
   data () {
     return {
+      timer: null,
       activeId: '',
       scrollTop: 0,
       searchValue: '',
@@ -116,7 +111,7 @@ export default {
       myPhoneIcon: config.myPhoneIcon,
       myGroupIcon: config.defaultGroupIcon,
       myAdvancedIcon: config.defaultAdvancedIcon,
-      contactslist: [{type: 1, id: 1, avatar: config.defaultUserIcon, name: '产品-叶晓晓', status: '在线', signName: '做一个有志气的胖纸,哈哈哈哈哈'}, {type: 1, id: 2, avatar: config.defaultUserIcon, name: '测试-黄灿灿', status: '在线', signName: '做一个有志气的胖纸'}, {type: 2, id: 3, avatar: config.defaultGroupIcon, name: '优信开发群', status: '在线', signName: '敲代码敲代码'}]
+      contactslist: [{scene: 'p2p', id: 1, avatar: config.defaultUserIcon, name: '产品-叶晓晓', status: '在线', signName: '做一个有志气的胖纸,哈哈哈哈哈'}, {scene: 'p2p', id: 2, avatar: config.defaultUserIcon, name: '测试-黄灿灿', status: '在线', signName: '做一个有志气的胖纸'}, {scene: 'team', id: 3, avatar: config.defaultGroupIcon, name: '优信开发群', status: '在线', signName: '敲代码敲代码'}]
     }
   },
   computed: {
@@ -132,18 +127,22 @@ export default {
   },
   methods: {
     toggleNameCard (contacts) {
-      // 单击切换个人名片
-      let contactId = contacts.id
-      let pageType = contacts.type === 1 ? 'p2p' : 'team'
-      this.$router.push({name: 'namecard', query: {pageType, id: contactId, firstFlag: true}})
-      this.eventBus.$emit('checkUser', {})
+      clearTimeout(this.timer) // 首先清除计时器
+      this.timer = setTimeout(() => {
+        // 单击切换个人名片
+        let contactId = contacts.id
+        let pageType = contacts.scene
+        this.$router.push({name: 'namecard', query: {pageType, id: contactId, firstFlag: true}})
+        // this.eventBus.$emit('checkUser', {})
+      }, 300) // 大概时间300ms
     },
     toggleSession (contacts) {
+      clearTimeout(this.timer) // 清除
       // 双击切换聊天
       let contactId = contacts.id
       let pageType = contacts.type === 1 ? 'p2p' : 'team'
       this.$router.push({name: 'chat', query: {pageType, id: contactId, firstFlag: true}})
-      this.eventBus.$emit('checkUser', {})
+      // this.eventBus.$emit('checkUser', {})
     }
   }
 }

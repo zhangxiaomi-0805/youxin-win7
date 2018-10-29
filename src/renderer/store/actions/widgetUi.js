@@ -285,7 +285,7 @@ export function showListOptions ({state, commit}, obj) {
   // 群设置（普通成员）
   if (obj.key === 'normal-send') {
     items = [
-      event12
+      event12, event19, event20
     ]
   }
   if (obj.key === 'normal-add') {

@@ -25,13 +25,13 @@
     </div>
     <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
-    <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
+    <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.tel">{{userInfos.tel}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
    
     <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
-    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">-</span></div>
-    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">业务与渠道支撑部</span></div>
-    <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.email">-</span></div>
+    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : "-"}}</span></div>
+    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.jobNum ? userInfos.jobNum : "-"}}</span></div>
+    <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.alias">{{userInfos.alias ? userInfos.alias : "-"}}</span></div>
     <!-- <a v-if="!isSelf" class="sendmsg">添加为联系人</a> -->
     <!-- <a class="sendmsg" @click="sendMsg()">发消息</a> -->
     <!-- <a v-if="!isSelf" class="call">语音通话</a> -->
@@ -48,6 +48,7 @@ export default {
   directives: {clickoutside},
   mounted () {
     this.eventBus.$on('checkUser', (data) => {
+      console.log(data)
       if (data.userInfos === 1) {
         // 打开本人名片
         this.userInfos = Object.assign(this.myInfo, this.personInfos)

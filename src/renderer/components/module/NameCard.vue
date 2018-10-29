@@ -51,10 +51,12 @@ export default {
     }
   },
   mounted () {
+    console.log('挂载')
     this.getUserInfos()
   },
   computed: {
     pageType () {
+      console.log('计算')
       let pageType = this.$route.query.pageType
       return pageType
     },
