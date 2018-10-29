@@ -566,7 +566,7 @@ export default {
     box-sizing: border-box;
     position: absolute;
     top: 31px;
-    right: -226px;
+    right: -240px;
     width: 240px;
     height: 100%;
     background-color: #fff;
@@ -578,7 +578,7 @@ export default {
     display: block;
   }
   .m-slidermenu.team {
-    right: -266px;
+    right: -268px;
     width: 268px;
   }
 
@@ -599,41 +599,41 @@ export default {
   }
 
   .m-slidermenu.k-moveright {
-    right: -226px;
+    right: -240px;
     animation: moveRight 500ms;
   }
   .m-slidermenu.k-moveright.team {
-    right: -266px;
+    right: -268px;
     animation: moveRightTeam 500ms;
   }
 
   .m-slidermenu.k-display {
-    right: -226px;
+    right: -240px;
     display: none;
   }
   .m-slidermenu.k-display.team {
-    right: -266px;
+    right: -268px;
     display: none;
   }
 
   @keyframes moveLeft {
-    from { right: -226px }
+    from { right: -240px }
     to { right: 0 }
   }
 
   @keyframes moveRight {
     from { right: 0 }
-    to { right: -226px }
+    to { right: -240px }
   }
 
   @keyframes moveLeftTeam {
-    from { right: -266px }
+    from { right: -268px }
     to { right: 0 }
   }
 
   @keyframes moveRightTeam {
     from { right: 0 }
-    to { right: -266px }
+    to { right: -268px }
   }
 
   .m-slidermenu .m-u-list {
