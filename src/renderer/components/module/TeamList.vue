@@ -7,8 +7,14 @@
       <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
     </div>
   </div>
+  <div class="t-title-con">
+    <div class="t-title">
+      <a :class="listType === 'team' ? 't-title-item t-title-team active' : 't-title-item t-title-team'" @click="toggleList('team')">交流群</a>
+      <a :class="listType === 'group' ? 't-title-item t-title-group active' : 't-title-item t-title-group'" @click="toggleList('group')">讨论组</a>
+    </div>
+  </div>
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
-    <ul class="u-list t-u-list" v-if="grouplist.length > 0">
+    <ul class="u-list t-u-list" v-if="grouplist.length > 0 && listType === 'team'">
       <li
         :class='activeId === group.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
         v-for="group in grouplist"
@@ -38,7 +44,8 @@ export default {
     return {
       scrollTop: 0,
       searchValue: '',
-      activeId: ''
+      activeId: '',
+      listType: 'team'
     }
   },
   computed: {
@@ -58,6 +65,10 @@ export default {
       if (this.activeId === group.teamId) return
       this.activeId = group.teamId
       this.callBack({teamId: group.teamId})
+    },
+    toggleList (value) {
+      if (this.listType === value) return
+      this.listType = value
     }
   }
 }
@@ -66,7 +77,7 @@ export default {
 <style scoped>
   .contact-con {
     position: absolute;
-    top: 56px;
+    top: 120px;
     bottom: 0;
     width: 100%;
   }
@@ -88,9 +99,9 @@ export default {
   .t-u-list-item {
     justify-content: space-between;
     width: 100%;
-    height: 68px;
+    height: 67px;
     box-sizing: border-box;
-    padding: 0 12px;
+    padding: 0 10px;
     cursor: default;
   }
   .t-u-list-item img {
@@ -105,11 +116,56 @@ export default {
 
   .t-u-list-item .teamname {
     font-size: 14px;
-    padding-left: 10px;
+    padding-left: 11px;
+    color: rgba(51,51,51,1);
   }
 
   .t-u-list-item .t-num {
-    font-size: 13px;
-    color: #999;
+    font-size: 14px;
+    color: rgba(153,153,153,1);
+  }
+
+  .t-title-con {
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: 64px;
+    padding: 10px 0 24px;
+  }
+  .t-title-con .t-title {
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width:143px;
+    height:30px;
+    border-radius:4px;
+    border:1px solid #049AFF;
+  }
+  .t-title-con .t-title-item {
+    width: 50%;
+    height: 100%;
+    line-height: 27px;
+    text-align: center;
+    color: rgba(51,51,51,1);
+    font-size: 15px;
+    transition: opacity .3s linear;
+  }
+  .t-title-con .t-title-item:hover {
+    opacity: 0.7;
+  }
+
+  .t-title-con .t-title-item.active {
+    color: rgba(255,255,255,1);
+    background-color: #049AFF;
+  }
+
+  .t-title-con .t-title-team {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+  }
+  .t-title-con .t-title-group {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
   }
 </style>
