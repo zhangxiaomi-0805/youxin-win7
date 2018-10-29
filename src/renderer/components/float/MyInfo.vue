@@ -275,9 +275,11 @@ export default {
     background-color: #fff;
     padding: 5px;
     font-size: 12px;
-    line-height: 16px;
-    box-shadow: 0 0 10px 0 rgba(0,0,0,0.30);
-    width: 200px;
+    color: #666;
+    line-height: 17px;
+    border: 1px solid rgba(4,154,155,0.3);
+    box-shadow: 0 0 12px 0 rgba(0,101,170,0.22);
+    width: 188px;
     word-break:break-all;
     cursor: default;
   }
