@@ -2,9 +2,9 @@
 <!-- 组织树 -->
 <div>
   <div style="marginBottom: 5px;">
-    <a class="t-list" @click="toggleOrg">
+    <a v-if="showTitle" class="t-list" @click="toggleOrg">
       <div class="t-center t-title">
-        <div class="t-center"><span class="t-orgn"></span><span style="line-height: 14px;">{{`组织架构（${companyInfo.totalNum || 0}人）`}}</span></div>
+        <div class="t-center"><span style="line-height: 14px;">组织架构</span></div>
         <span :class="orginzeopen ? 't-up' : 't-down'"/>
       </div>
     </a>
@@ -36,6 +36,7 @@ import Fetch from '../../utils/fetch.js'
 export default {
   name: 'tree',
   props: {
+    showTitle: Boolean,
     showTeam: Boolean,
     showCheck: Boolean,
     callBack: Function
@@ -45,7 +46,7 @@ export default {
     return {
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
-      orginzeopen: false, // 组织机构展开状态
+      orginzeopen: !this.showTitle, // 组织机构展开状态
       companyopen: false, // 公司展开状态
       companyInfo: {}, // 公司信息
       orgSelectId: -1, // 选中组织成员id
@@ -201,8 +202,6 @@ export default {
     height: 0;
   }
   .t-body.active {
-    padding-top: 10px;
-    padding-bottom: 8px;
     height: auto;
   }
 
@@ -246,9 +245,9 @@ export default {
     align-items: center;
     box-sizing: border-box;
     width: 100%;
-    min-height: 30px;
-    padding-left: 12px;
-    padding-right: 12px;
+    min-height: 36px;
+    padding-left: 11px;
+    padding-right: 11px;
     font-size: 14px;
     line-height: 14px;
     color: #999;

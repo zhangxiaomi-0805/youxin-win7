@@ -14,13 +14,15 @@
     </div>
   </div>
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
-    <ul class="u-list t-u-list" v-if="grouplist.length > 0 && listType === 'team'">
+    <ul class="u-list t-u-list" v-show="grouplist.length > 0 && listType === 'team'">
       <li
         :class='activeId === group.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
+        :style="hasBorder && group.id === acSessionId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
         v-for="group in grouplist"
         :key="group.id" 
         :id="group.id"
         @click="checkCard(group)"
+        @mouseup.stop="onShowMenu($event, group)"
       >
         <div class="t-list-item-left t-center">
           <img :src="group.avatar || defaultIcon"/>
@@ -54,6 +56,15 @@ export default {
         return item.valid && item.validToCurrentUser
       })
       return grouplist
+    },
+    hasBorder () {
+      if (this.$store.state.showListOptions) {
+        return true
+      }
+      return false
+    },
+    acSessionId () {
+      return this.$store.state.sessionAc
     }
   },
   activated () {
@@ -69,6 +80,12 @@ export default {
     toggleList (value) {
       if (this.listType === value) return
       this.listType = value
+    },
+    onShowMenu (e, session) {
+      // 单个列表右击事件
+      if (e.button === 2) {
+        // to do soming
+      }
     }
   }
 }
