@@ -6,29 +6,19 @@
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
-          <!-- <div>
-            <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
-            <div class="remarks">
-              <span style="margin-right: 8px;">备注名</span>
-              <a v-if="!isActive" class="edit" @click="showInput" style="margin-right: 5px;"></a>
-              <input
-                ref="input"
-                :disabled="!isActive"
-                :class="isActive ? 'memo-input active' : 'memo-input'"
-                type="text"
-                v-model="userInfos.alias"
-                maxlength="16"
-                placeholder="添加备注名">
-            </div>
-          </div> -->
         </div>
-        <div class="user-tel"><span>职位</span><span class="line" :style="{color: userInfos.position ? '#333' : '#999'}" :title="userInfos.position">{{userInfos.position || '未设置'}}</span></div>
-        <div class="user-tel"><span>工号</span><span class="line" :style="{color: userInfos.jobNum ? '#333' : '#999'}" :title="userInfos.jobNum">{{userInfos.jobNum || '未设置'}}</span></div>
+        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
         <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
+        <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
         <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
-        <div class="user-email"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
-        <a v-if="userInfos.userStatus === 2" class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
-        <a v-else class="notActive">该成员未激活</a>
+      
+        <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
+        <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">-</span></div>
+        <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">业务与渠道支撑部</span></div>
+        <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.email">-</span></div>
+        
+        <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
+        <a class="deleteContact">删除常用联系人</a>
       </div>
       <div class="nc-team" v-else-if="pageType === 'team'">
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
@@ -49,7 +39,8 @@ export default {
     return {
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
-      isActive: false
+      isActive: false,
+      pageType: 'p2p'
     }
   },
   mounted () {
@@ -272,7 +263,8 @@ export default {
     width: 100%;
     height: 36px;
     line-height: 36px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    margin-top: 25px;
     text-align: center;
     color: #fff;
     font-size: 14px;
@@ -350,5 +342,18 @@ export default {
   }
   .nc-p2p .edit:hover, .edit:focus {
     background-image: url('../../../../static/img/setting/edit-h.png');
+  }
+  .deleteContact {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #F2F2F2;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .2s linear;
+    color: #F43530;
+    font-size: 14px;
   }
 </style>
