@@ -156,7 +156,7 @@ body,
     align-items: center;
     float:left;
     -webkit-app-region: drag;
-    background-color: rgba(79,141,255,1);
+    background-color: rgba(4,154,255,1);
 }
 
 .g-window .m-main {

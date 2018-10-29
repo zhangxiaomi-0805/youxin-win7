@@ -68,24 +68,6 @@ export default {
     this.eventBus.$on('toggleSelect', function (data) {
       _this.activeId = data.contactsId
     })
-    // 默认加载第一个会话
-    this.$nextTick(() => {
-      let contacts = this.contactsList[0]
-      contacts && this.$refs[contacts.id][0].click()
-    })
-  },
-  watch: {
-    contactsList (newData, oldData) {
-      if (this.activeId) return
-      // 默认加载第一个会话
-      if (newData[0]) {
-        this.$nextTick(() => {
-          if (this.$refs[newData[0].id]) {
-            this.$refs[newData[0].id][0].click()
-          }
-        })
-      }
-    }
   },
   activated () {
     // 重新加载聊天页

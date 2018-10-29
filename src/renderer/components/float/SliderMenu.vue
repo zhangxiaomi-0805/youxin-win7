@@ -27,7 +27,7 @@
         <div class="t-style title">消息免打扰</div>
         <a class="t-btn" @click="openNoMsg"><a :class="isMute ? 'toggle-active' : 'toggle'"></a><span>{{isMute ? '关闭' : '开启'}}</span></a>
       </div>
-      <div class="m-setting-u" style="border-bottom:none;"><div class="t-style title" style="margin-bottom: 10px;">清空聊天记录</div><a class="empty" @click="clearRecord">清空</a></div>
+      <div class="m-setting-u" style="border-bottom:none;"><div class="t-style title" style="margin-bottom: 10px;">聊天记录</div><a class="empty" @click="clearRecord">清 空</a></div>
     </div>
   </div>
   <div v-else>
@@ -60,9 +60,9 @@
       <div style="display:none;">{{nickInTeam}}</div>
       <div style="display: flex; flex-direction：row">
         <div class="team-title" style="margin-bottom:0;" >我在本群的昵称</div>
-        <div style="width: 14px; height: 14px">
+        <!-- <div style="width: 14px; height: 14px">
           <img src="../../../../static/img/setting/edit-nick-name.png" alt="" style="width: 100%">
-        </div>
+        </div> -->
       </div>
       <input
           @mouseover="showEditIcon = true"
@@ -637,6 +637,7 @@ export default {
   }
 
   .m-slidermenu .m-u-list {
+    margin-top: 10px;
     height: auto;
     border-bottom: 1px solid #ccc;
   }
