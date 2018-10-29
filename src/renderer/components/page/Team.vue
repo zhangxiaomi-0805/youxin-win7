@@ -8,7 +8,7 @@
       <div v-if="!showCard" class="body" style="backgroundColor: #fff">
         <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
       </div>
-      <name-card v-else :pageType="pageType" :id="id" :accid="accid"/>
+      <name-card v-else pageType="team" :teamId="teamId"/>
     </div>
   </div>
 </div>
@@ -24,9 +24,7 @@ export default {
   components: {TeamList, SystemCaption, NameCard},
   data () {
     return {
-      pageType: '',
-      id: '',
-      accid: '',
+      teamId: '',
       showCard: false
     }
   },
@@ -37,9 +35,7 @@ export default {
   methods: {
     checkCard (params) {
       this.showCard = true
-      this.pageType = params.pageType
-      this.id = params.id || ''
-      this.accid = params.accid || ''
+      this.teamId = params.teamId
     }
   }
 }

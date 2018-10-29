@@ -37,7 +37,8 @@ export default {
   name: 'tree',
   props: {
     showTeam: Boolean,
-    showCheck: Boolean
+    showCheck: Boolean,
+    callBack: Function
   },
   components: {TreeItem},
   data () {
@@ -88,7 +89,7 @@ export default {
       this.orgSelectId = user.id
       this.orgSelectLevel = user.level
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', id: user.id, accid: user.accid})
-      // this.$router.push({name: 'namecard', query: {pageType: 'p2p', id: user.id, accid: user.accid}})
+      this.callBack({id: user.id, accid: user.accid})
     },
     toggleCheck () {
       // 切换公司展开状态

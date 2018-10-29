@@ -7,7 +7,7 @@
       <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
     </div>
   </div>
-  <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop"><tree/></div>
+  <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop"><tree :callBack="callBack"/></div>
   <div class="border" id="resize-we"></div>
 </div>
 </template>
@@ -17,6 +17,9 @@ import Tree from '../tree/Tree.vue'
 export default {
   name: 'orgnize-list',
   components: {Tree},
+  props: {
+    callBack: Function
+  },
   data () {
     return {
       scrollTop: 0,

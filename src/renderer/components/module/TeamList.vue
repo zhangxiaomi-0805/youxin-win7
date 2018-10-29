@@ -57,7 +57,7 @@ export default {
     checkCard (group) {
       if (this.activeId === group.teamId) return
       this.activeId = group.teamId
-      this.callBack({pageType: 'team', id: group.teamId})
+      this.callBack({teamId: group.teamId})
     }
   }
 }

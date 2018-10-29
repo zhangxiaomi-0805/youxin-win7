@@ -6,7 +6,7 @@
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
-          <div>
+          <!-- <div>
             <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
             <div class="remarks">
               <span style="margin-right: 8px;">备注名</span>
@@ -20,7 +20,7 @@
                 maxlength="16"
                 placeholder="添加备注名">
             </div>
-          </div>
+          </div> -->
         </div>
         <div class="user-tel"><span>职位</span><span class="line" :style="{color: userInfos.position ? '#333' : '#999'}" :title="userInfos.position">{{userInfos.position || '未设置'}}</span></div>
         <div class="user-tel"><span>工号</span><span class="line" :style="{color: userInfos.jobNum ? '#333' : '#999'}" :title="userInfos.jobNum">{{userInfos.jobNum || '未设置'}}</span></div>
@@ -47,8 +47,9 @@ export default {
   name: 'namecard',
   props: {
     pageType: String,
-    id: String,
-    accid: String
+    id: Number,
+    accid: String,
+    teamId: String
   },
   data () {
     return {
@@ -81,7 +82,7 @@ export default {
     cardInfo () {
       let teamlist = this.$store.state.teamlist
       let cardInfo = teamlist.find(item => {
-        return item.teamId === this.id
+        return item.teamId === this.teamId
       })
       return cardInfo || {}
     },
@@ -89,14 +90,6 @@ export default {
       let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]
       let memberCount = members && members.length
       return memberCount || 0
-    }
-  },
-  watch: {
-    id (newId) {
-      newId && this.getUserInfos()
-    },
-    accid (newAccid) {
-      newAccid && this.getUserInfos()
     }
   },
   methods: {
