@@ -88,7 +88,7 @@ export default {
       this.orgSelectId = user.id
       this.orgSelectLevel = user.level
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', id: user.id, accid: user.accid})
-      this.$router.push({name: 'namecard', query: {pageType: 'p2p', id: user.id, accid: user.accid}})
+      // this.$router.push({name: 'namecard', query: {pageType: 'p2p', id: user.id, accid: user.accid}})
     },
     toggleCheck () {
       // 切换公司展开状态

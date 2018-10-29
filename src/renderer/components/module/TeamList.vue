@@ -10,10 +10,11 @@
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
     <ul class="u-list t-u-list" v-if="grouplist.length > 0">
       <li
-        class="u-list-item t-u-list-item t-center"
+        :class='activeId === group.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
         v-for="group in grouplist"
         :key="group.id" 
         :id="group.id"
+        @click="checkCard(group)"
       >
         <div class="t-list-item-left t-center">
           <img :src="group.avatar || defaultIcon"/>
@@ -30,10 +31,14 @@
 <script>
 export default {
   name: 'team-list',
+  props: {
+    callBack: Function
+  },
   data () {
     return {
       scrollTop: 0,
-      searchValue: ''
+      searchValue: '',
+      activeId: ''
     }
   },
   computed: {
@@ -47,6 +52,13 @@ export default {
   activated () {
     // 重置滚动条位置
     this.$refs.contactCon.scrollTop = this.scrollTop
+  },
+  methods: {
+    checkCard (group) {
+      if (this.activeId === group.teamId) return
+      this.activeId = group.teamId
+      this.callBack({pageType: 'team', id: group.teamId})
+    }
   }
 }
 </script>
@@ -54,7 +66,7 @@ export default {
 <style scoped>
   .contact-con {
     position: absolute;
-    top: 60px;
+    top: 56px;
     bottom: 0;
     width: 100%;
   }
@@ -76,13 +88,14 @@ export default {
   .t-u-list-item {
     justify-content: space-between;
     width: 100%;
-    height: 70px;
+    height: 68px;
     box-sizing: border-box;
-    padding: 10px 16px;
+    padding: 0 12px;
+    cursor: default;
   }
   .t-u-list-item img {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
   }
 

@@ -6,7 +6,7 @@
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
-          <!-- <div>
+          <div>
             <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
             <div class="remarks">
               <span style="margin-right: 8px;">备注名</span>
@@ -20,7 +20,7 @@
                 maxlength="16"
                 placeholder="添加备注名">
             </div>
-          </div> -->
+          </div>
         </div>
         <div class="user-tel"><span>职位</span><span class="line" :style="{color: userInfos.position ? '#333' : '#999'}" :title="userInfos.position">{{userInfos.position || '未设置'}}</span></div>
         <div class="user-tel"><span>工号</span><span class="line" :style="{color: userInfos.jobNum ? '#333' : '#999'}" :title="userInfos.jobNum">{{userInfos.jobNum || '未设置'}}</span></div>
@@ -45,6 +45,11 @@ import configs from '../../configs/index.js'
 import Fetch from '../../utils/fetch.js'
 export default {
   name: 'namecard',
+  props: {
+    pageType: String,
+    id: String,
+    accid: String
+  },
   data () {
     return {
       defaultIcon: './static/img/orgnize/team-head.png',
@@ -56,15 +61,6 @@ export default {
     this.getUserInfos()
   },
   computed: {
-    pageType () {
-      return this.$route.query.pageType
-    },
-    id () {
-      return this.$route.query.id
-    },
-    accid () {
-      return this.$route.query.accid
-    },
     sessionlist () {
       return this.$store.state.sessionlist
     },
@@ -96,8 +92,11 @@ export default {
     }
   },
   watch: {
-    $route () {
-      this.getUserInfos()
+    id (newId) {
+      newId && this.getUserInfos()
+    },
+    accid (newAccid) {
+      newAccid && this.getUserInfos()
     }
   },
   methods: {
