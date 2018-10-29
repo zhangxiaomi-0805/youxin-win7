@@ -2,7 +2,9 @@
   <div class="g-hbf-container">
     <div class="g-hbf-header m-header"></div>
     <div class="nc-body">
-      <div class="nc-p2p" v-if="pageType === 'p2p'">
+      <div class="nc-p2p"
+        v-if="pageType === 'p2p'"
+      >
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
@@ -45,14 +47,17 @@ export default {
     return {
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
-      isActive: false,
-      pageType: 'p2p'
+      isActive: false
     }
   },
   mounted () {
     this.getUserInfos()
   },
   computed: {
+    pageType () {
+      let pageType = this.$route.query.pageType
+      return pageType
+    },
     sessionlist () {
       return this.$store.state.sessionlist
     },

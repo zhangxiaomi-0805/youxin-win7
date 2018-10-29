@@ -24,11 +24,16 @@
   </div>
 
   <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}" ref="contactsList" @scroll="scrollTop = $event.target.scrollTop">
-    <li class="u-list-item" @click="toggleSelect(contacts.id)" @mouseup.stop="onShowMenu($event, contacts)" 
-    :style="hasBorder && contacts.id === acContactsId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" 
-    :class="contacts.id === activeId ? 'u-list-item-active' : ''" v-for="contacts in contactslist" :key="contacts.id" :id="contacts.id"
+    <li 
+      class="u-list-item" @click="toggleSelect(contacts.id)" @mouseup.stop="onShowMenu($event, contacts)" 
+      :style="hasBorder && contacts.id === acContactsId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" 
+      :class="contacts.id === activeId ? 'u-list-item-active' : ''" v-for="contacts in contactslist" :key="contacts.id" :id="contacts.id"
     >
-      <a @click="toggleNameCard(contacts)" style="width:100%;cursor:default;" :ref="contacts.id" class="u-router-link">
+      <a 
+        @click="toggleNameCard(contacts)" 
+        @dblclick.native="toggleSession(contacts)"
+        style="width:100%;cursor:default;" :ref="contacts.id" class="u-router-link"
+      >
         <div class="u-list-item-container" :class="contacts.localCustom && contacts.localCustom.topTime ? 'contacts-box-item-isTop' : ''">
           <div style="display: flex; align-items: center; width:100%;">
             <img class="icon" :src="contacts.avatar"/>
@@ -136,7 +141,8 @@ export default {
     toggleSession (contacts) {
       // 双击切换聊天
       let contactId = contacts.id
-      this.$router.push({name: 'namecard', query: {pageType: 'p2p', id: contactId, firstFlag: true}})
+      let pageType = contacts.type === 1 ? 'p2p' : 'team'
+      this.$router.push({name: 'chat', query: {pageType, id: contactId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
     }
   }
