@@ -51,15 +51,9 @@ export default {
     }
   },
   mounted () {
-    console.log('挂载')
     this.getUserInfos()
   },
   computed: {
-    pageType () {
-      console.log('计算')
-      let pageType = this.$route.query.pageType
-      return pageType
-    },
     sessionlist () {
       return this.$store.state.sessionlist
     },
@@ -159,7 +153,7 @@ export default {
     position: absolute;
     top: 31px;
     bottom: 0;
-    padding-bottom: 56px;
+    padding-bottom: 85px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -169,20 +163,20 @@ export default {
   .nc-body .nc-team {
     text-align: center;
     font-size: 16px;
-    color: #000;
+    color: rgba(51,51,51,1);
   }
 
   .nc-team > img {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     margin-bottom: 3px;
   }
 
   .nc-team .num {
-    color: rgba(179,179,186,1);
+    color: rgba(180,180,187,1);
     margin: 5px 0 30px;
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .nc-team .button {
@@ -192,14 +186,14 @@ export default {
     margin: 0 auto;
     width: 160px;
     height: 36px;
-    background: rgba(79,141,255,1);
+    background: rgba(4,154,255,1);
     border-radius: 4px;
     font-size: 14px;
     color: #fff;
     transition: background .2s linear;
   }
   .nc-team .button:hover {
-    background: rgb(69, 122, 219);
+    background: rgb(70, 124, 223);
   }
 
   .nc-p2p {
@@ -262,8 +256,7 @@ export default {
     width: 100%;
     height: 36px;
     line-height: 36px;
-    margin-bottom: 15px;
-    margin-top: 25px;
+    margin-bottom: 10px;
     text-align: center;
     color: #fff;
     font-size: 14px;

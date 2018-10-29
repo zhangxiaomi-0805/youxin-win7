@@ -286,6 +286,7 @@ export default {
   .m-gen-set-con .set-act .set-act-rt {
     width: 330px;
     height: 100%;
+    box-sizing: border-box;
     padding-left: 20px;
   }
 
