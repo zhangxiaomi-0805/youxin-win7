@@ -47,17 +47,32 @@
           <a class="b-common b-file"/>
         </div>
         <!-- 远程协助 -->
-        <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
+        <!-- <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
           <a class="b-common b-remote"/>
-        </div>
+        </div> -->
       </div>
       <!-- 短信发送 -->
-      <div v-if="!isRobot" class="u-editor-icon" 
-        style="padding-right: 30px"
-        @click.stop="showEmoji">
-        <a class="b-common b-message"/>
+      <div 
+        v-if="!isRobot" 
+        :class="isMsg ? u-editor-icon-active : u-editor-icon" 
+        style="padding-right: 50px"
+        @click.stop="isMsg = !isMsg"
+        @mouseover="showPrompt = true"
+        @mouseout="showPrompt = false"
+      >
+        <!-- <a class="b-common b-message"/>  -->
+        <a :class="isMsg ? 'b-common b-message-active' : 'b-common b-message'"/>
       </div>
        
+      <!-- 短信发送鼠标悬停时，显示的提示框 -->
+      <transition name="fade">
+        <div v-if="showPrompt"
+          class="prompt"
+        >
+          <div class="triangle_border_down"></div>
+          用短信发送
+        </div>
+      </transition>
       <!-- <div v-if="!isRobot" class="u-editor-icon">
         <a class="b-common b-microphone"/>
       </div>
@@ -155,6 +170,8 @@ export default {
   },
   data () {
     return {
+      showPrompt: false,
+      isMsg: false,
       isEmojiShown: false,
       isRobotListShown: false,
       icon1: `${config.resourceUrl}/im/chat-editor-1.png`,
@@ -1037,6 +1054,32 @@ export default {
 </script>
 
 <style scoped>
+.prompt {
+  width: 76px;
+  height: 25px;
+  line-height: 25px;
+  position: absolute;
+  z-index: 1005;
+  right: 25px;
+  top: -25px;
+  background: #fff;
+  border: 1px solid #D9D9D9;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  color: #888893;
+  text-align: center;
+}
+.triangle_border_down{
+  width:0;
+  height:0;
+  border-width: 6px 8px 0;
+  border-style:solid;
+  border-color:#fff transparent transparent;
+  position: absolute;
+  top: 25px;
+  right: 28px;
+}
 .g-window .m-chat-editor {
   position: absolute;
   bottom: 0;
@@ -1188,7 +1231,7 @@ export default {
 .g-window .m-chat-editor-main .u-editor-icons .b-common {
   display: inline-block;
   vertical-align: middle;
-  width: 20px;
+  width: 22px;
   height: 20px;
   background-repeat: no-repeat;
   background-position: center center;
@@ -1282,17 +1325,17 @@ export default {
 /* 短信发送 */
 .g-window .m-chat-editor-main .u-editor-icons .b-message {
   background-image: url('../../../../static/img/edit/message.png');
-  background-size: 22px 22px;
+  background-size: 22px 20px;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message:hover, .b-message:focus {
   background-image: url('../../../../static/img/edit/message-h.png');
-  background-size: 22px 22px;
+  background-size: 22px 20px;
 }
 
-.g-window .m-chat-editor-main .u-editor-icons .b-message:active {
+.g-window .m-chat-editor-main .u-editor-icons .b-message-active {
   background-image: url('../../../../static/img/edit/message-p.png');
-  background-size: 22px 22px;
+  background-size: 22px 20px;
 }
 
 /* 语音聊天 */
