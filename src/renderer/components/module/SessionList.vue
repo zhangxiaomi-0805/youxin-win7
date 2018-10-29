@@ -1,11 +1,11 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <!--<router-link :to="{name:'sysmsgs'}">
+  <!-- <router-link :to="{name:'sysmsgs'}">
       <div class="u-list-item">
           <img class="icon" slot="icon" width="24" :src="myPhoneIcon">
           我的手机
       </div>
-  </router-link>-->
+  </router-link> -->
   <div v-if="sessionlist.length > 0" class="u-search">
     <div class="u-cont">
       <input type="text" v-model="searchValue" placeholder="搜索" />
@@ -14,7 +14,9 @@
   </div>
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
-  <search v-if="searchValue" type="session" :value="searchValue" />
+
+  <search v-if="searchValue" type="contacts" :value="searchValue" />
+
   <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : '56px'}" ref="sessionList" @scroll="scrollTop = $event.target.scrollTop">
     <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
@@ -295,6 +297,7 @@ export default {
       }
     },
     onShowMenu (e, session) {
+      // 单个列表右击事件
       let sessionIdArr = this.sessionlist.map((item, index) => {
         return item.id
       })
@@ -325,21 +328,25 @@ export default {
           callBack: (type) => {
             switch (type) {
               case 1:
+                // 消息置顶
                 this.$store.dispatch('setTopSession', {
                   id: session.id,
                   key: true
                 })
                 break
               case 2:
+                // 删除聊天
                 this.$store.dispatch('deleteSession', {id: session.id, that: this, curSessionId, sessionIdArr})
                 break
               case 3:
+                // 取消置顶
                 this.$store.dispatch('setTopSession', {
                   id: session.id,
                   key: false
                 })
                 break
               case 4:
+                // 群设置
                 if (this.$store.state.currSessionId !== session.id) {
                   this.toggleChat(session)
                   this.toggleSelect(session.id)
@@ -349,7 +356,16 @@ export default {
                 }, 15)
                 break
               case 5:
+                // 查看资料
                 this.showCheckUser(e, this.userInfos[session.to])
+                break
+              case 6:
+                // +常用联系人
+                console.log('+常用联系人')
+                break
+              case 7:
+                // 消息免打扰
+                console.log('消息免打扰')
                 break
             }
           }

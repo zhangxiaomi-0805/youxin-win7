@@ -6,15 +6,19 @@
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
-  <div class="m-title team-control"><span>{{sessionName}}</span><a v-if="power !== 'normal'" class="point" @click="showListOptions($event)"></a></div>
+  <div 
+    @click.stop="showMemberOptions($event, member)" 
+    class="m-title team-control" 
+  >
+    <span>{{sessionName}}</span><a class="point" ></a>
+  </div>
   <ul class="m-u-list">
     <li 
       class="m-u-list-item" 
       v-for="member in memberList" 
       :key="member.id" 
       :id="member.id" 
-      @click="checkUserInfo($event, member)" 
-      @mouseup.stop="showMemberOptions($event, member)" 
+      @click="showListOptions($event, member)"
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
       <div class="m-left"><img class="t-img" :src="member.avatar"><span class="t-style">{{member.alias}}</span></div>
@@ -172,7 +176,8 @@ export default {
       }
       this.eventBus.$emit('checkUser', {event, userInfos})
     },
-    showListOptions (event) {
+    showListOptions (event, member) {
+      console.log(member)
       this.$store.dispatch('showListOptions', {
         key: 'team-member',
         show: true,
@@ -181,8 +186,12 @@ export default {
           y: event.clientY + 5
         },
         callBack: (type) => {
-          if (type === 1) {
+          if (type === 1) { // 发消息
             this.addTeamMember()
+          } else if (type === 5) { // 查看资料
+            this.checkUserInfo(event, member)
+          } else if (type === 6) { // +常用联系人s
+            console.log('+常用联系人')
           } else {
             if (this.memberList.length === 1) return
             this.removeTeamMember()

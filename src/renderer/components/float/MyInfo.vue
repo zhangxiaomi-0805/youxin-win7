@@ -5,8 +5,9 @@
     <div class="user-info-box">
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div>
+        <!-- 签名鼠标悬停时，显示的提示框 -->
         <transition name="fade">
-          <div v-if="showPrompt"
+          <div v-if="userInfos.alias && showPrompt"
             class="prompt"
           >
             {{userInfos.alias}}
@@ -37,7 +38,7 @@
     </div>
     <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
-    <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
+    <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.tel">{{userInfos.tel}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
    
     <div class="user-sex">
@@ -57,7 +58,7 @@
         </div>
     </div>
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : '-'}}</span></div>
-    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.position ? userInfos.position : '-'}}</span></div>
+    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.jobNum ? userInfos.jobNum : '-'}}</span></div>
  
   </div>
 </transition>
