@@ -35,6 +35,12 @@ import configs from '../../configs/index.js'
 import Fetch from '../../utils/fetch.js'
 export default {
   name: 'namecard',
+  props: {
+    pageType: String,
+    id: Number,
+    accid: String,
+    teamId: String
+  },
   data () {
     return {
       defaultIcon: './static/img/orgnize/team-head.png',
@@ -47,15 +53,6 @@ export default {
     this.getUserInfos()
   },
   computed: {
-    pageType () {
-      return this.$route.query.pageType
-    },
-    id () {
-      return this.$route.query.id
-    },
-    accid () {
-      return this.$route.query.accid
-    },
     sessionlist () {
       return this.$store.state.sessionlist
     },
@@ -76,7 +73,7 @@ export default {
     cardInfo () {
       let teamlist = this.$store.state.teamlist
       let cardInfo = teamlist.find(item => {
-        return item.teamId === this.id
+        return item.teamId === this.teamId
       })
       return cardInfo || {}
     },
@@ -84,11 +81,6 @@ export default {
       let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]
       let memberCount = members && members.length
       return memberCount || 0
-    }
-  },
-  watch: {
-    $route () {
-      this.getUserInfos()
     }
   },
   methods: {
