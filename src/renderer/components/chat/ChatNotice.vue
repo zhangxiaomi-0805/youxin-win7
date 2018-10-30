@@ -2,12 +2,17 @@
 <!-- 公告、群成员管理 -->
 <div class="m-chat-nt" v-if="scene === 'team'">
   <div class="m-content">
-    <div class="m-title notice">公告</div>
+    <div class="m-title notice">
+      <span class="notice">公告</span>
+      <div style="width: 16px; height: 16px">
+        <img src="../../../../static/img/setting/edit.png" alt="" style="width: 100%">
+      </div>
+    </div>
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
   <div 
-    @click.stop="showMemberOptions($event, member)" 
+    @click.stop="showListOptions($event)" 
     class="m-title team-control" 
   >
     <span>{{sessionName}}</span><a class="point" ></a>
@@ -18,7 +23,7 @@
       v-for="member in memberList" 
       :key="member.id" 
       :id="member.id" 
-      @click="showListOptions($event, member)"
+      @mouseup.stop="showMemberOptions($event, member)"
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
       <div class="m-left"><img class="t-img" :src="member.avatar"><span class="t-style">{{member.alias}}</span></div>
@@ -176,73 +181,74 @@ export default {
       }
       this.eventBus.$emit('checkUser', {event, userInfos})
     },
-    showListOptions (event, member) {
-      console.log(member)
+    showListOptions (event) {
+      /**
+       * 群设置
+       * * */
+      let key = ''
+      if (this.power === 'owner') { // 管理员
+        key = 'owner-team-set'
+      } else if (this.power === 'normal') { // 普通群成员
+        key = 'normal-team-set'
+      }
       this.$store.dispatch('showListOptions', {
-        key: 'team-member',
+        key,
         show: true,
         pos: {
           x: event.clientX - 30,
           y: event.clientY + 5
         },
         callBack: (type) => {
-          if (type === 1) { // 发消息
+          if (type === 3) { // 搜索成员
+            console.log('搜索成员')
+          } else if (type === 4) { // 添加成员
             this.addTeamMember()
-          } else if (type === 5) { // 查看资料
-            this.checkUserInfo(event, member)
-          } else if (type === 6) { // +常用联系人s
-            console.log('+常用联系人')
-          } else {
-            if (this.memberList.length === 1) return
+          } else if (type === 2) { // 移出成员
             this.removeTeamMember()
           }
         }
       })
     },
     showMemberOptions (event, member) {
-      if (member.account === this.myInfo.account) return
+      /**
+       * 群成员管理
+       * @params  this.power---当前登录用户的身份：normal---普通群成员；owner---管理员
+       * * */
+      if (member.account === this.myInfo.account) return // 我自己
+      let key = ''
       if (event.button === 2) {
-        let key = this.power
-        key = key + '-send'
-        if (this.power === 'owner') {
-          if (member.type === 'manager') {
-            key = key + '-remove'
-          } else if (member.type === 'normal') {
-            key = key + '-set'
-          }
-        } else if (this.power === 'manager') {
-          if (member.type === 'normal') {
-            key = key + '-remove'
-          }
-        }
-        let left = 138
-        if (key === 'owner-send-remove' || key === 'owner-add-remove') {
-          left = 166
-        } else if (key === 'manager-send' || key === 'normal-send') {
-          left = 102
+        if (this.power === 'owner') { // 管理员
+          key = 'owner-member-manager'
+        } else if (this.power === 'normal') { // 普通群成员
+          key = 'normal-member-manager'
         }
         this.$store.dispatch('showListOptions', {
           id: member.id,
           key,
           show: true,
           pos: {
-            x: event.clientX, y: event.clientY, left
+            x: event.clientX - 40,
+            y: event.clientY + 15
           },
           callBack: (type) => {
+            console.log(type)
             switch (type) {
               case 1:
                 this.sendMsg(this.userInfos[member.account])
                 break
-              case 2:
-                this.$store.dispatch('addTeamManagers', {accounts: [member.account], teamId: this.teamId})
+              case 5:
+                this.checkUserInfo(event, member)
+                // this.$store.dispatch('addTeamManagers', {accounts: [member.account], teamId: this.teamId})
                 break
-              case 3:
-                this.$store.dispatch('removeTeamManagers', {accounts: [member.account], teamId: this.teamId})
+              case 6:
+                console.log('+常用联系人')
+                // this.$store.dispatch('removeTeamManagers', {accounts: [member.account], teamId: this.teamId})
                 break
-              case 4:
+              case 7:
+                if (this.memberList.length === 1) return
                 this.$store.dispatch('removeTeamMembers', {accounts: [member.account], teamId: this.teamId})
                 break
-              case 5:
+              default:
                 break
             }
           }
@@ -324,6 +330,10 @@ export default {
     padding: 8px 12px;
     font-size: 12px;
     color: #999999;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .m-chat-nt .team-control {

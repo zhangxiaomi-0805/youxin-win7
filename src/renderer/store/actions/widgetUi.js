@@ -38,6 +38,7 @@ export function hideFullscreenImg ({state, commit}) {
 }
 
 export function showListOptions ({state, commit}, obj) {
+  console.log(obj)
   let items = []
   // 右键出现蓝框位置
   if (obj.key === 'p2p-isTop' || obj.key === 'team-isTop' || obj.key === 'team-notTop' || obj.key === 'p2p-notTop') {
@@ -123,7 +124,7 @@ export function showListOptions ({state, commit}, obj) {
   }
   let event10 = {
     title: '添加成员',
-    callBack: () => obj.callBack(1)
+    callBack: () => obj.callBack(4)
   }
   let event11 = {
     title: '移出成员',
@@ -147,7 +148,7 @@ export function showListOptions ({state, commit}, obj) {
   }
   let event15 = {
     title: '移出本群',
-    callBack: () => obj.callBack(4)
+    callBack: () => obj.callBack(7)
   }
   let event16 = {
     title: '添加联系人',
@@ -234,21 +235,28 @@ export function showListOptions ({state, commit}, obj) {
       event5, event4
     ]
   }
-  // 群成员管理（添加、移出成员）---群主
-  if (obj.key === 'team-member') {
+  // 群设置（搜索、添加、移出成员）---群主
+  if (obj.key === 'owner-team-set') {
     items = [
       event00, event10, event11
     ]
   }
-  // 群设置（群主）
-  if (obj.key === 'owner-send-set') {
+  // 群设置（搜索、添加成员）---普通群成员
+  if (obj.key === 'normal-team-set') {
     items = [
-      event12, event20, event15
+      event00, event10
     ]
   }
-  if (obj.key === 'owner-send-remove') {
+  // 群成员管理（发消息、查看资料、+常用联系人、移出本群）--- 群主
+  if (obj.key === 'owner-member-manager') {
     items = [
-      event12, event14, event15
+      event12, event19, event20, event15
+    ]
+  }
+  // 群成员管理（发消息、查看资料、+常用联系人）--- 普通群成员
+  if (obj.key === 'normal-member-manager') {
+    items = [
+      event12, event19, event20
     ]
   }
   if (obj.key === 'owner-add-set') {
