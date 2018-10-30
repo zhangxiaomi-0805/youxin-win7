@@ -41,7 +41,8 @@ export default {
     pageType: String,
     id: Number,
     accid: String,
-    teamId: String
+    teamId: String,
+    contactId: Number
   },
   data () {
     return {
@@ -51,6 +52,7 @@ export default {
     }
   },
   mounted () {
+    console.log(this.pageType)
     this.getUserInfos()
   },
   computed: {

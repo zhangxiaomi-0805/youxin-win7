@@ -54,7 +54,6 @@
       <!-- 短信发送 -->
       <div 
         v-if="!isRobot" 
-        :class="isMsg ? u-editor-icon-active : u-editor-icon" 
         style="padding-right: 50px"
         @click.stop="isMsg = !isMsg"
         @mouseover="showPrompt = true"

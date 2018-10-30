@@ -19,28 +19,26 @@
 
   <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}" ref="contactsList" @scroll="scrollTop = $event.target.scrollTop">
     <li 
-      class="u-list-item" @click="toggleSelect(contacts.id)" @mouseup.stop="onShowMenu($event, contacts)" 
+      v-for="contacts in contactslist" 
+      :key="contacts.id" 
+      :id="contacts.id"
+      class="u-list-item" 
       :style="hasBorder && contacts.id === acContactsId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" 
-      :class="contacts.id === activeId ? 'u-list-item-active' : ''" v-for="contacts in contactslist" :key="contacts.id" :id="contacts.id"
+      :class="contacts.id === activeId ? 'u-list-item-active' : ''" 
+      @click="toggleNameCard(contacts)" 
     >
-      <a 
-        @click="toggleNameCard(contacts)" 
-        @dblclick.native="toggleSession(contacts)"
-        style="width:100%;cursor:default;" :ref="contacts.id" class="u-router-link"
-      >
-        <div class="u-list-item-container" :class="contacts.localCustom && contacts.localCustom.topTime ? 'contacts-box-item-isTop' : ''">
-          <div style="display: flex; align-items: center; width:100%;">
-            <img class="icon" :src="contacts.avatar"/>
-            <div class="multi-content">
-              <div class="title" style="width: 95%;">{{contacts.name}}</div>
-              <div class="content">
-                <span>{{'[' + contacts.status + ']'}}</span>
-                <span>{{contacts.signName ? contacts.signName : ''}}</span>
-              </div>
+      <div class="u-list-item-container" :class="contacts.localCustom && contacts.localCustom.topTime ? 'contacts-box-item-isTop' : ''">
+        <div style="display: flex; align-items: center; width:100%;">
+          <img class="icon" :src="contacts.avatar"/>
+          <div class="multi-content">
+            <div class="title" style="width: 95%;">{{contacts.name}}</div>
+            <div class="content">
+              <span>{{'[' + contacts.status + ']'}}</span>
+              <span>{{contacts.signName ? contacts.signName : ''}}</span>
             </div>
           </div>
         </div>
-      </a>
+      </div>
     </li>
   </ul>
   <div class="border" id="resize-we"></div>
@@ -54,6 +52,9 @@ import pageUtil from '../../utils/page'
 import Search from '../search/index'
 export default {
   name: 'contacts-list',
+  props: {
+    callBack: Function
+  },
   components: {Search},
   mounted () {
     var _this = this
@@ -90,10 +91,8 @@ export default {
       scrollTop: 0,
       searchValue: '',
       noticeIcon: config.noticeIcon,
-      myPhoneIcon: config.myPhoneIcon,
-      myGroupIcon: config.defaultGroupIcon,
       myAdvancedIcon: config.defaultAdvancedIcon,
-      contactslist: [{scene: 'p2p', id: 1, avatar: config.defaultUserIcon, name: '产品-叶晓晓', status: '在线', signName: '做一个有志气的胖纸,哈哈哈哈哈'}, {scene: 'p2p', id: 2, avatar: config.defaultUserIcon, name: '测试-黄灿灿', status: '在线', signName: '做一个有志气的胖纸'}, {scene: 'team', id: 3, avatar: config.defaultGroupIcon, name: '优信开发群', status: '在线', signName: '敲代码敲代码'}]
+      contactslist: [{scene: 'p2p', id: 1, avatar: config.defaultUserIcon, name: '产品-叶晓晓', status: '在线', signName: '做一个有志气的胖纸,哈哈哈哈哈'}, {scene: 'p2p', id: 2, avatar: config.defaultUserIcon, name: '测试-黄灿灿', status: '在线', signName: '做一个有志气的胖纸'}]
     }
   },
   computed: {
@@ -109,23 +108,18 @@ export default {
   },
   methods: {
     toggleNameCard (contacts) {
-      clearTimeout(this.timer) // 首先清除计时器
-      this.timer = setTimeout(() => {
-        // 单击切换个人名片
-        let contactId = contacts.id
-        let pageType = contacts.scene
-        this.$router.push({name: 'namecard', query: {pageType, id: contactId, firstFlag: true}})
-        // this.eventBus.$emit('checkUser', {})
-      }, 300) // 大概时间300ms
-    },
-    toggleSession (contacts) {
-      clearTimeout(this.timer) // 清除
-      // 双击切换聊天
-      let contactId = contacts.id
-      let pageType = contacts.type === 1 ? 'p2p' : 'team'
-      this.$router.push({name: 'chat', query: {pageType, id: contactId, firstFlag: true}})
-      // this.eventBus.$emit('checkUser', {})
+      if (this.activeId === contacts.id) return
+      this.activeId = contacts.id
+      this.callBack({contactId: contacts.id})
     }
+    // toggleSession (contacts) {
+    //   clearTimeout(this.timer) // 清除
+    //   // 双击切换聊天
+    //   let contactId = contacts.id
+    //   let pageType = contacts.type === 1 ? 'p2p' : 'team'
+    //   this.$router.push({name: 'chat', query: {pageType, id: contactId, firstFlag: true}})
+    //   // this.eventBus.$emit('checkUser', {})
+    // }
   }
 }
 </script>
@@ -271,5 +265,8 @@ input::-webkit-input-placeholder {
   height: 100%;
   font-size: 14px;
   color: #C4C4C4;
+}
+.u-list-item-active {
+  background: #F7F7F7
 }
 </style>
