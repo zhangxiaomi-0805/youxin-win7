@@ -97,19 +97,26 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
+.third-box .list-item:after {
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height:12px;
+  width: 100%;
+  box-shadow: 0 10px 12px 0 rgba(0,88,148,0.13);
+  transform: translateY(1);
+  transition: all 800ms;
+}
 .third-box .list-item:hover {
-  width: 46%;
-  height: 15%;
-  padding: 20px;
-  box-sizing: border-box;
-  border: 1px solid rgba(0,38,63,0.1);
-  box-shadow: 6px 10px 10px 0 rgba(88,255,148,0.13);
-  border-radius: 2px;
-  margin-top: 30px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  transform: translateY(1px);
+  transition: all 1000ms;
+}
+.third-box .list-item:hover:after {
+  transform: translateY(1px);
+  transform: scale(0.9);
+  transition: all 1000ms;
 }
 .third-box .list-item .list-content-box {
   width: 85%;
@@ -137,8 +144,10 @@ export default {
   align-items: center;
 }
 .third-box .btn {
-  width: 3.6rem;
+  width: 4rem;
   height: 1.5rem;
+  padding: 2px 5px;
+  box-sizing: border-box;
   background-color: #049AFF;
   border-radius: 4px;
   color: #fff;

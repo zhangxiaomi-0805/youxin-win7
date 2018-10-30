@@ -157,9 +157,10 @@ export default {
 
   .nc-body {
     position: absolute;
-    top: 31px;
+    top: 0;
+    background-color: #fff;
     bottom: 0;
-    padding-bottom: 85px;
+    padding-bottom: 55px;
     width: 100%;
     display: flex;
     align-items: center;

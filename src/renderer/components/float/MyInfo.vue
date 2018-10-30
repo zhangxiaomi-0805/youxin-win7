@@ -163,6 +163,7 @@ export default {
       let className = e.target.className
       if (className.indexOf('noevent') > -1) return
       this.showCheckUser = false
+      this.showSexModal = false
     },
     sendMsg () {
       if (this.isSelf) {
@@ -283,8 +284,8 @@ export default {
   } 
   .m-checkuser-con .user-info-box .prompt {
     position: absolute;
-    top: 100px; 
-    left: 110px;
+    top: 98px; 
+    left: 112px;
     z-index: 1002;
     background-color: #fff;
     padding: 10px;
@@ -296,6 +297,7 @@ export default {
     -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
     -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
     box-shadow: 0 4px 12px rgba(0,101,170,0.22);
+    border-radius: 2px;
     width: 180px;
     word-break:break-all;
     cursor: default;
@@ -384,7 +386,7 @@ export default {
     height: 40px;
     width: 52px;
     position: absolute;
-    bottom: 80px;
+    bottom: 72px;
     left: 97px;
     z-index: 1006;
     box-shadow: 0 2px 2px 0 #ccc;
