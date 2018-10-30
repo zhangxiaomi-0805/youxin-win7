@@ -8,14 +8,9 @@
         <!-- 签名鼠标悬停时，显示的提示框 -->
         <transition name="fade">
           <div v-if="userInfos.signature && showPrompt"
-            class="prompt"
-          >
-            {{userInfos.signature}}
-          </div>
+            class="prompt">{{userInfos.signature}}</div>
         </transition>
-        <div class="nick" >
-          {{userInfos.userName}}
-        </div>
+        <div class="nick" >{{userInfos.fullName}}</div>
         <div class="remarks" v-if="!userInfos.signature && !hasSignMame" @click.stop="hasSignMame = true">
           <span style="margin-right: 8px;">签名</span>
           <a class="edit" @click="showInput" style="margin-right: 5px;"></a>
@@ -29,7 +24,7 @@
             @keyup="keyToUpdate($event)"
             class="memo-input"
             type="text"
-            style="width: 200px; font-size: 12px ; color: #333; border-bottom: 1px solid #049AFF"
+            style="width: 180px; font-size: 12px ; color: #333; border-bottom: 1px solid #049AFF"
             v-model="userInfos.signature"
             maxlength="128"
             placeholder="添加签名">
@@ -275,24 +270,25 @@ export default {
     font-size: 14px;
     color: #999;
     margin-top: 8px;
-    width: 200px;
+    width: 180px;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
   }
   .m-checkuser-con .user-info-box img {
-    width: 42px;
-    height: 42px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
     margin-right: 10px;
   } 
   .m-checkuser-con .user-info-box .prompt {
     position: absolute;
     top: 100px; 
-    left: 90px;
+    left: 110px;
     z-index: 1002;
     background-color: #fff;
     padding: 10px;
+    box-sizing: border-box;
     font-size: 12px;
     color: #666;
     line-height: 17px;
@@ -300,7 +296,7 @@ export default {
     -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
     -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
     box-shadow: 0 4px 12px rgba(0,101,170,0.22);
-    width: 188px;
+    width: 180px;
     word-break:break-all;
     cursor: default;
   }

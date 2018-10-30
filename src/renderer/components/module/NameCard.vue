@@ -7,17 +7,17 @@
       >
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
-          <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
+          <div class="nick" :title="userInfos.fullName">{{userInfos.fullName}}</div>
         </div>
-        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
-        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
-        <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
+        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.accid ? '#333' : '#999'}" :title="userInfos.accid">{{userInfos.accid ? userInfos.accid : '未设置'}}</span></div>
+        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
+        <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
         <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
       
-        <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
-        <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">-</span></div>
-        <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">业务与渠道支撑部</span></div>
-        <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.email">-</span></div>
+        <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : '女'}}</span></div>
+        <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : '-'}}</span></div>
+        <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.orgName ? userInfos.orgName : '-'}}</span></div>
+        <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature ? userInfos.signature : '-'}}</span></div>
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
         <a class="deleteContact">删除常用联系人</a>
@@ -35,6 +35,7 @@
 <script>
 import configs from '../../configs/index.js'
 import Fetch from '../../utils/fetch.js'
+import LocalStorage from 'localStorage'
 export default {
   name: 'namecard',
   props: {
@@ -46,6 +47,7 @@ export default {
   },
   data () {
     return {
+      userInfos: {},
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
       isActive: false
@@ -114,28 +116,30 @@ export default {
     },
     getUserInfos () {
       if (this.pageType === 'p2p') {
-        let params = []
-        if (this.accid) {
-          params = [
-            {
-              tag: this.userInfos.tag || 0,
-              accid: this.accid
-            }
-          ]
-        } else {
-          params = [
-            {
-              tag: this.userInfos.tag || 0,
-              id: this.id
-            }
-          ]
-        }
+        let accid = LocalStorage.getItem('uid')
+        // let params = []
+        // if (this.accid) {
+        //   params = [
+        //     {
+        //       // tag: this.userInfos.tag || 0,
+        //       accid: this.accid
+        //     }
+        //   ]
+        // } else {
+        //   params = [
+        //     {
+        //       tag: this.userInfos.tag || 0,
+        //       id: this.id
+        //     }
+        //   ]
+        // }
         /*
          * 获取用户信息
          * @params  JSON字符串(对象数组)
          */
-        Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json').then(ret => {
+        Fetch.post('api/appPc/userInfo', {accid}, this).then(ret => {
           if (ret) {
+            this.userInfos = ret
             this.$store.commit('updateContactslist', {data: ret, type: 'update'})
           }
         }).catch(() => {
@@ -207,8 +211,8 @@ export default {
     flex-direction: row;
     align-items: center;
     border-bottom: 1px solid rgba(214,214,214,1);
-    padding-bottom: 30px;
-    margin-bottom: 30px;
+    padding-bottom: 20px;
+    margin-bottom: 15px;
   }
 
   .nc-p2p .m-modify .user-info img {
@@ -218,7 +222,7 @@ export default {
   .nc-p2p .m-modify .nick {
     width: 100%;
     font-size: 18px;
-    color: #000;
+    color: #333;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -235,8 +239,8 @@ export default {
   }
 
   .nc-p2p .m-modify img {
-    width: 42px;
-    height: 42px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
     margin-right: 10px;
   } 
@@ -246,7 +250,7 @@ export default {
     align-items: center;
     font-size: 14px;
     color: #999;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
 
   .nc-p2p .user-email {
@@ -258,7 +262,8 @@ export default {
     width: 100%;
     height: 36px;
     line-height: 36px;
-    margin-bottom: 10px;
+    margin-top: 40px;
+    margin-bottom: 15px;
     text-align: center;
     color: #fff;
     font-size: 14px;
