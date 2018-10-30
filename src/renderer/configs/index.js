@@ -36,7 +36,8 @@ let appConfig = {
   },
   test: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
-    postUrl: 'https://nicetest.yunxin.163.com/'
+    postUrl: 'http://imapi.eyuntx.com/'
+    // postUrl: 'https://nicetest.yunxin.163.com/'
   },
   online: {
     appkey: '393f9c3f3dabdc573cc634303f09573e',

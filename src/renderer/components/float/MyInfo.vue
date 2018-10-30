@@ -3,50 +3,52 @@
 <transition name="fade">
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
     <div class="user-info-box">
-      <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
+      <div class="user-info"><img :src="userInfos.userAvatar || defaultUserIcon"></div>
       <div>
         <!-- 签名鼠标悬停时，显示的提示框 -->
         <transition name="fade">
-          <div v-if="userInfos.alias && showPrompt"
+          <div v-if="userInfos.signature && showPrompt"
             class="prompt"
           >
-            {{userInfos.alias}}
+            {{userInfos.signature}}
           </div>
         </transition>
         <div class="nick" >
-          {{userInfos.nick}}
+          {{userInfos.userName}}
         </div>
-        <div class="remarks" v-if="!hasSignMame" @click="hasSignMame = true">
+        <div class="remarks" v-if="!userInfos.signature && !hasSignMame" @click.stop="hasSignMame = true">
           <span style="margin-right: 8px;">签名</span>
           <a class="edit" @click="showInput" style="margin-right: 5px;"></a>
         </div>
-        <div class="remarks" v-else
+        <div class="remarks" v-if="userInfos.signature || hasSignMame"
           @mouseover="showPrompt = true"
           @mouseout="showPrompt = false">
           <input
             ref="input"
-            @blur="updateFriend"
+            @blur="updateSignature"
             @keyup="keyToUpdate($event)"
-            :class="isActive ? 'memo-input active' : 'memo-input'"
+            class="memo-input"
             type="text"
-            style="width: 200px; border-bottom: 1px solid #049AFF"
-            v-model="userInfos.alias"
+            style="width: 200px; font-size: 12px ; color: #333; border-bottom: 1px solid #049AFF"
+            v-model="userInfos.signature"
             maxlength="128"
             placeholder="添加签名">
         </div>
       </div>
     </div>
     <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
-    <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
-    <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.tel">{{userInfos.tel}}</span></div>
+    <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
+    <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
    
     <div class="user-sex">
         <span style="margin-right: 28px;">性别</span>
         <div class="select-sex-box" @click="showSexModal =! showSexModal">
-            <span>{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span>
-            <div class="select-sex"></div>
+            <span>{{userInfos.sex === 1 ? '男' : '女'}}</span>
+            <!-- 下拉箭头 -->
+            <div class="select-sex"></div> 
         </div>
+        <!-- 性别选择弹框 -->
         <div v-if="showSexModal" class="sexModal-box">
             <ul class='sex-content'>
               <li :class="selectedIndex == index? 'sex-item sex-item-select' : 'sex-item'" v-for="(item, index) in sexList" :key="index"
@@ -58,7 +60,7 @@
         </div>
     </div>
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : '-'}}</span></div>
-    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.jobNum ? userInfos.jobNum : '-'}}</span></div>
+    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.orgName">{{userInfos.orgName ? userInfos.orgName : '-'}}</span></div>
  
   </div>
 </transition>
@@ -66,7 +68,7 @@
 
 <script>
 import clickoutside from '../../utils/clickoutside.js'
-// import Fetch from '../../utils/fetch'
+import Fetch from '../../utils/fetch'
 import config from '../../configs'
 export default {
   name: 'my-info',
@@ -90,11 +92,11 @@ export default {
       left: '38%',
       top: '20%',
       height: '419px',
-      aliasCopy: '',
+      signatureCopy: '',
       userInfos: {},
       hasSignMame: false,
       isActive: false,
-      sexList: [{name: '男'}, {name: '女'}, {name: '保密'}],
+      sexList: [{name: '男'}, {name: '女'}],
       showSexModal: false,
       selectedIndex: 0,
       showPrompt: false
@@ -112,6 +114,19 @@ export default {
     }
   },
   methods: {
+    // 修改个人信息
+    modifyUserInfo () {
+      let params = {
+        url: this.userInfos.userAvatar,
+        signature: this.userInfos.signature,
+        sex: this.userInfos.sex
+      }
+      Fetch.post('api/appPc/modifyUserInfo', params, this).then(ret => {
+        console.log(ret)
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     // 键盘输入
     changeMsg (e) {
       console.log(e.data)
@@ -123,9 +138,10 @@ export default {
       this.selectedIndex = index
       this.userInfos.sex = index + 1
       this.showSexModal = false
+      this.modifyUserInfo()
     },
     keyToUpdate (event) {
-      event.keyCode === 13 && this.updateFriend()
+      event.keyCode === 13 && this.updateSignature()
     },
     managePosition (event) {
       let left = event.clientX
@@ -179,20 +195,22 @@ export default {
         })
       }
     },
-    updateFriend () {
-      this.isActive = false
-      if (this.userInfos.alias === this.aliasCopy) {
+    updateSignature () {
+      // 修改签名
+      this.hasSignMame = false
+      console.log(this.userInfos.signature)
+      if (this.userInfos.signature === this.signatureCopy) {
         return
       }
-      if (!this.userInfos.alias) {
-        this.userInfos.alias = this.aliasCopy
-      }
-      this.aliasCopy = this.userInfos.alias
+      this.signatureCopy = this.userInfos.signature
+      console.log(this.userInfos.signature)
+      this.modifyUserInfo()
+
       // 修改昵称
-      this.$store.dispatch('updateFriend', {
-        account: this.userInfos.account,
-        alias: this.userInfos.alias
-      })
+      // this.$store.dispatch('updateFriend', {
+      //   account: this.userInfos.account,
+      //   signature: this.userInfos.signature
+      // })
     },
     showInput () {
       this.isActive = true
@@ -274,12 +292,14 @@ export default {
     left: 90px;
     z-index: 1002;
     background-color: #fff;
-    padding: 5px;
+    padding: 10px;
     font-size: 12px;
     color: #666;
     line-height: 17px;
     border: 1px solid rgba(4,154,155,0.3);
-    box-shadow: 0 0 12px 0 rgba(0,101,170,0.22);
+    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
+    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
+    box-shadow: 0 4px 12px rgba(0,101,170,0.22);
     width: 188px;
     word-break:break-all;
     cursor: default;
@@ -326,7 +346,7 @@ export default {
     display: inline-block;
     width: 75%;
     font-size: 14px;
-    color: #000;
+    color: #333;
     margin-left: 28px;
     overflow:hidden;
     text-overflow:ellipsis;
@@ -365,13 +385,14 @@ export default {
   }
   /* 性别选择弹框 */
   .sexModal-box {
-    height: 60px;
+    height: 40px;
     width: 52px;
     position: absolute;
-    bottom: 68px;
-    left: 96px;
-    z-index: 100;
-    border: 1px solid #ccc
+    bottom: 80px;
+    left: 97px;
+    z-index: 1006;
+    box-shadow: 0 2px 2px 0 #ccc;
+    background-color: #fff
   }
   .sex-content {
     height: 100%;
@@ -393,7 +414,7 @@ export default {
     box-sizing: border-box;
   }
   .sex-content .sex-item-select {
-    background-color: #C0C0C0
+    background-color: #EFEFEF
   }
 </style>
 

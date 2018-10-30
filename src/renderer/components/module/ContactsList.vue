@@ -12,7 +12,7 @@
   <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>
   <search v-if="searchValue" type="contacts" :value="searchValue" />
 
-   <div class="contacts-title">
+   <div v-if="contactslist.length > 0" class="contacts-title">
     <span>常用联系人</span>
     <span>8/12</span>
   </div>
@@ -50,6 +50,7 @@
 import config from '../../configs'
 import pageUtil from '../../utils/page'
 import Search from '../search/index'
+import Fetch from '../../utils/fetch'
 export default {
   name: 'contacts-list',
   props: {
@@ -69,6 +70,8 @@ export default {
     this.eventBus.$on('toggleSelect', function (data) {
       _this.activeId = data.contactsId
     })
+    // 获取请求数据
+    this.getData()
   },
   activated () {
     // 重新加载聊天页
@@ -86,6 +89,7 @@ export default {
   },
   data () {
     return {
+      tag: 0,
       timer: null,
       activeId: '',
       scrollTop: 0,
@@ -107,6 +111,15 @@ export default {
     }
   },
   methods: {
+    getData () {
+      Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
+        console.log(ret)
+        this.tag = ret.tag
+        this.contactslist = ret.userContactList
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     toggleNameCard (contacts) {
       if (this.activeId === contacts.id) return
       this.activeId = contacts.id

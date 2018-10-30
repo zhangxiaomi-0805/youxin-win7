@@ -1,7 +1,7 @@
 <template>
 <div class="m-nav">
   <div class="u-nav-avatar" :style="{marginTop}">
-    <img @click="showUserCard($event)" :src="myInfo.avatar"/>
+    <img @click="getUserInfo($event)" :src="myInfo.avatar || defaultUserIcon"/>
   </div>
   <div class="u-nav-status"><span>在线</span><i></i></div>
   <!-- 单聊 -->
@@ -15,7 +15,7 @@
   <!-- 第三方应用 -->
   <div @click="navTo('workbench')" :class="selectedItem === 'workbench' ? 'nav-item u-nav-yingyong z-sel' : 'u-nav-yingyong'"></div>
   <!-- 添加-发起群聊 -->
-  <div @click="launchChat($event)" class="u-nav-add"></div>
+  <div @click.stop="launchChat($event)" class="u-nav-add"></div>
   <!-- 设置 -->
   <div class="u-nav-setting" @click="eventBus.$emit('generalSetting', {show: true})"></div>
 </div>
@@ -23,10 +23,14 @@
 
 <script>
 import platform from '../../utils/platform'
+import Fetch from '../../utils/fetch'
+import LocalStorage from 'localStorage'
+import config from '../../configs'
 export default {
   name: 'nav-bar',
   data () {
     return {
+      defaultUserIcon: config.defaultUserIcon,
       selectedItem: 'session',
       marginTop: platform.getOsInfo() === 'Windows' ? '17px' : '2rem'
     }
@@ -37,6 +41,26 @@ export default {
     })
   },
   methods: {
+    getUserInfo ($event) {
+      /*
+      * 获取用户基本信息
+      * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
+      * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
+      */
+      let accid = LocalStorage.getItem('uid')
+      Fetch.post('api/appPc/userInfo', {accid}, this).then(ret => {
+        console.log(ret)
+        if (ret) {
+          this.$store.commit('updatePersonInfos', ret)
+          this.showUserCard($event)
+        } else {
+          this.showUserCard($event)
+        }
+      }).catch((err) => {
+        this.loading = false
+        if (err) this.errMsg = err.msg
+      })
+    },
     createTeam () {
       let data = {teamId: '', selectMode: 'createTeam'}
       this.eventBus.$emit('openSelect', data)

@@ -21,11 +21,9 @@ Fetch.post = async function (url, params, $this, ContentType) {
   this.last_url = JSON.stringify(params)
   // 不需要携带token
   let noTokenUrl = [
-    'api/niceAccount/isActivated', 'api/niceAccount/genAuthCode',
-    'api/niceAccount/activeAccount', 'api/appPc/resetPassword',
-    'api/appPc/getLoginCode', 'api/appPc/login/auth',
-    'api/appPc/getForgetPasswordCode', 'api/appPc/validForgetPasswordCode',
-    'api/appPc/resetPassword'
+    'api/appPc/resetPassword',
+    'api/appPc/login/auth',
+    'api/appPc/thirdList'
   ]
   let needToken = true
   for (let key in noTokenUrl) {

@@ -151,43 +151,40 @@
       }
     },
     mounted () {
-      this.rememberAccount = [{id: 1, account: '1234566tt', password: '1234aaaa'}, {id: 2, account: 'aaaa111111', password: '1234aaaa'}, {id: 3, account: '4555ssdfdd', password: '1234aaaa'}, {id: 4, account: 'qwd12334', password: '1234aaaa'}] // 保存记住用户的信息
-      // if (localStorage.HistoryAccount) {
-      //   this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
-      // }
-      // if (localStorage.AUTOLOGIN) {
-      //   // 已开启自动登录(30天内)
-      //   let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
-      //   let nowDate = new Date().getTime()
-      //   if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
-      //     this.type = 'passwordActive'
-      //     this.loading = true
-      //     this.autoLogin = true
-      //     this.account = USERINFO.account
-      //     this.password = DES.decryptByDESModeEBC(USERINFO.password)
-      //     this.pwdNext()
-      //   } else {
-      //     localStorage.removeItem('AUTOLOGIN')
-      //   }
-      // } else if (localStorage.LOGININFO) {
-      //   // 退出登录记住账号
-      //   let loginInfo = JSON.parse(localStorage.LOGININFO)
-      //   this.type = loginInfo.type
-      //   this.account = loginInfo.account
-      //   this.loginType = loginInfo.loginType
-      // }
+      if (localStorage.HistoryAccount) {
+        this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
+      }
+      if (localStorage.AUTOLOGIN) {
+        // 已开启自动登录(30天内)
+        let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
+        let nowDate = new Date().getTime()
+        if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
+          this.type = 'passwordActive'
+          this.loading = true
+          this.autoLogin = true
+          this.account = USERINFO.account
+          this.password = DES.decryptByDESModeEBC(USERINFO.password)
+          this.login(1)
+        } else {
+          localStorage.removeItem('AUTOLOGIN')
+        }
+      } else if (localStorage.LOGININFO) {
+        // 退出登录记住账号
+        let loginInfo = JSON.parse(localStorage.LOGININFO)
+        this.type = loginInfo.type
+        this.account = loginInfo.account
+        this.loginType = loginInfo.loginType
+      }
     },
     methods: {
       showAccountModal () {
         if (this.rememberAccount.length > 0) {
           this.showModal = !this.showModal
-          console.log(this.showModal)
         } else {
           return null
         }
       },
       onMouseenter (id) {
-        console.log(id)
         this.selectedId = id
       },
       onMouseleave (id) {
@@ -252,94 +249,71 @@
         })
       },
       login (type) {
-        // type===1?直接密码登录，type===2,首次登录密码激活后登录
+        /**
+         * type===1,直接密码登录，type===2,首次登录密码激活后登录
+         *  */
         this.loading = true
-        // let errMsg = ''
-        // this.password = type && type === 2 ? this.newPassword : this.password
-        // if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
-        //   errMsg = '用户或账号密码错误，登录失败'
-        // }
-        // this.errMsg = errMsg
-        // if (errMsg) {
-        //   this.loading = false
-        //   return
-        // }
-
-        // 登录鉴权
+        let errMsg = ''
+        this.password = type && type === 2 ? this.newPassword : this.password
+        if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
+          errMsg = '用户或账号密码错误，登录失败'
+        }
+        this.errMsg = errMsg
+        if (errMsg) {
+          this.loading = false
+          return
+        }
         let params = {
-          isQuickLogin: false,
-          username: this.account,
+          account: this.account,
           password: DES.encryptByDES(this.password)
         }
-        Fetch.post('api/appPc/login/auth', params, this).then(ret => {
-          if (ret) {
-            localStorage.setItem('sessionToken', ret.token)
-            this.loginPC()
-          } else {
+        let url = 'api/appPc/login/auth'
+        Fetch.post(url, params, this).then(ret => {
+          if (ret.type === 'setPassword') {
+            this.type = 'setPassword'
             this.loading = false
+          } else {
+            localStorage.setItem('sessionToken', ret.token)
+            this.loginPC(ret.userInfo)
+            this.loading = false
+            if (this.isRember) {
+              let accountInfo = {
+                id: ret.userInfo.userId,
+                account: this.account,
+                password: this.password,
+                isRember: true
+              }
+              if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
+                this.rememberAccount.pop()
+              }
+              this.rememberAccount.map((item, index) => { // 登录账号相同则合并
+                if (this.account === item.account) {
+                  this.rememberAccount.splice(index, 1)
+                }
+              })
+              this.rememberAccount.unshift(accountInfo)
+              localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
+            }
+            ipcRenderer.send('onReset')
+            location.href = config.homeUrl
           }
         }).catch((err) => {
           this.loading = false
-          if (err) {
-            if (err.code === 416) {
-              this.errMsg = '账号或密码错误，请重新输入'
-            } else {
-              this.errMsg = err.msg
-            }
-          }
+          if (err) this.errMsg = err.msg
         })
-        // let url = 'api/appPc/login/auth'
-        // Fetch.post(url, params, this).then(ret => {
-        //   if (ret.type === 'setPassword') {
-        //     this.type = 'setPassword'
-        //     this.loading = false
-        //   } else {
-        //     this.loading = false
-        //     if (this.isRember) {
-        //       let accountInfo = {
-        //         id: ret.userInfo.userId,
-        //         account: this.account,
-        //         password: this.password,
-        //         isRember: true
-        //       }
-        //       if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
-        //         this.rememberAccount.pop()
-        //       }
-        //       this.rememberAccount.map((item, index) => { // 登录账号相同则合并
-        //         if (this.account === item.account) {
-        //           this.rememberAccount.splice(index, 1)
-        //         }
-        //       })
-        //       this.rememberAccount.unshift(accountInfo)
-        //       localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
-        //     }
-        //     ipcRenderer.send('onReset')
-        //     location.href = config.homeUrl
-        //   }
-        // }).catch((err) => {
-        //   this.loading = false
-        //   if (err) this.errMsg = err.msg
-        // })
       },
-      loginPC () {
+      loginPC (userInfo) {
         /*
          * 获取用户基本信息
          * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
          * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
          */
-        Fetch.post('api/appPc/userInfo', {}, this).then(ret => {
+        Fetch.post('api/appPc/userInfo', {accid: userInfo.accid}, this).then(ret => {
           if (ret) {
-            if (this.isForget) {
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'success',
-                toastText: '密码设置成功'
-              })
-            }
             // 登录sdk
-            LocalStorage.setItem('uid', ret.accid)
-            LocalStorage.setItem('sdktoken', ret.token)
-            this.$store.commit('updatePersonInfos', ret)
+            LocalStorage.setItem('uid', userInfo.accid)
+            LocalStorage.setItem('sdktoken', userInfo.token)
+            this.$store.commit('updatePersonInfos', userInfo)
             // 初始化组织架构、联系、历史联系人列表
             IndexedDB.getItem('orgnizeObj')
               .then(data => {
