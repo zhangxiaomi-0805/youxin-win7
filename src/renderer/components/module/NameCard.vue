@@ -9,9 +9,9 @@
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
         </div>
-        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
-        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
-        <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
+        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.fullName ? '#333' : '#999'}" :title="userInfos.fullName">{{userInfos.fullName ? userInfos.fullName : '未设置'}}</span></div>
+        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
+        <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
         <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
       
         <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
@@ -39,7 +39,6 @@ export default {
   name: 'namecard',
   props: {
     pageType: String,
-    id: Number,
     accid: String,
     teamId: String,
     contactId: Number
@@ -52,8 +51,12 @@ export default {
     }
   },
   mounted () {
-    console.log(this.pageType)
     this.getUserInfos()
+  },
+  watch: {
+    accid () {
+      this.getUserInfos()
+    }
   },
   computed: {
     sessionlist () {
@@ -64,10 +67,7 @@ export default {
       let contactslist = this.$store.state.contactslist
       for (let i in contactslist) {
         let user = contactslist[i]
-        if (this.accid && (user.accid === this.accid)) {
-          return user
-        }
-        if (user.id === this.id) {
+        if (user.accid === this.accid) {
           return user
         }
       }
@@ -114,27 +114,11 @@ export default {
     },
     getUserInfos () {
       if (this.pageType === 'p2p') {
-        let params = []
-        if (this.accid) {
-          params = [
-            {
-              tag: this.userInfos.tag || 0,
-              accid: this.accid
-            }
-          ]
-        } else {
-          params = [
-            {
-              tag: this.userInfos.tag || 0,
-              id: this.id
-            }
-          ]
-        }
         /*
          * 获取用户信息
          * @params  JSON字符串(对象数组)
          */
-        Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json').then(ret => {
+        Fetch.post('api/appPc/userInfo', {accid: this.accid}, this).then(ret => {
           if (ret) {
             this.$store.commit('updateContactslist', {data: ret, type: 'update'})
           }

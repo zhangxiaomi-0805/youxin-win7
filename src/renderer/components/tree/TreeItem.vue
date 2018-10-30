@@ -2,7 +2,7 @@
 <div>
   <ul class="t-u-list">
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
-      <div class="t-orgname" :style="{paddingLeft: (orgLevel + 1) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
+      <div class="t-orgname" :style="{paddingLeft: (orgnize.orgLevel + 1) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
         <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
         <span v-else class="t-common"/>
         <span class="t-file"/>
@@ -28,7 +28,7 @@
     class="t-u-list t-body active">
     <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
       <div 
-        :class="!showCheck && (orgSelectId === user.id && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'" 
+        :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'" 
         :style="{paddingLeft: (orgLevel + 1) * 16 + 'px'}" 
         @click="orgHandle(user)">
         <span v-if="showCheck" :class="className(user)"></span>
@@ -51,7 +51,7 @@ export default {
     orgnizeObj: Object,
     orgnizeLevelObj: Object,
     orgLevel: Number,
-    orgSelectId: Number,
+    orgSelectId: String,
     orgSelectLevel: Number,
     orgSelectHandle: Function,
     renderOrgData: Function

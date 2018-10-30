@@ -8,7 +8,7 @@
       <div v-if="!showCard" class="body" style="backgroundColor: #fff">
         <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
       </div>
-      <name-card v-else pageType="p2p" :id="id" :accid="accid"/>
+      <name-card v-else pageType="p2p" :accid="accid"/>
     </div>
   </div>
 </div>
@@ -24,7 +24,6 @@ export default {
   components: {OrgnizeList, SystemCaption, NameCard},
   data () {
     return {
-      id: 0,
       accid: '',
       showCard: false
     }
@@ -36,7 +35,6 @@ export default {
   methods: {
     checkCard (params) {
       this.showCard = true
-      this.id = params.id
       this.accid = params.accid
     }
   }

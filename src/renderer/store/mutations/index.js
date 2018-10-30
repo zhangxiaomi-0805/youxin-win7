@@ -31,8 +31,6 @@ export default {
     }
   },
   updateListOptions (state, obj) {
-    console.log('updateListOptions================')
-    console.log(obj)
     state.listOptionsItems = obj.items
     state.showListOptions = obj.show
     state.listOptionsPos = obj.pos

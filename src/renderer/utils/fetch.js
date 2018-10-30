@@ -69,7 +69,6 @@ Fetch.post = async function (url, params, $this, ContentType) {
         return response.json()
       }
     }).then((respResult) => {
-      console.log(respResult)
       switch (respResult.code) {
         case 200: // 成功
           resolve(respResult.ret)

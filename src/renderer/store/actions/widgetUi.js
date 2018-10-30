@@ -38,7 +38,6 @@ export function hideFullscreenImg ({state, commit}) {
 }
 
 export function showListOptions ({state, commit}, obj) {
-  console.log(obj)
   let items = []
   // 右键出现蓝框位置
   if (obj.key === 'p2p-isTop' || obj.key === 'team-isTop' || obj.key === 'team-notTop' || obj.key === 'p2p-notTop') {
