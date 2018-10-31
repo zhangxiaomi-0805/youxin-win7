@@ -47,11 +47,27 @@ export function showListOptions ({state, commit}, obj) {
     commit('updateNoticeAc', {
       id: ''
     })
+    commit('updateTeamAc', {
+      id: ''
+    })
+  } else if (obj.key === 'group') {
+    commit('updateTeamAc', {
+      id: obj.id
+    })
+    commit('updateSessionAc', {
+      id: ''
+    })
+    commit('updateNoticeAc', {
+      id: ''
+    })
   } else {
     commit('updateNoticeAc', {
       id: obj.id
     })
     commit('updateSessionAc', {
+      id: ''
+    })
+    commit('updateTeamAc', {
       id: ''
     })
   }
@@ -165,6 +181,16 @@ export function showListOptions ({state, commit}, obj) {
   let event31 = {
     title: '创建讨论组',
     callBack: () => obj.callBack(2)
+  }
+  let event32 = {
+    title: '邀请成员',
+    callBack: () => obj.callBack(1)
+  }
+  let event33 = {
+    title: '退出群',
+    callBack: () => {
+      obj.callBack(2)
+    }
   }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {
@@ -304,6 +330,12 @@ export function showListOptions ({state, commit}, obj) {
   if (obj.key === 'launch-chat') {
     items = [
       event30, event31
+    ]
+  }
+  // 群或讨论组右键
+  if (obj.key === 'group') {
+    items = [
+      event21, event32, event33
     ]
   }
 

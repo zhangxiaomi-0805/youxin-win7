@@ -17,7 +17,7 @@
     <ul class="u-list t-u-list" v-show="grouplist.length > 0 && listType === 'team'">
       <li
         :class='activeId === group.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
-        :style="hasBorder && group.id === acSessionId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
+        :style="hasBorder && group.teamId === acTeamId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
         v-for="group in grouplist"
         :key="group.id" 
         :id="group.id"
@@ -47,7 +47,9 @@ export default {
       scrollTop: 0,
       searchValue: '',
       activeId: '',
-      listType: 'team'
+      listType: 'team',
+      myNick: '',
+      myNickCopy: ''
     }
   },
   computed: {
@@ -63,8 +65,22 @@ export default {
       }
       return false
     },
-    acSessionId () {
-      return this.$store.state.sessionAc
+    acTeamId () {
+      return this.$store.state.teamAc
+    },
+    nickInTeam () {
+      let nickInTeam = ''
+      let teamMembers = this.$store.state.teamMembers
+      let members = teamMembers && teamMembers[this.teamId]
+      for (let key in members) {
+        if (members[key].account === this.myInfo.account) {
+          nickInTeam = members[key].nickInTeam || this.myInfo.nick
+          this.myNick = nickInTeam
+          this.myNickCopy = nickInTeam
+          return nickInTeam
+        }
+      }
+      return nickInTeam
     }
   },
   activated () {
@@ -81,11 +97,45 @@ export default {
       if (this.listType === value) return
       this.listType = value
     },
-    onShowMenu (e, session) {
+    onShowMenu (e, group) {
       // 单个列表右击事件
       if (e.button === 2) {
-        // to do soming
+        this.$store.dispatch('showListOptions', {
+          key: 'group',
+          show: true,
+          id: group.teamId,
+          pos: {
+            x: e.clientX,
+            y: e.clientY
+          },
+          callBack: (type) => {
+            switch (type) {
+              case 7:
+                // this.toggleRemindType(1, group)
+                console.log('消息免打扰')
+                break
+              case 1:
+                console.log('邀请成员')
+                break
+              case 2:
+                console.log('退出群')
+                break
+              default:
+                break
+            }
+          }
+        })
       }
+    },
+    toggleRemindType (type, group) {
+      if (this.remindMsgType === type) return
+      // 消息提醒
+      this.remindMsgType = type
+      this.$store.dispatch('updateInfoInTeam', {
+        teamInfo: group,
+        nickInTeam: this.myNick,
+        muteNotiType: type
+      })
     }
   }
 }
