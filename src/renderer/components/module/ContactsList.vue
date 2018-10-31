@@ -3,7 +3,7 @@
 
   <div v-if="contactslist.length > 0" class="u-search">
     <div class="u-cont">
-      <input type="text" v-model="searchValue" placeholder="搜索" />
+      <input type="text" v-model="searchValue" placeholder="搜索" @keyup="searchContact($event)"/>
       <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
     </div>
   </div>
@@ -23,7 +23,6 @@
       :key="contacts.id" 
       :id="contacts.id"
       class="u-list-item" 
-      :style="hasBorder && contacts.id === acContactsId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" 
       :class="contacts.id === activeId ? 'u-list-item-active' : ''" 
       @click="toggleNameCard(contacts)" 
     >
@@ -112,6 +111,7 @@ export default {
   },
   methods: {
     getData () {
+      // 获取常用联系人列表
       Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
         console.log(ret)
         this.tag = ret.tag
@@ -119,6 +119,19 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    searchContact (e) {
+      // 查找联系人
+      if (e.keyCode === 13) {
+        e.target.blur()
+        Fetch.post('api/appPc/queryUserList', {tag: this.tag}, this).then(ret => {
+          console.log(ret)
+          this.tag = ret.tag
+          // this.contactslist = ret.userContactList
+        }).catch(err => {
+          console.log(err)
+        })
+      }
     },
     toggleNameCard (contacts) {
       if (this.activeId === contacts.id) return

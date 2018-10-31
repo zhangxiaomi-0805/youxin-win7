@@ -61,20 +61,20 @@ export default {
     sessionlist () {
       return this.$store.state.sessionlist
     },
-    userInfos () {
-      // 通讯录用户信息中查找
-      let contactslist = this.$store.state.contactslist
-      for (let i in contactslist) {
-        let user = contactslist[i]
-        if (this.accid && (user.accid === this.accid)) {
-          return user
-        }
-        if (user.id === this.id) {
-          return user
-        }
-      }
-      return {}
-    },
+    // userInfos () {
+    //   // 通讯录用户信息中查找
+    //   let contactslist = this.$store.state.contactslist
+    //   for (let i in contactslist) {
+    //     let user = contactslist[i]
+    //     if (this.accid && (user.accid === this.accid)) {
+    //       return user
+    //     }
+    //     if (user.id === this.id) {
+    //       return user
+    //     }
+    //   }
+    //   return {}
+    // },
     cardInfo () {
       let teamlist = this.$store.state.teamlist
       let cardInfo = teamlist.find(item => {
