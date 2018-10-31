@@ -781,6 +781,9 @@ export default {
   updateNoticeAc (state, obj) {
     state.noticeAc = obj.id
   },
+  updateTeamAc (state, obj) {
+    state.teamAc = obj.id
+  },
   updatePersonInfos (state, obj) {
     // 更新用户信息
     state.personInfos = obj
