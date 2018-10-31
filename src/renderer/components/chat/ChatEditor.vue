@@ -60,7 +60,7 @@
         @mouseout="showPrompt = false"
       >
         <!-- <a class="b-common b-message"/>  -->
-        <a :class="isMsg ? 'b-common b-message-active' : 'b-common b-message'"/>
+        <a :class="isMsg ? 'b-common b-message-active' : 'b-common b-message'" style="width: 25px ; height: 20px"/>
       </div>
        
       <!-- 短信发送鼠标悬停时，显示的提示框 -->
@@ -80,7 +80,20 @@
       </div> -->
     </div>
     
-    <a class="u-positive-btn btn-send" @click="sendBlendMsg">发 送</a>
+    <div  class="u-positive-btn btn-send-box">
+      <a @click.stop="sendBlendMsg" class="btn-send">发送</a>
+      <div class="btn-send-quickSet" @click.stop="showQuickSet = true">
+        <a class="quick-send"></a>
+      </div>
+
+      <!-- 发送快捷键选择弹框 -->
+      <ul v-if="showQuickSet" class="quick-set-modal">
+        <li :class="quickIndex === $index ? 'modal-content-sel' : 'modal-content'" v-for="(item, $index) in quickSetList" :key="$index" @click.stop="closeQuickSet($index)">
+          <div :class="quickIndex === $index ? 'selected-style': 'noselected-style'"/>
+          <span>{{item.name}}</span>
+        </li>
+      </ul> 
+    </div>
   </div>
 </div>
 </template>
@@ -169,6 +182,9 @@ export default {
   },
   data () {
     return {
+      quickSetList: [{name: '按Enter键发送消息'}, {name: '按Ctrl+Enter键发送消息'}],
+      showQuickSet: false,
+      quickIndex: -1,
       showPrompt: false,
       isMsg: false,
       isEmojiShown: false,
@@ -212,6 +228,11 @@ export default {
     }
   },
   methods: {
+    closeQuickSet (index) {
+      this.showQuickSet = false
+      console.log(this.showQuickSet)
+      this.quickIndex = index
+    },
     createInput () {
       let input = document.createElement('input')
       input.type = 'file'
@@ -347,6 +368,7 @@ export default {
       }
     },
     inputMsg (e) {
+      console.log(e)
       if (this.showAtList && this.members.length !== 0) {
         switch (e.keyCode) {
           case 13: // 回车选中at列表
@@ -368,8 +390,12 @@ export default {
             }
             break
         }
-      } else if (e.keyCode === 13) {
+      } else if (this.quickIndex === 0 && e.keyCode === 13) {
         // 回车发送消息
+        e.preventDefault()
+        this.sendBlendMsg()
+      } else if (this.quickIndex === 1 && e.ctrlKey && e.keyCode === 13) {
+        // ctrl+回车发送消息
         e.preventDefault()
         this.sendBlendMsg()
       }
@@ -1190,25 +1216,91 @@ export default {
   font-size: 14px;
 }
 
-.g-window .m-chat-editor-main .btn-send {
+.g-window .m-chat-editor-main .btn-send-box {
   position: absolute;
   float: right;
-  right: 10px;
-  bottom: 10px;
-  width: 55px;
+  right: 12px;
+  bottom: 12px;
+  width: 70px;
   height: 28px;
   line-height: 28px;
   text-align: center;
   border-radius: 4px;
-  color: #333;
+  background-color: #F2F2F2;
+  transition: all .3s linear;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.g-window .m-chat-editor-main .btn-send {
+  width: 50px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
+  color: #323232;
   font-size: 12px;
-  background-color: rgba(242,242,242,1);
   transition: all .3s linear;
 }
-.g-window .m-chat-editor-main .btn-send:hover {
-  background-color: rgb(223, 219, 219);
+.btn-send-quickSet {
+  width: 20px;
+  height: 28px;
+  line-height: 28px;
+  text-align: center;
 }
-
+.btn-send-quickSet:hover {
+  background-color: #E9E9E9;
+}
+.quick-send {
+  display: inline-block;
+  width: 12px;
+  height: 8px;
+  background: url('../../../../static/img/setting/dropdown.png');
+  background-size: 12px 8px
+}
+.g-window .m-chat-editor-main .btn-send:hover {
+  background-color: #E9E9E9;
+}
+/* 发送快捷键选择弹框 */
+.quick-set-modal {
+  position: absolute;
+  float: right;
+  right: 0px;
+  bottom: 40px;
+  background: #fff;
+  z-index: 1005;
+  width: 196px;
+  height: 80px;
+  padding: 12px 10px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px 4px rgba(0, 0, 0, 0.14);
+}
+.quick-set-modal .modal-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: #333;
+  font-size: 13px;
+}
+.quick-set-modal .modal-content-sel,.modal-content:hover {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 13px;
+  color: #049AFF;
+}
+.quick-set-modal .selected-style {
+  width: 15px;
+  height: 12px;
+  margin-right: 10px;
+  background: url("../../../../static/img/edit/checked.png");
+  background-size: 100% 100%
+}
+.quick-set-modal .noselected-style {
+  width: 13px;
+  height: 13px;
+  margin-right: 10px;
+}
 .g-window .m-chat-editor-main .u-editor-icons {
     position: absolute;
     display: inline-block;
@@ -1324,17 +1416,17 @@ export default {
 /* 短信发送 */
 .g-window .m-chat-editor-main .u-editor-icons .b-message {
   background-image: url('../../../../static/img/edit/message.png');
-  background-size: 22px 20px;
+  background-size: 25px 20px;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message:hover, .b-message:focus {
   background-image: url('../../../../static/img/edit/message-h.png');
-  background-size: 22px 20px;
+  background-size: 25px 20px;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message-active {
   background-image: url('../../../../static/img/edit/message-p.png');
-  background-size: 22px 20px;
+  background-size: 25px 20px;
 }
 
 /* 语音聊天 */
@@ -1411,5 +1503,6 @@ export default {
   top: 2.5rem;
   bottom: 45px;
 }
+
 
 </style>

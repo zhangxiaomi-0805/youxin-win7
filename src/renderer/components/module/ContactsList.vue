@@ -20,11 +20,12 @@
   <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}" ref="contactsList" @scroll="scrollTop = $event.target.scrollTop">
     <li 
       v-for="contacts in contactslist" 
-      :key="contacts.id" 
-      :id="contacts.id"
+      :key="contacts.accid" 
+      :id="contacts.accid"
       class="u-list-item" 
-      :class="contacts.id === activeId ? 'u-list-item-active' : ''" 
+      :class="contacts.accid === activeId ? 'u-list-item-active' : ''" 
       @click="toggleNameCard(contacts)" 
+      @dblclick="toggleSession(contacts.accid)"
     >
       <div class="u-list-item-container" :class="contacts.localCustom && contacts.localCustom.topTime ? 'contacts-box-item-isTop' : ''">
         <div style="display: flex; align-items: center; width:100%;">
@@ -99,6 +100,9 @@ export default {
     }
   },
   computed: {
+    sessionlist () {
+      return this.$store.state.sessionlist
+    },
     onLineNum () {
       let num = 0
       for (let i in this.contactslist) {
@@ -122,6 +126,7 @@ export default {
     getData () {
       // 获取常用联系人列表
       Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
+        console.log(ret)
         this.tag = ret.tag
         this.contactslist = ret.userContactList
       }).catch(err => {
@@ -143,15 +148,35 @@ export default {
       if (this.activeId === contacts.accid) return
       this.activeId = contacts.accid
       this.callBack({contactId: contacts.accid})
+    },
+    toggleSession (account) {
+      console.log('聊天')
+      clearTimeout(this.timer) // 清除
+      // 双击切换聊天
+      // 发送消息、创建群聊
+      let sessionId = ''
+      for (let i in this.sessionlist) {
+        if (this.sessionlist[i].to === account) {
+          sessionId = this.sessionlist[i].id
+          break
+        }
+      }
+      if (sessionId) {
+        this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+        this.eventBus.$emit('toggleSelect', {sessionId})
+        this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+      } else {
+        this.$store.dispatch('insertLocalSession', {
+          scene: this.pageType,
+          account: account,
+          callback: (sessionId) => {
+            this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+            this.eventBus.$emit('toggleSelect', {sessionId})
+            this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+          }
+        })
+      }
     }
-    // toggleSession (contacts) {
-    //   clearTimeout(this.timer) // 清除
-    //   // 双击切换聊天
-    //   let contactId = contacts.id
-    //   let pageType = contacts.type === 1 ? 'p2p' : 'team'
-    //   this.$router.push({name: 'chat', query: {pageType, id: contactId, firstFlag: true}})
-    //   // this.eventBus.$emit('checkUser', {})
-    // }
   }
 }
 </script>

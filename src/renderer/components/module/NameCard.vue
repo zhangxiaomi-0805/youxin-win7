@@ -20,7 +20,7 @@
         <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature ? userInfos.signature : '-'}}</span></div>
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
-        <a class="deleteContact"  @click="deleteContact(userInfos.accid)">删除常用联系人</a>
+        <a class="delete-contact"  @click="deleteContact(userInfos.accid)">删除常用联系人</a>
       </div>
       <div class="nc-team" v-else-if="pageType === 'team'">
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
@@ -63,20 +63,17 @@ export default {
     sessionlist () {
       return this.$store.state.sessionlist
     },
-    userInfos () {
-      if (this.userInfos) {
-        return
-      }
-      // 通讯录用户信息中查找
-      let contactslist = this.$store.state.contactslist
-      for (let i in contactslist) {
-        let user = contactslist[i]
-        if (user.accid === this.accid) {
-          return user
-        }
-      }
-      return {}
-    },
+    // userInfos () {
+    //   // 通讯录用户信息中查找
+    //   let contactslist = this.$store.state.contactslist
+    //   for (let i in contactslist) {
+    //     let user = contactslist[i]
+    //     if (user.accid === this.accid) {
+    //       return user
+    //     }
+    //   }
+    //   return {}
+    // },
     cardInfo () {
       let teamlist = this.$store.state.teamlist
       let cardInfo = teamlist.find(item => {
@@ -91,21 +88,6 @@ export default {
     }
   },
   methods: {
-    getUserInfos () {
-      if (this.pageType === 'p2p') {
-        /*
-         * 获取用户信息
-         * @params  JSON字符串(对象数组)
-         */
-        Fetch.post('api/appPc/userInfo', {accid: this.accid}, this).then(ret => {
-          if (ret) {
-            this.userInfos = ret
-            return ret.accid
-          }
-        }).catch(() => {
-        })
-      }
-    },
     sendMsg (account) {
       // 发送消息、创建群聊
       let sessionId = ''
@@ -131,7 +113,24 @@ export default {
         })
       }
     },
-    deleetContact (accid) {
+    getUserInfos () {
+      if (this.pageType === 'p2p') {
+        /*
+         * 获取用户信息
+         * @params  JSON字符串(对象数组)
+         */
+        Fetch.post('api/appPc/userInfo', {accid: this.accid}, this).then(ret => {
+          console.log(ret)
+          if (ret) {
+            this.userInfos = ret
+            return ret.accid
+          }
+        }).catch(() => {
+        })
+      }
+    },
+    deleteContact (accid) {
+      console.log(accid)
       // 删除常用联系人 userType === 1 ---添加； userType === 2 ---删除
       let params = {
         accid,
@@ -139,6 +138,7 @@ export default {
       }
       // 添加常用联系人
       Fetch.post('api/appPc/addOrDelContactUser', params, this).then(ret => {
+        console.log(ret)
       }).catch(() => {
       })
     }
@@ -339,7 +339,7 @@ export default {
   .nc-p2p .edit:hover, .edit:focus {
     background-image: url('../../../../static/img/setting/edit-h.png');
   }
-  .deleteContact {
+  .delete-contact {
     width: 100%;
     height: 36px;
     line-height: 36px;
@@ -351,5 +351,8 @@ export default {
     transition: background .2s linear;
     color: #F43530;
     font-size: 14px;
+  }
+  .delete-contact:hover {
+    background-color: #e0e0e0;
   }
 </style>
