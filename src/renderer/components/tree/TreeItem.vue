@@ -2,10 +2,10 @@
 <div>
   <ul class="t-u-list">
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
-      <div class="t-orgname" :style="{paddingLeft: (orgLevel + 1) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
+      <div class="t-orgname" :style="{paddingLeft: (orgnize.orgLevel + 1) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
         <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
         <span v-else class="t-common"/>
-        <span class="t-file"/>
+        <!-- <span class="t-file"/> -->
         <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
       </div>
       <div    
@@ -28,7 +28,7 @@
     class="t-u-list t-body active">
     <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
       <div 
-        :class="!showCheck && (orgSelectId === user.id && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'" 
+        :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'" 
         :style="{paddingLeft: (orgLevel + 1) * 16 + 'px'}" 
         @click="orgHandle(user)">
         <span v-if="showCheck" :class="className(user)"></span>
@@ -51,7 +51,7 @@ export default {
     orgnizeObj: Object,
     orgnizeLevelObj: Object,
     orgLevel: Number,
-    orgSelectId: Number,
+    orgSelectId: String,
     orgSelectLevel: Number,
     orgSelectHandle: Function,
     renderOrgData: Function
@@ -151,7 +151,7 @@ export default {
     align-items: center;
     box-sizing: border-box;
     width: 100%;
-    min-height: 30px;
+    min-height: 36px;
     padding-left: 12px;
     padding-right: 12px;
     font-size: 14px;
@@ -178,18 +178,16 @@ export default {
     width: 15px;
     height: 15px; 
     background: url('../../../../static/img/orgnize/takeup.png') no-repeat center center;
-    background-size: 7px 8px;
+    background-size: 7px 9px;
     margin-right: 3.5px;
-    margin-left: 5px;
   }
 
   .t-orgname .t-open {
     width: 15px;
     height: 15px;
     margin-right: 3.5px;
-    margin-left: 5px;
     background: url('../../../../static/img/orgnize/open.png') no-repeat center center;
-    background-size: 8px 7px;
+    background-size: 9px 7px;
   }
 
   .t-orgname .orgname {

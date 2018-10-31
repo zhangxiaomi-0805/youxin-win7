@@ -45,6 +45,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
         }
         commit('connectStatus', { networkStatus: 200 })
         ipcRenderer.send('logined', null)
+        console.log('onconnect===============')
       }
     },
     onerror: function onError (event) {
@@ -62,6 +63,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
       // console.log(event)
     },
     ondisconnect: function onDisconnect (error) {
+      console.log('ondisconnect===============')
       switch (error.code) {
         // 账号或者密码错误, 请跳转到登录页面并提示错误
         case 302:

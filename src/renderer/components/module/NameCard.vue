@@ -9,7 +9,7 @@
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.fullName">{{userInfos.fullName}}</div>
         </div>
-        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.accid ? '#333' : '#999'}" :title="userInfos.accid">{{userInfos.accid ? userInfos.accid : '未设置'}}</span></div>
+        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.fullName ? '#333' : '#999'}" :title="userInfos.fullName">{{userInfos.fullName ? userInfos.fullName : '未设置'}}</span></div>
         <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
         <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
         <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
@@ -20,7 +20,7 @@
         <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature ? userInfos.signature : '-'}}</span></div>
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
-        <a class="deleteContact">删除常用联系人</a>
+        <a class="deleteContact"  @click="deleteContact(userInfos.accid)">删除常用联系人</a>
       </div>
       <div class="nc-team" v-else-if="pageType === 'team'">
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
@@ -35,15 +35,13 @@
 <script>
 import configs from '../../configs/index.js'
 import Fetch from '../../utils/fetch.js'
-import LocalStorage from 'localStorage'
 export default {
   name: 'namecard',
   props: {
     pageType: String,
-    id: Number,
     accid: String,
     teamId: String,
-    contactId: Number
+    contactId: String
   },
   data () {
     return {
@@ -54,27 +52,31 @@ export default {
     }
   },
   mounted () {
-    console.log(this.pageType)
     this.getUserInfos()
+  },
+  watch: {
+    accid () {
+      this.getUserInfos()
+    }
   },
   computed: {
     sessionlist () {
       return this.$store.state.sessionlist
     },
-    // userInfos () {
-    //   // 通讯录用户信息中查找
-    //   let contactslist = this.$store.state.contactslist
-    //   for (let i in contactslist) {
-    //     let user = contactslist[i]
-    //     if (this.accid && (user.accid === this.accid)) {
-    //       return user
-    //     }
-    //     if (user.id === this.id) {
-    //       return user
-    //     }
-    //   }
-    //   return {}
-    // },
+    userInfos () {
+      if (this.userInfos) {
+        return
+      }
+      // 通讯录用户信息中查找
+      let contactslist = this.$store.state.contactslist
+      for (let i in contactslist) {
+        let user = contactslist[i]
+        if (user.accid === this.accid) {
+          return user
+        }
+      }
+      return {}
+    },
     cardInfo () {
       let teamlist = this.$store.state.teamlist
       let cardInfo = teamlist.find(item => {
@@ -89,6 +91,21 @@ export default {
     }
   },
   methods: {
+    getUserInfos () {
+      if (this.pageType === 'p2p') {
+        /*
+         * 获取用户信息
+         * @params  JSON字符串(对象数组)
+         */
+        Fetch.post('api/appPc/userInfo', {accid: this.accid}, this).then(ret => {
+          if (ret) {
+            this.userInfos = ret
+            return ret.accid
+          }
+        }).catch(() => {
+        })
+      }
+    },
     sendMsg (account) {
       // 发送消息、创建群聊
       let sessionId = ''
@@ -114,37 +131,16 @@ export default {
         })
       }
     },
-    getUserInfos () {
-      if (this.pageType === 'p2p') {
-        let accid = LocalStorage.getItem('uid')
-        // let params = []
-        // if (this.accid) {
-        //   params = [
-        //     {
-        //       // tag: this.userInfos.tag || 0,
-        //       accid: this.accid
-        //     }
-        //   ]
-        // } else {
-        //   params = [
-        //     {
-        //       tag: this.userInfos.tag || 0,
-        //       id: this.id
-        //     }
-        //   ]
-        // }
-        /*
-         * 获取用户信息
-         * @params  JSON字符串(对象数组)
-         */
-        Fetch.post('api/appPc/userInfo', {accid}, this).then(ret => {
-          if (ret) {
-            this.userInfos = ret
-            this.$store.commit('updateContactslist', {data: ret, type: 'update'})
-          }
-        }).catch(() => {
-        })
+    deleetContact (accid) {
+      // 删除常用联系人 userType === 1 ---添加； userType === 2 ---删除
+      let params = {
+        accid,
+        userType: 2
       }
+      // 添加常用联系人
+      Fetch.post('api/appPc/addOrDelContactUser', params, this).then(ret => {
+      }).catch(() => {
+      })
     }
   }
 }

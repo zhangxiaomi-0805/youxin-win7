@@ -8,12 +8,12 @@
         <span :class="orginzeopen ? 't-up' : 't-down'"/>
       </div>
     </a>
-    <div :class="orginzeopen ? 't-body active' : 't-body'">
+    <!-- <div :class="orginzeopen ? 't-body active' : 't-body'">
       <div class="t-orgname" style="paddingLeft: 12px;" @click="toggleCheck">
         <span :class="companyopen ? 't-open' : 't-takeup'"/>
         <span class="orgname" :title="companyInfo.name || '公司名称'">{{companyInfo.name || '公司名称'}}</span>
       </div>
-      <div v-if="orgnizeObj[0]" :class="companyopen ? 't-body active' : 't-body'" style="padding: 0;">
+      <div v-if="orgnizeObj[0]" :class="companyopen ? 't-body active' : 't-body'" style="padding: 0">
         <tree-item
           :showCheck="showCheck"
           :orgnizeObj="orgnizeObj"
@@ -24,7 +24,16 @@
           :orgSelectHandle="orgSelectHandle"
           :renderOrgData="renderOrgData"/>
       </div>
-    </div>
+    </div> -->
+    <tree-item
+      :showCheck="showCheck"
+      :orgnizeObj="orgnizeObj"
+      :orgnizeLevelObj="orgnizeObj[0]"
+      :orgLevel="1"
+      :orgSelectId="orgSelectId"
+      :orgSelectLevel="orgSelectLevel"
+      :orgSelectHandle="orgSelectHandle"
+      :renderOrgData="renderOrgData"/>
   </div>
 </div>
 </template>
@@ -49,12 +58,9 @@ export default {
       orginzeopen: !this.showTitle, // 组织机构展开状态
       companyopen: false, // 公司展开状态
       companyInfo: {}, // 公司信息
-      orgSelectId: -1, // 选中组织成员id
+      orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1 // 选中组织成员所属组织
     }
-  },
-  mounted () {
-    this.getCompanyInfo()
   },
   computed: {
     orgnizeObj () {
@@ -68,7 +74,7 @@ export default {
     className (contact) {
       for (let i in this.createTeamSelect) {
         let item = this.createTeamSelect[i]
-        if (item.id === contact.to || item.accid === contact.to) {
+        if (item.accid === contact.to) {
           return 'checked common'
         }
       }
@@ -84,13 +90,13 @@ export default {
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', user})
         return false
       }
-      if ((user.id === this.orgSelectId) && (user.level === this.orgSelectLevel)) {
+      if ((user.accid === this.orgSelectId) && (user.level === this.orgSelectLevel)) {
         return false
       }
-      this.orgSelectId = user.id
+      this.orgSelectId = user.accid
       this.orgSelectLevel = user.level
-      this.$store.commit('upadteContactSelectObj', {type: 'p2p', id: user.id, accid: user.accid})
-      this.callBack({id: user.id, accid: user.accid})
+      this.$store.commit('upadteContactSelectObj', {type: 'p2p', accid: user.accid})
+      this.callBack({accid: user.accid})
     },
     toggleCheck () {
       // 切换公司展开状态
@@ -131,15 +137,6 @@ export default {
         }
       }).catch(() => {
       })
-    },
-    getCompanyInfo () {
-      /*
-       * 获取公司信息
-       */
-      Fetch.post('api/appPc/companyInfo', {
-      }, this).then(ret => {
-        if (ret) this.companyInfo = ret
-      }).catch(() => {})
     }
   }
 }

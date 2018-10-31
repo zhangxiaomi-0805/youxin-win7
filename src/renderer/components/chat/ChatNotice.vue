@@ -4,9 +4,6 @@
   <div class="m-content">
     <div class="m-title notice">
       <span class="notice">公告</span>
-      <div style="width: 16px; height: 16px">
-        <img src="../../../../static/img/setting/edit.png" alt="" style="width: 100%">
-      </div>
     </div>
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
@@ -34,6 +31,7 @@
 </template>
 
 <script>
+import Fetch from '../../utils/fetch.js'
 export default {
   name: 'chat-notice',
   props: {
@@ -231,20 +229,21 @@ export default {
             y: event.clientY + 15
           },
           callBack: (type) => {
-            console.log(type)
             switch (type) {
               case 1:
+                // 发消息
                 this.sendMsg(this.userInfos[member.account])
                 break
               case 5:
+                // 查看资料
                 this.checkUserInfo(event, member)
-                // this.$store.dispatch('addTeamManagers', {accounts: [member.account], teamId: this.teamId})
                 break
               case 6:
-                console.log('+常用联系人')
-                // this.$store.dispatch('removeTeamManagers', {accounts: [member.account], teamId: this.teamId})
+                // 添加常用联系人
+                this.addContact(member)
                 break
               case 7:
+                // 移出本群
                 if (this.memberList.length === 1) return
                 this.$store.dispatch('removeTeamMembers', {accounts: [member.account], teamId: this.teamId})
                 break
@@ -278,6 +277,16 @@ export default {
         })
       }
       this.eventBus.$emit('selectContact', {type: 6, sidelist, teamId: this.teamId})
+    },
+    addContact (member) {
+      let params = {
+        accid: member.account,
+        userType: 1
+      }
+      // 添加常用联系人 userType === 1 ---添加； userType === 2 ---删除
+      Fetch.post('api/appPc/addOrDelContactUser', params, this).then(ret => {
+      }).catch(() => {
+      })
     },
     sendMsg (userInfos) {
       // 发消息

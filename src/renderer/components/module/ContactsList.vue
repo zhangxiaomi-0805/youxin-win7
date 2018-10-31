@@ -14,7 +14,7 @@
 
    <div v-if="contactslist.length > 0" class="contacts-title">
     <span>常用联系人</span>
-    <span>8/12</span>
+    <span>{{onLineNum + '/' + contactslist.length}}</span>
   </div>
 
   <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}" ref="contactsList" @scroll="scrollTop = $event.target.scrollTop">
@@ -28,12 +28,12 @@
     >
       <div class="u-list-item-container" :class="contacts.localCustom && contacts.localCustom.topTime ? 'contacts-box-item-isTop' : ''">
         <div style="display: flex; align-items: center; width:100%;">
-          <img class="icon" :src="contacts.avatar"/>
+          <img class="icon" :src="contacts.avatar || defaultUserIcon"/>
           <div class="multi-content">
             <div class="title" style="width: 95%;">{{contacts.name}}</div>
             <div class="content">
-              <span>{{'[' + contacts.status + ']'}}</span>
-              <span>{{contacts.signName ? contacts.signName : ''}}</span>
+              <span>{{contacts.userStatus===1 ? '[离线]' : '[在线]'}}</span>
+              <span>{{contacts.signature ? contacts.signature : ''}}</span>
             </div>
           </div>
         </div>
@@ -94,11 +94,20 @@ export default {
       scrollTop: 0,
       searchValue: '',
       noticeIcon: config.noticeIcon,
-      myAdvancedIcon: config.defaultAdvancedIcon,
-      contactslist: [{scene: 'p2p', id: 1, avatar: config.defaultUserIcon, name: '产品-叶晓晓', status: '在线', signName: '做一个有志气的胖纸,哈哈哈哈哈'}, {scene: 'p2p', id: 2, avatar: config.defaultUserIcon, name: '测试-黄灿灿', status: '在线', signName: '做一个有志气的胖纸'}]
+      defaultUserIcon: config.defaultUserIcon,
+      contactslist: []
     }
   },
   computed: {
+    onLineNum () {
+      let num = 0
+      for (let i in this.contactslist) {
+        if (this.contactslist[i].userStatus === 2) {
+          ++num
+        }
+      }
+      return num
+    },
     networkStatus () {
       return this.$store.state.networkStatus
     },
@@ -113,9 +122,8 @@ export default {
     getData () {
       // 获取常用联系人列表
       Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
-        console.log(ret)
         this.tag = ret.tag
-        // this.contactslist = ret.userContactList
+        this.contactslist = ret.userContactList
       }).catch(err => {
         console.log(err)
       })
@@ -125,18 +133,16 @@ export default {
       if (e.keyCode === 13) {
         e.target.blur()
         Fetch.post('api/appPc/queryUserList', {tag: this.tag}, this).then(ret => {
-          console.log(ret)
           this.tag = ret.tag
-          // this.contactslist = ret.userContactList
         }).catch(err => {
           console.log(err)
         })
       }
     },
     toggleNameCard (contacts) {
-      if (this.activeId === contacts.id) return
-      this.activeId = contacts.id
-      this.callBack({contactId: contacts.id})
+      if (this.activeId === contacts.accid) return
+      this.activeId = contacts.accid
+      this.callBack({contactId: contacts.accid})
     }
     // toggleSession (contacts) {
     //   clearTimeout(this.timer) // 清除

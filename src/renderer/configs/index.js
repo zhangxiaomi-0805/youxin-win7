@@ -29,15 +29,14 @@ var config = {
 const env = 'test'
 
 let appConfig = {
-  // 用户的appkey dev-postUrl: 'http://192.168.2.198:10080/'
+  // 用户的appkey
   dev: {
     appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
     postUrl: 'http://59.111.148.80:8088/'
   },
   test: {
-    appkey: 'f5ffcda3b27dc463b668fef67cc3a3da',
+    appkey: '6e2baf0f1988f1ff2c6ca4fe46043e88',
     postUrl: 'http://imapi.eyuntx.com/'
-    // postUrl: 'https://nicetest.yunxin.163.com/'
   },
   online: {
     appkey: '393f9c3f3dabdc573cc634303f09573e',

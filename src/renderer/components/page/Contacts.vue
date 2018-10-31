@@ -8,7 +8,7 @@
       <div v-if="!showCard" class="body" style="backgroundColor: #fff">
         <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
       </div>
-      <name-card v-else pageType="p2p" :contactId="contactId"/>
+      <name-card v-else pageType="p2p" :contactId="contactId" :accid="contactId"/>
     </div>
   </div>
 </div>
