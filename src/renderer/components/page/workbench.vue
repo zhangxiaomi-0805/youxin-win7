@@ -8,11 +8,11 @@
       <ul class="list-box">
         <li 
           class="list-item" v-for="(item, $index) of dataList" :key="$index"
-          @mouseover="selectedIndex = $index"
-          @mnouseout="selectedIndex = -1"
+          @mouseover.stop="selectedIndex = $index"
+          @mouseout.stop="selectedIndex = -1"
         >
           <div class="list-content-box">
-            <div style="width: 20%; height: 20%;display: flex; align-items: center; margin-right: 10px">
+            <div style="width: 55px; height: 55px;display: flex; align-items: center; margin-right: 10px">
               <img :src="item.appIconUrl" alt="" style="width: 100%">
             </div> 
 
@@ -41,21 +41,22 @@ export default {
     return {
       selectedIndex: -1,
       logo: './static/img/no-msg.png',
-      dataList: [ {appIconUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540556654448&di=c8b410e77ba76e0cc630ef5c75dfd661&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01730758f113e7a8012049efbab035.png%402o.jpg', appName: '网易云音乐-音乐的力量', remark: '和4亿有趣的人听歌看评论'}, {appIconUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540556654448&di=c8b410e77ba76e0cc630ef5c75dfd661&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01730758f113e7a8012049efbab035.png%402o.jpg', appName: '网易考拉', remark: '买进口，上考拉！'}, {appIconUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540556654448&di=c8b410e77ba76e0cc630ef5c75dfd661&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01730758f113e7a8012049efbab035.png%402o.jpg', appName: '网易邮箱大师', remark: '高效强大的圈平台邮箱客户端'}, {appIconUrl: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1540556654448&di=c8b410e77ba76e0cc630ef5c75dfd661&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01730758f113e7a8012049efbab035.png%402o.jpg', appName: '网易新闻', remark: '头条视频先看'} ]
+      dataList: []
     }
   },
   mounted () {
-    // 获取接入系统列表
-    // this.getThirdList()
+    this.getThirdList()
   },
   methods: {
-    // getThirdList () {
-    //   Fetch.post('api/appPc/thirdList', {}, this).then(ret => {
-    //     console.log(ret)
-    //   }).catch(err => {
-    //     console.log(err)
-    // })
-    // }
+    getThirdList () {
+      // 获取接入系统列表
+      Fetch.post('api/appPc/thirdList', {}, this).then(ret => {
+        console.log(ret)
+        this.dataList = ret
+      }).catch(err => {
+        console.log(err)
+      })
+    }
   }
 }
 </script>

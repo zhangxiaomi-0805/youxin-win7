@@ -22,8 +22,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
   // 不需要携带token
   let noTokenUrl = [
     'api/appPc/resetPassword',
-    'api/appPc/login/auth',
-    'api/appPc/thirdList'
+    'api/appPc/login/auth'
   ]
   let needToken = true
   for (let key in noTokenUrl) {

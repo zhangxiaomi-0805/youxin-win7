@@ -6,7 +6,7 @@
       <span class="notice">公告</span>
     </div>
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
-    <a v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
+    <a class="b-edit" @click="showEditNotice('edit')"/>
   </div>
   <div 
     @click.stop="showListOptions($event)" 
