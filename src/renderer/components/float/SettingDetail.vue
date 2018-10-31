@@ -347,71 +347,37 @@ export default {
       }
       this.loading = true
       /*
-       * 登录成功后确认原密码
-       * @params  password: 待确认的原密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
+       * 登录成功修改密码
+       * @params  password: 修改密码的内容 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
        */
-      Fetch.post('api/appPc/confirmOrigPassword', {
-        password: DES.encryptByDES(this.password)
+      Fetch.post('api/appPc/modifyPassword', {
+        password: DES.encryptByDES(this.newPwd),
+        oldPassword: DES.encryptByDES(this.password),
+        confirmPassword: DES.encryptByDES(this.confirmNewPwd)
       }, this).then(ret => {
-        let errMsg = ''
-        if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.newPwd) || this.newPwd.length < 6) {
-          errMsg = '密码格式不正确'
-        } else if (this.newPwd !== this.confirmNewPwd) {
-          errMsg = '两次输入的密码不一致'
-        }
-        if (errMsg) {
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: errMsg
-          })
-          this.loading = false
-          return
-        }
-        /*
-         * 登录成功修改密码
-         * @params  password: 修改密码的内容 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-         */
-        Fetch.post('api/appPc/modifyPassword', {
-          password: DES.encryptByDES(this.newPwd)
-        }, this).then(ret => {
-          this.loading = false
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'success',
-            toastText: '密码修改成功'
-          })
-          // 状态重置
-          this.closeModal()
-          this.eventBus.$emit('generalSetting', {show: false})
-          // 更新密码
-          let USERINFO = localStorage.AUTOLOGIN
-          if (USERINFO) {
-            USERINFO = JSON.parse(USERINFO)
-            USERINFO.password = DES.encryptByDES(this.password)
-            localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
-          }
-        }).catch((err) => {
-          this.loading = false
-          if (err) {
-            this.$store.commit('toastConfig', {
-              show: true,
-              type: 'fail',
-              toastText: err.msg
-            })
-          }
+        this.loading = false
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'success',
+          toastText: '密码修改成功'
         })
+        // 状态重置
+        this.closeModal()
+        this.eventBus.$emit('generalSetting', {show: false})
+        // 更新密码
+        let USERINFO = localStorage.AUTOLOGIN
+        if (USERINFO) {
+          USERINFO = JSON.parse(USERINFO)
+          USERINFO.password = DES.encryptByDES(this.password)
+          localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
+        }
       }).catch((err) => {
         this.loading = false
         if (err) {
-          let toastText = err.msg
-          if (err.code === 413) {
-            toastText = '密码输入错误，请重新输入'
-          }
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
-            toastText: toastText
+            toastText: err.msg
           })
         }
       })

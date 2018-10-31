@@ -115,7 +115,7 @@ export default {
       Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
         console.log(ret)
         this.tag = ret.tag
-        this.contactslist = ret.userContactList
+        // this.contactslist = ret.userContactList
       }).catch(err => {
         console.log(err)
       })
