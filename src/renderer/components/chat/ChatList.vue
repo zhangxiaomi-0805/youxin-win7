@@ -7,7 +7,7 @@
       已无更多记录
     </li>
     <chat-item
-      v-for="(msg, index) in msglist"
+      v-for="msg in msglist"
       :type="type"
       :scene="scene"
       :to="to"
@@ -16,7 +16,7 @@
       :userInfos="userInfos"
       :myInfo="myInfo"
       :teamId="teamId"
-      :key="index"
+      :key="msg.idClient"
       :idClient="msg.idClient"
       :isHistory='isHistory'
       @msg-loaded="msgLoaded"

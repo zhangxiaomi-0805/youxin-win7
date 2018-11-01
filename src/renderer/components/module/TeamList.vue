@@ -166,9 +166,9 @@ export default {
   .t-u-list-item {
     justify-content: space-between;
     width: 100%;
-    height: 67px;
+    height: 68px;
     box-sizing: border-box;
-    padding: 0 10px;
+    padding: 0 12px;
     cursor: default;
   }
   .t-u-list-item img {

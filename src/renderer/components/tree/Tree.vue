@@ -1,39 +1,50 @@
 <template>
-<!-- 组织树 -->
 <div>
-  <div style="marginBottom: 5px;">
-    <a v-if="showTitle" class="t-list" @click="toggleOrg">
+  <!-- 群组 -->
+  <div v-if="showTeam">
+    <a class="t-list" @click="teamopen = !teamopen">
       <div class="t-center t-title">
-        <div class="t-center"><span style="line-height: 14px;">组织架构</span></div>
-        <span :class="orginzeopen ? 't-up' : 't-down'"/>
+        <span :class="teamopen ? 't-up' : 't-down'"/>
+        <div class="t-center"><span style="line-height: 14px;">群组</span></div>
       </div>
     </a>
-    <!-- <div :class="orginzeopen ? 't-body active' : 't-body'">
-      <div class="t-orgname" style="paddingLeft: 12px;" @click="toggleCheck">
-        <span :class="companyopen ? 't-open' : 't-takeup'"/>
-        <span class="orgname" :title="companyInfo.name || '公司名称'">{{companyInfo.name || '公司名称'}}</span>
+    <div :class="teamopen ? 't-body active' : 't-body'">
+      <ul class="t-u-list" v-if="grouplist.length > 0">
+        <li 
+          class="t-u-list-item t-center"
+          v-for="group in grouplist" 
+          :key="group.id"
+          :id="group.id"
+          @mouseenter="teamAddAllId = group.teamId"
+          @mouseleave="teamAddAllId = -1"
+        >
+          <img :src="group.avatar || defaultIcon"/>
+          <span class="teamname" :title="group.name">{{group.name}}</span>
+          <a v-if="group.teamId === teamAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- 组织树 -->
+  <div>
+    <a v-if="showTitle" class="t-list" @click="toggleOrg">
+      <div class="t-center t-title">
+        <span :class="orginzeopen ? 't-up' : 't-down'"/>
+        <div class="t-center"><span style="line-height: 14px;">组织架构</span></div>
       </div>
-      <div v-if="orgnizeObj[0]" :class="companyopen ? 't-body active' : 't-body'" style="padding: 0">
-        <tree-item
-          :showCheck="showCheck"
-          :orgnizeObj="orgnizeObj"
-          :orgnizeLevelObj="orgnizeObj[0]"
-          :orgLevel="1"
-          :orgSelectId="orgSelectId"
-          :orgSelectLevel="orgSelectLevel"
-          :orgSelectHandle="orgSelectHandle"
-          :renderOrgData="renderOrgData"/>
-      </div>
-    </div> -->
-    <tree-item
-      :showCheck="showCheck"
-      :orgnizeObj="orgnizeObj"
-      :orgnizeLevelObj="orgnizeObj[0]"
-      :orgLevel="1"
-      :orgSelectId="orgSelectId"
-      :orgSelectLevel="orgSelectLevel"
-      :orgSelectHandle="orgSelectHandle"
-      :renderOrgData="renderOrgData"/>
+    </a>
+    <div :class="orginzeopen ? 't-body active' : 't-body'">
+      <tree-item
+        :showTitle="showTitle"
+        :showCheck="showCheck"
+        :orgnizeObj="orgnizeObj"
+        :orgnizeLevelObj="orgnizeObj[0]"
+        :orgLevel="1"
+        :orgSelectId="orgSelectId"
+        :orgSelectLevel="orgSelectLevel"
+        :orgSelectHandle="orgSelectHandle"
+        :renderOrgData="renderOrgData"/>
+    </div>
   </div>
 </div>
 </template>
@@ -42,6 +53,7 @@
 import configs from '../../configs/index.js'
 import TreeItem from './TreeItem.vue'
 import Fetch from '../../utils/fetch.js'
+import SearchData from '../search/search.js'
 export default {
   name: 'tree',
   props: {
@@ -57,14 +69,22 @@ export default {
       defaultUserIcon: configs.defaultUserIcon,
       orginzeopen: !this.showTitle, // 组织机构展开状态
       companyopen: false, // 公司展开状态
+      teamopen: false, // 群展开状态
       companyInfo: {}, // 公司信息
       orgSelectId: '', // 选中组织成员id
-      orgSelectLevel: -1 // 选中组织成员所属组织
+      orgSelectLevel: -1, // 选中组织成员所属组织
+      teamAddAllId: -1
     }
   },
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
+    },
+    grouplist () {
+      let grouplist = this.$store.state.teamlist.filter(item => {
+        return item.valid && item.validToCurrentUser
+      })
+      return grouplist
     },
     createTeamSelect () {
       return this.$store.state.createTeamSelect
@@ -83,11 +103,10 @@ export default {
     toggleOrg () {
       // 组织架构展开、收起
       this.orginzeopen = !this.orginzeopen
-      this.orginzeopen && this.getCompanyInfo()
     },
     orgSelectHandle (user) {
       if (this.showCheck) {
-        this.$store.commit('upadteCreateTeamSelect', {type: 'update', user})
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
         return false
       }
       if ((user.accid === this.orgSelectId) && (user.level === this.orgSelectLevel)) {
@@ -97,6 +116,16 @@ export default {
       this.orgSelectLevel = user.level
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', accid: user.accid})
       this.callBack({accid: user.accid})
+    },
+    async groupSelectHandle (group) {
+      let teamMembers = []
+      try {
+        teamMembers = await SearchData.getTeamMembers(group.teamId)
+      } catch (error) {}
+      console.log(teamMembers)
+      // group.scene = 'team'
+      // group.to = group.teamId
+      // this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
     },
     toggleCheck () {
       // 切换公司展开状态
@@ -161,9 +190,9 @@ export default {
 
   .t-title {
     box-sizing: border-box;
-    justify-content: space-between;
+    justify-content: flex-start;
     width: 100%;
-    height: 34px;
+    height: 38px;
     font-size: 14px;
     color: rgba(11,13,12,1);
     border-bottom: 1px solid rgba(216,216,216,1);
@@ -188,6 +217,7 @@ export default {
     height: 7px;
     background: url('../../../../static/img/orgnize/down.png') no-repeat center center;
     background-size: 100% 100%;
+    margin-right: 8px;
   }
   .t-list .t-up {
     background: url('../../../../static/img/orgnize/up.png') no-repeat center center;
@@ -203,9 +233,10 @@ export default {
   }
 
   .t-u-list-item {
+    position: relative;
     box-sizing: border-box;
     width: 100%;
-    height: 32px;
+    height: 36px;
     padding-left: 32px;
     /* background-color: #fff; */
     transition: all .3s linear;
@@ -335,6 +366,20 @@ export default {
   .t-u-list .t-u-list-item .checked {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 100% 100%;
+  }
+
+  .t-addAll {
+    position: absolute;
+    right: 12px;
+    top: 7px;
+    width:22px;
+    height:22px;
+    line-height: 20px;
+    border-radius: 50%;
+    background-color: #049AFF;
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
   }
 </style>
 

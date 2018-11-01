@@ -2,16 +2,16 @@
 <div>
   <ul class="t-u-list">
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
-      <div class="t-orgname" :style="{paddingLeft: (orgnize.orgLevel + 1) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
+      <div class="t-orgname" :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : 1)) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
         <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
         <span v-else class="t-common"/>
-        <!-- <span class="t-file"/> -->
         <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
       </div>
       <div    
         v-if="getNextOrgnizeObj(orgnize.id)"
         :class="activeId === orgnize.id ? 't-body active' : 't-body'">
         <tree-item
+          :showTitle="showTitle"
           :showCheck="showCheck"
           :orgnizeObj="orgnizeObj"
           :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
@@ -28,9 +28,10 @@
     class="t-u-list t-body active">
     <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
       <div 
-        :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'" 
-        :style="{paddingLeft: (orgLevel + 1) * 16 + 'px'}" 
+        :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
+        :style="{paddingLeft: (orgLevel + (showTitle ? 2 : 1)) * 14 + 'px', height: '31px'}" 
         @click="orgHandle(user)">
+        <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
         <span v-if="showCheck" :class="className(user)"></span>
         <img :src="user.avatar ? user.avatar : defaultUserIcon"/>
         <span :class="user.userStatus === 2 ? 'orgname' : 'orgname notActive'" :title="user.name">{{user.name}}</span>
@@ -47,6 +48,7 @@ export default {
   name: 'tree-item',
   components: {TreeItem},
   props: {
+    showTitle: Boolean,
     showCheck: Boolean,
     orgnizeObj: Object,
     orgnizeLevelObj: Object,
@@ -146,12 +148,13 @@ export default {
 
 <style scoped>
   .t-u-list .t-u-list-item .t-orgname {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;
     box-sizing: border-box;
     width: 100%;
-    min-height: 36px;
+    height: 36px;
     padding-left: 12px;
     padding-right: 12px;
     font-size: 14px;
@@ -256,6 +259,14 @@ export default {
   .t-u-list .t-u-list-item .checked {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 100% 100%;
+  }
+
+  .t-side {
+    position: absolute;
+    right: 0;
+    width:2px;
+    height:31px;
+    background:rgba(4,154,255,1);
   }
 </style>
 

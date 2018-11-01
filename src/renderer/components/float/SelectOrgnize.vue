@@ -5,16 +5,23 @@
     <div class="m-selectcontact-cover"></div>
     <div class="m-selectcontact" style="width:680px;height:502px;">
       <div class="drag" id="selectOrgnizeDrag">
-        <span>{{type === 1 ? '发起群聊' : '添加成员'}}</span>
+        <span>{{type === 1 ? '创建群' : '添加成员'}}</span>
         <div class="u-sysbtn close">
           <a class="btn-close" @click="closeModal()"/>
         </div>
       </div>
       <div class="side-list-contain">
         <div class="side-list left" style="width: 55%;">
-          <div class="title">联系人</div>
+          <!-- 搜索 -->
+          <div v-if="sessionlist.length > 0" class="u-search">
+            <div class="u-cont">
+              <input type="text" v-model="searchValue" placeholder="搜索" />
+              <span v-if="searchValue" class="clear" @click="searchValue = ''"/>
+            </div>
+          </div>
+          <div class="title" style="paddingTop: 0;paddingBottom: 0;">联系人</div>
           <div class="contact">
-            <tree showCheck/>
+            <tree showCheck showTitle showTeam/>
           </div>
         </div>
         <div class="side-list" style="float: right;width: 45%">
@@ -23,7 +30,7 @@
             <li class="u-list-item" v-for="item in chooselist" :key="item.id" :id="item.id">
               <div style="display: flex; flex-direction: row; align-items: center">
                 <img class="msg-img" :src="item.avatar || defaultUserIcon">
-                <span class="inline">{{item.name}}</span>
+                <span class="inline">{{item.name || item.nick}}</span>
               </div>
               <span class="delete" @click="deleted(item)"></span>
             </li>
@@ -71,7 +78,8 @@ export default {
       showSelectOrgnize: false,
       loading: false,
       teamId: -1,
-      type: 1 // 1-发起群聊，2-添加成员（创建群聊），3-添加群成员
+      type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员
+      searchValue: ''
     }
   },
   computed: {
@@ -99,7 +107,7 @@ export default {
       this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
     },
     deleted (user) {
-      this.$store.commit('upadteCreateTeamSelect', {type: 'update', user})
+      this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
     },
     confirmBtn () {
       if (this.loading) return
@@ -271,7 +279,7 @@ export default {
   .contact {
     position: absolute;
     width: 100%;
-    top: 44px;
+    top: 80px;
     bottom: 0;
     box-sizing: border-box;
     overflow-y: auto;

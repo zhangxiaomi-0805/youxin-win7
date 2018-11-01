@@ -925,13 +925,16 @@ export default {
     // 更新通讯录选中状态
     if (obj.type === 'update') {
       for (let i in state.createTeamSelect) {
-        if (state.createTeamSelect[i].accid === obj.user.accid) {
-          // 已存在
-          state.createTeamSelect.splice(i, 1)
-          return false
+        let item = state.createTeamSelect[i]
+        if (obj.data) {
+          if ((obj.data.accid && item.accid === obj.data.accid) || (obj.data.teamId && item.teamId === obj.data.teamId)) {
+            // 已存在
+            state.createTeamSelect.splice(i, 1)
+            return false
+          }
         }
       }
-      state.createTeamSelect.push(obj.user)
+      state.createTeamSelect.push(obj.data)
     } else if (obj.type === 'reset') {
       state.createTeamSelect = []
     }

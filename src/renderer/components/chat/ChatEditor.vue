@@ -60,7 +60,7 @@
         @mouseout="showPrompt = false"
       >
         <!-- <a class="b-common b-message"/>  -->
-        <a :class="isMsg ? 'b-common b-message-active' : 'b-common b-message'" style="width: 25px ; height: 20px"/>
+        <a :class="isMsg ? 'b-common b-message-active' : 'b-common b-message'" style="width: 22px ; height: 20px"/>
       </div>
        
       <!-- 短信发送鼠标悬停时，显示的提示框 -->
@@ -1416,17 +1416,17 @@ export default {
 /* 短信发送 */
 .g-window .m-chat-editor-main .u-editor-icons .b-message {
   background-image: url('../../../../static/img/edit/message.png');
-  background-size: 25px 20px;
+  background-size: 100% 100%;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message:hover, .b-message:focus {
   background-image: url('../../../../static/img/edit/message-h.png');
-  background-size: 25px 20px;
+  background-size: 100% 100%;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message-active {
   background-image: url('../../../../static/img/edit/message-p.png');
-  background-size: 25px 20px;
+  background-size: 100% 100%;
 }
 
 /* 语音聊天 */

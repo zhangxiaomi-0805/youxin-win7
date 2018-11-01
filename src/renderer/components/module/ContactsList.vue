@@ -10,7 +10,6 @@
  
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>
-  <search v-if="searchValue" type="contacts" :value="searchValue" />
 
    <div v-if="contactslist.length > 0" class="contacts-title">
     <span>常用联系人</span>
@@ -46,17 +45,14 @@
 </template>
 
 <script>
-// import util from '../../utils'
 import config from '../../configs'
 import pageUtil from '../../utils/page'
-import Search from '../search/index'
 import Fetch from '../../utils/fetch'
 export default {
   name: 'contacts-list',
   props: {
     callBack: Function
   },
-  components: {Search},
   mounted () {
     var _this = this
     this.eventBus.$on('locationMainListItem', function (data) {
