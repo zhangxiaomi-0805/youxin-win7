@@ -3,7 +3,20 @@
 <transition name="fade">
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
     <div class="user-info-box">
-      <div class="user-info"><img :src="userInfos.userAvatar || defaultUserIcon"></div>
+      <div class="user-info">
+        <img 
+          :src="userInfos.avatar || defaultUserIcon"
+          style="cursor: pointer"
+          @click="handleClickInput()"
+        />
+        <input
+          v-if="isSelf"
+          type="file"
+          ref="avatarIp"
+          title=" "
+          @change="updateAvatar($event.target)"
+        />
+      </div>
       <div>
         <!-- 签名鼠标悬停时，显示的提示框 -->
         <transition name="fade">
@@ -31,7 +44,7 @@
         </div>
       </div>
     </div>
-    <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
+    <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.accid ? '#333' : '#999'}" :title="userInfos.accid">{{userInfos.accid ? userInfos.accid : '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
     <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
@@ -71,7 +84,6 @@ export default {
   mounted () {
     this.eventBus.$on('showMyInfo', (data) => {
       if (data.userInfos === 1) {
-        console.log('111')
         // 打开本人名片
         this.userInfos = Object.assign(this.myInfo, this.personInfos)
         this.isSelf = true
@@ -124,7 +136,6 @@ export default {
     },
     // 键盘输入
     changeMsg (e) {
-      console.log(e.data)
       if (e.data && e.data.length > 64) {
         e.data = e.data.substring(0, 65)
       }
@@ -211,6 +222,51 @@ export default {
     showInput () {
       this.isActive = true
       setTimeout(() => this.$refs.input.focus(), 0)
+    },
+    // 点击右侧按钮使input聚焦
+    handleClickInput (key) {
+      this.$refs.avatarIp.click()
+    },
+    // 更新头像
+    updateAvatar (e) {
+      // 判断图片格式及大小
+      let imgType = e.files[0].type.split('/')[1]
+      if (!['png', 'jpg', 'jpeg'].includes(imgType)) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: '图片格式错误'
+        })
+        return
+      }
+      if (e.files[0].size > 10 * 1024 * 1024) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: '图片大小已超过10M'
+        })
+        return
+      }
+      this.$store.dispatch('previewFile', {
+        type: 'image',
+        fileInput: e,
+        callback: (file) => {
+          const param = {url: file.url + '.' + imgType}
+          Fetch.post('api/appPc/modifyUserInfo', param, this)
+            .then(ret => {
+              this.updateUserInfo()
+            })
+            .catch(() => {})
+        }
+      })
+    },
+    updateUserInfo () {
+      Fetch.post('api/appPc/userInfo', {}, this)
+        .then(ret => {
+          this.$store.commit('updatePersonInfos', ret)
+          this.userInfos = ret
+        })
+        .catch(() => {})
     }
   }
 }
@@ -247,6 +303,21 @@ export default {
     border-bottom: 1px solid rgba(214,214,214,1);
     padding-bottom: 27px;
     margin-bottom: 15px;
+  }
+
+  .m-checkuser-con .user-info-box .user-info {
+    position: relative;
+  }
+
+  .m-checkuser-con .user-info-box .user-info input {
+    z-index: -1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    opacity: 0;
   }
 
   .m-checkuser-con .user-info-box .user-info img {

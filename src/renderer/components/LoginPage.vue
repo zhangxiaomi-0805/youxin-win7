@@ -13,13 +13,13 @@
           <div v-if="showModal" class="account-box" v-clickoutside="closeModal">
             <div class='account-title'>使用以下账号登录:</div>
             <ul class='account-content'>
-              <li :class="selectedId == item.id ? 'account-item account-item-select' : 'account-item'" v-for="(item, index) in rememberAccount" :key="item.id"
+              <li class='account-item' v-for="(item, index) in rememberAccount" :key="item.id"
                 @mouseenter="onMouseenter(item.id)" 
                 @mouseleave="onMouseleave(item.id)"
                 @click.stop="selectAccount(item)"
                 >
                   <div>{{item.account}}</div>
-                  <span v-if="selectedId == item.id" class="clear" @click.stop="deleteAccount(index)"/>
+                  <span class="clear" @click.stop="deleteAccount(index)"/>
               </li>
             </ul>
           </div>
@@ -159,7 +159,6 @@
         let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
         let nowDate = new Date().getTime()
         if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
-          this.type = 'passwordActive'
           this.loading = true
           this.autoLogin = true
           this.account = USERINFO.account
@@ -300,6 +299,10 @@
         }).catch((err) => {
           this.loading = false
           if (err) this.errMsg = err.msg
+          // 自动登录情况且密码错误
+          if (localStorage.AUTOLOGIN) {
+            localStorage.removeItem('AUTOLOGIN')
+          }
         })
       },
       loginPC (userInfo) {
@@ -628,15 +631,22 @@
   padding: 0 8px;
   box-sizing: border-box;
 }
-.account-box .account-content .account-item-select{
-  background: rgba(4,254,255,0.15);
+.account-box .account-content .account-item:hover{
+  background: rgba(4,154,255,0.15);
 }
 .account-box .account-content .clear {
     display: block;
     width: 14px;
     height: 14px;
+    transition: all .2s;
     background-image: url('../../../static/img/setting/delete.png');
     background-size: 100% 100%;
     cursor: pointer;
+    opacity: 0;
 }
+
+.account-box .account-content .account-item:hover .clear {
+  opacity: 1;
+}
+
 </style>
