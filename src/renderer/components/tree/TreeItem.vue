@@ -74,10 +74,10 @@ export default {
   },
   computed: {
     orgnizelist () {
-      return this.orgnizeLevelObj.orgnizelist
+      return (this.orgnizeLevelObj && this.orgnizeLevelObj.orgnizelist) || []
     },
     userlist () {
-      return this.orgnizeLevelObj.userlist
+      return (this.orgnizeLevelObj && this.orgnizeLevelObj.userlist) || []
     },
     currentId () {
       return this.orgnizeLevelObj.currentId

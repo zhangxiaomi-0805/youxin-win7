@@ -10,6 +10,7 @@ import { execFile } from 'child_process'
 function APP () {
   this.logined = false
   this.mainWindow = null
+  this.aplWindow = null
   this.ready = false
   this.shouldQuit = false
   this.fileTransferring = false
@@ -63,15 +64,6 @@ APP.prototype.initApp = function () {
     app.quit()
   }
   app.on('ready', function () {
-    // 修改应用数据存储位置
-    let configPath = path.join(process.env.npm_package_author_name, app.getName().toUpperCase())
-    let FilePath = path.join(process.env.LOCALAPPDATA, configPath)
-    if (process.platform === 'darwin') {
-      FilePath = path.join(app.getPath('home'), 'Library', 'Application Support', configPath)
-    }
-    app.setPath('appData', FilePath)
-    app.setPath('userData', FilePath)
-    app.setPath('logs', FilePath)
     _this.ready = true
     protocol.registerFileProtocol('root', function (request, callback) {
       var url = request.url.split(/[?#]/)[0]
@@ -254,6 +246,24 @@ APP.prototype.initIPC = function () {
     } else {
       _this.mainWindow.hide()
     }
+  })
+
+  ipcMain.on('openAplWindow', function (evt, arg) {
+    // 打开外部应用窗口
+    if (_this.aplWindow) {
+      _this.aplWindow.show()
+      return
+    }
+    _this.aplWindow = new BrowserWindow({
+      width: 622,
+      height: 422,
+      minWidth: 500,
+      minHeight: 300,
+      parent: _this.mainWindow
+    })
+    const winURL = path.join('file://', __static, '/windows/application.html')
+    _this.aplWindow.loadURL(winURL)
+    _this.aplWindow.on('closed', () => { _this.aplWindow = null })
   })
 }
 

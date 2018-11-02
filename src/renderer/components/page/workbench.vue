@@ -3,11 +3,13 @@
   <system-caption/>
   <div class="third-box">
     <div class="body" style="backgroundColor: #fff;">
-      <div class="title" style="borderBottom: 0;">外部接入系统</div>
+      <div class="title webkit-drag" style="borderBottom: 0;">外部接入系统</div>
 
       <ul class="list-box">
         <li 
-          class="list-item" v-for="(item, $index) of dataList" :key="$index"
+          class="list-item active" 
+          v-for="(item, $index) of dataList" 
+          :key="$index"
           @mouseover.stop="selectedIndex = $index"
           @mouseout.stop="selectedIndex = -1"
         >
@@ -23,7 +25,7 @@
           </div>
 
           <!-- btn -->
-          <div class="btn" v-if="selectedIndex === $index">立即进入</div>
+          <transition name="fade"><a class="btn" v-if="selectedIndex === $index" @click="openWindow">立即进入</a></transition>
         </li>
       </ul>
     </div>
@@ -51,16 +53,21 @@ export default {
     getThirdList () {
       // 获取接入系统列表
       Fetch.post('api/appPc/thirdList', {}, this).then(ret => {
-        console.log(ret)
         this.dataList = ret
-      }).catch(err => {
-        console.log(err)
-      })
+      }).catch(() => {})
+    },
+    openWindow () {
+      const electron = require('electron')
+      const ipRenderer = electron.ipcRenderer
+      ipRenderer.send('openAplWindow')
     }
   }
 }
 </script>
 <style>
+.webkit-drag {
+  -webkit-app-region: drag;
+}
 .third-box .title {
   width: 100%;
   height: 40px;
@@ -92,35 +99,18 @@ export default {
   box-sizing: border-box;
   border: 1px solid rgba(0,38,63,0.1);
   border-radius: 2px;
-  margin-top: 30px;
+  /* margin-top: 30px; */
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  transition: all .3s linear;
 }
-.third-box .list-item:after {
-  content: "";
-  display: block;
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  height:12px;
-  width: 100%;
+.third-box .list-item.active {
   box-shadow: 0 10px 12px 0 rgba(0,88,148,0.13);
-  transform: translateY(1);
-  transition: all 800ms;
-}
-.third-box .list-item:hover {
-  transform: translateY(1px);
-  transition: all 1000ms;
-}
-.third-box .list-item:hover:after {
-  transform: translateY(1px);
-  transform: scale(0.9);
-  transition: all 1000ms;
 }
 .third-box .list-item .list-content-box {
-  width: 85%;
+  width: 78%;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -145,11 +135,10 @@ export default {
   align-items: center;
 }
 .third-box .btn {
-  width: 4rem;
-  height: 1.5rem;
-  padding: 2px 5px;
+  width:72px;
+  height:26px;
   box-sizing: border-box;
-  background-color: #049AFF;
+  background-color: rgba(4,154,255,1);
   border-radius: 4px;
   color: #fff;
   font-size: 12px;
@@ -157,5 +146,9 @@ export default {
   flex-direction: row;
   justify-content: center;
   align-items: center;
+  transition: all .3s linear;
+}
+.third-box .btn:hover {
+  background-color: rgb(1, 139, 231);
 }
 </style>
