@@ -122,11 +122,21 @@ export default {
   },
   methods: {
     // 修改个人信息
-    modifyUserInfo () {
-      let params = {
-        url: this.userInfos.userAvatar,
-        signature: this.userInfos.signature,
-        sex: this.userInfos.sex
+    modifyUserInfo (type) {
+      let params = {}
+      switch (type) {
+        case 'signature':
+          params = {
+            signature: this.userInfos.signature
+          }
+          break
+        case 'sex':
+          params = {
+            sex: this.userInfos.sex
+          }
+          break
+        default:
+          break
       }
       Fetch.post('api/appPc/modifyUserInfo', params, this).then(ret => {
         console.log(ret)
@@ -144,7 +154,7 @@ export default {
       this.selectedIndex = index
       this.userInfos.sex = index + 1
       this.showSexModal = false
-      this.modifyUserInfo()
+      this.modifyUserInfo('sex')
     },
     keyToUpdate (event) {
       event.keyCode === 13 && this.updateSignature()
@@ -205,14 +215,11 @@ export default {
     updateSignature () {
       // 修改签名
       this.hasSignMame = false
-      console.log(this.userInfos.signature)
       if (this.userInfos.signature === this.signatureCopy) {
         return
       }
       this.signatureCopy = this.userInfos.signature
-      console.log(this.userInfos.signature)
-      this.modifyUserInfo()
-
+      this.modifyUserInfo('signature')
       // 修改昵称
       // this.$store.dispatch('updateFriend', {
       //   account: this.userInfos.account,
