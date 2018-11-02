@@ -2,10 +2,16 @@
 <div>
   <ul class="t-u-list">
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
-      <div class="t-orgname" :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : 1)) * 13 + 'px'}" @click="toggleStatus(orgnize, orgnize.id, $index)" >
+      <div 
+        class="t-orgname" 
+        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : 1)) * 13 + 'px'}" 
+        @click="toggleStatus(orgnize, orgnize.id, $index)" 
+        @mouseenter="orgAddAllId = orgnize.id"
+        @mouseleave="orgAddAllId = -1">
         <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
         <span v-else class="t-common"/>
         <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
+        <transition name="fade"><a v-if="orgnize.id === orgAddAllId && showCheck" class="t-addAll" @click.stop="selectAllMember(orgnize, orgnize.id, $index)">+</a></transition>
       </div>
       <div    
         v-if="getNextOrgnizeObj(orgnize.id)"
@@ -44,6 +50,7 @@
 <script>
 import configs from '../../configs/index.js'
 import TreeItem from './TreeItem.vue'
+import Fetch from '../../utils/fetch.js'
 export default {
   name: 'tree-item',
   components: {TreeItem},
@@ -61,6 +68,7 @@ export default {
   data () {
     return {
       activeId: -1,
+      orgAddAllId: -1,
       defaultUserIcon: configs.defaultUserIcon
     }
   },
@@ -124,6 +132,31 @@ export default {
       } else {
         this.orgSelectHandle(params)
       }
+    },
+    async selectAllMember (orgnize, id, index) {
+      // 选取全部成员
+      let orgnizeObj = this.orgnizeObj[id]
+      if (!orgnizeObj) {
+        try {
+          orgnizeObj = await this.getNextMember(id, 0)
+        } catch (error) {}
+      }
+      for (let i in orgnizeObj.userlist) {
+        let user = Object.assign({}, orgnizeObj.userlist[i])
+        if (!this.isDisabled(user.accid)) {
+          user.type = 'cover'
+          this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
+        }
+      }
+    },
+    getNextMember (depId, tag) {
+      return new Promise((resolve, reject) => {
+        Fetch.post('api/appPc/pullDepartment', {
+          depId, tag
+        }, this).then(ret => {
+          if (ret) resolve(ret)
+        }).catch((err) => reject(err))
+      })
     },
     isDisabled (accid) {
       for (let i in this.orgDisabledlist) {
@@ -267,6 +300,20 @@ export default {
     width:2px;
     height:31px;
     background:rgba(4,154,255,1);
+  }
+
+  .t-addAll {
+    position: absolute;
+    right: 12px;
+    top: 7px;
+    width:22px;
+    height:22px;
+    line-height: 20px;
+    border-radius: 50%;
+    background-color: #049AFF;
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
   }
 </style>
 

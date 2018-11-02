@@ -135,12 +135,22 @@ export default {
             member = userInfos[teamMembers[i].account]
           }
         }
-        if (Object.keys(member).length > 0) {
+        if (Object.keys(member).length > 0 && !this.isDisabled(member.account)) {
           member.type = 'cover'
           member.accid = member.account
           this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: member})
         }
       }
+    },
+    isDisabled (accid) {
+      let orgDisabledlist = this.$store.state.orgDisabledlist
+      for (let i in orgDisabledlist) {
+        if (orgDisabledlist[i] === accid) {
+          return true
+        }
+      }
+      if (this.$store.state.personInfos.accid === accid) return true
+      return false
     },
     toggleCheck () {
       // 切换公司展开状态

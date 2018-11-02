@@ -26,7 +26,7 @@
         </div>
         <div class="side-list" style="float: right;width: 45%">
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
-          <ul class="u-list" v-show="chooselist.length > 0">
+          <ul class="u-list" v-show="chooselist.length > 0" style="top: 44px;">
             <li class="u-list-item" v-for="item in chooselist" :key="item.id" :id="item.id">
               <div style="display: flex; flex-direction: row; align-items: center">
                 <img class="msg-img" :src="item.avatar || defaultUserIcon">
@@ -107,6 +107,7 @@ export default {
       this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
     },
     deleted (user) {
+      user.type && delete user.type
       this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
     },
     confirmBtn () {
