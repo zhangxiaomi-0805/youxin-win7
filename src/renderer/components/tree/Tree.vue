@@ -20,7 +20,7 @@
         >
           <img :src="group.avatar || defaultIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
-          <a v-if="group.teamId === teamAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a>
+          <transition name="fade"><a v-if="group.teamId === teamAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a></transition>
         </li>
       </ul>
     </div>

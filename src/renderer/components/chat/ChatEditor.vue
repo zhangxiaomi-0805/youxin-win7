@@ -54,12 +54,11 @@
       <!-- 短信发送 -->
       <div 
         v-if="!isRobot" 
-        style="padding-right: 50px"
+        style="padding-right: 50px;paddingTop: 7px;"
         @click.stop="isMsg = !isMsg"
         @mouseover="showPrompt = true"
         @mouseout="showPrompt = false"
       >
-        <!-- <a class="b-common b-message"/>  -->
         <a :class="isMsg ? 'b-common b-message-active' : 'b-common b-message'" style="width: 22px ; height: 20px"/>
       </div>
        
@@ -72,12 +71,6 @@
           用短信发送
         </div>
       </transition>
-      <!-- <div v-if="!isRobot" class="u-editor-icon">
-        <a class="b-common b-microphone"/>
-      </div>
-      <div v-if="!isRobot" class="u-editor-icon">
-        <a class="b-common b-camera"/>
-      </div> -->
     </div>
     
     <div  class="u-positive-btn btn-send-box">
@@ -182,6 +175,7 @@ export default {
     },
     $route () {
       this.$refs.editDiv.innerHTML = ''
+      this.isMsg = false
     }
   },
   data () {
@@ -575,6 +569,7 @@ export default {
           }
         } catch (err) {}
       }
+      this.isMsg = false
     },
     // 获取编辑器信息
     getEditText (dom, msgToSent = []) {
@@ -700,7 +695,8 @@ export default {
                 to: this.to,
                 text: text,
                 dataAt,
-                needMsgReceipt: this.scene === 'team'
+                needMsgReceipt: this.scene === 'team',
+                custom: {isSmsMsg: this.isMsg}
               }).then(() => {
                 resolve()
               }).catch(() => {})
@@ -1426,17 +1422,17 @@ export default {
 /* 短信发送 */
 .g-window .m-chat-editor-main .u-editor-icons .b-message {
   background-image: url('../../../../static/img/edit/message.png');
-  background-size: 100% 100%;
+ background-size: 22px 16px;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message:hover, .b-message:focus {
   background-image: url('../../../../static/img/edit/message-h.png');
-  background-size: 100% 100%;
+  background-size: 22px 16px;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-message-active {
   background-image: url('../../../../static/img/edit/message-p.png');
-  background-size: 100% 100%;
+  background-size: 22px 16px;
 }
 
 /* 语音聊天 */

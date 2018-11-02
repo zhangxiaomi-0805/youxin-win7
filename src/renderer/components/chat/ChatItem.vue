@@ -34,6 +34,7 @@
       <span v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></span>
       <span v-else-if="msg.type==='notification'" class="msg-text notify">{{msg.showText}}</span>
       <span v-else class="msg-text" v-html="msg.showText"></span>
+      <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
       <span v-if="msg.status==='fail'" class="msg-failed" @click="resendMsg(msg)"><i class="weui-icon-warn"></i></span>
       <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
     </div>
@@ -1191,6 +1192,26 @@
 }
 .u-msg .isRemoteRead.team-unread:active{
   opacity: .7;
+}
+
+.u-msg.item-you .msg-short {
+  float: left;
+  padding-left: 10px;
+}
+.u-msg.item-me .msg-short {
+  float: right;
+  padding-right: 10px;
+}
+
+.u-msg .msg-short .send-short-msg {
+  display: inline-block;
+  vertical-align: middle;
+  width: 22px;
+  height: 20px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url('../../../../static/img/edit/message-h.png');
+  background-size: 22px 16px;
 }
 
 </style>

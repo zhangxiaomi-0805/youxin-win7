@@ -1,6 +1,7 @@
 import store from '../'
 import config from '../../configs'
 import util from '../../utils'
+import Fetch from '../../utils/fetch'
 
 export function formatMsg (msg) {
   const nim = store.state.nim
@@ -138,6 +139,24 @@ function onMsg (msg) {
 }
 
 function onSendMsgDone (error, msg) {
+  if (msg.custom) {
+    let isSmsMsg = JSON.parse(msg.custom).isSmsMsg
+    if (isSmsMsg) {
+      /**
+       * 短信发送
+       * @params msgId      消息Id
+       * @params sendType   发送类型：1.群组 2.个人
+       * @params receiveId  接收人：发送类型为群组，传群组tid；发送类型为个人，传用户accid
+       * @params content    短信发送内容
+       */
+      Fetch.post('api/appPc/sendMsg', {
+        msgId: msg.idClient,
+        sendType: msg.scene === 'team' ? 1 : 2,
+        receiveId: msg.to,
+        content: msg.text
+      }).then(() => {}).catch((error) => console.log(error))
+    }
+  }
   store.dispatch('hideLoading')
   if (error) {
     // 被拉黑
@@ -309,6 +328,7 @@ export function sendMsg ({state, commit}, obj) {
           },
           needMsgReceipt: true
         }
+        if (obj.custom && obj.custom.isSmsMsg) option.custom = JSON.stringify(obj.custom)
         if (dataAt) option.apns = apns
         let msg = nim.sendText(option)
         if (msg) {
