@@ -48,7 +48,6 @@ export default {
   directives: {clickoutside},
   mounted () {
     this.eventBus.$on('checkUser', (data) => {
-      console.log(data)
       if (data.userInfos === 1) {
         // 打开本人名片
         this.userInfos = Object.assign(this.myInfo, this.personInfos)
@@ -57,7 +56,6 @@ export default {
         this.managePosition(data.event)
       } else if (data.userInfos) {
         this.userInfos = data.userInfos || {}
-        console.log(data.userInfos)
         // 打开他人名片
         let params = [
           {
@@ -71,7 +69,6 @@ export default {
          */
         Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json')
           .then(ret => {
-            console.log(ret)
             if (ret) {
               this.$store.commit('updateContactslist', {data: ret, type: 'update'})
               this.userInfos = Object.assign(data.userInfos, ret.userList[0])

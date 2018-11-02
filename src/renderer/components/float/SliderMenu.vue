@@ -57,27 +57,6 @@
           @keyup="keyupModifyTeamNick($event)">
     </div>
     <div class="team-block">
-      <div style="display:none;">{{nickInTeam}}</div>
-      <div style="display: flex; flex-direction：row">
-        <div class="team-title" style="margin-bottom:0;" >我在本群的昵称</div>
-        <!-- <div style="width: 14px; height: 14px">
-          <img src="../../../../static/img/setting/edit-nick-name.png" alt="" style="width: 100%">
-        </div> -->
-      </div>
-      <input
-          @mouseover="showEditIcon = true"
-          @mouseout="showEditIcon = false"
-          ref="myNick"
-          :class="isActive2 ? 'team-input active' : 'team-input'"
-          type="text"
-          maxlength="16"
-          placeholder="请输入你在本群的昵称"
-          v-model="myNick"
-          @focus="setStyle(2)"
-          @blur="modifyNickInTeam"
-          @keyup="keyupModifyNickInTeam($event)">
-    </div>
-    <div class="team-block">
       <div style="display:none;">{{muteNotiType}}</div>
       <div class="team-title">消息提醒</div>
       <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
@@ -100,34 +79,15 @@
         <a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span>
       </a>
     </div>
-    <!-- <div class="team-block" v-if="power !== 'normal'">
-      <div class="team-title">群资料修改权限</div>
-      <a 
-        class="t-btn" 
-        style="margin-bottom: 5px;" 
-        @click="modifyTeamMode('manager')"
-      >
-        <a :class="teamMode === 'manager' ? 'radio-active' : 'radio'"></a><span>群主和管理员</span>
-      </a>
-      <a 
-        class="t-btn" 
-        style="margin-bottom: 5px;" 
-        @click="modifyTeamMode('all')"
-      >
-        <a :class="teamMode === 'all' ? 'radio-active' : 'radio'"></a><span>所有人</span>
-      </a>
-    </div> -->
     <div class="team-block" v-if="power === 'owner'">
-      <div class="team-title-two">
-        <!-- <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span> -->
-        <span>当前群聊人数上限200，升级为500人</span>
+      <div class="team-title">
+        <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span>
       </div>
       <div class="set-manager">
-        <a class="b-update-manager"  @click="updateTeam"><span>升级</span></a>
-        <!-- <a class="b-add-manager" @click="addManager"><i></i><span>添加管理员</span></a>
-        <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a> -->
+        <a class="b-add-manager" @click="addManager"><i></i><span>添加管理员</span></a>
+        <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a>
       </div>
-    </div>  
+    </div>
     <div class="team-block" v-if="power !== 'owner'">
       <div class="team-title">退出群：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="leaveTeam">退出群</a>
     </div>
@@ -895,7 +855,7 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: 50px;
+    width: 97px;
     height: 26px;
     background: rgba(242,242,242,1);
     border-radius: 2px;
@@ -927,4 +887,5 @@ export default {
     background: url('../../../../static/img/team/remove.png') no-repeat center center;
     background-size: 100% 100%;
   }
+  
 </style>

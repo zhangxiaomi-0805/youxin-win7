@@ -1,11 +1,5 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <!-- <router-link :to="{name:'sysmsgs'}">
-      <div class="u-list-item">
-          <img class="icon" slot="icon" width="24" :src="myPhoneIcon">
-          我的手机
-      </div>
-  </router-link> -->
   <div v-if="sessionlist.length > 0" class="u-search">
     <div class="u-cont">
       <input type="text" v-model="searchValue" placeholder="搜索" />

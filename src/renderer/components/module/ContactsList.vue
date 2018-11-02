@@ -122,7 +122,6 @@ export default {
     getData () {
       // 获取常用联系人列表
       Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
-        console.log(ret)
         this.tag = ret.tag
         this.contactslist = ret.userContactList
       }).catch(err => {
@@ -146,7 +145,6 @@ export default {
       this.callBack({contactId: contacts.accid})
     },
     toggleSession (account) {
-      console.log('聊天')
       clearTimeout(this.timer) // 清除
       // 双击切换聊天
       // 发送消息、创建群聊

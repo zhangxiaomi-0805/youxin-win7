@@ -926,12 +926,12 @@ export default {
     if (obj.type === 'update') {
       for (let i in state.createTeamSelect) {
         let item = state.createTeamSelect[i]
-        if (obj.data) {
-          if ((obj.data.accid && item.accid === obj.data.accid) || (obj.data.teamId && item.teamId === obj.data.teamId)) {
-            // 已存在
+        if ((obj.data.accid && item.accid === obj.data.accid) || (obj.data.teamId && item.teamId === obj.data.teamId)) {
+          // 已存在
+          if (obj.data.type !== 'cover') {
             state.createTeamSelect.splice(i, 1)
-            return false
           }
+          return false
         }
       }
       state.createTeamSelect.push(obj.data)

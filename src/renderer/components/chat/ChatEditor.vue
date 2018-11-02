@@ -82,17 +82,19 @@
     
     <div  class="u-positive-btn btn-send-box">
       <a @click.stop="sendBlendMsg" class="btn-send">发送</a>
-      <div class="btn-send-quickSet" @click.stop="showQuickSet = true">
-        <a class="quick-send"></a>
+      <div class="btn-send-quickSet noevent" @click.stop="showQuickSet = true">
+        <a class="quick-send noevent"></a>
       </div>
 
       <!-- 发送快捷键选择弹框 -->
-      <ul v-if="showQuickSet" class="quick-set-modal">
-        <li :class="quickIndex === $index ? 'modal-content-sel' : 'modal-content'" v-for="(item, $index) in quickSetList" :key="$index" @click.stop="closeQuickSet($index)">
-          <div :class="quickIndex === $index ? 'selected-style': 'noselected-style'"/>
-          <span>{{item.name}}</span>
-        </li>
-      </ul> 
+      <transition name="fade">
+        <ul v-if="showQuickSet" class="quick-set-modal" v-clickoutside="closeQuickSet">
+          <li :class="quickIndex === $index ? 'modal-content-sel' : 'modal-content'" v-for="(item, $index) in quickSetList" :key="$index" @click.stop="chooseQuickSet($index)">
+            <div :class="quickIndex === $index ? 'selected-style': 'noselected-style'"/>
+            <span>{{item.name}}</span>
+          </li>
+        </ul> 
+      </transition>
     </div>
   </div>
 </div>
@@ -106,9 +108,11 @@ import emojiObj from '../../configs/emoji'
 import { getPinyin } from '../../utils/pinyin'
 import util from '../../utils'
 import pageUtil from '../../utils/page'
+import clickoutside from '../../utils/clickoutside.js'
 const electron = require('electron')
 const ipcRenderer = electron.ipcRenderer
 export default {
+  directives: {clickoutside},
   components: {
     ChatEmoji
   },
@@ -184,7 +188,7 @@ export default {
     return {
       quickSetList: [{name: '按Enter键发送消息'}, {name: '按Ctrl+Enter键发送消息'}],
       showQuickSet: false,
-      quickIndex: -1,
+      quickIndex: JSON.parse(localStorage.QUICKSET) || 0,
       showPrompt: false,
       isMsg: false,
       isEmojiShown: false,
@@ -228,10 +232,15 @@ export default {
     }
   },
   methods: {
-    closeQuickSet (index) {
+    closeQuickSet (el, e) {
+      let className = e.target.className
+      if (className.indexOf('noevent') > -1) return
       this.showQuickSet = false
-      console.log(this.showQuickSet)
+    },
+    chooseQuickSet (index) {
+      this.showQuickSet = false
       this.quickIndex = index
+      localStorage.setItem('QUICKSET', this.quickIndex)
     },
     createInput () {
       let input = document.createElement('input')
@@ -368,7 +377,6 @@ export default {
       }
     },
     inputMsg (e) {
-      console.log(e)
       if (this.showAtList && this.members.length !== 0) {
         switch (e.keyCode) {
           case 13: // 回车选中at列表
@@ -1244,18 +1252,19 @@ export default {
 .btn-send-quickSet {
   width: 20px;
   height: 28px;
-  line-height: 28px;
+  line-height: 24px;
   text-align: center;
+  transition: all .2s linear;
 }
 .btn-send-quickSet:hover {
   background-color: #E9E9E9;
 }
 .quick-send {
   display: inline-block;
-  width: 12px;
-  height: 8px;
-  background: url('../../../../static/img/setting/dropdown.png');
-  background-size: 12px 8px
+  width: 10px;
+  height: 6px;
+  background: url('../../../../static/img/setting/dropdown.png') no-repeat center center;
+  background-size: 100% 100%;
 }
 .g-window .m-chat-editor-main .btn-send:hover {
   background-color: #E9E9E9;
@@ -1281,6 +1290,7 @@ export default {
   align-items: center;
   color: #333;
   font-size: 13px;
+  transition: all .2s linear;
 }
 .quick-set-modal .modal-content-sel,.modal-content:hover {
   display: flex;

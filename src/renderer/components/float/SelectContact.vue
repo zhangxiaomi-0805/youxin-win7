@@ -10,35 +10,35 @@
       </div>
       <div class="side-list-contain">
         <div class="side-list left">
-          <div class="title">{{tipTitle}}</div>
-          <ul class="u-list">
-            <li 
-              class="u-list-item" v-for="(friend, $index) in sidelist" :key="$index" :id="friend.id" @click="add($index)"
-              @mouseover="selectedIndex = $index"
-              @mouseout="selectedIndex = -1"
-            >
-              <div style="width: 80%; display: flex; flex-direction: row; align-items: center">
-                <img class="msg-img" :src="friend.avatar">
-                <span class="inline">{{friend.alias || friend.nick || friend.name}}</span>
-                <span v-if="friend.memberNum" style="margin-left: 5px;">({{friend.memberNum}}人)</span>
-                <span :class="friend.type" v-show="(type === 4 || type === 6) && friend.type !== 'normal'"/>
-              </div>
-              
+          <!-- 搜索 -->
+          <div class="u-search searchevent">
+            <div class="u-cont">
+              <input :class="showBorder ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showBorder = true" @blur="showBorder = false"/>
+              <span v-if="searchValue" class="clear" @click="clearStatus"/>
+            </div>
+          </div>
+          <div class="title" style="paddingTop: 0;paddingBottom: 0;">{{tipTitle}}</div>
+          <ul 
+            class="u-list"
+            :style="type === 7 ? {top: '100px'} : {}"
+          >
+            <li class="u-list-item" v-for="(friend, $index) in sidelist" :key="$index" :id="friend.id" @click="add($index)">
               <span v-if="type === 4" :class="friend.checked ? 'radio-active common' : 'radio common'"></span>
-              <span v-else :class="friend.checked ? 'checked common' : 'common'"></span>
-              <span v-if="selectedIndex === $index && !friend.checked && !friend.disabled" class="check common"></span>
+              <span v-else :class="friend.disabled ? 'disabled common' : friend.checked ? 'checked common' : 'check common'"></span>
+              <img class="msg-img" :src="friend.avatar">
+              <span class="inline">{{friend.alias || friend.nick || friend.name}}</span>
+              <span v-if="friend.memberNum" style="margin-left: 5px;">({{friend.memberNum}}人)</span>
+              <span :class="friend.type" v-show="(type === 4 || type === 6) && friend.type !== 'normal'"/>
             </li>
           </ul>
         </div>
         <div class="side-list" style="float:right;">
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
-          <ul class="u-list" v-show="chooselist.length > 0">
+          <ul class="u-list" v-show="chooselist.length > 0" style="top: 44px;">
             <li class="u-list-item" v-for="(item, $index) in chooselist" :key="$index" :id="item.id">
-              <div style="display: flex; flex-direction: row; align-items: center">
-                <img class="msg-img" :src="item.avatar">
-                <span class="inline">{{item.alias || item.nick || item.name}}</span>
-                <span v-if="item.memberNum" style="margin-left: 5px;">({{item.memberNum}}人)</span>
-              </div>
+              <img class="msg-img" :src="item.avatar">
+              <span class="inline">{{item.alias || item.nick || item.name}}</span>
+              <span v-if="item.memberNum" style="margin-left: 5px;">({{item.memberNum}}人)</span>
               <span class="delete" @click="deleted($index)"></span>
             </li>
           </ul>
@@ -90,6 +90,7 @@ export default {
       this.showSelectContact = true
       this.type = data.type
       this.sidelist = Object.assign([], data.sidelist)
+      this.sidelistCopy = Object.assign([], data.sidelist)
       if (data.type !== 7) {
         this.sidelist = listSort(this.sidelist)
       }
@@ -105,15 +106,18 @@ export default {
   },
   data () {
     return {
-      selectedIndex: -1,
+      showBorder: false,
       showSelectContact: false,
       showConfirmCover: false,
       loading: false,
       sidelist: [],
+      sidelistCopy: [],
       chooselist: [],
       teamId: null,
-      type: 1, // 类型:  1-选择联系人创建群组, 2-添加管理员, 3-移除管理员, 4-转让群, 5-添加成员，6-移出成员, 7-转发消息
-      msg: null // 转发消息
+      type: 1, // 类型:  1-选择联系人创建群组, 2-添加管理员, 3-移除管理员, 4-转让群, 5-添加群成员，6-移出群成员, 7-转发消息
+      msg: null, // 转发消息
+      searchValue: '',
+      beforeValue: ''
     }
   },
   computed: {
@@ -145,10 +149,10 @@ export default {
           title = '转让群'
           break
         case 5 :
-          title = '添加成员'
+          title = '添加群成员'
           break
         case 6 :
-          title = '移出成员'
+          title = '移出群成员'
           break
         case 7 :
           title = '选择聊天'
@@ -182,6 +186,15 @@ export default {
           break
       }
       return title
+    }
+  },
+  watch: {
+    searchValue (newValue, oldValue) {
+      this.beforeValue = newValue
+      setTimeout(() => {
+        if (newValue !== this.beforeValue) return
+        this.renderItem(newValue)
+      }, 500)
     }
   },
   updated () {
@@ -223,6 +236,8 @@ export default {
     closeModal () {
       this.showSelectContact = false
       this.loading = false
+      this.searchValue = ''
+      this.beforeValue = ''
     },
     closeCover () {
       this.showConfirmCover = false
@@ -231,7 +246,8 @@ export default {
       let list = this.sidelist[key]
       let SpliceFn = (account) => {
         for (let i in this.chooselist) {
-          if (this.chooselist[i].account === account) {
+          let identKey = this.chooselist[i].account || this.chooselist[i].id
+          if (identKey === account) {
             this.chooselist.splice(i, 1)
             break
           }
@@ -240,7 +256,7 @@ export default {
       if (list.disabled) return
       if (list.checked) {
         list.checked = false
-        SpliceFn(list.account)
+        SpliceFn(list.account || list.id)
       } else {
         if (this.type === 4) {
           let beflist = {}
@@ -259,7 +275,9 @@ export default {
     },
     deleted (key) {
       for (let i in this.sidelist) {
-        if ((this.chooselist[key].account && this.sidelist[i].account === this.chooselist[key].account) || this.sidelist[i].id === this.chooselist[key].id) {
+        let leftKey = this.sidelist[i].account || this.sidelist[i].id
+        let rightKey = this.chooselist[key].account || this.chooselist[key].id
+        if (leftKey === rightKey) {
           this.sidelist[i].checked = false
           break
         }
@@ -497,6 +515,33 @@ export default {
           reject(err)
         })
       })
+    },
+    renderItem (value) {
+      // 搜索成员
+      if (!value) {
+        this.sidelist = Object.assign([], this.sidelistCopy)
+        return
+      }
+      let sidelist = []
+      for (let i in this.sidelist) {
+        let name = this.sidelist[i].alias || this.sidelist[i].nick || this.sidelist[i].name
+        if (name.indexOf(value) > -1) {
+          sidelist.push(this.sidelist[i])
+        }
+      }
+      this.sidelist = sidelist
+    },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.searchValue = ''
+    },
+    forwardNewChat () {
+      // 转发到新聊天
+      this.closeModal()
+      this.eventBus.$emit('selectOrgnize', {type: 4, msg: this.msg})
     }
   }
 }
@@ -607,7 +652,7 @@ export default {
 
   .m-selectcontact .u-list {
     position: absolute;
-    top: 44px;
+    top: 70px;
     left: 0;
     bottom: 0;
     height: auto;
@@ -621,7 +666,6 @@ export default {
     display:flex;
     align-items:center;
     flex-direction:row;
-    justify-content: space-between;
     height: 42px;
     box-sizing: border-box;
     font-size: 14px;
@@ -642,29 +686,28 @@ export default {
 
   .m-selectcontact .u-list .u-list-item .common {
     display: inline-block;
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     background-repeat: no-repeat;
     background-position: center center;
     transition: all .2s linear;
   }
 
-  /* .m-selectcontact .u-list .u-list-item .check {
+  .m-selectcontact .u-list .u-list-item .check {
     background-image: url('../../../../static/img/setting/checkboxborder.png');
     background-size: 100% 100%;
-  } */
-  .m-selectcontact .u-list .u-list-item .check {
-    background-image: url('../../../../static/img/setting/add-2.png');
-    background-size: 18px 18px;
+  }
+  .m-selectcontact .u-list .u-list-item .check:hover, .check:focus {
+    background-image: url('../../../../static/img/setting/checkboxborder-p.png');
   }
 
- /* .m-selectcontact .u-list .u-list-item .disabled {
+ .m-selectcontact .u-list .u-list-item .disabled {
     background-image: url('../../../../static/img/setting/checkbox-d.png');
     background-size: 100% 100%;
-  } */
+  }
 
   .m-selectcontact .u-list .u-list-item .checked {
-    background-image: url('../../../../static/img/setting/checked.png');
+    background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 100% 100%;
   }
 
@@ -778,14 +821,14 @@ export default {
   }
 
   .m-selectcontact .m-confirm-body .b-release {
-    color: #FF3732;
+    color: rgba(79,141,255,1);
     margin-right: 20px;
   }
 
   .m-selectcontact .loading {
     display: inline-block;
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     background: url('../../../../static/img/setting/loading-blur.gif') no-repeat center center;
     background-size: 100% 100%;
     margin-top: 5px;
@@ -798,6 +841,13 @@ export default {
     width: fit-content;
     max-width: 50%;
   }
-</style>
 
+  .side-list-contain .side-list .new-chat {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px 0;
+    font-size: 14px;
+    color: #999;
+  }
+</style>
 

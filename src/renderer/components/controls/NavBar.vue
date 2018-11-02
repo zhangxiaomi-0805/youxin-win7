@@ -136,12 +136,12 @@ export default {
     background-size: 100%;
   }
   .u-nav-session{
-    margin-top: 30px;
+    margin-top: 20px;
     width: 69px;
     height: 40px;
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-session-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
     
   }
   .u-nav-session a{
@@ -155,7 +155,7 @@ export default {
   } */
   .u-nav-session.z-sel{
     background: url(../../../../static/img/nav/main-tab-session-activated.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
     /* background-color: #0089E4; */
   }
   /* .u-nav-session.z-sel:active{
@@ -164,12 +164,11 @@ export default {
   } */
 
   .u-nav-work{
-    margin-top: 20px;
     width: 69px;
     height: 40px;
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-qun-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   /* .u-nav-work:active{
    background: url(../../../../static/img/nav/main-tab-qun-normal.png) no-repeat center center;
@@ -177,7 +176,7 @@ export default {
   } */
   .u-nav-work.z-sel{
     background: url(../../../../static/img/nav/main-tab-qun-activated.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
     /* background-color: #0089E4; */
   }
   /* .u-nav-work.z-sel:active{
@@ -186,12 +185,11 @@ export default {
   } */
 
   .u-nav-friends{
-    margin-top: 20px;
     width: 69px;
     height: 40px;
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-friends-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   /* .u-nav-friends:active{
     background: url(../../../../static/img/nav/main-tab-friends-pushed.png) no-repeat center center;
@@ -199,7 +197,7 @@ export default {
   } */
   .u-nav-friends.z-sel{
     background: url(../../../../static/img/nav/main-tab-friends-activated.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
     /* background-color: #0089E4; */
   }
   /* .u-nav-friends.z-sel:active{
@@ -208,12 +206,11 @@ export default {
   } */
 
   .u-nav-jiagou{
-    margin-top: 20px;
     width: 69px;
     height: 40px;
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-jiagou-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   /* .u-nav-jiagou:active{
     background: url(../../../../static/img/nav/main-tab-jiagou-normal.png) no-repeat center center;
@@ -221,7 +218,7 @@ export default {
   } */
   .u-nav-jiagou.z-sel{
     background: url(../../../../static/img/nav/main-tab-jiagou-activated.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
     /* background-color: #0089E4; */
   }
   /* .u-nav-jiagou.z-sel:active{
@@ -230,25 +227,24 @@ export default {
   } */
 
   .u-nav-yingyong{
-    margin-top: 20px;
     width: 69px;
     height: 40px;
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-third-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   .u-nav-yingyong:active{
     background: url(../../../../static/img/nav/main-tab-third-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   .u-nav-yingyong.z-sel{
     background: url(../../../../static/img/nav/main-tab-third-activated.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
     /* background-color: #0089E4; */
   }
   .u-nav-yingyong.z-sel:active{
     background: url(../../../../static/img/nav/main-tab-third-activated.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
 
   .u-nav-setting, 
@@ -261,21 +257,21 @@ export default {
     height: 25px;
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-setting-normal.png) no-repeat center center; 
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   .u-nav-setting:active{
     background: url(../../../../static/img/nav/main-tab-setting-pushed.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
 
   .u-nav-add {
     bottom: 60px;
     background: url(../../../../static/img/nav/main-tab-add-normal.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
   .u-nav-add:active{
     background: url(../../../../static/img/nav/main-tab-add-pushed.png) no-repeat center center;
-    background-size: 25px 25px;
+    background-size: 21px 21px;
   }
 </style>
 

@@ -118,14 +118,29 @@ export default {
       this.callBack({accid: user.accid})
     },
     async groupSelectHandle (group) {
+      // 群成员全选
       let teamMembers = []
       try {
         teamMembers = await SearchData.getTeamMembers(group.teamId)
       } catch (error) {}
-      console.log(teamMembers)
-      // group.scene = 'team'
-      // group.to = group.teamId
-      // this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
+      let userInfos = this.$store.state.userInfos
+      for (let i in teamMembers) {
+        let member = {}
+        if (teamMembers[i].account) {
+          if (userInfos[teamMembers[i].account] === undefined) {
+            try {
+              member = await SearchData.getMemberInfo(teamMembers[i].account)
+            } catch (error) {}
+          } else {
+            member = userInfos[teamMembers[i].account]
+          }
+        }
+        if (Object.keys(member).length > 0) {
+          member.type = 'cover'
+          member.accid = member.account
+          this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: member})
+        }
+      }
     },
     toggleCheck () {
       // 切换公司展开状态

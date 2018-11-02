@@ -10,62 +10,57 @@
     </div>
   </div>
   <div style="display: none;">{{teamInfo}}</div>
-  <div v-if="teamInvalid && valid">
-    <div class="m-body-contain" :style="{right: this.scene === 'team' ? '152px' : 0}">
-      <div class="g-hbf-body m-body" id="resize-chat-tp" style="bottom:150px;">
-        <div class="u-position-btn" v-if="showPositionBtn" @click="scrollToUnread(unreadCount, 'click')">
-          <div><span>{{unreadCount}}条新消息</span><span v-if="atCount">，{{atCount}}条@消息</span></div>
-          <i></i>
-        </div>
-        <chat-list
-          type="session"
-          :scene="scene"
-          :to="to"
-          :msglist="msglist"
-          :userInfos="userInfos"
-          :myInfo="myInfo"
-          :teamId="teamId"
-          :isRobot="isRobot"
-          :canLoadMore="canLoadMore"
-          @load-more="loadMore"/>
+  <div class="m-body-contain" :style="{right: this.scene === 'team' ? '152px' : 0}">
+    <div class="g-hbf-body m-body" id="resize-chat-tp" style="bottom:150px;">
+      <div class="u-position-btn" v-if="showPositionBtn" @click="scrollToUnread(unreadCount, 'click')">
+        <div><span>{{unreadCount}}条新消息</span><span v-if="atCount">，{{atCount}}条@消息</span></div>
+        <i></i>
       </div>
-      <!-- <div class='newMsgHint' v-if="showNewMsgTip === true" @click="scrollToBottom">
-        有新消息
-      </div> -->
-      <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
-        <div class="border" id="resize-ns"></div>
-        <chat-editor
-          type="session"
-          :scene="scene"
-          :to="to"
-          :isRobot="isRobot"
-          :invalid="!teamInvalid || muteInTeam"
-          :invalidHint="sendInvalidHint"
-          :advancedTeam="teamInfo && teamInfo.type === 'advanced'"
-          :teamId="teamId"
-          :teamInfo="teamInfo"
-          :userInfos="userInfos"
-        />
-      </div>
+      <chat-list
+        type="session"
+        :scene="scene"
+        :to="to"
+        :msglist="msglist"
+        :userInfos="userInfos"
+        :myInfo="myInfo"
+        :teamId="teamId"
+        :isRobot="isRobot"
+        :canLoadMore="canLoadMore"
+        @load-more="loadMore"/>
     </div>
-    <chat-notice
-      :userInfos="userInfos"
-      :myInfo="myInfo"
-      :scene="scene"
-      :to="to"
-      :teamId="teamId"
-      :teamInfo="teamInfo"/>
-    <slider-menu
-      :scene="scene"
-      :to="to"
-      :teamId="teamId"
-      :teamInfo="teamInfo"
-      :sessionId="sessionId"
-      :myInfo="myInfo"/>
+    <!-- <div class='newMsgHint' v-if="showNewMsgTip === true" @click="scrollToBottom">
+      有新消息
+    </div> -->
+    <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
+      <div class="border" id="resize-ns"></div>
+      <chat-editor
+        type="session"
+        :scene="scene"
+        :to="to"
+        :isRobot="isRobot"
+        :invalid="!teamInvalid || muteInTeam"
+        :invalidHint="sendInvalidHint"
+        :advancedTeam="teamInfo && teamInfo.type === 'advanced'"
+        :teamId="teamId"
+        :teamInfo="teamInfo"
+        :userInfos="userInfos"
+      />
+    </div>
   </div>
-  <div v-else class="m-body-default">
-    <div><img style="width: 158px; height: 131px;" :src="logo"><div class="no-msg">{{showLastText()}}</div></div>
-  </div>
+  <chat-notice
+    :userInfos="userInfos"
+    :myInfo="myInfo"
+    :scene="scene"
+    :to="to"
+    :teamId="teamId"
+    :teamInfo="teamInfo"/>
+  <slider-menu
+    :scene="scene"
+    :to="to"
+    :teamId="teamId"
+    :teamInfo="teamInfo"
+    :sessionId="sessionId"
+    :myInfo="myInfo"/>
 </div>
 </template>
 
