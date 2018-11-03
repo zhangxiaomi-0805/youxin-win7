@@ -39,7 +39,7 @@
         @click="orgHandle(user)">
         <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
         <span v-if="showCheck" :class="className(user)"></span>
-        <img :src="user.avatar ? user.avatar : defaultUserIcon"/>
+        <img :src="user.avatar && (user.avatar !== 'undefined') ? user.avatar : defaultUserIcon"/>
         <span :class="user.userStatus === 2 ? 'orgname' : 'orgname notActive'" :title="user.name">{{user.name}}</span>
       </div>
     </li>

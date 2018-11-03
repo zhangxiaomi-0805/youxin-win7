@@ -538,7 +538,7 @@ export default {
     display: block;
   }
   .m-slidermenu.team {
-    right: -268px;
+    right: -269px;
     width: 268px;
   }
 
@@ -563,7 +563,7 @@ export default {
     animation: moveRight 500ms;
   }
   .m-slidermenu.k-moveright.team {
-    right: -268px;
+    right: -269px;
     animation: moveRightTeam 500ms;
   }
 
@@ -572,7 +572,7 @@ export default {
     display: none;
   }
   .m-slidermenu.k-display.team {
-    right: -268px;
+    right: -269px;
     display: none;
   }
 
@@ -587,13 +587,13 @@ export default {
   }
 
   @keyframes moveLeftTeam {
-    from { right: -268px }
+    from { right: -269px }
     to { right: 0 }
   }
 
   @keyframes moveRightTeam {
     from { right: 0 }
-    to { right: -268px }
+    to { right: -269px }
   }
 
   .m-slidermenu .m-u-list {

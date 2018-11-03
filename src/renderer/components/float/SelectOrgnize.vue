@@ -13,7 +13,7 @@
       <div class="side-list-contain">
         <div class="side-list left" style="width: 55%;">
           <!-- 搜索 -->
-          <div v-if="sessionlist.length > 0" class="u-search">
+          <div class="u-search">
             <div class="u-cont">
               <input type="text" v-model="searchValue" placeholder="搜索" />
               <span v-if="searchValue" class="clear" @click="searchValue = ''"/>

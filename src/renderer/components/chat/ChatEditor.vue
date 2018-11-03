@@ -182,7 +182,7 @@ export default {
     return {
       quickSetList: [{name: '按Enter键发送消息'}, {name: '按Ctrl+Enter键发送消息'}],
       showQuickSet: false,
-      quickIndex: JSON.parse(localStorage.QUICKSET) || 0,
+      quickIndex: localStorage.QUICKSET ? JSON.parse(localStorage.QUICKSET) : 0,
       showPrompt: false,
       isMsg: false,
       isEmojiShown: false,

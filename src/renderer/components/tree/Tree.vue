@@ -76,6 +76,9 @@ export default {
       teamAddAllId: -1
     }
   },
+  mounted () {
+    this.orgDataInit()
+  },
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
@@ -152,15 +155,19 @@ export default {
       if (this.$store.state.personInfos.accid === accid) return true
       return false
     },
+    orgDataInit () {
+      // 组织数据初始化
+      let tag = 0
+      if (this.orgnizeObj[0] && this.orgnizeObj[0].tag) {
+        tag = this.orgnizeObj[0].tag
+      }
+      let params = {depId: 0, tag}
+      this.renderOrgData(params)
+    },
     toggleCheck () {
       // 切换公司展开状态
       if (!this.companyopen) {
-        let tag = 0
-        if (this.orgnizeObj[0] && this.orgnizeObj[0].tag) {
-          tag = this.orgnizeObj[0].tag
-        }
-        let params = {depId: 0, tag}
-        this.renderOrgData(params)
+        this.orgDataInit()
       }
       this.companyopen = !this.companyopen
     },
