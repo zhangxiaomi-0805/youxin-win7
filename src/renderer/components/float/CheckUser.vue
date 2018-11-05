@@ -5,23 +5,6 @@
     <div class="m-modify">
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div class="nick" :title="userInfos.nick">{{userInfos.nick}}</div>
-      <!-- <div>
-        <div class="nick" :title="userInfos.nick">{{userInfos.nick}}</div> -->
-        <!-- <div class="remarks" v-if="!isSelf" >
-          <span style="margin-right: 8px;">备注名</span>
-          <a v-if="!isActive" class="edit" @click="showInput" style="margin-right: 5px;"></a>
-          <input
-            ref="input"
-            :disabled="!isActive"
-            @blur="updateFriend"
-            @keyup="keyToUpdate($event)"
-            :class="isActive ? 'memo-input active' : 'memo-input'"
-            type="text"
-            v-model="userInfos.alias"
-            maxlength="16"
-            placeholder="添加备注名">
-        </div> -->
-      <!-- </div> -->
     </div>
     <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
@@ -32,9 +15,6 @@
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : "-"}}</span></div>
     <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.jobNum ? userInfos.jobNum : "-"}}</span></div>
     <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.alias">{{userInfos.alias ? userInfos.alias : "-"}}</span></div>
-    <!-- <a v-if="!isSelf" class="sendmsg">添加为联系人</a> -->
-    <!-- <a class="sendmsg" @click="sendMsg()">发消息</a> -->
-    <!-- <a v-if="!isSelf" class="call">语音通话</a> -->
   </div>
 </transition>
 </template>
@@ -50,10 +30,19 @@ export default {
     this.eventBus.$on('checkUser', (data) => {
       if (data.userInfos === 1) {
         // 打开本人名片
-        this.userInfos = Object.assign(this.myInfo, this.personInfos)
-        this.isSelf = true
-        this.showCheckUser = true
-        this.managePosition(data.event)
+        /*
+         * 获取个人信息
+         */
+        Fetch.post('api/appPc/userInfo', {}, this)
+          .then(ret => {
+            if (ret) {
+              this.userInfos = ret
+              this.isSelf = true
+              this.showCheckUser = true
+              this.managePosition(data.event)
+            }
+          }).catch(() => {
+          })
       } else if (data.userInfos) {
         this.userInfos = data.userInfos || {}
         // 打开他人名片

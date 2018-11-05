@@ -19,7 +19,8 @@
       class="m-u-list-item" 
       v-for="member in memberList" 
       :key="member.id" 
-      :id="member.id" 
+      :id="member.id"
+      @click="checkUserInfo($event, member)" 
       @mouseup.stop="showMemberOptions($event, member)"
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
@@ -225,8 +226,8 @@ export default {
           key,
           show: true,
           pos: {
-            x: event.clientX - 40,
-            y: event.clientY + 15
+            x: event.clientX - 150,
+            y: event.clientY - 20
           },
           callBack: (type) => {
             switch (type) {
