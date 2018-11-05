@@ -1,12 +1,13 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
 
-  <div v-if="contactslist.length > 0" class="u-search">
+  <div v-if="contactslist.length > 0" class="u-search searchevent">
     <div class="u-cont">
-      <input type="text" v-model="searchValue" placeholder="搜索" @keyup="searchContact($event)"/>
-      <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
+      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+      <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
+  <search v-if="showSearch" type="contact" :value="searchValue" :clearStatus="clearStatus"/>
  
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>
@@ -48,8 +49,12 @@
 import config from '../../configs'
 import pageUtil from '../../utils/page'
 import Fetch from '../../utils/fetch'
+import Search from '../search/Search.vue'
+import clickoutside from '../../utils/clickoutside.js'
 export default {
   name: 'contacts-list',
+  directives: {clickoutside},
+  components: {Search},
   props: {
     callBack: Function
   },
@@ -89,6 +94,7 @@ export default {
       timer: null,
       activeId: '',
       scrollTop: 0,
+      showSearch: false,
       searchValue: '',
       noticeIcon: config.noticeIcon,
       defaultUserIcon: config.defaultUserIcon,
@@ -124,9 +130,7 @@ export default {
       Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
         this.tag = ret.tag
         this.contactslist = ret.userContactList
-      }).catch(err => {
-        console.log(err)
-      })
+      }).catch(() => {})
     },
     searchContact (e) {
       // 查找联系人
@@ -134,9 +138,7 @@ export default {
         e.target.blur()
         Fetch.post('api/appPc/queryUserList', {tag: this.tag}, this).then(ret => {
           this.tag = ret.tag
-        }).catch(err => {
-          console.log(err)
-        })
+        }).catch(() => {})
       }
     },
     toggleNameCard (contacts) {
@@ -170,6 +172,14 @@ export default {
           }
         })
       }
+    },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.showSearch = false
+      this.searchValue = ''
     }
   }
 }

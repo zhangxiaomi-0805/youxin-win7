@@ -1,12 +1,13 @@
 <template>
 <!-- 群组 -->
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <div class="u-search">
+  <div class="u-search searchevent">
     <div class="u-cont">
-      <input type="text" v-model="searchValue" placeholder="搜索" />
-      <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
+      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+      <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
+  <search v-if="showSearch" type="team" :value="searchValue" :clearStatus="clearStatus"/>
   <div class="t-title-con">
     <div class="t-title">
       <a :class="listType === 'team' ? 't-title-item t-title-team active' : 't-title-item t-title-team'" @click="toggleList('team')">交流群</a>
@@ -37,14 +38,19 @@
 </template>
 
 <script>
+import Search from '../search/Search.vue'
+import clickoutside from '../../utils/clickoutside.js'
 export default {
   name: 'team-list',
+  directives: {clickoutside},
+  components: {Search},
   props: {
     callBack: Function
   },
   data () {
     return {
       scrollTop: 0,
+      showSearch: false,
       searchValue: '',
       activeId: '',
       listType: 'team',
@@ -136,6 +142,14 @@ export default {
         nickInTeam: this.myNick,
         muteNotiType: type
       })
+    },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.showSearch = false
+      this.searchValue = ''
     }
   }
 }

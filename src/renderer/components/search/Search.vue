@@ -3,7 +3,7 @@
   <div class="s-cont searchevent" :style="{top: type === 'contact' ? '100px' : '56px'}">
     <div v-if="!isEmpty" class="s-empty searchevent">暂无搜索结果~</div>
     <!-- 联系人 -->
-    <div v-if="contactlist.length > 0">
+    <div v-if="(type === 'all' || type === 'orgnize') && contactlist.length > 0">
       <div class="s-title searchevent">联系人</div>
       <ul class="u-list searchevent">
         <li
@@ -24,7 +24,7 @@
       <a v-if="contactShowMore" class="s-cheak-more searchevent" @click="checkMore('contact')">{{contactShowMore === 2 ? '收起' : '显示更多'}}</a>
     </div>
     <!-- 群组 -->
-    <div v-if="teamlist.length > 0" :style="{height: teamHeight}">
+    <div v-if="(type === 'all' || type === 'team') && teamlist.length > 0" :style="{height: teamHeight}">
       <div class="s-title searchevent">群组</div>
       <ul class="u-list searchevent">
         <li
@@ -47,7 +47,7 @@
       <a v-if="teamShowMore" class="s-cheak-more searchevent" @click="checkMore('team')">{{teamShowMore === 2 ? '收起' : '显示全部'}}</a>
     </div>
     <!-- 聊天记录 -->
-    <div v-if="type === 'session' && recordlist.length > 0" :style="{height: recordHeight}">
+    <div v-if="type === 'all' && recordlist.length > 0" :style="{height: recordHeight}">
       <div class="s-title searchevent">聊天记录</div>
       <ul class="u-list searchevent">
         <li
@@ -111,10 +111,12 @@
         return grouplist
       },
       isEmpty () {
-        if (this.type === 'session') {
+        if (this.type === 'all') {
           return this.contactlist.length > 0 || this.teamlist.length > 0 || this.recordlist.length > 0
-        } else if (this.type === 'contact') {
-          return this.contactlist.length > 0 || this.teamlist.length > 0 || this.branchlist.length > 0
+        } else if (this.type === 'orgnize') {
+          return this.contactlist.length > 0
+        } else if (this.type === 'team') {
+          return this.teamlist.length > 0
         }
       },
       sessionlist () {
@@ -139,9 +141,9 @@
           this.reset()
           return
         }
-        this.searchInContact(value, 1)
-        this.searchInTeam(value)
-        this.type === 'session' && this.searchInRecord(value)
+        if ((this.type === 'all' || this.type === 'orgnize')) this.searchInContact(value, 1)
+        if ((this.type === 'all' || this.type === 'team')) this.searchInTeam(value)
+        if (this.type === 'all') this.searchInRecord(value)
       },
       async searchInContact (value, page) {
         // 搜索联系人
