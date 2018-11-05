@@ -1,22 +1,23 @@
 <template>
   <!-- 消息列表、通讯录搜索 -->
-  <div class="s-cont">
+  <div class="s-cont searchevent" :style="{top: type === 'contact' ? '100px' : '56px'}">
     <div v-if="!isEmpty" class="s-empty searchevent">暂无搜索结果~</div>
     <!-- 联系人 -->
     <div v-if="contactlist.length > 0">
       <div class="s-title searchevent">联系人</div>
-      <ul class="u-list">
+      <ul class="u-list searchevent">
         <li
           class="u-list-item s-list-item searchevent"
           v-for="item in contactlist"
           :key="item.id"
           :id="item.id"
           :title="item.company"
+          @click="toggleSessin('p2p', item.accid)"
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
             <div><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
-            <div class="s-name default searchevent">{{item.company}}</div>
+            <div class="s-name default searchevent">{{item.companyName}}</div>
           </div>
         </li>
       </ul>
@@ -25,13 +26,13 @@
     <!-- 群组 -->
     <div v-if="teamlist.length > 0" :style="{height: teamHeight}">
       <div class="s-title searchevent">群组</div>
-      <ul class="u-list">
+      <ul class="u-list searchevent">
         <li
           class="u-list-item s-list-item searchevent"
           v-for="item in teamlist"
           :key="item.id"
           :id="item.id"
-          @click="toggleSessin(item.teamId)"
+          @click="toggleSessin('team', item.teamId)"
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
@@ -48,18 +49,19 @@
     <!-- 聊天记录 -->
     <div v-if="type === 'session' && recordlist.length > 0" :style="{height: recordHeight}">
       <div class="s-title searchevent">聊天记录</div>
-      <ul class="u-list">
+      <ul class="u-list searchevent">
         <li
           class="u-list-item s-list-item searchevent"
           v-for="record in recordlist"
           :key="record.id"
           :id="record.id"
-          @click="toggleSessin(record.to, record.name)"
+          @click="toggleSessin(record.scene, record.to, record.name)"
         >
           <img :src="record.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
             <div class="s-name searchevent">{{record.name}}</div>
-            <div class="s-name default searchevent">{{record.recordNum > 99 ? '99+条相关聊天记录' : (record.recordNum + '条相关聊天记录')}}</div>
+            <div class="searchevent" v-if="record.recordNum === 1"><span :class="nameClass(text, 'default')" v-for="text in record.text" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div v-else class="s-name default searchevent">{{record.recordNum > 99 ? '99+条相关聊天记录' : (record.recordNum + '条相关聊天记录')}}</div>
           </div>
         </li>
       </ul>
@@ -143,24 +145,15 @@
       },
       async searchInContact (value, page) {
         // 搜索联系人
-        let result = [
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'}
-        ]
-        // let userId = this.contactlist[this.contactlist.length - 1] ? this.contactlist[this.contactlist.length - 1].id : 0
-        // let result = await SearchData.getContactlists(value, page > 1 ? 10 : 5, userId)
+        let userId = this.contactlist[this.contactlist.length - 1] ? this.contactlist[this.contactlist.length - 1].accid : 0
+        let result = []
+        try {
+          result = await SearchData.getContactlists(value, page > 1 ? 10 : 5, userId)
+        } catch (error) {}
         let contactlistTemp = []
         for (let i in result) {
           if (contactlistTemp.length === (page > 1 ? 10 : 5)) this.contactShowMore = 1
-          else {
-            if (result[i].name.indexOf(value) > -1) {
-              contactlistTemp.push(result[i])
-            }
-          }
+          else contactlistTemp.push(result[i])
         }
         if (page > 1 && contactlistTemp.length < 10) this.contactShowMore = 2
         // 数据update
@@ -239,15 +232,30 @@
           recordlimitNum: 5
         }
       },
-      toggleSessin (teamId, titleName) {
+      toggleSessin (scene, account, titleName) {
         // 切换会话
-        let sessionId = ''
-        for (let i in this.sessionlist) {
-          if (this.sessionlist[i].to === teamId) {
-            sessionId = this.sessionlist[i].id
-            break
+        if (scene === 'p2p') {
+          if (!account) {
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '该成员未激活'
+            })
+            return false
+          }
+          if (!this.contactExit(account)) {
+            let currentRoutePath = this.$route.path
+            if (currentRoutePath.indexOf('session') > -1) {
+              // 消息列表
+              this.$router.push({name: 'namecard-session', query: {pageType: 'p2p', accid: account}})
+            } else if (currentRoutePath.indexOf('contacts') > -1) {
+              // 通讯录
+              this.$router.push({name: 'namecard', query: {pageType: 'p2p', accid: account}})
+            }
+            return false
           }
         }
+        let sessionId = this.getSessionId(account)
         let BaseFn = (sessionId) => {
           this.reset()
           this.clearStatus()
@@ -263,8 +271,8 @@
           }
         } else {
           this.$store.dispatch('insertLocalSession', {
-            scene: 'team',
-            account: teamId,
+            scene,
+            account,
             callback: (sessionId) => {
               BaseFn(sessionId)
               if (titleName) {
@@ -275,6 +283,25 @@
             }
           })
         }
+      },
+      contactExit (accid) {
+        let contactHistoryAccount = this.$store.state.contactHistoryAccount
+        for (let i in contactHistoryAccount) {
+          if (contactHistoryAccount[i].account === accid) {
+            return true
+          }
+        }
+        return false
+      },
+      getSessionId (account) {
+        let sessionId = ''
+        for (let i in this.sessionlist) {
+          if (this.sessionlist[i].to === account) {
+            sessionId = this.sessionlist[i].id
+            break
+          }
+        }
+        return sessionId
       }
     }
   }
@@ -297,8 +324,9 @@
     justify-content: center;
     position: absolute;
     top: 0;
+    bottom: 0;
     width: 100%;
-    height: 100%;
+    padding-top: 60px;
     font-size: 14px;
     color: #C4C4C4;
   }
@@ -306,13 +334,13 @@
   .s-title {
     display: flex;
     align-items: center;
-    width: 100%;
     height: 30px;
     box-sizing: border-box;
-    padding: 0 16px;
+    margin-left: 13px;
     background-color: #fff;
-    color: #333;
-    font-size: 14px;
+    border-bottom: 1px solid rgba(247,247,247,1);
+    font-size: 12px;
+    color: #B3B3BA;
   }
 
   .s-list-item {
@@ -321,7 +349,7 @@
     align-items: center;
     height: 56px;
     box-sizing: border-box;
-    padding: 10px 16px;
+    padding: 10px 13px;
     cursor: default;
   }
 
@@ -332,23 +360,24 @@
   }
 
   .s-list-item .s-name {
-    font-size: 13px;
+    font-size: 14px;
+    color: #0B0D0C;
   }
   .s-list-item .s-name.default {
-    color: #999;
     font-size: 12px;
+    color: #7E807F;
   }
   .s-list-item .s-name.active {
-    color: rgb(0, 162, 255);
+    color: rgba(79,141,255,1);
   }
 
   .s-cheak-more {
     display: flex;
     align-items: center;
-    justify-content: center;
+    box-sizing: border-box;
     width: 100%;
-    color: rgb(103, 168, 221);
-    font-size: 13px;
-    padding: 6px 0;
+    padding: 6px 13px;
+    font-size: 12px;
+    color: #4F8DFF;
   }
 </style>

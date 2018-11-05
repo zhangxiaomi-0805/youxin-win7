@@ -1,13 +1,14 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <div v-if="sessionlist.length > 0" class="u-search">
+  <div v-if="sessionlist.length > 0" class="u-search searchevent">
     <div class="u-cont">
-      <input type="text" v-model="searchValue" placeholder="搜索" />
-      <span v-if="searchValue.length > 0" class="clear" @click="searchValue = ''"/>
+      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+      <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
+  <search v-if="showSearch" type="session" :value="searchValue" :clearStatus="clearStatus"/>
   <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : '56px'}" ref="sessionList" @scroll="scrollTop = $event.target.scrollTop">
     <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
@@ -45,8 +46,12 @@
 import util from '../../utils'
 import config from '../../configs'
 import pageUtil from '../../utils/page'
+import Search from '../search/Search.vue'
+import clickoutside from '../../utils/clickoutside.js'
 export default {
   name: 'session-list',
+  directives: {clickoutside},
+  components: {Search},
   mounted () {
     var _this = this
     this.eventBus.$on('locationMainListItem', function (data) {
@@ -97,6 +102,7 @@ export default {
     return {
       activeId: '',
       scrollTop: 0,
+      showSearch: false,
       searchValue: '',
       noticeIcon: config.noticeIcon,
       myPhoneIcon: config.myPhoneIcon,
@@ -402,6 +408,14 @@ export default {
         }
       }
       return false
+    },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.showSearch = false
+      this.searchValue = ''
     }
   }
 }
@@ -452,7 +466,7 @@ export default {
   background-size: 100% 100%;
 }
 
-.m-main-list .u-list {
+.m-main-list > .u-list {
   position: absolute;
   top: 56px;
   bottom: 0;
@@ -493,21 +507,28 @@ export default {
   width: 90%;
   height: 28px;
 }
-.u-search input{
+.u-search input {
+  box-sizing: border-box;
   width: 100%;
   height: 100%;
   background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
-  background-size: 14px 14px;
+  background-size: 12px 12px;
   border-radius: 2px;
   border: none;
-  text-indent: 24px;
+  /* text-indent: 24px; */
   font-size: 12px;
   color: #333;
+  padding: 0 26px;
+  border: 1px solid transparent;
+  transition: border .1s linear;
+}
+.u-search input.active {
+  border: 1px solid rgba(79,141,255,1);
 }
 .u-search .clear {
   position: absolute;
   right: 8px;
-  top: 6.5px;
+  top: 6.3px;
   display: block;
   width: 14px;
   height: 14px;

@@ -40,7 +40,7 @@
         <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
         <span v-if="showCheck" :class="className(user)"></span>
         <img :src="user.avatar && (user.avatar !== 'undefined') ? user.avatar : defaultUserIcon"/>
-        <span :class="user.userStatus === 2 ? 'orgname' : 'orgname notActive'" :title="user.name">{{user.name}}</span>
+        <span class="orgname" :title="user.name">{{user.name}}</span>
       </div>
     </li>
   </ul>
@@ -94,10 +94,6 @@ export default {
   },
   methods: {
     className (user) {
-      if (user.userStatus === 1) {
-        // 未激活
-        return 'unActive common'
-      }
       if (this.isDisabled(user.accid)) {
         return 'disabled common'
       }
@@ -126,7 +122,7 @@ export default {
       let params = Object.assign({}, user)
       params.level = this.currentId
       if (this.showCheck) {
-        if (user.userStatus === 2 && !this.isDisabled(user.accid)) {
+        if (!this.isDisabled(user.accid)) {
           this.orgSelectHandle(params)
         }
       } else {

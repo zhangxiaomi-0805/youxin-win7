@@ -61,9 +61,9 @@
           return
         }
         let searchlist = []
-        if (this.myInfo.nick.indexOf(value) > -1) {
-          searchlist.push(this.myInfo)
-        }
+        // if (this.myInfo.nick.indexOf(value) > -1) {
+        //   searchlist.push(this.myInfo)
+        // }
         for (let i in this.memberList) {
           if (this.memberList[i].alias !== '我' && this.memberList[i].alias.indexOf(value) > -1) {
             searchlist.push(this.memberList[i])

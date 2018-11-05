@@ -28,7 +28,7 @@
           <div :class="account ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input 
               class="ipt"
-              maxlength="64"
+              maxlength="32"
               autofocus
               v-model="account"
               placeholder="请输入账号"/>
@@ -45,7 +45,8 @@
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="20"
               v-model="password"
-              placeholder="请输入密码"/>
+              placeholder="请输入密码"
+              @keyup="keyToNext($event, 1)"/>
           </div>
 
           <div class="m-login-ctl">
@@ -91,6 +92,7 @@
               maxlength="20"
               v-model="confirmPassword"
               placeholder="请再次确认新密码"
+              @keyup="keyToNext($event, 2)"
               />
               <span v-if="confirmPassword.length > 0" class="clear" @click="confirmPassword = ''"/>
           </div>
@@ -176,6 +178,19 @@
       }
     },
     methods: {
+      keyToNext (e, type) {
+        if (e.keyCode === 13) {
+          e.target.blur()
+          switch (type) {
+            case 1 :
+              this.login()
+              break
+            case 2 :
+              this.setNewPwd()
+              break
+          }
+        }
+      },
       showAccountModal () {
         if (this.rememberAccount.length > 0) {
           this.showModal = !this.showModal
@@ -254,47 +269,32 @@
         this.loading = true
         let errMsg = ''
         this.password = type && type === 2 ? this.newPassword : this.password
-        if (this.account.length < 4 || !/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 8) {
-          errMsg = '用户或账号密码错误，登录失败'
+        if (this.account.length < 2) {
+          errMsg = '账号或密码错误，登录失败'
+        }
+        if (this.password.length < 8) {
+          errMsg = '账号或密码错误，登录失败'
         }
         this.errMsg = errMsg
         if (errMsg) {
           this.loading = false
           return
         }
-        let params = {
+        /*
+         * 登录鉴权
+         * @params account  原账号
+         * @params password  新密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
+         */
+        Fetch.post('api/appPc/login/auth', {
           account: this.account,
           password: DES.encryptByDES(this.password)
-        }
-        let url = 'api/appPc/login/auth'
-        Fetch.post(url, params, this).then(ret => {
+        }, this).then(ret => {
           if (ret.type === 'setPassword') {
             this.type = 'setPassword'
             this.loading = false
           } else {
             localStorage.setItem('sessionToken', ret.token)
             this.loginPC(ret.userInfo)
-            this.loading = false
-            if (this.isRember) {
-              let accountInfo = {
-                id: ret.userInfo.userId,
-                account: this.account,
-                password: this.password,
-                isRember: true
-              }
-              if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
-                this.rememberAccount.pop()
-              }
-              this.rememberAccount.map((item, index) => { // 登录账号相同则合并
-                if (this.account === item.account) {
-                  this.rememberAccount.splice(index, 1)
-                }
-              })
-              this.rememberAccount.unshift(accountInfo)
-              localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
-            }
-            ipcRenderer.send('onReset')
-            location.href = config.homeUrl
           }
         }).catch((err) => {
           this.loading = false
@@ -345,21 +345,30 @@
                   }
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
-                this.$store.commit('updateLoginInfo', {
-                  type: this.loginType === 1 ? 'phoneEmail' : 'overseasCode',
-                  account: this.account,
-                  loginType: this.loginType
-                })
-                if (localStorage.LOGININFO) {
-                  localStorage.removeItem('LOGININFO')
+                if (this.isRember) {
+                  // 记住密码
+                  let accountInfo = {
+                    id: ret.userInfo.userId,
+                    account: this.account,
+                    password: this.password,
+                    isRember: true
+                  }
+                  if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
+                    this.rememberAccount.pop()
+                  }
+                  this.rememberAccount.map((item, index) => { // 登录账号相同则合并
+                    if (this.account === item.account) {
+                      this.rememberAccount.splice(index, 1)
+                    }
+                  })
+                  this.rememberAccount.unshift(accountInfo)
+                  localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
                 ipcRenderer.send('onReset')
                 location.href = config.homeUrl
               }
             })
-          } else {
-            this.loading = false
-          }
+          } else this.loading = false
         }).catch((err) => {
           this.loading = false
           if (err) this.errMsg = err.msg
@@ -457,7 +466,7 @@
     width: 90%;
     border: 0;
     padding: 0;
-    font-size: 18px;
+    font-size: 16px;
     color: #333;
     font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }

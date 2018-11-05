@@ -13,12 +13,13 @@
         :key="item.id"
         :id="item.id"
         :title="item.company"
+        @click="chooseContact(item)"
       >
         <span :class="className(item, 'user')"></span>
         <img :src="item.avatar || myGroupIcon" class="s-img">
         <div style="paddingLeft: 10px;">
           <div class="s-name">{{item.name}}</div>
-          <div class="s-name default">{{item.company}}</div>
+          <div class="s-name default">{{item.orgNameList && item.orgNameList.join('、') || ''}}</div>
         </div>
       </li>
       <li v-if="noMoreData && !showTeam" class="n-data">已无更多记录...</li>
@@ -91,21 +92,16 @@
         this.searchInContact(value, 1)
         this.showTeam && this.searchInTeam(value)
       },
-      searchInContact (value, page) {
+      async searchInContact (value, page) {
         // 搜索联系人
-        let result = [
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'},
-          {name: '小明' + parseInt(100 * Math.random()), company: '云信交互组、云信产品组'}
-        ]
+        let userId = this.contactlist[this.contactlist.length - 1] ? this.contactlist[this.contactlist.length - 1].accid : 0
+        let result = []
+        try {
+          result = await SearchData.getContactlists(value, page > 1 ? 10 : 5, userId)
+        } catch (error) {}
         let contactlistTemp = []
         for (let i in result) {
-          if (result[i].name.indexOf(value) > -1) {
-            contactlistTemp.push(result[i])
-          }
+          contactlistTemp.push(result[i])
         }
         if (page > 1 && contactlistTemp.length < 10) {
           this.noMoreData = true
@@ -156,8 +152,6 @@
             return true
           }
         }
-        // 特殊高管
-        if (user.userRoleType === 1) return true
         if (this.$store.state.personInfos === user.accid) return true
         return false
       },
@@ -200,6 +194,37 @@
         group.scene = 'team'
         group.to = group.teamId
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
+      },
+      chooseContact (user) {
+        // 选择联系人
+        if (!this.handleClickSpecial(user)) {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '无法选择“特殊高管”角色成员'
+          })
+          return false
+        }
+        user.scene = 'p2p'
+        user.to = user.accid
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
+      },
+      // 点击特殊高管
+      handleClickSpecial (user) {
+        const mySpecial = this.$store.state.personInfos.specialAdmin
+        const userSpecial = user.specialAdmin
+        const contactHistoryAccount = this.$store.state.contactHistoryAccount
+        let accountArr = []
+        contactHistoryAccount.forEach(item => {
+          accountArr.push(item.account)
+        })
+        // 判断是否能操作
+        const notClick = userSpecial && !mySpecial && !accountArr.includes(user.accid)
+        if (notClick) {
+          return false
+        } else {
+          return true
+        }
       }
     }
   }
@@ -306,24 +331,25 @@
   }
 
   .s-list-item .s-name {
-    font-size: 13px;
+    font-size: 14px;
+    color: #0B0D0C;
   }
   .s-list-item .s-name.default {
-    color: #999;
     font-size: 12px;
+    color: #7E807F;
   }
   .s-list-item .s-name.active {
-    color: rgb(0, 162, 255);
+    color: rgba(79,141,255,1);
   }
 
   .s-cheak-more {
     display: flex;
     align-items: center;
-    justify-content: center;
+    box-sizing: border-box;
     width: 100%;
-    color: rgb(103, 168, 221);
-    font-size: 13px;
-    padding: 6px 0;
+    padding: 6px 13px;
+    font-size: 12px;
+    color: #4F8DFF;
   }
 </style>
 

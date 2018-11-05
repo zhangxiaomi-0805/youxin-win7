@@ -6,18 +6,18 @@ import util from '../../utils'
 import Fetch from '../../utils/fetch.js'
 var SearchData = {}
 
-SearchData.getContactlists = function (name, limit, userId, $this) {
+SearchData.getContactlists = function (keyParam, pageSize, lastId, $this) {
   /*
   * 模糊搜索成员
-  * @params  name: 用户名称-名称匹配搜索
-  * @params  limit: 查询展示的条数 默认为5
-  * @params  userId: 查询起始的用户id(上次返回的最后一个id) 默认为0
+  * @params  keyParam: 查询参数
+  * @params  pageSize: 查询展示的条数 默认为20
+  * @params  lastId: 代表最后一条记录的accid，首次查询时 传 字符串0
   */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/user/search', {
-      name, limit, userId
+    Fetch.post('api/appPc/queryUserList', {
+      keyParam, pageSize, lastId
     }, $this).then(ret => {
-      if (ret) resolve(ret)
+      if (ret) resolve(ret.userInfo)
     }).catch(err => reject(err))
   })
 }
@@ -42,29 +42,27 @@ SearchData.getTeamMembersList = function (teamlimitNum, value, callback) {
         let members = []
         try {
           members = await this.getTeamMembers(group.teamId)
-        } catch (error) { reject(error) }
-        for (let i in members) {
-          let user = {}
-          if (members[i].account) {
-            if (store.state.userInfos[members[i].account] === undefined) {
-              try {
+          for (let i in members) {
+            let user = {}
+            if (members[i].account) {
+              if (store.state.userInfos[members[i].account] === undefined) {
                 user = await this.getMemberInfo(members[i].account)
-              } catch (error) { reject(error) }
-            } else {
-              user = store.state.userInfos[members[i].account]
-            }
-          }
-          if (user.nick && user.nick.indexOf(value) > -1) {
-            if (noCheckMore) {
-              if (teamlistTemp.length === 5 && teamlimitNum === 5) callback()
-              else {
-                let team = Object.assign(group, {contain: user.nick})
-                teamlistTemp.push(team)
+              } else {
+                user = store.state.userInfos[members[i].account]
               }
             }
-            break
+            if (user.nick && user.nick.indexOf(value) > -1) {
+              if (noCheckMore) {
+                if (teamlistTemp.length === 5 && teamlimitNum === 5) callback()
+                else {
+                  let team = Object.assign(group, {contain: user.nick})
+                  teamlistTemp.push(team)
+                }
+              }
+              break
+            }
           }
-        }
+        } catch (error) { reject(error) }
       }
     }
     resolve(teamlistTemp)
@@ -117,7 +115,7 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
             records = await this.getRecords(sessionlist[i], value)
           } catch (error) { reject(error) }
           if (records.length > 0) {
-            let recordObj = { recordNum: records.length }
+            let recordObj = { recordNum: records.length, text: records[0].text }
             recordObj = Object.assign(recordObj, sessionlist[i])
             recordlistTemp.push(recordObj)
           }
@@ -155,21 +153,22 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
    * 获取列表展示内容数据
    */
   return new Promise(async (resolve, reject) => {
-    let recordlist = await SearchData.getRecordsDetail(obj, searchValue, true, 20, sessionId)
-    for (let i in recordlist) {
-      let userInfo = {}
-      if (store.state.userInfos[recordlist[i].from] === undefined) {
-        try {
+    let recordlist = []
+    try {
+      recordlist = await SearchData.getRecordsDetail(obj, searchValue, true, 20, sessionId)
+      for (let i in recordlist) {
+        let userInfo = {}
+        if (store.state.userInfos[recordlist[i].from] === undefined) {
           userInfo = await this.getMemberInfo(recordlist[i].from)
-        } catch (error) { reject(error) }
-      } else {
-        userInfo = store.state.userInfos[recordlist[i].from]
+        } else {
+          userInfo = store.state.userInfos[recordlist[i].from]
+        }
+        recordlist[i].avatar = userInfo.avatar
+        recordlist[i].name = userInfo.name || recordlist[i].fromNick
+        recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
       }
-      recordlist[i].avatar = userInfo.avatar
-      recordlist[i].name = userInfo.name || recordlist[i].fromNick
-      recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
-    }
-    resolve(recordlist)
+      resolve(recordlist)
+    } catch (error) { reject(error) }
   })
 }
 
