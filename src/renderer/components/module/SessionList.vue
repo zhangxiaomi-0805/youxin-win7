@@ -515,7 +515,6 @@ export default {
   background-size: 12px 12px;
   border-radius: 2px;
   border: none;
-  /* text-indent: 24px; */
   font-size: 12px;
   color: #333;
   padding: 0 26px;

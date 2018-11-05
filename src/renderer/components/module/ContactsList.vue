@@ -265,12 +265,13 @@ export default {
   width: 100%;
   height: 100%;
   background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
-  background-size: 14px 14px;
+  background-size: 12px 12px;
   border-radius: 2px;
   border: none;
-  text-indent: 24px;
   font-size: 12px;
   color: #333;
+  border: 1px solid transparent;
+  transition: border .1s linear;
 }
 .u-search .clear {
   position: absolute;

@@ -234,27 +234,6 @@
       },
       toggleSessin (scene, account, titleName) {
         // 切换会话
-        if (scene === 'p2p') {
-          if (!account) {
-            this.$store.commit('toastConfig', {
-              show: true,
-              type: 'fail',
-              toastText: '该成员未激活'
-            })
-            return false
-          }
-          if (!this.contactExit(account)) {
-            let currentRoutePath = this.$route.path
-            if (currentRoutePath.indexOf('session') > -1) {
-              // 消息列表
-              this.$router.push({name: 'namecard-session', query: {pageType: 'p2p', accid: account}})
-            } else if (currentRoutePath.indexOf('contacts') > -1) {
-              // 通讯录
-              this.$router.push({name: 'namecard', query: {pageType: 'p2p', accid: account}})
-            }
-            return false
-          }
-        }
         let sessionId = this.getSessionId(account)
         let BaseFn = (sessionId) => {
           this.reset()

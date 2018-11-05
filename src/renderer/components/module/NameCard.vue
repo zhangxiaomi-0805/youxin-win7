@@ -63,17 +63,6 @@ export default {
     sessionlist () {
       return this.$store.state.sessionlist
     },
-    // userInfos () {
-    //   // 通讯录用户信息中查找
-    //   let contactslist = this.$store.state.contactslist
-    //   for (let i in contactslist) {
-    //     let user = contactslist[i]
-    //     if (user.accid === this.accid) {
-    //       return user
-    //     }
-    //   }
-    //   return {}
-    // },
     cardInfo () {
       let teamlist = this.$store.state.teamlist
       let cardInfo = teamlist.find(item => {
@@ -119,18 +108,21 @@ export default {
          * 获取用户信息
          * @params  JSON字符串(对象数组)
          */
-        Fetch.post('api/appPc/userInfo', {accid: this.accid}, this).then(ret => {
-          console.log(ret)
+        let params = [
+          {
+            tag: this.userInfos.tag || 0,
+            accid: this.accid
+          }
+        ]
+        Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json').then(ret => {
           if (ret) {
-            this.userInfos = ret
-            return ret.accid
+            this.userInfos = ret.userList[0]
           }
         }).catch(() => {
         })
       }
     },
     deleteContact (accid) {
-      console.log(accid)
       // 删除常用联系人 userType === 1 ---添加； userType === 2 ---删除
       let params = {
         accid,
@@ -138,7 +130,6 @@ export default {
       }
       // 添加常用联系人
       Fetch.post('api/appPc/addOrDelContactUser', params, this).then(ret => {
-        console.log(ret)
       }).catch(() => {
       })
     }
