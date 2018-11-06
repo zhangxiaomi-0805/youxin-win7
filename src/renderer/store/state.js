@@ -147,5 +147,7 @@ export default {
   // 群右键选中
   teamAc: -1,
   // 聊天记录背景高亮标识
-  msgHighBgIdClient: ''
+  msgHighBgIdClient: '',
+  // 好友状态列表
+  friendsStatusList: {}
 }

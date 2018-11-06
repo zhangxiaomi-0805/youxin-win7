@@ -84,6 +84,8 @@ function updateSessionAccount (sessions) {
 
 // onSessions只在初始化完成后回调
 export function onSessions (sessions) {
+  // onSessions完成初始化后进行订阅
+  store.dispatch('subscribeEvent', sessions)
   updateSessionAccount(sessions)
   store.commit('updateSessions', sessions)
 }
@@ -153,6 +155,9 @@ export function deleteSession ({state, commit}, obj) {
             that.eventBus.$emit('toggleSelect', {sessionId: queryId})
           }
           store.commit('toggleSlideMenuStatus', 4)
+        }
+        if (scene === 'p2p') {
+          store.dispatch('unSubscribeEvent', [account])
         }
         commit('deleteSessions', [sessionId])
       }

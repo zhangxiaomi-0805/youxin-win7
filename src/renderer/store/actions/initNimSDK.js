@@ -7,6 +7,7 @@ import pageUtil from '../../utils/page'
 import util from '../../utils'
 import store from '../'
 import {onFriends, onSyncFriendAction} from './friends'
+import {onPushEvents, onLoginPortsChange} from './statusEvent'
 import {onRobots} from './robots'
 import {onBlacklist, onMarkInBlacklist} from './blacks'
 import {onMutelist, onMarkInMutelist} from './mute'
@@ -62,7 +63,6 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
       // console.log(event)
     },
     ondisconnect: function onDisconnect (error) {
-      console.log('ondisconnect===============')
       switch (error.code) {
         // 账号或者密码错误, 请跳转到登录页面并提示错误
         case 302:
@@ -93,8 +93,8 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           break
       }
     },
-    // // 多端登录
-    // onloginportschange: onLoginPortsChange,
+    // 多端登录
+    onloginportschange: onLoginPortsChange,
     // 用户关系及好友关系
     onblacklist: onBlacklist,
     onsyncmarkinblacklist: onMarkInBlacklist,
@@ -140,6 +140,8 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
 
     onofflinecustomsysmsgs: onCustomSysMsgs,
     oncustomsysmsg: onCustomSysMsgs,
+    // 订阅事件
+    onpushevents: onPushEvents,
     // // 同步完成
     onsyncdone: function onSyncDone () {
       dispatch('hideLoading')

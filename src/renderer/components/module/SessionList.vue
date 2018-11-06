@@ -14,10 +14,23 @@
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">
           <div style="display: flex; align-items: center;width:70%;">
-            <img class="icon" :src="session.avatar"/>
+            <div 
+              class="icon"
+              style="position: relative;"
+            >
+              <img
+                :src="session.avatar"
+                style="width: 100%;height: 100%;border-radius: 50%;"
+              />
+              <div
+                v-if="session.status !== 0 && session.status !== 1 && session.scene === 'p2p' && session.to !== myPhoneId"
+                class="u-status-cover"
+              />
+            </div>
             <div class="multi-content">
               <div class="title" style="width: 95%;">{{session.name}}</div>
               <div class="content">
+                <span>{{session.status}}</span>
                 <span v-if="session.localCustom && session.localCustom.at && !lastMsgStatus(session)" style="color: #F43530;">[有人@你] </span>
                 <span v-if="lastMsgStatus(session)" style="color: #F43530;">{{session.lastMsgShow}}</span>
                 <span v-else-if="session.lastMsgShow">{{session.lastMsgShow}}</span>
@@ -479,6 +492,17 @@ export default {
   width: 2px;
   height: 100%;
   cursor: w-resize;
+}
+
+.u-status-cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
 }
 
 .u-list-item-isTop {

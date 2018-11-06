@@ -8,6 +8,7 @@ import {initNimSDK} from './initNimSDK'
 // import {initChatroomSDK, resetChatroomSDK} from './initChatroomSDK'
 import {updateBlack} from './blacks'
 import {updateMute} from './mute'
+import {subscribeEvent, unSubscribeEvent, publistEvents} from './statusEvent'
 import {updateFriend, addFriend, deleteFriend} from './friends'
 import {resetSearchResult, searchUsers, searchTeam} from './search'
 import {deleteSession, setCurrSession, resetCurrSession, insertLocalSession, setTopSession, deleteLocalMsgsBySession, updateLocalCustomSession} from './session'
@@ -199,5 +200,9 @@ export default {
   removeTeamMembers,
   // 已读未读账号
   setSelectMsg,
-  getUnreadList
+  getUnreadList,
+  // 在线忙碌状态
+  subscribeEvent,
+  unSubscribeEvent,
+  publistEvents
 }
