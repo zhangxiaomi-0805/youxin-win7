@@ -2,17 +2,14 @@
 <!-- 公告、群成员管理 -->
 <div class="m-chat-nt" v-if="scene === 'team'">
   <div class="m-content">
-    <div class="m-title notice">
+    <div v-if="!isDiscussGroup" class="m-title notice">
       <span class="notice">公告</span>
     </div>
-    <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
-    <a class="b-edit" @click="showEditNotice('edit')"/>
+    <div v-if="!isDiscussGroup" class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
+    <a v-if="!isDiscussGroup" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
-  <div 
-    @click.stop="showListOptions($event)" 
-    class="m-title team-control" 
-  >
-    <span>{{sessionName}}</span><a class="point" ></a>
+  <div class="m-title team-control">
+    <span>{{sessionName}}</span><a v-if="!isDiscussGroup" class="point" @click.stop="showListOptions($event)" ></a>
   </div>
   <ul class="m-u-list">
     <li 
@@ -25,7 +22,7 @@
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
       <div class="m-left"><img class="t-img" :src="member.avatar"><span class="t-style">{{member.alias}}</span></div>
-      <span :class="member.type" v-show="member.type !== 'normal'"/>
+      <span :class="member.type" v-show="member.type !== 'normal' && !isDiscussGroup"/>
     </li>
   </ul>
 </div>
@@ -36,6 +33,7 @@ import Fetch from '../../utils/fetch.js'
 export default {
   name: 'chat-notice',
   props: {
+    isDiscussGroup: Boolean,
     scene: String,
     to: String,
     teamId: String,
@@ -81,9 +79,9 @@ export default {
         // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
         var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
         var memberCount = members && members.length
-        return '群成员 ' + (memberCount ? `(${memberCount}) 人` : '')
+        return (this.isDiscussGroup ? '讨论组成员 ' : '群成员 ') + (memberCount ? `(${memberCount}) 人` : '')
       }
-      return '群'
+      return this.isDiscussGroup ? '讨论组' : '群'
     },
     memberList () {
       if (this.teamInfo) {
@@ -225,6 +223,7 @@ export default {
           id: member.id,
           key,
           show: true,
+          isDiscussGroup: this.isDiscussGroup,
           pos: {
             x: event.clientX - 150,
             y: event.clientY - 20

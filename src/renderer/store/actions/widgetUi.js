@@ -277,6 +277,11 @@ export function showListOptions ({state, commit}, obj) {
     items = [
       event12, event19, event20, event15
     ]
+    if (obj.isDiscussGroup) {
+      items = [
+        event12, event19, event20
+      ]
+    }
   }
   // 群成员管理（发消息、查看资料、+常用联系人）--- 普通群成员
   if (obj.key === 'normal-member-manager') {

@@ -45,7 +45,6 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
         }
         commit('connectStatus', { networkStatus: 200 })
         ipcRenderer.send('logined', null)
-        console.log('onconnect===============')
       }
     },
     onerror: function onError (event) {

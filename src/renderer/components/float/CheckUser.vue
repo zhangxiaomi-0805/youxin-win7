@@ -6,7 +6,7 @@
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div class="nick" :title="userInfos.nick">{{userInfos.nick}}</div>
     </div>
-    <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account ? userInfos.account : '未设置'}}</span></div>
+    <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.name ? '#333' : '#999'}" :title="userInfos.name">{{userInfos.name || '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
     <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.tel">{{userInfos.tel}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>

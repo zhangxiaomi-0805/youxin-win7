@@ -263,6 +263,7 @@
         })
       },
       login (type) {
+        if (!(this.account && this.password)) return
         /**
          * type===1,直接密码登录，type===2,首次登录密码激活后登录
          *  */
@@ -454,7 +455,7 @@
   }
 
    .m-login-con .m-login-ipt-active {
-    border-bottom: 1px solid rgba(79,141,255,1);
+    border-bottom: 1px solid rgba(4,154,255,1);
   }
 
   .m-login-con .m-login-ipt.sendcode {

@@ -23,7 +23,7 @@
     align-items: center;
     width: 100%;
     min-height: 44px;
-    background: rgba(79,141,255,1);
+    background: rgba(4,154,255,1);
     border-radius: 10px;
     font-size: 16px;
     color: #fff;
@@ -32,16 +32,16 @@
     margin-top: 40px;
   }
   .b-contain:hover {
-    background: rgb(77, 128, 223);
+    background: rgb(1, 138, 230);
   }
 
   .b-contain.disabled {
-    background: rgba(79,141,255,.5);
+    background: rgba(4,154,255,.5);
     cursor: default;
   }
-  .b-contain.disabled:hover {
-    background: rgba(79,141,255,.5);
-  }
+  /* .b-contain.disabled:hover {
+    background: rgba(1, 138, 230,.5);
+  } */
 
   .b-contain .loading {
     display: inline-block;

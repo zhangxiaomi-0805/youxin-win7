@@ -5,50 +5,34 @@
     <div class="m-selectcontact-cover"></div>
     <div class="m-selectcontact" style="width:680px;height:502px;">
       <div class="drag" id="selectOrgnizeDrag">
-        <span>{{type === 1 ? '创建群' : '添加成员'}}</span>
-        <div class="u-sysbtn close">
-          <a class="btn-close" @click="closeModal()"/>
-        </div>
+        <span>{{type === 1 ? '创建群' : type === 4 ? '创建讨论组' : '添加成员'}}</span>
+        <div class="u-sysbtn close"><a class="btn-close" @click="closeModal()"/></div>
       </div>
       <div class="side-list-contain">
         <div class="side-list left" style="width: 55%;">
           <!-- 搜索 -->
-          <div class="u-search">
-            <div class="u-cont">
-              <input type="text" v-model="searchValue" placeholder="搜索" />
-              <span v-if="searchValue" class="clear" @click="searchValue = ''"/>
-            </div>
-          </div>
+          <div class="u-search"><div class="u-cont"><input type="text" v-model="searchValue" placeholder="搜索" /><span v-if="searchValue" class="clear" @click="searchValue = ''"/></div></div>
           <div class="title" style="paddingTop: 0;paddingBottom: 0;">联系人</div>
-          <div class="contact">
-            <tree showCheck showTitle showTeam/>
-          </div>
+          <div class="contact"><tree showCheck showTitle showTeam/></div>
         </div>
         <div class="side-list" style="float: right;width: 45%">
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
           <ul class="u-list" v-show="chooselist.length > 0" style="top: 44px;">
             <li class="u-list-item" v-for="item in chooselist" :key="item.id" :id="item.id">
-              <div style="display: flex; flex-direction: row; align-items: center">
-                <img class="msg-img" :src="item.avatar || defaultUserIcon">
-                <span class="inline">{{item.name || item.nick}}</span>
-              </div>
+              <div class="alignCenter"><img class="msg-img" :src="item.avatar || defaultUserIcon"><span class="inline">{{item.name || item.nick}}</span></div>
               <span class="delete" @click="deleted(item)"></span>
             </li>
           </ul>
         </div>
       </div>
       <div v-if="platform" class="footer">
-        <a :class="chooselist.length > 0 ? 'confirm' : 'confirm disabled'" @click="confirmBtn">
-          <span v-if="!loading">确定</span>
-          <span v-else-if="loading" class="loading"></span>
-        </a>
+        <a :class="chooselist.length > (type === (1 || 4) ? 1 : 0) ? 'confirm' : 'confirm disabled'" @click="confirmBtn"><span v-if="!loading">确定</span><span v-else-if="loading" class="loading"></span></a>
         <a class="cancel" @click="closeModal()">取消</a>
       </div>
       <div v-else class="footer">
         <a class="cancel" @click="closeModal()" style="margin-right:20px;">取消</a>
-        <a :class="chooselist.length > 0 ? 'confirm' : 'confirm disabled'" style="margin-right:0;" @click="confirmBtn">
-          <span v-if="!loading">确定</span>
-          <span v-else-if="loading" class="loading"></span>
+        <a :class="chooselist.length > (type === (1 || 4) ? 1 : 0) ? 'confirm' : 'confirm disabled'" style="margin-right:0;" @click="confirmBtn">
+          <span v-if="!loading">确定</span><span v-else-if="loading" class="loading"></span>
         </a>
       </div>
     </div>
@@ -78,7 +62,7 @@ export default {
       showSelectOrgnize: false,
       loading: false,
       teamId: -1,
-      type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员
+      type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员，4-创建讨论组
       searchValue: ''
     }
   },
@@ -112,7 +96,8 @@ export default {
     },
     confirmBtn () {
       if (this.loading) return
-      if (this.chooselist.length <= 0) return
+      let length = this.type === (1 || 4) ? 1 : 0
+      if (this.chooselist.length <= length) return
       switch (this.type) {
         case 1:
           this.createTeam()
@@ -123,14 +108,13 @@ export default {
         case 3:
           this.addTeamMember()
           break
+        case 4:
+          this.createTeam()
+          break
       }
     },
     createTeam () {
-      if (this.chooselist.length === 1 && (this.type === 1)) {
-        this.sendMsg(this.chooselist[0].accid)
-        return
-      }
-      // 创建群
+      // 创建群、讨论组
       this.loading = true
       var accounts = []
       if (this.type === 2) {
@@ -145,6 +129,16 @@ export default {
         this.errToast()
         return
       }
+      if (this.type === 4) {
+        if (this.chooselist.length > 199) {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '无法操作，讨论组人数已达上限200人'
+          })
+          return
+        }
+      }
       var _name = []
       _name.push(this.$store.state.myInfo.nick)
       for (var i = 0; i < this.chooselist.length; i++) {
@@ -155,69 +149,51 @@ export default {
       if (name.length >= 16) {
         name = name.substring(0, 16) + '...'
       }
-      this.$store.dispatch('delegateTeamFunction', {
-        functionName: 'createTeam',
-        options: {
-          type: 'advanced',
-          name,
-          accounts: accounts,
-          joinMode: 'noVerify',
-          beInviteMode: 'noVerify',
-          inviteMode: 'manager',
-          done: (error, obj) => {
-            if (!error) {
-              this.showSelectOrgnize = false
-              this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
-              this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
-              setTimeout(() => {
-                this.loading = false
-                this.jumpToTeam(obj.team.teamId)
-              }, 350)
-            } else {
-              this.closeModal()
-              if (error.code === 801) {
-                // 群人数达到上限
-                this.$store.commit('toastConfig', {
-                  show: true,
-                  type: 'fail',
-                  toastText: '无法操作，群人数已达上限200人，最多可提高至500人'
-                })
-              } else if (error.code === 806) {
-                // 创建群数量达到限制
-                this.eventBus.$emit('forwordFail', {type: 2})
-              } else if (error.message) {
-                this.$store.commit('toastConfig', {
-                  show: true,
-                  type: 'fail',
-                  toastText: error.message
-                })
-              }
+      let options = {
+        type: 'advanced',
+        name,
+        accounts: accounts,
+        joinMode: 'noVerify',
+        beInviteMode: 'noVerify',
+        inviteMode: 'manager',
+        done: (error, obj) => {
+          if (!error) {
+            this.showSelectOrgnize = false
+            this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
+            this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
+            setTimeout(() => {
+              this.loading = false
+              this.jumpToTeam(obj.team.teamId)
+            }, 350)
+          } else {
+            this.closeModal()
+            if (error.code === 801) {
+              // 群人数达到上限
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: '无法操作，群人数已达上限200人，最多可提高至500人'
+              })
+            } else if (error.code === 806) {
+              // 创建群数量达到限制
+              this.eventBus.$emit('forwordFail', {type: 2})
+            } else if (error.message) {
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: error.message
+              })
             }
           }
         }
+      }
+      if (this.type === 4) {
+        options.custom = JSON.stringify({isDiscussGroup: true})
+        options.updateTeamMode = 'all'
+      }
+      this.$store.dispatch('delegateTeamFunction', {
+        functionName: 'createTeam', options
       })
-    },
-    sendMsg (account) {
-      this.loading = true
-      // 选择人数一人时发起单聊
-      let sessionId = ''
-      for (let i in this.sessionlist) {
-        if (this.sessionlist[i].to === account) {
-          sessionId = this.sessionlist[i].id
-          break
-        }
-      }
-      if (sessionId) {
-        this.hasSessionHandle(sessionId)
-      } else {
-        this.$store.dispatch('insertLocalSession', {
-          scene: 'p2p',
-          account: account,
-          callback: (sessionId) => {
-            sessionId && this.hasSessionHandle(sessionId)
-          }
-        })
-      }
     },
     jumpToTeam (account) {
       let sessionId = ''
@@ -286,6 +262,12 @@ export default {
     overflow-y: auto;
     background-color: rgba(250,250,250,1);
     padding: 0 8px;
+  }
+
+  .alignCenter {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 </style>
 

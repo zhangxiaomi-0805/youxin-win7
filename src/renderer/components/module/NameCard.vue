@@ -26,7 +26,7 @@
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
         <div>{{cardInfo.name}}</div>
         <div class="num">{{memberCount || cardInfo.memberNum + '人'}}</div>
-        <a class="button" @click="sendMsg(cardInfo.teamId)">进入群聊</a>
+        <a class="button" @click="sendMsg(cardInfo.teamId)">{{isDiscussGroup ? '进入讨论组' : '进入群聊'}}</a>
       </div>
     </div>
   </div>
@@ -69,6 +69,14 @@ export default {
         return item.teamId === this.teamId
       })
       return cardInfo || {}
+    },
+    isDiscussGroup () {
+      // 讨论组标识
+      if (this.cardInfo && this.cardInfo.custom) {
+        let custom = JSON.parse(this.cardInfo.custom)
+        if (custom.isDiscussGroup) return true
+      }
+      return false
     },
     memberCount () {
       let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]

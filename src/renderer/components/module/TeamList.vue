@@ -15,7 +15,24 @@
     </div>
   </div>
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
-    <ul class="u-list t-u-list" v-show="grouplist.length > 0 && listType === 'team'">
+    <ul class="u-list t-u-list" v-show="teamlist.length > 0 && listType === 'team'">
+      <li
+        :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
+        :style="hasBorder && team.teamId === acTeamId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
+        v-for="team in teamlist"
+        :key="team.id" 
+        :id="team.id"
+        @click="checkCard(team)"
+        @mouseup.stop="onShowMenu($event, team)"
+      >
+        <div class="t-list-item-left t-center">
+          <img :src="team.avatar || defaultIcon"/>
+          <span class="teamname" :title="team.name">{{team.name}}</span>
+        </div>
+        <span class="t-num">{{team.memberNum}}</span>
+      </li>
+    </ul>
+    <ul class="u-list t-u-list" v-show="grouplist.length > 0 && listType === 'group'">
       <li
         :class='activeId === group.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
         :style="hasBorder && group.teamId === acTeamId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
@@ -59,9 +76,15 @@ export default {
     }
   },
   computed: {
+    teamlist () {
+      let teamlist = this.$store.state.teamlist.filter(item => {
+        return item.valid && item.validToCurrentUser && !(item.custom && JSON.parse(item.custom).isDiscussGroup)
+      })
+      return teamlist
+    },
     grouplist () {
       let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser
+        return item.valid && item.validToCurrentUser && (item.custom && JSON.parse(item.custom).isDiscussGroup)
       })
       return grouplist
     },

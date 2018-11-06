@@ -104,7 +104,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
       $this.$store.commit('toastConfig', {
         show: true,
         type: 'fail',
-        toastText: '当前网络异常，请检查您的网络设置'
+        toastText: '当前网络异常，请检查网络设置'
       })
       reject(error)
     })

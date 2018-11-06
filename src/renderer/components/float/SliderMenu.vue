@@ -2,8 +2,8 @@
 <!-- 侧滑菜单 -->
 <div id="sliderMenu" :class="className" v-clickoutside="closeMenu">
   <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
-    <h4>{{this.scene === 'p2p' ? '聊天设置' : '群设置'}}</h4>
-    <div style="width: 24px; height: 24px" v-if="this.scene !== 'p2p'">
+    <h4>{{scene === 'p2p' ? '聊天设置' : isDiscussGroup ? '讨论组设置' : '群设置'}}</h4>
+    <div style="width: 24px; height: 24px" v-if="scene !== 'p2p' && !isDiscussGroup">
       <img src="../../../../static/img/setting/er-wei-ma.png" alt="" style="width: 100%">
     </div>
   </div> 
@@ -43,12 +43,12 @@
     </div>
     <div class="team-block">
       <div style="display:none;">{{teamName}}</div>
-      <div class="team-title" style="margin-bottom:0;">群名称</div>
+      <div class="team-title" style="margin-bottom:0;">{{isDiscussGroup ? '讨论组名称' : '群名称'}}</div>
       <input
           ref="teamNick"
           :class="isActive1 ? 'team-input active' : 'team-input'"
           type="text"
-          placeholder="请输入群名称"
+          :placeholder="`请输入${isDiscussGroup ? '讨论组' : '群'}名称`"
           maxlength="16"
           v-model="teamNick"
           :disabled="!(teamInfo.updateTeamMode === 'all' || power !== 'normal')"
@@ -56,7 +56,7 @@
           @blur="modifyTeamNick"
           @keyup="keyupModifyTeamNick($event)">
     </div>
-    <div class="team-block">
+    <div class="team-block" v-if="!isDiscussGroup">
       <div style="display:none;">{{muteNotiType}}</div>
       <div class="team-title">消息提醒</div>
       <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
@@ -79,7 +79,7 @@
         <a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span>
       </a>
     </div>
-    <div class="team-block" v-if="power === 'owner'">
+    <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
       <div class="team-title">
         <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span>
       </div>
@@ -88,13 +88,16 @@
         <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a>
       </div>
     </div>
-    <div class="team-block" v-if="power !== 'owner'">
+    <div class="team-block" v-if="isDiscussGroup">
+      <div class="team-title">退出讨论组：</div><a class="b-edit" style="color: rgba(244,53,48,1);width: 75px;">退出讨论组</a>
+    </div>
+    <div class="team-block" v-if="power !== 'owner' && !isDiscussGroup">
       <div class="team-title">退出群：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="leaveTeam">退出群</a>
     </div>
-    <div class="team-block" v-if="power === 'owner'">
+    <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
       <div class="team-title">群转让：</div><a class="b-edit" @click="transferTeam">群转让</a>
     </div>
-    <div class="team-block" v-if="power === 'owner'">
+    <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
       <div class="team-title">群解散：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="dismissTeam">解散群</a>
     </div>
   </div>
@@ -107,6 +110,7 @@ import util from '../../utils'
 export default {
   name: 'slider-menu',
   props: {
+    isDiscussGroup: Boolean,
     scene: String,
     to: String,
     teamId: String,

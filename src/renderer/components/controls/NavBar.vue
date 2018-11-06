@@ -81,8 +81,8 @@ export default {
           x: e.clientX + 15,
           y: e.clientY - 30
         },
-        callBack: () => {
-          this.eventBus.$emit('selectOrgnize', {type: 1})
+        callBack: (type) => {
+          this.eventBus.$emit('selectOrgnize', {type: type === 2 ? 4 : 1})
         }
       })
     }

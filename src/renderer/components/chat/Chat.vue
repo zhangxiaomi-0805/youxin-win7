@@ -4,8 +4,7 @@
     <span class="session-name">{{sessionName}}</span>
     <div class="m-setting" v-if="funKey >= 2 && teamInvalid && valid">
       <!-- <a class="b-check"/> -->
-      <a class="b-add" @click="createTeam()"/>
-      <!-- <a class="b-add" v-if="funKey <= 2" @click="createTeam()"/> -->
+      <a class="b-add" v-if="funKey <= 2" @click="createTeam()"/>
       <a class="b-more" @click="openSliderMenu"/>
     </div>
   </div>
@@ -28,9 +27,6 @@
         :canLoadMore="canLoadMore"
         @load-more="loadMore"/>
     </div>
-    <!-- <div class='newMsgHint' v-if="showNewMsgTip === true" @click="scrollToBottom">
-      有新消息
-    </div> -->
     <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
       <div class="border" id="resize-ns"></div>
       <chat-editor
@@ -53,14 +49,16 @@
     :scene="scene"
     :to="to"
     :teamId="teamId"
-    :teamInfo="teamInfo"/>
+    :teamInfo="teamInfo"
+    :isDiscussGroup="isDiscussGroup"/>
   <slider-menu
     :scene="scene"
     :to="to"
     :teamId="teamId"
     :teamInfo="teamInfo"
     :sessionId="sessionId"
-    :myInfo="myInfo"/>
+    :myInfo="myInfo"
+    :isDiscussGroup="isDiscussGroup"/>
 </div>
 </template>
 
@@ -200,6 +198,7 @@ export default {
         } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
           return this.lastMsg.attach.team.name
         } else {
+          if (this.isDiscussGroup) return '讨论组'
           return '群'
         }
       }
@@ -246,6 +245,14 @@ export default {
         }
       }
       return undefined
+    },
+    isDiscussGroup () {
+      // 讨论组标识
+      if (this.teamInfo && this.teamInfo.custom) {
+        let custom = JSON.parse(this.teamInfo.custom)
+        if (custom.isDiscussGroup) return true
+      }
+      return false
     },
     muteInTeam () {
       if (this.scene !== 'team') return false

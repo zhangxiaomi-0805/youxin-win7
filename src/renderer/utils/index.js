@@ -243,18 +243,30 @@ Utils.generateChatroomSysMsg = function (data) {
 }
 
 Utils.generateTeamSysmMsg = function (data) {
+  let task = '群'
+  if (data.scene === 'team') {
+    for (let i in store.state.teamlist) {
+      let team = store.state.teamlist[i]
+      if (team.teamId === data.to) {
+        if (team.custom && JSON.parse(team.custom).isDiscussGroup) {
+          task = '讨论组'
+        }
+        break
+      }
+    }
+  }
   var text = this.getNickNames(data.attach.users)
   var nicks = text
   switch (data.attach.type) {
     case 'updateTeam':
-      text = this.getTeamUpdateInfo(data)
+      text = this.getTeamUpdateInfo(data, task)
       break
     case 'addTeamMembers': {
       let op = nicks.pop()
       for (let i in nicks) {
         nicks[i] = `“${nicks[i]}”`
       }
-      text = `“${op}”邀请${nicks.join('、')}加入了群`
+      text = `“${op}”邀请${nicks.join('、')}加入了${task}`
       break
     }
     case 'removeTeamMembers': {
@@ -267,16 +279,16 @@ Utils.generateTeamSysmMsg = function (data) {
     }
     case 'acceptTeamInvite': {
       let op = nicks.pop()
-      text = `“${nicks.join()}”接受了“${op}”入群邀请`
+      text = `“${nicks.join()}”接受了“${op}”入${task}邀请`
       break
     }
     case 'passTeamApply': {
       let op = nicks.shift()
       if (nicks.length === 1 && op === nicks[0]) {
         // 此情况为高级群设置不需要验证，用户申请入群后，收到的群消息提示
-        text = `“${op}”加入群`
+        text = `“${op}”加入${task}`
       } else {
-        text = `“${op}”通过了“${nicks}”入群邀请`
+        text = `“${op}”通过了“${nicks}”入${task}邀请`
       }
       break
     }
@@ -293,11 +305,11 @@ Utils.generateTeamSysmMsg = function (data) {
       break
     }
     case 'leaveTeam': {
-      text = `“${nicks.join()}”退出了群`
+      text = `“${nicks.join()}”退出了${task}`
       break
     }
     case 'dismissTeam': {
-      text = `该群已被群主“${nicks.join()}”解散`
+      text = `该${task}已被群主“${nicks.join()}”解散`
       break
     }
     case 'transferTeam': {
@@ -327,29 +339,29 @@ Utils.getNickNames = function (users) {
 }
 
 // todo 写成私有成员方法
-Utils.getTeamUpdateInfo = function (msg) {
+Utils.getTeamUpdateInfo = function (msg, task) {
   let text = msg.attach.team
   let team = text
   let op = this.getNickNames(msg.attach.users).pop()
-  if (team['name']) text = `${op}修改群名为“${team['name']}”`
-  else if (team['intro']) text = `${op}修改群介绍为“${team['intro']}”`
+  if (team['name']) text = `${op}修改${task}名为“${team['name']}”`
+  else if (team['intro']) text = `${op}修改${task}介绍为“${team['intro']}”`
 
   // 由于群公告的交互与 Android iOS 不一致，现版本不适配群公告
   // else if (team['announcement']) {
   //   text = `${op}修改群公告为${team['announcement']}`
   // }
   else if (team['joinMode']) {
-    text = `群身份验证模式更新为${team.joinMode === 'noVerify' ? '不需要验证' : team.joinMode === 'needVerify' ? '需要验证' : '禁止任何人加入'}`
+    text = `${task}身份验证模式更新为${team.joinMode === 'noVerify' ? '不需要验证' : team.joinMode === 'needVerify' ? '需要验证' : '禁止任何人加入'}`
   } else if (team['inviteMode']) {
     text = `邀请他人权限为${team['inviteMode'] === 'all' ? '所有人' : '管理员'}`
   } else if (team['updateTeamMode']) {
-    text = `群资料修改权限为${team['updateTeamMode'] === 'all' ? '所有人' : '管理员'}`
+    text = `${task}资料修改权限为${team['updateTeamMode'] === 'all' ? '所有人' : '管理员'}`
   } else if (team['beInviteMode']) {
     text = `被邀请人身份${team['beInviteMode'] === 'noVerify' ? '不需要验证' : '需要验证'}`
   } else if (team['announcement']) {
-    text = `${op}修改群公告为“${team['announcement']}”`
+    text = `${op}修改${task}公告为“${team['announcement']}”`
   } else {
-    text = '更新群信息'
+    text = `更新${task}信息`
   }
   return text
 }
