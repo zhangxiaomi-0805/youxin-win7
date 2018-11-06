@@ -157,15 +157,38 @@ export default {
       sessions = sessions.sessions
     }
     const nim = state.nim
+    const oldListLength = state.sessionlist.length
     state.sessionlist = nim.mergeSessions(state.sessionlist, sessions)
+    const newListLength = state.sessionlist.length
+    // 当sessions数量发生变化
+    if (oldListLength !== newListLength && sessions[0].scene === 'p2p') {
+      state.nim.subscribeEvent({
+        // type 1 为登录事件，用于同步多端登录状态
+        type: 1,
+        accounts: [sessions[0].to],
+        subscribeTime: 3600 * 24 * 30,
+        // 同步订阅事件，保证每次登录时会收到推送消息
+        sync: true,
+        done: function (err, res) {
+          if (err) {
+            console.error('订阅好友事件失败', err)
+          } else {
+            console.log(res)
+          }
+        }
+      })
+    }
     state.sessionlist.sort((a, b) => {
       return b.updateTime - a.updateTime
     })
     state.sessionlist.forEach(item => {
       state.sessionMap[item.id] = item
+      if (state.friendsStatusList[item.to] > -1) {
+        item.status = state.friendsStatusList[item.to]
+      }
     })
     callback && callback(sessions[0].id)
-    if (sessions[0].msgReceiptTime) {
+    if (sessions[0] && sessions[0].msgReceiptTime) {
       // 修改已读回执状态
       state.currSessionMsgs.forEach((msg, index) => {
         if (msg.scene === 'p2p' && msg.flow === 'out') {
@@ -986,5 +1009,9 @@ export default {
   },
   updateLoginInfo (state, obj) {
     state.loginInfo = obj
+  },
+  // 更新好友状态列表
+  updateFriendsStatusList (state, obj) {
+    state.friendsStatusList[obj.account] = obj.type
   }
 }

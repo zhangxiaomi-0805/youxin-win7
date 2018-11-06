@@ -145,5 +145,7 @@ export default {
   // 登录信息保存
   loginInfo: {},
   // 群右键选中
-  teamAc: -1
+  teamAc: -1,
+  // 好友状态列表
+  friendsStatusList: {}
 }
