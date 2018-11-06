@@ -454,7 +454,7 @@
     transition: all .2s linear;
   }
 
-   .m-login-con .m-login-ipt-active {
+  .m-login-con .m-login-ipt-active {
     border-bottom: 1px solid rgba(4,154,255,1);
   }
 

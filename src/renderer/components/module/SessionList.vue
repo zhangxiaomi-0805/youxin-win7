@@ -10,7 +10,7 @@
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
   <search v-if="showSearch" type="all" :value="searchValue" :clearStatus="clearStatus"/>
   <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : '56px'}" ref="sessionList" @scroll="scrollTop = $event.target.scrollTop">
-    <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
+    <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">
           <div style="display: flex; align-items: center;width:70%;">
@@ -491,7 +491,7 @@ export default {
   top: -8px;
   width: 16px;
   height: 16px;
-  background: #4F8DFF;
+  background: rgba(4,154,255,1);
   transform: rotate(45deg);
 }
 .u-search{
@@ -522,7 +522,7 @@ export default {
   transition: border .1s linear;
 }
 .u-search input.active {
-  border: 1px solid rgba(79,141,255,1);
+  border: 1px solid rgba(4,154,255,1);
 }
 .u-search .clear {
   position: absolute;

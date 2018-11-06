@@ -24,6 +24,7 @@
             <setting-detail/>
             <forword-fail />
             <logout/>
+            <setting-name/>
         </div>
     </div>
 </template>
@@ -47,13 +48,14 @@
   import ForwordFail from './float/ForwordFail.vue'
   import GeneralSetting from './float/GeneralSetting.vue'
   import SettingDetail from './float/SettingDetail.vue'
+  import SettingName from './float/SettingName.vue'
   import Logout from './float/Logout.vue'
   import Resize from '../utils/resize.js'
   const electron = require('electron')
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'main-page',
-    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail},
+    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})

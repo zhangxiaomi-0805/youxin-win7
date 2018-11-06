@@ -1,26 +1,51 @@
 <template>
 <div>
-  <!-- 群组 -->
+  <!-- 交流群 -->
   <div v-if="showTeam">
     <a class="t-list" @click="teamopen = !teamopen">
       <div class="t-center t-title">
         <span :class="teamopen ? 't-up' : 't-down'"/>
-        <div class="t-center"><span style="line-height: 14px;">群组</span></div>
+        <div class="t-center"><span style="line-height: 14px;">交流群</span></div>
       </div>
     </a>
     <div :class="teamopen ? 't-body active' : 't-body'">
+      <ul class="t-u-list" v-if="teamlist.length > 0">
+        <li 
+          class="t-u-list-item t-center"
+          v-for="team in teamlist" 
+          :key="team.id"
+          :id="team.id"
+          @mouseenter="teamAddAllId = team.teamId"
+          @mouseleave="teamAddAllId = -1"
+        >
+          <img :src="team.avatar || defaultIcon"/>
+          <span class="teamname" :title="team.name">{{team.name}}</span>
+          <transition name="fade"><a v-if="team.teamId === teamAddAllId" class="t-addAll" @click.stop="groupSelectHandle(team)">+</a></transition>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- 讨论组 -->
+  <div v-if="showTeam">
+    <a class="t-list" @click="groupopen = !groupopen">
+      <div class="t-center t-title">
+        <span :class="groupopen ? 't-up' : 't-down'"/>
+        <div class="t-center"><span style="line-height: 14px;">讨论组</span></div>
+      </div>
+    </a>
+    <div :class="groupopen ? 't-body active' : 't-body'">
       <ul class="t-u-list" v-if="grouplist.length > 0">
         <li 
           class="t-u-list-item t-center"
           v-for="group in grouplist" 
           :key="group.id"
           :id="group.id"
-          @mouseenter="teamAddAllId = group.teamId"
-          @mouseleave="teamAddAllId = -1"
+          @mouseenter="groupAddAllId = group.teamId"
+          @mouseleave="groupAddAllId = -1"
         >
           <img :src="group.avatar || defaultIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
-          <transition name="fade"><a v-if="group.teamId === teamAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a></transition>
+          <transition name="fade"><a v-if="group.teamId === groupAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a></transition>
         </li>
       </ul>
     </div>
@@ -70,10 +95,12 @@ export default {
       orginzeopen: !this.showTitle, // 组织机构展开状态
       companyopen: false, // 公司展开状态
       teamopen: false, // 群展开状态
+      groupopen: false,
       companyInfo: {}, // 公司信息
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
-      teamAddAllId: -1
+      teamAddAllId: -1,
+      groupAddAllId: -1
     }
   },
   mounted () {
@@ -83,9 +110,15 @@ export default {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
     },
+    teamlist () {
+      let teamlist = this.$store.state.teamlist.filter(item => {
+        return item.valid && item.validToCurrentUser && !(item.custom && JSON.parse(item.custom).isDiscussGroup)
+      })
+      return teamlist
+    },
     grouplist () {
       let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser
+        return item.valid && item.validToCurrentUser && (item.custom && JSON.parse(item.custom).isDiscussGroup)
       })
       return grouplist
     },

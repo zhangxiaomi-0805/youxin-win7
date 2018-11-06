@@ -18,7 +18,7 @@
     <ul class="u-list t-u-list" v-show="teamlist.length > 0 && listType === 'team'">
       <li
         :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
-        :style="hasBorder && team.teamId === acTeamId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
+        :style="hasBorder && team.teamId === acTeamId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}"
         v-for="team in teamlist"
         :key="team.id" 
         :id="team.id"
@@ -35,7 +35,7 @@
     <ul class="u-list t-u-list" v-show="grouplist.length > 0 && listType === 'group'">
       <li
         :class='activeId === group.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
-        :style="hasBorder && group.teamId === acTeamId ? {border: '1px solid #4F8DFF'}: {border: '1px solid transparent'}"
+        :style="hasBorder && group.teamId === acTeamId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}"
         v-for="group in grouplist"
         :key="group.id" 
         :id="group.id"

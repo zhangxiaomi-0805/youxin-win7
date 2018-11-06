@@ -100,20 +100,20 @@ export default {
       if (this.chooselist.length <= length) return
       switch (this.type) {
         case 1:
-          this.createTeam()
+          this.eventBus.$emit('settingName', {type: 1, callBack: this.createTeam})
           break
         case 2:
-          this.createTeam()
+          this.eventBus.$emit('settingName', {type: 1, callBack: this.createTeam})
           break
         case 3:
           this.addTeamMember()
           break
         case 4:
-          this.createTeam()
+          this.eventBus.$emit('settingName', {type: 2, callBack: this.createTeam})
           break
       }
     },
-    createTeam () {
+    createTeam (name) {
       // 创建群、讨论组
       this.loading = true
       var accounts = []
@@ -138,16 +138,6 @@ export default {
           })
           return
         }
-      }
-      var _name = []
-      _name.push(this.$store.state.myInfo.nick)
-      for (var i = 0; i < this.chooselist.length; i++) {
-        _name.push(this.chooselist[i].alias || this.chooselist[i].nick || this.chooselist[i].name)
-      }
-      // 长度处理
-      var name = _name.join('、')
-      if (name.length >= 16) {
-        name = name.substring(0, 16) + '...'
       }
       let options = {
         type: 'advanced',
