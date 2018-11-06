@@ -39,8 +39,12 @@
       <span v-if="msg.status==='fail'" class="msg-failed" @click="resendMsg(msg)"><i class="weui-icon-warn"></i></span>
       <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
     </div>
-    <div v-if="teamMsgUnRead >=0" :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</div>
-    <div class="isRemoteRead" v-if="msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip'">{{(msg.localCustom && msg.localCustom.isRemoteRead) || toMyPhone ? '已读' : '未读'}}</div>
+    <div :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
+      <span v-if="teamMsgUnRead >=0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
+    </div>
+    <div class="isRemoteRead" style="margin-right: 0px;" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip'">
+      <span>{{(msg.localCustom && msg.localCustom.isRemoteRead) ? '已读' : '未读'}}</span>
+    </div>
     <div v-if="showVioceToText" class="vioce-text" >{{vioceToText}}</div>
   </li>
 </template>
@@ -1180,22 +1184,27 @@
 .u-msg .isRemoteRead {
   margin: 2px 62px 0 0;
   float: right;
+  height: 20px;
+}
+
+.u-msg .isRemoteRead span{
+  text-align: right;
   font-size: 12px;
   line-height: 20px;
   color: #999;
 }
 
-.u-msg .isRemoteRead.team-unread{
+.u-msg .isRemoteRead.team-unread span{
   transition: all .3s;
   cursor: pointer;
   width: fit-content;
   color: #4F8DFF;
 }
 
-.u-msg .isRemoteRead.team-unread:hover{
+.u-msg .isRemoteRead.team-unread:hover span{
   opacity: .85;
 }
-.u-msg .isRemoteRead.team-unread:active{
+.u-msg .isRemoteRead.team-unread:active span{
   opacity: .7;
 }
 
