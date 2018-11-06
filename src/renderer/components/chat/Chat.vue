@@ -81,22 +81,8 @@ export default {
   // 进入该页面，文档被挂载
   mounted () {
     Resize.changeChatRange({max: 250, min: 90})
-    this.$store.dispatch('showLoading')
     // 此时设置当前会话
-    this.$store.dispatch('setCurrSession', this.sessionId)
-    let dom = document.getElementById('chat-list')
-    if (dom) {
-      dom.style.visibility = 'hidden'
-    }
-    // this.scrollToBottom()
-    this.$store.dispatch('resetNoMoreHistoryMsgs')
-    this.$route.query.firstFlag = false
-    setTimeout(() => {
-      this.$store.dispatch('hideLoading')
-    }, 1000)
-    if (!this.msglist || this.msglist.length <= 10) {
-      this.loadMore()
-    }
+    this.sessionInit()
     this.eventBus.$on('showPositionBtn', (obj) => {
       this.unreadCount = obj.unreadCount
       this.atCount = obj.atCount
@@ -107,17 +93,7 @@ export default {
   },
   updated () {
     if (this.$route.query.firstFlag && this.$store.state.currSessionId !== this.sessionId) {
-      this.$store.dispatch('resetCurrSession')
-      this.$store.dispatch('setCurrSession', this.sessionId)
-      let dom = document.getElementById('chat-list')
-      if (dom) {
-        dom.style.visibility = 'hidden'
-      }
-      this.$store.dispatch('resetNoMoreHistoryMsgs')
-      this.$route.query.firstFlag = false
-      if (!this.msglist || this.msglist.length <= 10) {
-        this.loadMore()
-      }
+      this.sessionInit()
     }
     if (this.msglist.length > 10 || !this.canLoadMore) {
       this.$nextTick(() => {
@@ -155,6 +131,9 @@ export default {
     sessionId () {
       let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
       return sessionId
+    },
+    noInit () {
+      return this.$route.query.noInit
     },
     lastMsg () {
       let session = this.$store.state.sessionlist.find(item => {
@@ -342,6 +321,20 @@ export default {
     }
   },
   methods: {
+    sessionInit () {
+      this.$store.dispatch('resetCurrSession')
+      this.$store.dispatch('setCurrSession', this.sessionId)
+      this.$store.dispatch('resetNoMoreHistoryMsgs')
+      this.$route.query.firstFlag = false
+      if (this.noInit) return
+      let dom = document.getElementById('chat-list')
+      if (dom) {
+        dom.style.visibility = 'hidden'
+      }
+      if (!this.msglist || this.msglist.length <= 10) {
+        this.loadMore()
+      }
+    },
     scrollToBottom () {
       pageUtil.scrollChatListDown()
       this.showNewMsgTip = false

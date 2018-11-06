@@ -986,5 +986,8 @@ export default {
   },
   updateLoginInfo (state, obj) {
     state.loginInfo = obj
+  },
+  updateMsgHighBgIdClient (state, idClient) {
+    state.msgHighBgIdClient = idClient
   }
 }

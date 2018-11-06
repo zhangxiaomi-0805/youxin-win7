@@ -14,7 +14,7 @@
           :class="showBorder ? 'active' : ''"
           type="text"
           v-model="name"
-          maxlength="128"
+          maxlength="32"
           :placeholder="type === 1 ? '请输入群名称' : '请输入讨论组名称'"
           @focus="showBorder = true"
           @blur="showBorder = false">

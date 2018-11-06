@@ -9,7 +9,7 @@
     <a v-if="!isDiscussGroup" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
   <div class="m-title team-control">
-    <span>{{sessionName}}</span><a v-if="!isDiscussGroup" class="point" @click.stop="showListOptions($event)" ></a>
+    <span>{{sessionName}}</span><a class="point" @click.stop="showListOptions($event)" ></a>
   </div>
   <ul class="m-u-list">
     <li 

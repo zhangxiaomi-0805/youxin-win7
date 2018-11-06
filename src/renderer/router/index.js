@@ -34,6 +34,16 @@ export default new Router({
               path: 'session-default',
               component: require('@/components/controls/Default').default,
               name: 'session-default'
+            },
+            {
+              path: 'search-record',
+              component: require('@/components/search/SearchRecord').default,
+              name: 'search-record'
+            },
+            {
+              path: 'namecard-session',
+              component: require('@/components/module/NameCard').default,
+              name: 'namecard-session'
             }
           ]
         },

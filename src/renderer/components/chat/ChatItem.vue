@@ -6,7 +6,8 @@
       'item-time': msg.type==='timeTag',
       'item-tip': msg.type==='tip',
       'item-isChatMsg': (msg.flow==='out' || msg.flow==='in') && (msg.type !== 'notification'),
-      'session-chat': type==='session'
+      'session-chat': type==='session',
+      'high-bg': msgHighBgIdClient === msg.idClient
     }">
     <div v-if="msg.type==='timeTag'" class="u-msg-time">{{msg.showText}}</div>
     <div v-else-if="msg.type==='tip'" class="tip">{{msg.showText}}</div>
@@ -122,6 +123,9 @@
       },
       myPhoneId () {
         return `${this.$store.state.userUID}`
+      },
+      msgHighBgIdClient () {
+        return this.$store.state.msgHighBgIdClient
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
@@ -734,6 +738,7 @@
     position: relative;
 
     padding: 0.2rem 0;
+    overflow: hidden;
 }
 /* 用户头像 */
 .g-window .u-msg .msg-head {
@@ -1173,7 +1178,7 @@
 }
 
 .u-msg .isRemoteRead {
-  margin: 2px 62px 8px 0;
+  margin: 2px 62px 0 0;
   float: right;
   font-size: 12px;
   line-height: 20px;
@@ -1212,6 +1217,11 @@
   background-position: center center;
   background-image: url('../../../../static/img/edit/message-h.png');
   background-size: 22px 16px;
+}
+
+.g-window .u-msg.high-bg {
+  background: url(../../../../static/img/edit/shine-bg.gif) no-repeat center center;
+  background-size: 100% 100%;
 }
 
 </style>
