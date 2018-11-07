@@ -500,6 +500,9 @@ export default {
         type: 'put',
         msg: obj.msg
       })
+    } else if (type === 'reset') {
+      // 聊天记录重置会话
+      state.msgs[obj.sessionId] = obj.msgs
     }
   },
   updateSysMsgs (state, sysMsgs) {

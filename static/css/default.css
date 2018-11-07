@@ -163,9 +163,11 @@ body,
     height:100%;
     margin-left: 69px;
     background: rgba(255,255,255,0.92);
-    border: 0.5px solid rgba(0,0,0,0.33);
+    border: 1px solid rgba(0,0,0,0.33);
     box-shadow: 1px 0 4px 0 #D1D1D1, 1px 0 0 0 #D6D6D6;
     border-left-width: 0;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 /* 主界面左侧主列表容器样式 */

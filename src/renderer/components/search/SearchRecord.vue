@@ -89,7 +89,7 @@
         try {
           msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
         } catch (error) {}
-        if (msgs.length > 0) {
+        if (msgs.length > 0 || (this.recordlist.length === 1)) {
           isFirst && msgs.unshift(msg)
           this.msgsTemp = this.msgsTemp.concat(msgs)
           if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
