@@ -1,13 +1,13 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
 
-  <div v-if="contactslist.length > 0" class="u-search searchevent">
+  <div class="u-search searchevent">
     <div class="u-cont">
       <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
-  <search v-if="showSearch" type="contact" :value="searchValue" :clearStatus="clearStatus"/>
+  <search v-if="showSearch" type="all" :value="searchValue" :clearStatus="clearStatus"/>
  
   <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>

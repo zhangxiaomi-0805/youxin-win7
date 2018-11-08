@@ -7,7 +7,7 @@
       >
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
-          <div class="nick" :title="userInfos.fullName">{{userInfos.fullName}}</div>
+          <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
         </div>
         <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.fullName ? '#333' : '#999'}" :title="userInfos.fullName">{{userInfos.fullName ? userInfos.fullName : '未设置'}}</span></div>
         <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>

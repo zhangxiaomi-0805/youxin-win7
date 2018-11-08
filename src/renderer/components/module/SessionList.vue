@@ -61,6 +61,7 @@ import config from '../../configs'
 import pageUtil from '../../utils/page'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
+import Request from '../../utils/request'
 export default {
   name: 'session-list',
   directives: {clickoutside},
@@ -369,7 +370,7 @@ export default {
                 break
               case 6:
                 // +常用联系人
-                console.log('+常用联系人')
+                Request.AddOrDelContactUser({accid: session.to, userType: 1}, this)
                 break
               case 7:
                 // 消息免打扰

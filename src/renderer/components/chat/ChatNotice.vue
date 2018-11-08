@@ -29,7 +29,7 @@
 </template>
 
 <script>
-// import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 export default {
   name: 'chat-notice',
   props: {
@@ -279,14 +279,8 @@ export default {
       this.eventBus.$emit('selectContact', {type: 6, sidelist, teamId: this.teamId})
     },
     addContact (member) {
-      // let params = {
-      //   accid: member.account,
-      //   userType: 1
-      // }
-      // 添加常用联系人 userType === 1 ---添加； userType === 2 ---删除
-      // Fetch.post('api/appPc/addOrDelContactUser', params, this).then(ret => {
-      // }).catch(() => {
-      // })
+      // 添加常用联系人
+      Request.AddOrDelContactUser({accid: member.account, userType: 1}, this)
     },
     sendMsg (userInfos) {
       // 发消息

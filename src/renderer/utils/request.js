@@ -1,6 +1,7 @@
 /**
  * 提供Fetch请求方法
  */
+import store from '../store'
 import Fetch from './fetch'
 
 function LoginAuth (params, $this) {
@@ -135,8 +136,18 @@ function AddOrDelContactUser (params, $this) {
    * @param accid     （添加、删除）用户id
    * @param userType  （1-新增 2-删除）
    */
-  return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/addOrDelContactUser', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+  Fetch.post('api/appPc/addOrDelContactUser', params, $this).then(res => {
+    store.commit('toastConfig', {
+      show: true,
+      type: 'success',
+      toastText: '添加成功！'
+    })
+  }).catch((err) => {
+    store.commit('toastConfig', {
+      show: true,
+      type: 'fail',
+      toastText: err.msg
+    })
   })
 }
 

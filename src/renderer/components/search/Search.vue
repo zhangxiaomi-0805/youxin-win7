@@ -1,6 +1,6 @@
 <template>
   <!-- 消息列表、通讯录搜索 -->
-  <div class="s-cont searchevent" :style="{top: type === 'contact' ? '100px' : '56px'}">
+  <div class="s-cont searchevent" :style="{top: '56px'}">
     <div v-if="!isEmpty" class="s-empty searchevent">暂无搜索结果~</div>
     <!-- 联系人 -->
     <div v-if="(type === 'all' || type === 'orgnize') && contactlist.length > 0">
