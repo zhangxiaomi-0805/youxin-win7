@@ -654,7 +654,7 @@ export default {
   updateTeamList (state, teams) {
     const nim = state.nim
     store.state.teamlist = nim.mergeTeams(store.state.teamlist, teams)
-    store.state.teamlist = nim.cutTeams(store.state.teamlist, teams.invalid)
+    // store.state.teamlist = nim.cutTeams(store.state.teamlist, teams.invalid)
   },
   updateTeamMembers (state, obj) {
     const nim = state.nim

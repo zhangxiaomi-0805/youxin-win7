@@ -179,8 +179,7 @@ export default {
             item.avatar = userInfo.avatar
           }
         } else if (item.scene === 'team') {
-          let teamInfo = null
-          teamInfo = this.$store.state.teamlist.find(team => {
+          let teamInfo = this.$store.state.teamlist.find(team => {
             return team.teamId === item.to
           })
           if (teamInfo) {

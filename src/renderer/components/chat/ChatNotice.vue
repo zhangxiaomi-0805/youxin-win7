@@ -1,6 +1,7 @@
 <template>
 <!-- 公告、群成员管理 -->
 <div class="m-chat-nt" v-if="scene === 'team'">
+  <div v-if="!teamInfo.valid" class="invalid"/>
   <div class="m-content">
     <div v-if="!isDiscussGroup" class="m-title notice">
       <span class="notice">公告</span>
@@ -99,7 +100,7 @@ export default {
       return this.isDiscussGroup ? '讨论组' : '群'
     },
     memberList () {
-      if (this.teamInfo) {
+      if (this.teamInfo && this.teamInfo.valid) {
         let teamMembers = this.$store.state.teamMembers
         let members = teamMembers && teamMembers[this.teamId]
         let needSearchAccounts = []
@@ -518,6 +519,15 @@ export default {
     background-image: url('../../../../static/img/setting/delete.png');
     background-size: 100% 100%;
     cursor: pointer;
+  }
+
+  .m-chat-nt .invalid {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    background: transparent;
+    z-index: 101;
   }
 </style>
 

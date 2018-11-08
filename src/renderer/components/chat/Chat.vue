@@ -167,7 +167,7 @@ export default {
           return util.getFriendAlias(userInfo)
         }
       } else if (/^team-/.test(sessionId)) {
-        if (this.teamInfo && this.teamInvalid && this.valid && this.$store.state.networkStatus === 200) {
+        if (this.teamInfo) {
           // 获取群成员
           var teamMembers = this.$store.state.teamMembers[this.to]
           if (teamMembers === undefined || teamMembers.length < this.teamInfo.memberNum) {

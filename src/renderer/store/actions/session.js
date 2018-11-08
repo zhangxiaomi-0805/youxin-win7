@@ -88,6 +88,42 @@ export function onSessions (sessions) {
   store.dispatch('subscribeEvent', sessions)
   updateSessionAccount(sessions)
   store.commit('updateSessions', sessions)
+  // 初始化无效群信息
+  setTimeout(async () => {
+    let sessionlist = store.state.sessionlist
+    let teamlist = store.state.teamlist
+    for (let i in sessionlist) {
+      if (sessionlist[i].scene === 'team') {
+        let hasExit = false
+        for (let j in teamlist) {
+          if (teamlist[j].teamId === sessionlist[i].to) {
+            hasExit = true
+            break
+          }
+        }
+        if (!hasExit) {
+          let teamInfo = {}
+          try {
+            teamInfo = await getTeamInfo(sessionlist[i].to)
+          } catch (error) {}
+          store.state.teamlist.push(teamInfo)
+        }
+      }
+    }
+  }, 100)
+}
+
+function getTeamInfo (teamId) {
+  // 获取群信息
+  return new Promise((resolve, reject) => {
+    store.state.nim.getTeam({
+      teamId,
+      done: (error, teams) => {
+        if (!error) resolve(teams)
+        else reject(error)
+      }
+    })
+  })
 }
 
 export function onUpdateSession (session, callback) {

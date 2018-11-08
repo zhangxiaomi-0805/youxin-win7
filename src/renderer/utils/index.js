@@ -309,7 +309,7 @@ Utils.generateTeamSysmMsg = function (data) {
       break
     }
     case 'dismissTeam': {
-      text = task !== '群' ? '' : `该群已被群主“${nicks.join()}”解散`
+      text = task !== '群' ? `该讨论组已被解散` : `该群已被群主“${nicks.join()}”解散`
       break
     }
     case 'transferTeam': {
