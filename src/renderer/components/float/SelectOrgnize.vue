@@ -5,15 +5,27 @@
     <div class="m-selectcontact-cover"></div>
     <div class="m-selectcontact" style="width:680px;height:502px;">
       <div class="drag" id="selectOrgnizeDrag">
-        <span>{{type === 1 ? '创建群' : type === 4 ? '创建讨论组' : '添加成员'}}</span>
+        <span>{{type === 1 ? '创建群' : type === 4 ? '创建讨论组' : type === 5 ? '转发到新聊天' : '添加成员'}}</span>
         <div class="u-sysbtn close"><a class="btn-close" @click="closeModal()"/></div>
       </div>
       <div class="side-list-contain">
         <div class="side-list left" style="width: 55%;">
           <!-- 搜索 -->
-          <div class="u-search"><div class="u-cont"><input type="text" v-model="searchValue" placeholder="搜索" /><span v-if="searchValue" class="clear" @click="searchValue = ''"/></div></div>
-          <div class="title" style="paddingTop: 0;paddingBottom: 0;">联系人</div>
-          <div class="contact"><tree showCheck showTitle showTeam/></div>
+          <div class="u-search searchevent">
+            <div class="u-cont">
+              <input :class="showBorder ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showBorder = true" @blur="showBorder = false"/>
+              <span v-if="searchValue" class="clear" @click="clearStatus"/>
+            </div>
+          </div>
+          <div v-show="!searchValue" class="title" style="paddingTop: 0;paddingBottom: 0;">联系人</div>
+          <div v-show="!searchValue" class="contact">
+            <tree showCheck showTitle showTeam :noAdd="type === 5"/>
+          </div>
+          <search-contact 
+            v-if="searchValue"
+            :value="searchValue"
+            :clearStatus="clearStatus"
+            :showTeam="type === 5"/>
         </div>
         <div class="side-list" style="float: right;width: 45%">
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
@@ -44,16 +56,17 @@
 import platform from '../../utils/platform'
 import drag from '../../utils/drag.js'
 import Tree from '../tree/Tree.vue'
+import SearchContact from '../search/SearchContact'
 import configs from '../../configs/index.js'
 export default {
   name: 'select-orgnize',
-  components: {Tree},
+  components: {Tree, SearchContact},
   mounted () {
-    let $this = this
     this.eventBus.$on('selectOrgnize', (data) => {
-      $this.showSelectOrgnize = true
-      $this.type = data.type
-      $this.teamId = data.teamId || -1
+      this.showSelectOrgnize = true
+      this.type = data.type
+      this.teamId = data.teamId || -1
+      this.msg = data.msg || ''
     })
   },
   data () {
@@ -61,9 +74,11 @@ export default {
       defaultUserIcon: configs.defaultUserIcon,
       showSelectOrgnize: false,
       loading: false,
+      showBorder: false,
       teamId: -1,
-      type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员，4-创建讨论组
-      searchValue: ''
+      type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员，4-创建讨论组，5-转发到新聊天
+      searchValue: '',
+      msg: ''
     }
   },
   computed: {
@@ -85,6 +100,7 @@ export default {
   },
   methods: {
     closeModal () {
+      this.searchValue = ''
       this.showSelectOrgnize = false
       this.loading = false
       this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
@@ -110,6 +126,9 @@ export default {
           break
         case 4:
           this.eventBus.$emit('settingName', {type: 2, callBack: this.createTeam})
+          break
+        case 5:
+          this.forwordNewChat()
           break
       }
     },
@@ -230,6 +249,51 @@ export default {
         this.errToast()
       }
     },
+    async forwordNewChat () {
+      // 转发到新聊天
+      this.loading = true
+      let failAccount = []
+      for (let i = 0; i < this.chooselist.length; i++) {
+        try {
+          await this.forwordMsg(this.chooselist[i])
+        } catch (err) {
+          failAccount.push(this.chooselist[i].name)
+        }
+      }
+      if (failAccount.length === 0) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'success',
+          toastText: `成功转发到${this.chooselist.length}个聊天`
+        })
+      } else if (failAccount.length === this.chooselist.length) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: `转发失败`
+        })
+      } else {
+        this.eventBus.$emit('forwordFail', {
+          successNum: this.chooselist.length - failAccount.length,
+          failAccount,
+          type: 1
+        })
+      }
+      this.closeModal()
+    },
+    forwordMsg (item) {
+      return new Promise((resolve, reject) => {
+        this.$store.dispatch('onForwordMsg', {
+          msg: this.msg,
+          scene: item.scene,
+          to: item.to
+        }).then(() => {
+          resolve()
+        }).catch((err) => {
+          reject(err)
+        })
+      })
+    },
     errToast () {
       this.loading = false
       this.$store.commit('toastConfig', {
@@ -237,6 +301,13 @@ export default {
         type: 'fail',
         toastText: '选中成员数据异常'
       })
+    },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.searchValue = ''
     }
   }
 }

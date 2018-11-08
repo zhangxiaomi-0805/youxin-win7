@@ -19,7 +19,7 @@
         <img :src="item.avatar || myGroupIcon" class="s-img">
         <div style="paddingLeft: 10px;">
           <div class="s-name">{{item.name}}</div>
-          <div class="s-name default">{{item.orgNameList && item.orgNameList.join('、') || ''}}</div>
+          <div class="s-name default">{{item.companyName}}</div>
         </div>
       </li>
       <li v-if="noMoreData && !showTeam" class="n-data">已无更多记录...</li>
@@ -197,34 +197,9 @@
       },
       chooseContact (user) {
         // 选择联系人
-        if (!this.handleClickSpecial(user)) {
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: '无法选择“特殊高管”角色成员'
-          })
-          return false
-        }
         user.scene = 'p2p'
         user.to = user.accid
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
-      },
-      // 点击特殊高管
-      handleClickSpecial (user) {
-        const mySpecial = this.$store.state.personInfos.specialAdmin
-        const userSpecial = user.specialAdmin
-        const contactHistoryAccount = this.$store.state.contactHistoryAccount
-        let accountArr = []
-        contactHistoryAccount.forEach(item => {
-          accountArr.push(item.account)
-        })
-        // 判断是否能操作
-        const notClick = userSpecial && !mySpecial && !accountArr.includes(user.accid)
-        if (notClick) {
-          return false
-        } else {
-          return true
-        }
       }
     }
   }

@@ -10,6 +10,7 @@
       </div>
       <div class="side-list-contain">
         <div class="side-list left">
+          <div class="new-chat" @click="forwardNewChat" v-if="type === 7">+ 转发到新聊天</div>
           <!-- 搜索 -->
           <div class="u-search searchevent">
             <div class="u-cont">
@@ -541,7 +542,7 @@ export default {
     forwardNewChat () {
       // 转发到新聊天
       this.closeModal()
-      this.eventBus.$emit('selectOrgnize', {type: 4, msg: this.msg})
+      this.eventBus.$emit('selectOrgnize', {type: 5, msg: this.msg})
     }
   }
 }

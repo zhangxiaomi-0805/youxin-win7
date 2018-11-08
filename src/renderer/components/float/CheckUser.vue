@@ -12,9 +12,9 @@
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
    
     <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
-    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : "-"}}</span></div>
-    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.jobNum ? userInfos.jobNum : "-"}}</span></div>
-    <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.alias">{{userInfos.alias ? userInfos.alias : "-"}}</span></div>
+    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || "-"}}</span></div>
+    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.companyName">{{userInfos.companyName || "-"}}</span></div>
+    <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || "-"}}</span></div>
   </div>
 </transition>
 </template>

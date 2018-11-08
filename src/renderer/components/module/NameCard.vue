@@ -9,15 +9,15 @@
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
         </div>
-        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.fullName ? '#333' : '#999'}" :title="userInfos.fullName">{{userInfos.fullName ? userInfos.fullName : '未设置'}}</span></div>
-        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
+        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.name ? '#333' : '#999'}" :title="userInfos.name">{{userInfos.name || '未设置'}}</span></div>
+        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
         <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
         <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
       
         <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : '女'}}</span></div>
-        <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : '-'}}</span></div>
-        <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.email">{{userInfos.orgName ? userInfos.orgName : '-'}}</span></div>
-        <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature ? userInfos.signature : '-'}}</span></div>
+        <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || '-'}}</span></div>
+        <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.companyName">{{userInfos.companyName || '-'}}</span></div>
+        <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || '-'}}</span></div>
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
         <a class="delete-contact"  @click="deleteContact(userInfos.accid)">删除常用联系人</a>

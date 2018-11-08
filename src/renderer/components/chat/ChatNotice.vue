@@ -8,9 +8,18 @@
     <div v-if="!isDiscussGroup" class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="!isDiscussGroup" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
-  <div class="m-title team-control">
-    <span>{{sessionName}}</span><a class="point" @click.stop="showListOptions($event)" ></a>
+  <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a class="point" @click.stop="showListOptions($event)" ></a></div>
+  <div v-else class="search-bar">
+    <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+    <span v-if="showSearch" class="clear" @click="clearStatus"/>
   </div>
+  <search-member 
+    v-if="showSearch"
+    :value="searchValue"
+    :memberList="memberList"
+    :userInfos="userInfos"
+    :myInfo="myInfo"
+    :clearStatus="clearStatus"/>
   <ul class="m-u-list">
     <li 
       class="m-u-list-item" 
@@ -30,8 +39,12 @@
 
 <script>
 import Request from '../../utils/request.js'
+import SearchMember from '../search/SearchMember'
+import clickoutside from '../../utils/clickoutside.js'
 export default {
   name: 'chat-notice',
+  directives: {clickoutside},
+  components: {SearchMember},
   props: {
     isDiscussGroup: Boolean,
     scene: String,
@@ -58,7 +71,9 @@ export default {
   },
   data () {
     return {
-      settingIcon: './static/img/nav/icon-plus.png'
+      settingIcon: './static/img/nav/icon-plus.png',
+      showSearch: false,
+      searchValue: ''
     }
   },
   computed: {
@@ -182,11 +197,13 @@ export default {
       /**
        * 群设置
        * * */
-      let key = ''
-      if (this.power === 'owner') { // 管理员
-        key = 'owner-team-set'
-      } else if (this.power === 'normal') { // 普通群成员
-        key = 'normal-team-set'
+      let key = 'team-member'
+      if (this.isDiscussGroup) {
+        key = 'discuss-group-member'
+      } else {
+        if (this.power === 'normal') {
+          key = 'team-member-normal'
+        }
       }
       this.$store.dispatch('showListOptions', {
         key,
@@ -197,7 +214,7 @@ export default {
         },
         callBack: (type) => {
           if (type === 3) { // 搜索成员
-            console.log('搜索成员')
+            this.showSearch = true
           } else if (type === 4) { // 添加成员
             this.addTeamMember()
           } else if (type === 2) { // 移出成员
@@ -304,6 +321,14 @@ export default {
           }
         })
       }
+    },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.showSearch = false
+      this.searchValue = ''
     }
   }
 }
@@ -454,6 +479,45 @@ export default {
   }
   .m-chat-nt .m-content .b-edit:active {
     background-image: url('../../../../static/img/team/edit-p.png');
+  }
+
+  .search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 34px;
+    box-sizing: border-box;
+    padding: 5px 10px;
+  }
+  .search-bar input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
+    background-size: 12px 12px;
+    border-radius: 2px;
+    border: 1px solid rgb(220, 222, 224);
+    font-size: 12px;
+    color: #333;
+    padding: 0 26px;
+    border: 1px solid transparent;
+    transition: border .1s linear;
+  }
+  .search-bar input.active {
+    border: 1px solid rgba(4,154,255,1);
+  }
+  .search-bar .clear {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+    display: block;
+    width: 13px;
+    height: 13px;
+    background-image: url('../../../../static/img/setting/delete.png');
+    background-size: 100% 100%;
+    cursor: pointer;
   }
 </style>
 

@@ -260,14 +260,19 @@ export function showListOptions ({state, commit}, obj) {
       event5, event4
     ]
   }
-  // 群设置（搜索、添加、移出成员）---群主
-  if (obj.key === 'owner-team-set') {
+  // 群设置（搜索、添加、移出成员）
+  if (obj.key === 'team-member') {
     items = [
       event00, event10, event11
     ]
   }
-  // 群设置（搜索、添加成员）---普通群成员
-  if (obj.key === 'normal-team-set') {
+  if (obj.key === 'team-member-normal') {
+    items = [
+      event00
+    ]
+  }
+  // 讨论组设置（搜索、添加成员）
+  if (obj.key === 'discuss-group-member') {
     items = [
       event00, event10
     ]

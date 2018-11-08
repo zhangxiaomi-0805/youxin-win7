@@ -6,8 +6,8 @@
         class="t-orgname" 
         :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : 1)) * 13 + 'px'}" 
         @click="toggleStatus(orgnize, orgnize.id, $index)" 
-        @mouseenter="orgAddAllId = orgnize.id"
-        @mouseleave="orgAddAllId = -1">
+        @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
+        @mouseleave="mouseleave('orgAddAllId')">
         <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
         <span v-else class="t-common"/>
         <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
@@ -17,6 +17,7 @@
         v-if="getNextOrgnizeObj(orgnize.id)"
         :class="activeId === orgnize.id ? 't-body active' : 't-body'">
         <tree-item
+          :noAdd="noAdd"
           :showTitle="showTitle"
           :showCheck="showCheck"
           :orgnizeObj="orgnizeObj"
@@ -57,6 +58,7 @@ export default {
   props: {
     showTitle: Boolean,
     showCheck: Boolean,
+    noAdd: Boolean,
     orgnizeObj: Object,
     orgnizeLevelObj: Object,
     orgLevel: Number,
@@ -170,6 +172,14 @@ export default {
         }
       }
       return false
+    },
+    mouseenter (type, id) {
+      if (this.noAdd) return
+      this[type] = id
+    },
+    mouseleave (type) {
+      if (this.noAdd) return
+      this[type] = -1
     }
   }
 }

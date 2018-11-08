@@ -15,9 +15,11 @@
           v-for="team in teamlist" 
           :key="team.id"
           :id="team.id"
-          @mouseenter="teamAddAllId = team.teamId"
-          @mouseleave="teamAddAllId = -1"
+          @click="noAdd && groupSelectHandle(team)"
+          @mouseenter="mouseenter('teamAddAllId', team.teamId)"
+          @mouseleave="mouseleave('teamAddAllId')"
         >
+          <span v-if="noAdd" :class="classNameTeam(team)"></span>
           <img :src="team.avatar || defaultIcon"/>
           <span class="teamname" :title="team.name">{{team.name}}</span>
           <transition name="fade"><a v-if="team.teamId === teamAddAllId" class="t-addAll" @click.stop="groupSelectHandle(team)">+</a></transition>
@@ -40,9 +42,11 @@
           v-for="group in grouplist" 
           :key="group.id"
           :id="group.id"
-          @mouseenter="groupAddAllId = group.teamId"
-          @mouseleave="groupAddAllId = -1"
+          @click="noAdd && groupSelectHandle(group)"
+          @mouseenter="mouseenter('groupAddAllId', group.teamId)"
+          @mouseleave="mouseleave('groupAddAllId')"
         >
+          <span v-if="noAdd" :class="classNameTeam(group)"></span>
           <img :src="group.avatar || defaultIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
           <transition name="fade"><a v-if="group.teamId === groupAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a></transition>
@@ -60,6 +64,7 @@
     </a>
     <div :class="orginzeopen ? 't-body active' : 't-body'">
       <tree-item
+        :noAdd="noAdd"
         :showTitle="showTitle"
         :showCheck="showCheck"
         :orgnizeObj="orgnizeObj"
@@ -85,6 +90,7 @@ export default {
     showTitle: Boolean,
     showTeam: Boolean,
     showCheck: Boolean,
+    noAdd: Boolean,
     callBack: Function
   },
   components: {TreeItem},
@@ -136,6 +142,15 @@ export default {
       }
       return 'check common'
     },
+    classNameTeam (group) {
+      for (let i in this.createTeamSelect) {
+        let item = this.createTeamSelect[i]
+        if (item.teamId === group.teamId) {
+          return 'checked common'
+        }
+      }
+      return 'check common'
+    },
     toggleOrg () {
       // 组织架构展开、收起
       this.orginzeopen = !this.orginzeopen
@@ -154,6 +169,12 @@ export default {
       this.callBack({accid: user.accid})
     },
     async groupSelectHandle (group) {
+      if (this.noAdd) {
+        group.scene = 'team'
+        group.to = group.teamId
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
+        return
+      }
       // 群成员全选
       let teamMembers = []
       try {
@@ -227,6 +248,14 @@ export default {
         }
       }).catch(() => {
       })
+    },
+    mouseenter (type, id) {
+      if (this.noAdd) return
+      this[type] = id
+    },
+    mouseleave (type) {
+      if (this.noAdd) return
+      this[type] = -1
     }
   }
 }

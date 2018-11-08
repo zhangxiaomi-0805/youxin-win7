@@ -23,7 +23,7 @@
           <div v-if="userInfos.signature && showPrompt"
             class="prompt">{{userInfos.signature}}</div>
         </transition>
-        <div class="nick" >{{userInfos.fullName}}</div>
+        <div class="nick" >{{userInfos.nick}}</div>
         <div class="remarks" v-if="!userInfos.signature && !hasSignMame" @click.stop="hasSignMame = true">
           <span style="margin-right: 8px;">签名</span>
           <a class="edit" @click="showInput" style="margin-right: 5px;"></a>
@@ -44,8 +44,8 @@
         </div>
       </div>
     </div>
-    <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.accid ? '#333' : '#999'}" :title="userInfos.accid">{{userInfos.accid ? userInfos.accid : '未设置'}}</span></div>
-    <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.mobile">{{userInfos.mobile}}</span></div>
+    <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.name ? '#333' : '#999'}" :title="userInfos.name">{{userInfos.name || '未设置'}}</span></div>
+    <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
     <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
    
@@ -67,8 +67,8 @@
             </ul>
         </div>
     </div>
-    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position ? userInfos.position : '-'}}</span></div>
-    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.orgName">{{userInfos.orgName ? userInfos.orgName : '-'}}</span></div>
+    <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || '-'}}</span></div>
+    <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.orgName">{{userInfos.companyName || '-'}}</span></div>
  
   </div>
 </transition>
