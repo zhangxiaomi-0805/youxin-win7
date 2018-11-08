@@ -56,13 +56,13 @@
           @blur="modifyTeamNick"
           @keyup="keyupModifyTeamNick($event)">
     </div>
-    <div class="team-block" v-if="!isDiscussGroup">
+    <div class="team-block">
       <div style="display:none;">{{muteNotiType}}</div>
       <div class="team-title">消息提醒</div>
       <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
         <a :class="remindMsgType === 0 ? 'radio-active' : 'radio'"></a><span>提醒所有消息</span>
       </a>
-      <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(2)">
+      <a v-if="!isDiscussGroup" class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(2)">
         <a :class="remindMsgType === 2 ? 'radio-active' : 'radio'"></a><span>只提醒管理员消息</span>
       </a>
       <a class="t-btn" @click="toggleRemindType(1)">
@@ -89,7 +89,7 @@
       </div>
     </div>
     <div class="team-block" v-if="isDiscussGroup">
-      <div class="team-title">退出讨论组：</div><a class="b-edit" style="color: rgba(244,53,48,1);width: 75px;">退出讨论组</a>
+      <div class="team-title">退出讨论组：</div><a class="b-edit" style="color: rgba(244,53,48,1);width: 75px;" @click="leaveDiscussGroup">退出讨论组</a>
     </div>
     <div class="team-block" v-if="power !== 'owner' && !isDiscussGroup">
       <div class="team-title">退出群：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="leaveTeam">退出群</a>
@@ -107,6 +107,7 @@
 <script>
 import clickoutside from '../../utils/clickoutside.js'
 import util from '../../utils'
+import Request from '../../utils/request'
 export default {
   name: 'slider-menu',
   props: {
@@ -291,12 +292,6 @@ export default {
     muteNotiType () {
       this.remindMsgType = this.teamInfo.muteNotiType
       return this.teamInfo.muteNotiType
-    },
-    teamlist () {
-      let teamlist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser
-      })
-      return teamlist
     }
   },
   methods: {
@@ -506,11 +501,6 @@ export default {
       this.$store.commit('toggleSlideMenuStatus', 3)
       this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 2, teamInfo: this.teamInfo})
     },
-    updateTeam () {
-      // 升级群
-      this.$store.commit('toggleSlideMenuStatus', 3)
-      this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 3})
-    },
     toggleRemindType (type) {
       if (this.remindMsgType === type) return
       // 消息提醒
@@ -519,6 +509,62 @@ export default {
         teamInfo: this.teamInfo,
         nickInTeam: this.myNick,
         muteNotiType: type
+      })
+    },
+    leaveDiscussGroup () {
+      // 退出讨论组
+      this.$store.commit('toggleSlideMenuStatus', 3)
+      this.eventBus.$emit('dismissTeam', {
+        type: 3,
+        callBack: () => {
+          let deleteSeeionFn = () => {
+            let sessionIdArr = this.$store.state.sessionlist.map(item => {
+              return item.id
+            })
+            let currSessionId = this.$store.state.currSessionId
+            this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
+          }
+          let leaveTeamFn = () => {
+            this.$store.dispatch('leaveTeam', {
+              teamId: this.teamId,
+              teamName: this.teamName,
+              that: this,
+              callback: () => setTimeout(() => deleteSeeionFn(), 200)
+            })
+          }
+          let teamName = this.teamInfo.name
+          if (this.teamInfo.memberNum <= 3) {
+            Request.DelTeam({tid: this.teamId, owner: this.teamInfo.owner}, this).then(res => {
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'success',
+                toastText: '已退出' + teamName
+              })
+              deleteSeeionFn()
+            }).catch(() => {
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: '退出讨论组失败！'
+              })
+            })
+          } else {
+            if (this.power === 'owner') {
+              let account = ''
+              for (let i in this.teamMembers) {
+                if (this.teamMembers[i].account !== this.$store.state.userUID) {
+                  account = this.teamMembers[i].account
+                  break
+                }
+              }
+              this.$store.dispatch('transferTeam', {
+                account,
+                teamId: this.teamId,
+                callback: () => leaveTeamFn()
+              })
+            } else leaveTeamFn()
+          }
+        }
       })
     }
   }

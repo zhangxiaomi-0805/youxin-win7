@@ -40,9 +40,9 @@ export default {
           content: '退出群聊后，所有群聊消息记录将被永久删除，群成员可以看到您退出群聊的状态变更消息。',
           btn: '仍然退出'
         },
-        update: {
-          content: '当前群聊人数上限200人，升级后上限人数为500人',
-          btn: '确认升级'
+        leaveDiscuss: {
+          content: '退出讨论组后，所有的消息记录将被删除，讨论组成员可以看到您退出讨论组的状态变更消息。',
+          btn: '仍然退出'
         }
       }
       this.type = data.type
@@ -50,8 +50,9 @@ export default {
         this.config = Config.dismiss
       } else if (this.type === 2) {
         this.config = Config.leave
-      } else {
-        this.config = Config.update
+      } else if (this.type === 3) {
+        this.config = Config.leaveDiscuss
+        this.callBack = data.callBack
       }
       this.showDismissTeam = true
       this.teamId = data.teamId
@@ -67,7 +68,8 @@ export default {
       teamId: null,
       config: {},
       type: 1,
-      teamName: ''
+      teamName: '',
+      callBack: ''
     }
   },
   computed: {
@@ -99,6 +101,7 @@ export default {
         this.$store.dispatch('dismissTeam', {
           teamId: this.teamId,
           name: this.teamName,
+          that: this,
           callback: () => {
             this.showDismissTeam = false
             setTimeout(() => {
@@ -119,18 +122,10 @@ export default {
             }, 100)
           }
         })
-      } else {
-        // 升级群
-        this.$store.dispatch('updateTeam', {
-          teamId: this.teamId,
-          name: this.teamName,
-          callback: () => {
-            this.showDismissTeam = false
-            setTimeout(() => {
-              this.loading = false
-            }, 100)
-          }
-        })
+      } else if (this.type === 3) {
+        this.loading = false
+        this.showDismissTeam = false
+        this.callBack()
       }
     }
   }

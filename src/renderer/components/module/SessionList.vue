@@ -190,7 +190,7 @@ export default {
             item.name = item.lastMsg.attach.team.name
             item.avatar = item.avatar || this.myGroupIcon
           } else {
-            item.name = `群${item.to}`
+            item.name = item.to
             item.avatar = item.avatar || this.myGroupIcon
           }
         }

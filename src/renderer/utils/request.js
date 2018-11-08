@@ -169,6 +169,17 @@ function PullDepartment (params, $this) {
   })
 }
 
+function DelTeam (params, $this) {
+  /**
+   * 删除群组
+   * @param tid     群组Id
+   * @param owner   群主账号
+   */
+  return new Promise((resolve, reject) => {
+    Fetch.post('api/im/delTeam', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+  })
+}
+
 export default {
   LoginAuth,
   GetUserInfo,
@@ -184,5 +195,6 @@ export default {
   QueryUserList,
   AddOrDelContactUser,
   GetThirdList,
-  PullDepartment
+  PullDepartment,
+  DelTeam
 }

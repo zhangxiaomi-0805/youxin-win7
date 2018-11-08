@@ -56,11 +56,12 @@ export default {
     closeModal () {
       this.showSettingName = false
       this.loading = false
+      this.name = ''
     },
     confirmManage () {
       if (!this.name) return
-      this.closeModal()
       this.callBack && this.callBack(this.name)
+      this.closeModal()
     }
   }
 }

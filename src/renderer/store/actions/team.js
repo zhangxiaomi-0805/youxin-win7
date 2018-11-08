@@ -402,6 +402,12 @@ export function dismissTeam ({state}, params) {
           type: 'success',
           toastText: `您已成功解散群组${params.name}`
         })
+        let sessionIdArr = state.sessionlist.map(item => {
+          return item.id
+        })
+        setTimeout(() => {
+          store.dispatch('deleteSession', {curSessionId: state.currSessionId, id: state.currSessionId, sessionIdArr, that: params.that})
+        }, 200)
       }
     }
   })
@@ -417,7 +423,7 @@ export function leaveTeam ({state}, params) {
         store.commit('toastConfig', {
           show: true,
           type: 'success',
-          toastText: '已退出群聊' + params.teamName
+          toastText: '已退出' + params.teamName
         })
         let sessionIdArr = state.sessionlist.map(item => {
           return item.id
@@ -429,7 +435,7 @@ export function leaveTeam ({state}, params) {
         store.commit('toastConfig', {
           show: true,
           type: 'fail',
-          toastText: '退出群聊失败'
+          toastText: '退出失败'
         })
       }
     }

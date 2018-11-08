@@ -309,19 +309,18 @@ Utils.generateTeamSysmMsg = function (data) {
       break
     }
     case 'dismissTeam': {
-      text = `该${task}已被群主“${nicks.join()}”解散`
+      text = task !== '群' ? '' : `该群已被群主“${nicks.join()}”解散`
       break
     }
     case 'transferTeam': {
       // todo test
       let nicks = this.getNickNames(data.attach.users)
       let op = nicks.shift()
-      text = `“${op}”转让群主给“${nicks}”`
+      text = task !== '群' ? '' : `“${op}”转让群主给“${nicks}”`
       break
     }
     case 'updateTeamMute': {
       let nicks = this.getNickNames(data.attach.users)
-      // let op = nicks.shift()
       text = `“${nicks}”被管理员${data.attach.mute ? '禁言' : '解除禁言'}`
       break
     }
