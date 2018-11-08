@@ -34,7 +34,7 @@
 
 <script>
 import configs from '../../configs/index.js'
-import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 export default {
   name: 'namecard',
   props: {
@@ -112,17 +112,14 @@ export default {
     },
     getUserInfos () {
       if (this.pageType === 'p2p') {
-        /*
-         * 获取用户信息
-         * @params  JSON字符串(对象数组)
-         */
+        // 获取用户信息
         let params = [
           {
             tag: this.userInfos.tag || 0,
             accid: this.accid
           }
         ]
-        Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json').then(ret => {
+        Request.PullUserInfo(params, this).then(ret => {
           if (ret) {
             this.userInfos = ret.userList[0]
           }
@@ -131,15 +128,12 @@ export default {
       }
     },
     deleteContact (accid) {
-      // 删除常用联系人 userType === 1 ---添加； userType === 2 ---删除
+      // 删除常用联系人
       let params = {
         accid,
         userType: 2
       }
-      // 添加常用联系人
-      Fetch.post('api/appPc/addOrDelContactUser', params, this).then(ret => {
-      }).catch(() => {
-      })
+      Request.AddOrDelContactUser(params, this)
     }
   }
 }

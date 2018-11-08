@@ -17,7 +17,7 @@
     <span>{{onLineNum + '/' + contactslist.length}}</span>
   </div>
 
-  <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}" ref="contactsList" @scroll="scrollTop = $event.target.scrollTop">
+  <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}">
     <li 
       v-for="contacts in contactslist" 
       :key="contacts.accid" 
@@ -48,7 +48,7 @@
 <script>
 import config from '../../configs'
 import pageUtil from '../../utils/page'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
 export default {
@@ -74,26 +74,11 @@ export default {
     // 获取请求数据
     this.getData()
   },
-  activated () {
-    // 重新加载聊天页
-    let activeId = this.activeId
-    let dom = this.$refs[activeId]
-    this.$nextTick(() => {
-      if (dom && dom[0] && dom[0].click) {
-        dom[0].click()
-      } else {
-        this.$router.push({name: 'contacts-default'})
-      }
-    })
-    // 处理滚动条位置
-    this.$refs.contactsList.scrollTop = this.scrollTop
-  },
   data () {
     return {
       tag: 0,
       timer: null,
       activeId: '',
-      scrollTop: 0,
       showSearch: false,
       searchValue: '',
       noticeIcon: config.noticeIcon,
@@ -127,19 +112,10 @@ export default {
   methods: {
     getData () {
       // 获取常用联系人列表
-      Fetch.post('api/appPc/contactUserList', {tag: this.tag}, this).then(ret => {
+      Request.getContactUserList({tag: this.tag}, this).then(ret => {
         this.tag = ret.tag
         this.contactslist = ret.userContactList
       }).catch(() => {})
-    },
-    searchContact (e) {
-      // 查找联系人
-      if (e.keyCode === 13) {
-        e.target.blur()
-        Fetch.post('api/appPc/queryUserList', {tag: this.tag}, this).then(ret => {
-          this.tag = ret.tag
-        }).catch(() => {})
-      }
     },
     toggleNameCard (contacts) {
       if (this.activeId === contacts.accid) return

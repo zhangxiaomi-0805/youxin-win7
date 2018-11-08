@@ -23,7 +23,7 @@
 
 <script>
 import platform from '../../utils/platform'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 import LocalStorage from 'localStorage'
 import config from '../../configs'
 export default {
@@ -42,13 +42,8 @@ export default {
   },
   methods: {
     getUserInfo ($event) {
-      /*
-      * 获取用户基本信息
-      * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
-      * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
-      */
       let accid = LocalStorage.getItem('uid')
-      Fetch.post('api/appPc/userInfo', {accid}, this).then(ret => {
+      Request.GetUserInfo({accid}, this).then(ret => {
         if (ret) {
           this.$store.commit('updatePersonInfos', ret)
           this.showUserCard($event)

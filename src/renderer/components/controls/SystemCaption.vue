@@ -42,6 +42,10 @@ export default {
   },
   methods: {
     onClose () {
+      if (localStorage.CLOSEMETHOD && (JSON.parse(localStorage.CLOSEMETHOD) === 2)) {
+        ipcRenderer.send('quitApp')
+        return
+      }
       ipcRenderer.send('onClose')
     },
     onMax () {

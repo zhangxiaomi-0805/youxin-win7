@@ -1,9 +1,9 @@
 <template>
     <div class="g-window" @mouseup="onCloseListOptions">
-        <div class="g-inherit">
+        <div class="g-inherit" :style="{borderWidth: !path ? '0' : '1px'}">
             <nav-bar/>
-            <div class="m-main">
-              <keep-alive :include="['session-page', 'orgnize', 'team']">
+            <div class="m-main" :style="{borderWidth: !path ? '1px' : '0'}">
+              <keep-alive :include="['session-page', 'orgnize']">
                 <router-view></router-view>
               </keep-alive>
             </div>
@@ -83,6 +83,9 @@
     computed: {
       incomingMsg () {
         return this.$store.state.newMsg
+      },
+      path () {
+        return this.$route.path === '/'
       }
     },
     methods: {

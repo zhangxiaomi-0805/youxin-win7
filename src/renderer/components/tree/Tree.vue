@@ -77,7 +77,7 @@
 <script>
 import configs from '../../configs/index.js'
 import TreeItem from './TreeItem.vue'
-import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 import SearchData from '../search/search.js'
 export default {
   name: 'tree',
@@ -205,15 +205,11 @@ export default {
       this.companyopen = !this.companyopen
     },
     renderOrgData (params) {
-      /*
-       * 拉取组织框架
-       * @params  depId: 节点id
-       * @params  tag: 时间戳,拉取截止的时间戳, 拉取所有,传0
-       */
+      // 拉取组织框架
       let {depId, tag, parentId} = params
       let type = 'init'
       tag = tag || 0
-      Fetch.post('api/appPc/pullDepartment', {
+      Request.PullDepartment({
         depId, tag
       }, this).then(ret => {
         if (ret) {

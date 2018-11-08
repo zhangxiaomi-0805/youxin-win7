@@ -37,7 +37,7 @@
               </div>
             </div>
           </div>
-          <div style="margin-right:0.75rem;display:list-item;">
+          <div style="margin-right:0.75rem;display:list-item;height: 40px;">
             <div style="color:#AFB2B1;overflow:hidden;white-space:nowrap;font-size: 12px;">{{session.updateTimeShow}}</div> 
             <div v-if="isMute(session)" class="mute-contain">
               <span class="mute"></span>
@@ -373,7 +373,6 @@ export default {
                 break
               case 7:
                 // 消息免打扰
-                console.log('消息免打扰')
                 break
             }
           }

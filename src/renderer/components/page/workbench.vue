@@ -7,7 +7,7 @@
 
       <ul class="list-box">
         <li 
-          class="list-item active" 
+          :class="selectedIndex === $index ? 'list-item active' : 'list-item'" 
           v-for="(item, $index) of dataList" 
           :key="$index"
           @mouseover.stop="selectedIndex = $index"
@@ -35,10 +35,10 @@
 
 <script>
 import SystemCaption from '../controls/SystemCaption.vue'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 export default {
   name: 'workbench',
-  components: {SystemCaption, Fetch},
+  components: {SystemCaption},
   data () {
     return {
       selectedIndex: -1,
@@ -52,7 +52,7 @@ export default {
   methods: {
     getThirdList () {
       // 获取接入系统列表
-      Fetch.post('api/appPc/thirdList', {}, this).then(ret => {
+      Request.GetThirdList({}, this).then(ret => {
         this.dataList = ret
       }).catch(() => {})
     },
@@ -88,18 +88,19 @@ export default {
   padding: 42px;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
   align-items: center;
 }
 .third-box .list-item {
-  width: 46%;
-  height: 15%;
-  padding: 20px;
+  width: 327px;
+  height: 104px;
+  padding: 20px 17px;
   box-sizing: border-box;
   border: 1px solid rgba(0,38,63,0.1);
   border-radius: 2px;
-  /* margin-top: 30px; */
+  margin-bottom: 30px;
+  margin-right: 50px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -110,7 +111,7 @@ export default {
   box-shadow: 0 10px 12px 0 rgba(0,88,148,0.13);
 }
 .third-box .list-item .list-content-box {
-  width: 78%;
+  width: 75%;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

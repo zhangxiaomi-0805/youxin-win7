@@ -31,7 +31,7 @@
 
 <script>
 import platform from '../../utils/platform'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 const electron = require('electron')
 const ipcRenderer = electron.ipcRenderer
 export default {
@@ -60,10 +60,7 @@ export default {
     confirmManage () {
       if (this.loading) return
       this.loading = true
-      /*
-       * 退出登录
-       */
-      Fetch.post('api/appPc/logout', {}, this)
+      Request.Logout({}, this)
         .then(res => {
           let loginInfo = this.$store.state.loginInfo
           localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))

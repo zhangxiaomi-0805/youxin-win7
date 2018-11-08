@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 export default {
   name: 'send-code',
   props: {
@@ -50,7 +50,6 @@ export default {
        * 获取激活验证码  api/niceAccount/genAuthCode
        * 获取忘记密码验证码  api/appPc/getForgetPasswordCode
        * 获取修改手机号和邮箱的验证码  api/appPc/getModifyCode
-       * @params  account: 账号 后台注册的 手机号或者邮箱 注意:海外手机号 格式:+xx-xxxx
        */
       let url = ''
       if (this.codeType === '1') {
@@ -65,7 +64,7 @@ export default {
         if (this.loginType === 3) {
           account = this.areacode + '-' + this.account
         }
-        Fetch.post(url, {
+        Request.GetCode(url, {
           account
         }, this).then(() => {
         }).catch(() => {

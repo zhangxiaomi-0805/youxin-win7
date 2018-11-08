@@ -118,7 +118,7 @@ import LoginButton from '../login/LoginButton.vue'
 import SelectArea from '../login/SelectArea.vue'
 import SendCode from '../login/SendCode.vue'
 import DES from '../../utils/des.js'
-import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 import util from '../../utils'
 export default {
   name: 'setting-detail',
@@ -243,11 +243,8 @@ export default {
       // 验证密码
       if (!this.vertifyPassword) return
       this.loading = true
-      /*
-       * 登录成功后确认原密码
-       * @params  password: 待确认的原密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-       */
-      Fetch.post('api/appPc/confirmOrigPassword', {
+      // 登录成功后确认原密码
+      Request.ConfirmOrigPassword({
         password: DES.encryptByDES(this.vertifyPassword)
       }, this).then(ret => {
         this.loading = false
@@ -280,13 +277,6 @@ export default {
         return
       }
       this.loading = true
-      /*
-       * 登录成功修改手机号 api/appPc/modifyMobile
-       * 登录成功修改邮箱 api/appPc/modifyEmail
-       * @params  mobile: 手机号 如果是海外账号 要求格式 +xx-xxx
-       * @params  code: 验证码
-       * @receive invalid: 1-验证码失效, 2-验证码错误
-       */
       let url = 'api/appPc/modifyMobile'
       let params = {
         mobile: this.areacode + '-' + this.account,
@@ -299,7 +289,7 @@ export default {
           code: this.vertifyCode
         }
       }
-      Fetch.post(url, params, this).then(ret => {
+      Request.ModifyMobileOrEmail(url, params, this).then(ret => {
         this.loading = false
         if (ret) {
           let errMsg = ''
@@ -346,11 +336,7 @@ export default {
         return
       }
       this.loading = true
-      /*
-       * 登录成功修改密码
-       * @params  password: 修改密码的内容 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-       */
-      Fetch.post('api/appPc/modifyPassword', {
+      Request.ModifyPassword({
         password: DES.encryptByDES(this.newPwd),
         oldPassword: DES.encryptByDES(this.password),
         confirmPassword: DES.encryptByDES(this.confirmNewPwd)

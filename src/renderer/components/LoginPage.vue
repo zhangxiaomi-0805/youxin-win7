@@ -114,7 +114,7 @@
   import LoginButton from './login/LoginButton.vue'
   import SendCode from './login/SendCode.vue'
   import Toast from './toast/toast.vue'
-  import Fetch from '../utils/fetch.js'
+  import Request from '../utils/request.js'
   import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
   import clickoutside from '../utils/clickoutside.js'
@@ -237,19 +237,13 @@
           this.loading = false
           return
         }
-        /*
-         * 设置新密码
-         * @params  account: 账号
-         * @params  password: 要设置的密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-         * @params  confirmPassword: 要设置的确认密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-         */
+        // 设置新密码
         let params = {
           account: this.account,
           password: DES.encryptByDES(this.newPassword),
           confirmPassword: DES.encryptByDES(this.confirmPassword)
         }
-        let url = 'api/appPc/resetPassword'
-        Fetch.post(url, params, this).then(ret => {
+        Request.ResetPassword(params, this).then(ret => {
           if (ret) {
             localStorage.setItem('sessionToken', ret.token)
             ipcRenderer.send('onReset')
@@ -281,12 +275,8 @@
           this.loading = false
           return
         }
-        /*
-         * 登录鉴权
-         * @params account  原账号
-         * @params password  新密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
-         */
-        Fetch.post('api/appPc/login/auth', {
+        // 登录鉴权
+        Request.LoginAuth({
           account: this.account,
           password: DES.encryptByDES(this.password)
         }, this).then(ret => {
@@ -297,7 +287,7 @@
             localStorage.setItem('sessionToken', ret.token)
             this.loginPC(ret.userInfo)
           }
-        }).catch((err) => {
+        }).catch(err => {
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
@@ -307,12 +297,8 @@
         })
       },
       loginPC (userInfo) {
-        /*
-         * 获取用户基本信息
-         * @params(header)  platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
-         * @params(header)  token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
-         */
-        Fetch.post('api/appPc/userInfo', {accid: userInfo.accid}, this).then(ret => {
+        // 获取用户基本信息
+        Request.GetUserInfo({accid: userInfo.accid}, this).then(ret => {
           if (ret) {
             // 登录sdk
             LocalStorage.setItem('uid', userInfo.accid)

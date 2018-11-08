@@ -21,7 +21,7 @@
 
 <script>
 import clickoutside from '../../utils/clickoutside.js'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 import config from '../../configs'
 export default {
   name: 'check-user',
@@ -30,10 +30,7 @@ export default {
     this.eventBus.$on('checkUser', (data) => {
       if (data.userInfos === 1) {
         // 打开本人名片
-        /*
-         * 获取个人信息
-         */
-        Fetch.post('api/appPc/userInfo', {}, this)
+        Request.GetUserInfo({}, this)
           .then(ret => {
             if (ret) {
               this.userInfos = ret
@@ -52,11 +49,7 @@ export default {
             accid: data.userInfos.account
           }
         ]
-        /*
-         * 获取用户信息
-         * @params  JSON字符串(对象数组)
-         */
-        Fetch.post('api/appPc/pullUserInfo', JSON.stringify(params), this, 'application/json')
+        Request.PullUserInfo(params, this)
           .then(ret => {
             if (ret) {
               this.$store.commit('updateContactslist', {data: ret, type: 'update'})

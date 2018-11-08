@@ -53,11 +53,11 @@
                   <span
                     :class="`radio${curSysKey === item.key ? ' active' : ''}`"
                   />
-                  <span>{{item.title}}</span>
+                  <span style="fontSize: 13px;">{{item.title}}</span>
                 </div>
               </div>
             </div>
-            <div
+            <!-- <div
               style="display: flex;justify-content: center;width: 100%;"
             >
               <div 
@@ -69,7 +69,7 @@
               <div class="set-block" style="margin-bottom: 0;">
                 <a class="toggle" style="width: 77px;height: 29px;color: #999;">取消</a>
               </div>
-            </div>
+            </div> -->
           </div>
           <div
             class="set-update"
@@ -172,7 +172,7 @@ export default {
           key: 2
         }
       ],
-      curSysKey: 1,
+      curSysKey: localStorage.CLOSEMETHOD ? JSON.parse(localStorage.CLOSEMETHOD) : 1,
       // 缓存清理列表
       cleanList: [
         {
@@ -214,6 +214,9 @@ export default {
       this.eventBus.$emit('settingDetail', {event, setType})
     },
     changeCurKey (type, key) {
+      if (type === 'curSysKey') {
+        localStorage.setItem('CLOSEMETHOD', key)
+      }
       this[type] = key
     }
   },

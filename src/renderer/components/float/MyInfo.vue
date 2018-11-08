@@ -76,7 +76,7 @@
 
 <script>
 import clickoutside from '../../utils/clickoutside.js'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 import config from '../../configs'
 export default {
   name: 'my-info',
@@ -138,11 +138,7 @@ export default {
         default:
           break
       }
-      Fetch.post('api/appPc/modifyUserInfo', params, this).then(ret => {
-        console.log(ret)
-      }).catch(err => {
-        console.log(err)
-      })
+      Request.ModifyUserInfo(params, this).then(() => {}).catch(() => {})
     },
     // 键盘输入
     changeMsg (e) {
@@ -259,16 +255,12 @@ export default {
         fileInput: e,
         callback: (file) => {
           const param = {url: file.url + '.' + imgType}
-          Fetch.post('api/appPc/modifyUserInfo', param, this)
-            .then(ret => {
-              this.updateUserInfo()
-            })
-            .catch(() => {})
+          Request.ModifyUserInfo(param, this).then(() => this.updateUserInfo()).catch(() => {})
         }
       })
     },
     updateUserInfo () {
-      Fetch.post('api/appPc/userInfo', {}, this)
+      Request.GetUserInfo({}, this)
         .then(ret => {
           this.$store.commit('updatePersonInfos', ret)
           this.userInfos = ret

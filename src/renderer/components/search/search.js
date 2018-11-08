@@ -3,7 +3,7 @@
  */
 import store from '../../store'
 import util from '../../utils'
-import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 var SearchData = {}
 
 SearchData.getContactlists = function (keyParam, pageSize, lastId, $this) {
@@ -14,7 +14,7 @@ SearchData.getContactlists = function (keyParam, pageSize, lastId, $this) {
   * @params  lastId: 代表最后一条记录的accid，首次查询时 传 字符串0
   */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/queryUserList', {
+    Request.QueryUserList({
       keyParam, pageSize, lastId
     }, $this).then(ret => {
       if (ret) resolve(ret.userInfo)

@@ -50,7 +50,7 @@
 <script>
 import configs from '../../configs/index.js'
 import TreeItem from './TreeItem.vue'
-import Fetch from '../../utils/fetch.js'
+import Request from '../../utils/request.js'
 export default {
   name: 'tree-item',
   components: {TreeItem},
@@ -147,7 +147,7 @@ export default {
     },
     getNextMember (depId, tag) {
       return new Promise((resolve, reject) => {
-        Fetch.post('api/appPc/pullDepartment', {
+        Request.PullDepartment({
           depId, tag
         }, this).then(ret => {
           if (ret) resolve(ret)

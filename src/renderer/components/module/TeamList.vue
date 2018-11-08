@@ -14,7 +14,7 @@
       <a :class="listType === 'group' ? 't-title-item t-title-group active' : 't-title-item t-title-group'" @click="toggleList('group')">讨论组</a>
     </div>
   </div>
-  <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
+  <div class="contact-con">
     <ul class="u-list t-u-list" v-show="teamlist.length > 0 && listType === 'team'">
       <li
         :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
@@ -66,7 +66,6 @@ export default {
   },
   data () {
     return {
-      scrollTop: 0,
       showSearch: false,
       searchValue: '',
       activeId: '',
@@ -111,10 +110,6 @@ export default {
       }
       return nickInTeam
     }
-  },
-  activated () {
-    // 重置滚动条位置
-    this.$refs.contactCon.scrollTop = this.scrollTop
   },
   methods: {
     checkCard (group) {
