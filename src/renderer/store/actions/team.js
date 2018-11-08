@@ -198,21 +198,23 @@ export function getTeamMembers ({ state }, teamId) {
     }, 200)
     return
   }
-  nim.getTeamMembers({
-    teamId: teamId,
-    done: (_err, obj) => {
-      if (obj.members) {
-        onTeamMembers({
-          teamId: obj.teamId,
-          members: obj.members
-        })
-      } else {
-        // setTimeout(() => {
-        //   getTeamMembers(store, teamId)
-        // }, 200)
+  if (teamId) {
+    nim.getTeamMembers({
+      teamId: teamId,
+      done: (_err, obj) => {
+        if (obj.members) {
+          onTeamMembers({
+            teamId: obj.teamId,
+            members: obj.members
+          })
+        } else {
+          // setTimeout(() => {
+          //   getTeamMembers(store, teamId)
+          // }, 200)
+        }
       }
-    }
-  })
+    })
+  }
 }
 
 export function checkTeamMsgReceipt ({state}, msgs) {
