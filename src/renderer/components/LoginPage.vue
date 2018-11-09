@@ -173,9 +173,10 @@
       } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
         let loginInfo = JSON.parse(localStorage.LOGININFO)
-        this.type = loginInfo.type
         this.account = loginInfo.account
-        this.loginType = loginInfo.loginType
+        if (loginInfo.isRember) {
+          this.password = DES.decryptByDESModeEBC(loginInfo.password)
+        }
       }
     },
     methods: {
@@ -217,7 +218,7 @@
       },
       selectAccount (item) {
         this.account = item.account
-        this.password = item.password
+        this.password = DES.decryptByDESModeEBC(item.password)
         this.isRember = true
         this.showModal = false
       },
@@ -347,7 +348,7 @@
                   let accountInfo = {
                     id: ret.accid,
                     account: this.account,
-                    password: this.password,
+                    password: DES.encryptByDES(this.password),
                     isRember: true
                   }
                   if (this.rememberAccount && this.rememberAccount.length >= 5) { // 最多保留5条最新的记住密码的用户
@@ -361,6 +362,11 @@
                   this.rememberAccount.unshift(accountInfo)
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
+                this.$store.commit('updateLoginInfo', {
+                  account: this.account,
+                  password: DES.encryptByDES(this.password),
+                  isRember: this.isRember
+                })
                 ipcRenderer.send('onReset')
                 location.href = config.homeUrl
               }

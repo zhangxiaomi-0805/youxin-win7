@@ -241,15 +241,15 @@ export async function showListOptions ({state, commit}, obj) {
   // 消息列表 群会话
   if (obj.key === 'team-notTop' || obj.key === 'team-isTop') {
     let valid = true
+    let isDiscussGroup = false
     for (let i = 0; i < state.teamlist.length; i++) {
       const item = state.teamlist[i]
       if (item.teamId === obj.id.split('-')[1]) {
+        isDiscussGroup = item.custom && JSON.parse(item.custom).isDiscussGroup
         valid = item.valid
         break
       }
     }
-    console.log('=======================ui')
-    console.log(valid)
     if (!valid) {
       if (obj.key === 'team-notTop') {
         items = [
@@ -261,6 +261,10 @@ export async function showListOptions ({state, commit}, obj) {
           event9, event8
         ]
       }
+    } else if (isDiscussGroup) {
+      items = [
+        event21, event32, event35
+      ]
     } else {
       const members = await getTeamMembers(obj.id.split('-')[1])
       let userType = ''
