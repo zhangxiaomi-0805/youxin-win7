@@ -298,9 +298,9 @@ input::-webkit-input-placeholder {
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 0;
+  top: 56px;
+  bottom: 0;
   width: 100%;
-  height: 100%;
   font-size: 14px;
   color: #C4C4C4;
 }

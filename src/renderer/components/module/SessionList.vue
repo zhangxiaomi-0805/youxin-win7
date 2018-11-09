@@ -1,6 +1,6 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <div v-if="sessionlist.length > 0" class="u-search searchevent">
+  <div class="u-search searchevent">
     <div class="u-cont">
       <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
@@ -586,9 +586,9 @@ input::-webkit-input-placeholder {
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 0;
+  top: 56px;
+  bottom: 0;
   width: 100%;
-  height: 100%;
   font-size: 14px;
   color: #C4C4C4;
 }

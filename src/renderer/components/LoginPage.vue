@@ -335,7 +335,7 @@
                 if (this.isRember) {
                   // 记住密码
                   let accountInfo = {
-                    id: ret.userInfo.userId,
+                    id: ret.accid,
                     account: this.account,
                     password: this.password,
                     isRember: true

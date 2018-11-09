@@ -1,7 +1,7 @@
 <template>
 <div>
   <!-- 交流群 -->
-  <div v-if="showTeam">
+  <div v-if="showTeam && teamlist.length > 0">
     <a class="t-list" @click="teamopen = !teamopen">
       <div class="t-center t-title">
         <span :class="teamopen ? 't-up' : 't-down'"/>
@@ -9,7 +9,7 @@
       </div>
     </a>
     <div :class="teamopen ? 't-body active' : 't-body'">
-      <ul class="t-u-list" v-if="teamlist.length > 0">
+      <ul class="t-u-list">
         <li 
           class="t-u-list-item t-center"
           v-for="team in teamlist" 
@@ -28,7 +28,7 @@
     </div>
   </div>
   <!-- 讨论组 -->
-  <div v-if="showTeam">
+  <div v-if="showTeam && grouplist.length > 0">
     <a class="t-list" @click="groupopen = !groupopen">
       <div class="t-center t-title">
         <span :class="groupopen ? 't-up' : 't-down'"/>
@@ -36,7 +36,7 @@
       </div>
     </a>
     <div :class="groupopen ? 't-body active' : 't-body'">
-      <ul class="t-u-list" v-if="grouplist.length > 0">
+      <ul class="t-u-list">
         <li 
           class="t-u-list-item t-center"
           v-for="group in grouplist" 

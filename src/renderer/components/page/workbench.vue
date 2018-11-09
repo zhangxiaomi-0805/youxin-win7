@@ -84,15 +84,15 @@ export default {
   width: 100%;
 }
 .third-box .list-box {
+  position: absolute;
+  top: 71px;
+  bottom: 0;
+  overflow: auto;
   box-sizing: border-box;
-  padding: 42px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  align-items: center;
+  padding: 0 42px;
 }
 .third-box .list-item {
+  float: left;
   width: 327px;
   height: 104px;
   padding: 20px 17px;
