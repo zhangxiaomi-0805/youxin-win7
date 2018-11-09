@@ -655,6 +655,16 @@ export default {
     const nim = state.nim
     store.state.teamlist = nim.mergeTeams(store.state.teamlist, teams)
     // store.state.teamlist = nim.cutTeams(store.state.teamlist, teams.invalid)
+    if (teams.isDismiss) {
+      for (let i in store.state.teamlist) {
+        let teamInfo = store.state.teamlist[i]
+        if (teams.invalid.teamId === teamInfo.teamId) {
+          teamInfo.valid = !teams.isDismiss
+          store.state.teamlist.splice(i, 1, teamInfo)
+          break
+        }
+      }
+    }
   },
   updateTeamMembers (state, obj) {
     const nim = state.nim

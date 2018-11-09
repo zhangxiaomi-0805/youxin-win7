@@ -155,6 +155,7 @@
     mounted () {
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
+        console.log(this.rememberAccount)
       }
       if (localStorage.AUTOLOGIN) {
         // 已开启自动登录(30天内)
@@ -292,6 +293,7 @@
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
           if (localStorage.AUTOLOGIN) {
+            this.password = ''
             localStorage.removeItem('AUTOLOGIN')
           }
         })
@@ -335,12 +337,12 @@
                 if (this.isRember) {
                   // 记住密码
                   let accountInfo = {
-                    id: ret.userInfo.userId,
+                    id: ret.userId,
                     account: this.account,
                     password: this.password,
                     isRember: true
                   }
-                  if (this.rememberAccount && this.rememberAccount >= 5) { // 最多保留5条最新的记住密码的用户
+                  if (this.rememberAccount && this.rememberAccount.length >= 5) { // 最多保留5条最新的记住密码的用户
                     this.rememberAccount.pop()
                   }
                   this.rememberAccount.map((item, index) => { // 登录账号相同则合并

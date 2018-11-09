@@ -40,7 +40,7 @@
         :key="group.id" 
         :id="group.id"
         @click="checkCard(group)"
-        @mouseup.stop="onShowMenu($event, group)"
+        @mouseup.stop="onShowMenu($event, group, 'group')"
       >
         <div class="t-list-item-left t-center">
           <img :src="group.avatar || defaultIcon"/>
@@ -121,34 +121,62 @@ export default {
       if (this.listType === value) return
       this.listType = value
     },
-    onShowMenu (e, group) {
+    onShowMenu (e, group, key) {
       // 单个列表右击事件
       if (e.button === 2) {
-        this.$store.dispatch('showListOptions', {
-          key: 'group',
-          show: true,
-          id: group.teamId,
-          pos: {
-            x: e.clientX,
-            y: e.clientY
-          },
-          callBack: (type) => {
-            switch (type) {
-              case 7:
-                // this.toggleRemindType(1, group)
-                console.log('消息免打扰')
-                break
-              case 1:
-                console.log('邀请成员')
-                break
-              case 2:
-                console.log('退出群')
-                break
-              default:
-                break
+        if (key === 'group') {
+          this.$store.dispatch('showListOptions', {
+            key: 'group',
+            show: true,
+            id: group.teamId,
+            pos: {
+              x: e.clientX,
+              y: e.clientY
+            },
+            callBack: (type) => {
+              switch (type) {
+                case 7:
+                  // this.toggleRemindType(1, group)
+                  console.log('消息免打扰')
+                  break
+                case 1:
+                  console.log('邀请成员')
+                  break
+                case 2:
+                  console.log('退出群')
+                  break
+                default:
+                  break
+              }
             }
-          }
-        })
+          })
+        } else {
+          this.$store.dispatch('showListOptions', {
+            key: 'team',
+            show: true,
+            id: group.teamId,
+            pos: {
+              x: e.clientX,
+              y: e.clientY
+            },
+            callBack: (type) => {
+              switch (type) {
+                case 7:
+                  // this.toggleRemindType(1, group)
+                  console.log('消息免打扰')
+                  break
+                case 1:
+                  console.log('邀请成员')
+                  break
+                case 2:
+                  console.log('退出群')
+                  break
+                default:
+                  break
+              }
+            }
+          })
+        }
       }
     },
     toggleRemindType (type, group) {

@@ -1,4 +1,5 @@
 // import pageUtil from '../../utils/page'
+import store from '../'
 
 // 显示加载中进度条
 export function showLoading ({state, commit}) {
@@ -37,7 +38,22 @@ export function hideFullscreenImg ({state, commit}) {
   // })out
 }
 
-export function showListOptions ({state, commit}, obj) {
+function getTeamMembers (id) {
+  return new Promise((resolve, reject) => {
+    store.state.nim.getTeamMembers({
+      teamId: id,
+      done: (err, obj) => {
+        if (!err) {
+          resolve(obj.members)
+        } else {
+          reject(err)
+        }
+      }
+    })
+  })
+}
+
+export async function showListOptions ({state, commit}, obj) {
   let items = []
   // 右键出现蓝框位置
   if (obj.key === 'p2p-isTop' || obj.key === 'team-isTop' || obj.key === 'team-notTop' || obj.key === 'p2p-notTop') {
@@ -192,6 +208,14 @@ export function showListOptions ({state, commit}, obj) {
       obj.callBack(2)
     }
   }
+  let event34 = {
+    title: '邀请群成员',
+    callBack: () => {}
+  }
+  let event35 = {
+    title: '退出讨论组',
+    callBack: () => {}
+  }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {
     items = [
@@ -214,15 +238,76 @@ export function showListOptions ({state, commit}, obj) {
       event9, event19, event8, event20
     ]
   }
-  if (obj.key === 'team-notTop') {
-    items = [
-      event7, event21, event8, event17
-    ]
-  }
-  if (obj.key === 'team-isTop') {
-    items = [
-      event9, event21, event8, event17
-    ]
+  // 消息列表 群会话
+  if (obj.key === 'team-notTop' || obj.key === 'team-isTop') {
+    let valid = true
+    for (let i = 0; i < state.teamlist.length; i++) {
+      const item = state.teamlist[i]
+      if (item.teamId === obj.id.split('-')[1]) {
+        valid = item.valid
+        break
+      }
+    }
+    console.log('=======================ui')
+    console.log(valid)
+    if (!valid) {
+      if (obj.key === 'team-notTop') {
+        items = [
+          event7, event8
+        ]
+      }
+      if (obj.key === 'team-isTop') {
+        items = [
+          event9, event8
+        ]
+      }
+    } else {
+      const members = await getTeamMembers(obj.id.split('-')[1])
+      let userType = ''
+      for (let i = 0; i < members.length; i++) {
+        let item = members[i]
+        if (item.account === state.personInfos.accid) {
+          userType = item.type
+          break
+        }
+      }
+      // 非置顶
+      if (obj.key === 'team-notTop') {
+        if (userType === 'normal') {
+          items = [
+            event7, event21, event8, event33
+          ]
+        }
+        if (userType === 'owner') {
+          items = [
+            event7, event21, event8, event17
+          ]
+        }
+        if (userType === 'manager') {
+          items = [
+            event7, event21, event8, event33, event17
+          ]
+        }
+      }
+      // 置顶
+      if (obj.key === 'team-isTop') {
+        if (userType === 'normal') {
+          items = [
+            event9, event21, event8, event33
+          ]
+        }
+        if (userType === 'owner') {
+          items = [
+            event9, event21, event8, event17
+          ]
+        }
+        if (userType === 'manager') {
+          items = [
+            event9, event21, event8, event33, event17
+          ]
+        }
+      }
+    }
   }
   // 选择自己的text
   if (obj.key === 'text-out') {
@@ -343,9 +428,36 @@ export function showListOptions ({state, commit}, obj) {
     ]
   }
   // 群或讨论组右键
+  if (obj.key === 'team') {
+    const members = await getTeamMembers(obj.id)
+    let userType = ''
+    for (let i = 1; i < members.length; i++) {
+      let item = members[i]
+      if (item.account === state.personInfos.accid) {
+        userType = item.type
+        break
+      }
+    }
+    if (userType === 'normal') {
+      items = [
+        event21, event33
+      ]
+    }
+    if (userType === 'owner') {
+      items = [
+        event21, event34, event17
+      ]
+    }
+    if (userType === 'manager') {
+      items = [
+        event21, event34, event33, event17
+      ]
+    }
+  }
+
   if (obj.key === 'group') {
     items = [
-      event21, event32, event33
+      event21, event32, event35
     ]
   }
 

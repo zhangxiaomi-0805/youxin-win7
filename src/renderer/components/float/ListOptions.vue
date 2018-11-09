@@ -29,10 +29,11 @@ export default {
     },
     top () {
       let top = this.$store.state.listOptionsPos.y
+      let height = this.items.length * 30
       // 超出底部
       let clientHeight = document.body.clientHeight
-      if (clientHeight - top < 62) {
-        top = top - 62
+      if (clientHeight - top < height) {
+        top = top - height
       }
       return top
     }

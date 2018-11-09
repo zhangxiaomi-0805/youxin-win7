@@ -87,6 +87,7 @@ export function onSynCreateTeam (team) {
 
 export function onDismissTeam (obj) {
   store.commit('updateTeamList', {
+    isDismiss: true,
     invalid: { teamId: obj.teamId }
   })
 }
