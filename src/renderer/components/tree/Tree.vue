@@ -1,7 +1,31 @@
 <template>
 <div>
+  <!-- 常用联系人 -->
+  <div v-if="showTeam && contactsToplist.length > 0">
+    <a class="t-list" @click="contactsopen = !contactsopen">
+      <div class="t-center t-title">
+        <span :class="contactsopen ? 't-up' : 't-down'"/>
+        <div class="t-center"><span style="line-height: 14px;">常用联系人</span></div>
+      </div>
+    </a>
+    <div :class="contactsopen ? 't-body active' : 't-body'">
+      <ul class="t-u-list">
+        <li 
+          class="t-u-list-item t-center"
+          v-for="contact in contactsToplist" 
+          :key="contact.id"
+          :id="contact.id"
+          @click="orgSelectHandle(contact)"
+        >
+          <span v-if="showCheck" :class="className(contact)"></span>
+          <img :src="contact.avatar || defaultUserIcon"/>
+          <span class="teamname" :title="contact.name">{{contact.name}}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
   <!-- 交流群 -->
-  <div v-if="showTeam">
+  <div v-if="showTeam && teamlist.length > 0">
     <a class="t-list" @click="teamopen = !teamopen">
       <div class="t-center t-title">
         <span :class="teamopen ? 't-up' : 't-down'"/>
@@ -9,7 +33,7 @@
       </div>
     </a>
     <div :class="teamopen ? 't-body active' : 't-body'">
-      <ul class="t-u-list" v-if="teamlist.length > 0">
+      <ul class="t-u-list">
         <li 
           class="t-u-list-item t-center"
           v-for="team in teamlist" 
@@ -28,7 +52,7 @@
     </div>
   </div>
   <!-- 讨论组 -->
-  <div v-if="showTeam">
+  <div v-if="showTeam && grouplist.length > 0">
     <a class="t-list" @click="groupopen = !groupopen">
       <div class="t-center t-title">
         <span :class="groupopen ? 't-up' : 't-down'"/>
@@ -36,7 +60,7 @@
       </div>
     </a>
     <div :class="groupopen ? 't-body active' : 't-body'">
-      <ul class="t-u-list" v-if="grouplist.length > 0">
+      <ul class="t-u-list">
         <li 
           class="t-u-list-item t-center"
           v-for="group in grouplist" 
@@ -102,6 +126,7 @@ export default {
       companyopen: false, // 公司展开状态
       teamopen: false, // 群展开状态
       groupopen: false,
+      contactsopen: false,
       companyInfo: {}, // 公司信息
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
@@ -115,6 +140,9 @@ export default {
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
+    },
+    contactsToplist () {
+      return this.$store.state.contactsToplist
     },
     teamlist () {
       let teamlist = this.$store.state.teamlist.filter(item => {
@@ -136,7 +164,7 @@ export default {
     className (contact) {
       for (let i in this.createTeamSelect) {
         let item = this.createTeamSelect[i]
-        if (item.accid === contact.to) {
+        if (item.accid === contact.to || item.accid === contact.accid) {
           return 'checked common'
         }
       }

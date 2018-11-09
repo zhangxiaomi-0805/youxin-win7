@@ -266,10 +266,10 @@
         let errMsg = ''
         this.password = type && type === 2 ? this.newPassword : this.password
         if (this.account.length < 2) {
-          errMsg = '账号或密码错误，登录失败'
+          errMsg = '用户或账号密码错误，登录失败'
         }
         if (this.password.length < 8) {
-          errMsg = '账号或密码错误，登录失败'
+          errMsg = '用户或账号密码错误，登录失败'
         }
         this.errMsg = errMsg
         if (errMsg) {
@@ -290,7 +290,7 @@
           }
         }).catch(err => {
           this.loading = false
-          if (err) this.errMsg = err.msg
+          if (err) this.errMsg = '用户或账号密码错误，登录失败'
           // 自动登录情况且密码错误
           if (localStorage.AUTOLOGIN) {
             this.password = ''
@@ -306,7 +306,7 @@
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
             this.$store.commit('updatePersonInfos', userInfo)
-            // 初始化组织架构、联系、历史联系人列表
+            // 初始化组织架构、联系、常用联系人列表
             IndexedDB.getItem('orgnizeObj')
               .then(data => {
                 this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
@@ -317,6 +317,14 @@
                 this.$store.commit('updateContactslist', {data, type: 'replace'})
               })
               .catch(() => {})
+            // IndexedDB.getAll('contactsToplist')
+            //   .then(data => {
+            //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
+            //   })
+            //   .catch(() => {})
+            Request.getContactUserList({tag: 0}, this).then(ret => {
+              this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+            }).catch(() => {})
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {
@@ -337,7 +345,7 @@
                 if (this.isRember) {
                   // 记住密码
                   let accountInfo = {
-                    id: ret.userId,
+                    id: ret.accid,
                     account: this.account,
                     password: this.password,
                     isRember: true
@@ -477,7 +485,7 @@
   }
 
   .m-login-con > h3 {
-    padding: 40px 0 30px;
+    padding: 25px 0 30px;
     font-size: 24px;
     color: #333;
     text-align: left;

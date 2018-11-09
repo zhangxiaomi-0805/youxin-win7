@@ -149,5 +149,9 @@ export default {
   // 聊天记录背景高亮标识
   msgHighBgIdClient: '',
   // 好友状态列表
-  friendsStatusList: {}
+  friendsStatusList: {},
+  // 下线modal状态管理
+  downlineStatus: false,
+  // 常用联系人列表
+  contactsToplist: []
 }
