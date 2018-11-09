@@ -19,6 +19,7 @@ class IndexedDB {
           // 设置标识为key
           db.createObjectStore('orgnizeObj', { keyPath: 'key' })
           db.createObjectStore('contactslist', { keyPath: 'key' })
+          db.createObjectStore('contactsToplist', { keyPath: 'key' })
         }
         request.onsuccess = () => {
           this.db = request.result

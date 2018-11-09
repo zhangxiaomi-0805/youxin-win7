@@ -304,7 +304,7 @@
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
             this.$store.commit('updatePersonInfos', userInfo)
-            // 初始化组织架构、联系、历史联系人列表
+            // 初始化组织架构、联系、常用联系人列表
             IndexedDB.getItem('orgnizeObj')
               .then(data => {
                 this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
@@ -313,6 +313,11 @@
             IndexedDB.getAll('contactslist')
               .then(data => {
                 this.$store.commit('updateContactslist', {data, type: 'replace'})
+              })
+              .catch(() => {})
+            IndexedDB.getAll('contactsToplist')
+              .then(data => {
+                this.$store.commit('updateContactsToplist', {data, type: 'init'})
               })
               .catch(() => {})
             this.$store.dispatch('connect', {

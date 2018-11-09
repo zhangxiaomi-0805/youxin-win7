@@ -1023,5 +1023,43 @@ export default {
   updateDownlineModal (state, obj) {
     // 更新下线通知modal状态
     state.downlineStatus = obj.status
+  },
+  updateContactsToplist (state, obj) {
+    let { type, data, accid } = obj
+    // 更新常用联系人列表
+    if (type === 'init') {
+      state.contactsToplist = data
+    } else if (type === 'update') {
+      for (let i in data.userContactList) {
+        let hasExit = false
+        let userContact = data.userContactList[i]
+        for (let j in state.contactsToplist) {
+          let contactTop = state.contactsToplist[j]
+          if (userContact.accid === contactTop.accid) {
+            // 已存在
+            contactTop = userContact
+            contactTop.tag = data.tag
+            hasExit = true
+            IndexedDB.setItem('contactsToplist ', contactTop, contactTop.accid)
+            break
+          }
+        }
+        if (!hasExit) {
+          let contactTop = userContact
+          contactTop.tag = data.tag
+          IndexedDB.setItem('contactsToplist', contactTop, contactTop.accid)
+          state.contactsToplist.push(contactTop)
+        }
+      }
+    } else if (type === 'delete') {
+      for (let j in state.contactsToplist) {
+        let contactTop = state.contactsToplist[j]
+        if (accid === contactTop.accid) {
+          state.contactsToplist.splice(j, 1)
+          IndexedDB.removeItem('contactsToplist ', accid)
+          break
+        }
+      }
+    }
   }
 }

@@ -20,7 +20,8 @@
         <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || '-'}}</span></div>
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
-        <a class="delete-contact"  @click="deleteContact(userInfos.accid)">删除常用联系人</a>
+        <a v-if="type === 'contactsTop'" class="delete-contact" @click="contactsTopManage(userInfos.accid, 2)">删除常用联系人</a>
+        <a v-else class="add-contact" @click="contactsTopManage(userInfos.accid, 1)">添加为常用联系人</a>
       </div>
       <div class="nc-team" v-else-if="pageType === 'team'">
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
@@ -39,9 +40,11 @@ export default {
   name: 'namecard',
   props: {
     pageType: String,
+    type: String,
     accid: String,
     teamId: String,
-    contactId: String
+    contactId: String,
+    callBack: Function
   },
   data () {
     return {
@@ -127,11 +130,15 @@ export default {
         })
       }
     },
-    deleteContact (accid) {
-      // 删除常用联系人
+    contactsTopManage (accid, userType) {
+      // 常用联系人管理
       let params = {
         accid,
-        userType: 2
+        userType
+      }
+      if (userType === 2) {
+        this.callBack()
+        this.$store.commit('updateContactsToplist', {type: 'delete', accid})
       }
       Request.AddOrDelContactUser(params, this)
     }
@@ -332,6 +339,7 @@ export default {
   .nc-p2p .edit:hover, .edit:focus {
     background-image: url('../../../../static/img/setting/edit-h.png');
   }
+  .add-contact,
   .delete-contact {
     width: 100%;
     height: 36px;
@@ -345,7 +353,12 @@ export default {
     color: #F43530;
     font-size: 14px;
   }
+  .add-contact:hover,
   .delete-contact:hover {
     background-color: #e0e0e0;
+  }
+
+  .add-contact {
+    color: #333;
   }
 </style>

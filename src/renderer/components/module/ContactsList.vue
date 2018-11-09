@@ -47,7 +47,6 @@
 
 <script>
 import config from '../../configs'
-import pageUtil from '../../utils/page'
 import Request from '../../utils/request'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
@@ -59,36 +58,23 @@ export default {
     callBack: Function
   },
   mounted () {
-    var _this = this
-    this.eventBus.$on('locationMainListItem', function (data) {
-      if (data.listType === 'contacts') {
-        setTimeout(() => {
-          pageUtil.scrollMainList('contacts-list', data.activeId)
-          _this.activeId = data.activeId
-        }, 500)
-      }
-    })
-    this.eventBus.$on('toggleSelect', function (data) {
-      _this.activeId = data.contactsId
-    })
-    // 获取请求数据
     this.getData()
   },
   data () {
     return {
-      tag: 0,
-      timer: null,
       activeId: '',
       showSearch: false,
       searchValue: '',
       noticeIcon: config.noticeIcon,
-      defaultUserIcon: config.defaultUserIcon,
-      contactslist: []
+      defaultUserIcon: config.defaultUserIcon
     }
   },
   computed: {
     sessionlist () {
       return this.$store.state.sessionlist
+    },
+    contactslist () {
+      return this.$store.state.contactsToplist
     },
     onLineNum () {
       let num = 0
@@ -112,9 +98,9 @@ export default {
   methods: {
     getData () {
       // 获取常用联系人列表
-      Request.getContactUserList({tag: this.tag}, this).then(ret => {
-        this.tag = ret.tag
-        this.contactslist = ret.userContactList
+      let tag = this.contactslist[0] ? this.contactslist[0].tag : 0
+      Request.getContactUserList({tag}, this).then(ret => {
+        this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
       }).catch(() => {})
     },
     toggleNameCard (contacts) {
@@ -123,8 +109,6 @@ export default {
       this.callBack({contactId: contacts.accid})
     },
     toggleSession (account) {
-      clearTimeout(this.timer) // 清除
-      // 双击切换聊天
       // 发送消息、创建群聊
       let sessionId = ''
       for (let i in this.sessionlist) {

@@ -151,5 +151,7 @@ export default {
   // 好友状态列表
   friendsStatusList: {},
   // 下线modal状态管理
-  downlineStatus: false
+  downlineStatus: false,
+  // 常用联系人列表
+  contactsToplist: []
 }

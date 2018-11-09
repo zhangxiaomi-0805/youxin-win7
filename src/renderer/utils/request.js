@@ -140,7 +140,7 @@ function AddOrDelContactUser (params, $this) {
     store.commit('toastConfig', {
       show: true,
       type: 'success',
-      toastText: '添加成功！'
+      toastText: params.userType === 1 ? '添加成功！' : '删除成功！'
     })
   }).catch((err) => {
     store.commit('toastConfig', {
