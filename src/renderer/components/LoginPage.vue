@@ -315,11 +315,14 @@
                 this.$store.commit('updateContactslist', {data, type: 'replace'})
               })
               .catch(() => {})
-            IndexedDB.getAll('contactsToplist')
-              .then(data => {
-                this.$store.commit('updateContactsToplist', {data, type: 'init'})
-              })
-              .catch(() => {})
+            // IndexedDB.getAll('contactsToplist')
+            //   .then(data => {
+            //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
+            //   })
+            //   .catch(() => {})
+            Request.getContactUserList({tag: 0}, this).then(ret => {
+              this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+            }).catch(() => {})
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {

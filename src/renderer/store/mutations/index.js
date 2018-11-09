@@ -1040,14 +1040,14 @@ export default {
             contactTop = userContact
             contactTop.tag = data.tag
             hasExit = true
-            IndexedDB.setItem('contactsToplist ', contactTop, contactTop.accid)
+            // IndexedDB.setItem('contactsToplist ', contactTop, contactTop.accid)
             break
           }
         }
         if (!hasExit) {
           let contactTop = userContact
           contactTop.tag = data.tag
-          IndexedDB.setItem('contactsToplist', contactTop, contactTop.accid)
+          // IndexedDB.setItem('contactsToplist', contactTop, contactTop.accid)
           state.contactsToplist.push(contactTop)
         }
       }
@@ -1056,7 +1056,7 @@ export default {
         let contactTop = state.contactsToplist[j]
         if (accid === contactTop.accid) {
           state.contactsToplist.splice(j, 1)
-          IndexedDB.removeItem('contactsToplist ', accid)
+          // IndexedDB.removeItem('contactsToplist ', accid)
           break
         }
       }
