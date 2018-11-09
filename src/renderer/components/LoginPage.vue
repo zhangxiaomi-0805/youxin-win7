@@ -265,10 +265,10 @@
         let errMsg = ''
         this.password = type && type === 2 ? this.newPassword : this.password
         if (this.account.length < 2) {
-          errMsg = '账号或密码错误，登录失败'
+          errMsg = '用户或账号密码错误，登录失败'
         }
         if (this.password.length < 8) {
-          errMsg = '账号或密码错误，登录失败'
+          errMsg = '用户或账号密码错误，登录失败'
         }
         this.errMsg = errMsg
         if (errMsg) {
@@ -289,7 +289,7 @@
           }
         }).catch(err => {
           this.loading = false
-          if (err) this.errMsg = err.msg
+          if (err) this.errMsg = '用户或账号密码错误，登录失败'
           // 自动登录情况且密码错误
           if (localStorage.AUTOLOGIN) {
             localStorage.removeItem('AUTOLOGIN')
@@ -475,7 +475,7 @@
   }
 
   .m-login-con > h3 {
-    padding: 40px 0 30px;
+    padding: 25px 0 30px;
     font-size: 24px;
     color: #333;
     text-align: left;

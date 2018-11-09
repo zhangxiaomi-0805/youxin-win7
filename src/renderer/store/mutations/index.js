@@ -1019,5 +1019,9 @@ export default {
   // 更新好友状态列表
   updateFriendsStatusList (state, obj) {
     state.friendsStatusList[obj.account] = obj.type
+  },
+  updateDownlineModal (state, obj) {
+    // 更新下线通知modal状态
+    state.downlineStatus = obj.status
   }
 }
