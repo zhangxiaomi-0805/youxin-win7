@@ -30,7 +30,6 @@
             <div class="multi-content">
               <div class="title" style="width: 95%;">{{session.name}}</div>
               <div class="content">
-                <span>{{session.status}}</span>
                 <span v-if="session.localCustom && session.localCustom.at && !lastMsgStatus(session)" style="color: #F43530;">[有人@你] </span>
                 <span v-if="lastMsgStatus(session)" style="color: #F43530;">{{session.lastMsgShow}}</span>
                 <span v-else-if="session.lastMsgShow">{{session.lastMsgShow}}</span>
