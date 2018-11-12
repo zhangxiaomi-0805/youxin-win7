@@ -16,7 +16,7 @@
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
-            <div><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div class="searchevent"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
             <div class="s-name default searchevent">{{item.companyName}}</div>
           </div>
         </li>
@@ -36,7 +36,7 @@
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
-            <div><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div class="searchevent"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
             <div v-if="item.contain">
               <span class="s-name default searchevent">包含:</span>
               <span :class="nameClass(val, 'default')" v-for="val in item.contain" :key="val.id" :id="val.id">{{val}}</span>
@@ -147,10 +147,13 @@
       },
       async searchInContact (value, page) {
         // 搜索联系人
-        let userId = this.contactlist[this.contactlist.length - 1] ? this.contactlist[this.contactlist.length - 1].accid : 0
+        let userId = 0
+        if (page > 1 && this.contactlist[this.contactlist.length - 1]) {
+          userId = this.contactlist[this.contactlist.length - 1].accid
+        }
         let result = []
         try {
-          result = await SearchData.getContactlists(value, page > 1 ? 10 : 5, userId)
+          result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
         } catch (error) {}
         let contactlistTemp = []
         for (let i in result) {

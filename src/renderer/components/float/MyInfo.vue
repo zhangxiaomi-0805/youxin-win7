@@ -23,7 +23,7 @@
           <div v-if="userInfos.signature && showPrompt"
             class="prompt">{{userInfos.signature}}</div>
         </transition>
-        <div class="nick" >{{userInfos.nick}}</div>
+        <div class="nick" >{{userInfos.nick || userInfos.name}}</div>
         <div class="remarks" v-if="!userInfos.signature && !hasSignMame" @click.stop="hasSignMame = true">
           <span style="margin-right: 8px;">签名</span>
           <a class="edit" @click="showInput" style="margin-right: 5px;"></a>

@@ -162,6 +162,9 @@ export default {
   },
   methods: {
     className (contact) {
+      if (this.isDisabled(contact.accid)) {
+        return 'disabled common'
+      }
       for (let i in this.createTeamSelect) {
         let item = this.createTeamSelect[i]
         if (item.accid === contact.to || item.accid === contact.accid) {
@@ -185,6 +188,7 @@ export default {
     },
     orgSelectHandle (user) {
       if (this.showCheck) {
+        if (this.isDisabled(user.accid)) return
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
         return false
       }
@@ -483,6 +487,10 @@ export default {
   }
   .t-u-list .t-u-list-item .checked {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
+    background-size: 100% 100%;
+  }
+  .t-u-list .t-u-list-item .disabled {
+    background-image: url('../../../../static/img/setting/checkbox-d.png');
     background-size: 100% 100%;
   }
 

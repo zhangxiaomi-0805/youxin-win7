@@ -18,12 +18,13 @@
         <span :class="className(item, 'user')"></span>
         <img :src="item.avatar || myGroupIcon" class="s-img">
         <div style="paddingLeft: 10px;">
-          <div class="s-name">{{item.name}}</div>
+          <div><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
           <div class="s-name default">{{item.companyName}}</div>
         </div>
       </li>
       <li v-if="noMoreData && !showTeam" class="n-data">已无更多记录...</li>
     </ul>
+    <a v-if="contactShowMore" class="s-cheak-more searchevent" style="marginBottom: 15px;" @click="checkMore('contact')">{{contactShowMore === 2 ? '收起' : '显示更多'}}</a>
     <!-- 搜索群组 -->
     <div v-if="showTeam && teamlist.length > 0" class="title n-padding">群组</div>
     <ul v-if="showTeam && teamlist.length > 0" class="u-list s-default">
@@ -45,7 +46,7 @@
         </div>
       </li>
     </ul>
-    <a v-if="teamShowMore" class="s-cheak-more" @click="checkMore">{{teamShowMore === 2 ? '收起' : '显示全部'}}</a>
+    <a v-if="teamShowMore" class="s-cheak-more" @click="checkMore('team')">{{teamShowMore === 2 ? '收起' : '显示全部'}}</a>
   </div>
 </template>
 
@@ -63,6 +64,7 @@
       return {
         beforeValue: '', // 上一次输入的值，做延时搜索
         contactlist: [], // 联系人集合
+        contactShowMore: 0, // 联系人显示更多 0-不显示，1-显示更多，2-收起
         teamlist: [], // 群组集合
         teamHeight: 'auto', // 群组列表高度
         teamShowMore: 0, // 群组显示全部 0-不显示，1-显示全部，2-收起
@@ -94,18 +96,29 @@
       },
       async searchInContact (value, page) {
         // 搜索联系人
-        let userId = this.contactlist[this.contactlist.length - 1] ? this.contactlist[this.contactlist.length - 1].accid : 0
+        let userId = 0
+        if (page > 1 && this.contactlist[this.contactlist.length - 1]) {
+          userId = this.contactlist[this.contactlist.length - 1].accid
+        }
         let result = []
         try {
-          result = await SearchData.getContactlists(value, page > 1 ? 10 : 5, userId)
+          result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
         } catch (error) {}
         let contactlistTemp = []
         for (let i in result) {
-          contactlistTemp.push(result[i])
+          if (this.showTeam) {
+            if (contactlistTemp.length === (page > 1 ? 10 : 5)) this.contactShowMore = 1
+            else contactlistTemp.push(result[i])
+          } else {
+            contactlistTemp.push(result[i])
+          }
         }
         if (page > 1 && contactlistTemp.length < 10) {
-          this.noMoreData = true
-          return
+          if (this.showTeam) {
+            this.contactShowMore = 2
+          } else {
+            this.noMoreData = true
+          }
         }
         // 数据update
         if (page > 1) this.contactlist = this.contactlist.concat(contactlistTemp)
@@ -132,10 +145,6 @@
       },
       className (item, type) {
         if (type === 'user') {
-          if (item.userStatus === 1) {
-            // 未激活
-            return 'unActive common'
-          }
           if (this.isDisabled(item)) {
             return 'disabled common'
           }
@@ -179,10 +188,18 @@
         }
         return 's-name ' + classname
       },
-      checkMore () {
-        this.teamShowMore = this.teamShowMore === 1 ? 2 : 1
-        this.teamlimitNum = this.teamlimitNum === 5 ? 1000000 : 5
-        this.searchInTeam(this.value, true)
+      checkMore (type) {
+        switch (type) {
+          case 'contact':
+            let page = this.contactShowMore === 2 ? 1 : 2
+            this.searchInContact(this.value, page)
+            break
+          case 'team':
+            this.teamShowMore = this.teamShowMore === 1 ? 2 : 1
+            this.teamlimitNum = this.teamlimitNum === 5 ? 1000000 : 5
+            this.searchInTeam(this.value, true)
+            break
+        }
       },
       reset () {
         this.beforeValue = ''
@@ -197,6 +214,9 @@
       },
       chooseContact (user) {
         // 选择联系人
+        if (!user.accid) {
+          return false
+        }
         user.scene = 'p2p'
         user.to = user.accid
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
@@ -266,7 +286,7 @@
     color: #999;
   }
 
-  .s-u-list .s-u-list-item .common {
+  .s-cont .s-list-item .common {
     display: inline-block;
     width: 15px;
     height: 15px;
@@ -276,26 +296,26 @@
     transition: all .2s linear;
   }
 
-  .s-u-list .s-u-list-item .check {
+  .s-cont .s-list-item .check {
     background-image: url('../../../../static/img/setting/checkboxborder.png');
     background-size: 100% 100%;
   }
-  .s-u-list .s-u-list-item .check:hover, .check:focus {
+  .s-cont .s-list-item .check:hover, .check:focus {
     background-image: url('../../../../static/img/setting/checkboxborder-p.png');
   }
 
-  .s-u-list .s-u-list-item .disabled {
+  .s-cont .s-list-item .disabled {
     background-image: url('../../../../static/img/setting/checkbox-d.png');
     background-size: 100% 100%;
   }
 
-  .s-u-list .s-u-list-item .unActive {
+  .s-cont .s-list-item .unActive {
     background-image: url('../../../../static/img/setting/checkboxborder.png');
     background-size: 100% 100%;
     opacity: .5;
   }
 
-  .s-u-list .s-u-list-item .checked {
+  .s-cont .s-list-item .checked {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 100% 100%;
   }
