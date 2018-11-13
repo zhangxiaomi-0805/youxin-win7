@@ -38,12 +38,12 @@
         </div>
       </div>
       <div v-if="platform" class="footer">
-        <a :class="chooselist.length > (type === (1 || 4) ? 1 : 0) ? 'confirm' : 'confirm disabled'" @click="confirmBtn"><span v-if="!loading">确定</span><span v-else-if="loading" class="loading"></span></a>
+        <a :class="!isDisabled() ? 'confirm' : 'confirm disabled'" @click="confirmBtn"><span v-if="!loading">确定</span><span v-else-if="loading" class="loading"></span></a>
         <a class="cancel" @click="closeModal()">取消</a>
       </div>
       <div v-else class="footer">
         <a class="cancel" @click="closeModal()" style="margin-right:20px;">取消</a>
-        <a :class="chooselist.length > (type === (1 || 4) ? 1 : 0) ? 'confirm' : 'confirm disabled'" style="margin-right:0;" @click="confirmBtn">
+        <a :class="!isDisabled() ? 'confirm' : 'confirm disabled'" style="margin-right:0;" @click="confirmBtn">
           <span v-if="!loading">确定</span><span v-else-if="loading" class="loading"></span>
         </a>
       </div>
@@ -110,10 +110,17 @@ export default {
       user.type && delete user.type
       this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
     },
+    isDisabled () {
+      let length = 0
+      if (this.type === 1 || this.type === 4) {
+        length = 1
+      }
+      if (this.chooselist.length <= length) return true
+      return false
+    },
     confirmBtn () {
       if (this.loading) return
-      let length = this.type === (1 || 4) ? 1 : 0
-      if (this.chooselist.length <= length) return
+      if (this.isDisabled()) return
       switch (this.type) {
         case 1:
           this.eventBus.$emit('settingName', {type: 1, callBack: this.createTeam})

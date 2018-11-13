@@ -392,7 +392,7 @@ export default {
             }
             break
         }
-      } else if (this.quickIndex === 0 && e.keyCode === 13) {
+      } else if (this.quickIndex === 0 && !e.ctrlKey && e.keyCode === 13) {
         // 回车发送消息
         e.preventDefault()
         this.sendBlendMsg()
