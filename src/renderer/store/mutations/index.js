@@ -1036,6 +1036,13 @@ export default {
   },
   updateContactsToplist (state, obj) {
     let { type, data, accid } = obj
+    if (obj.type !== 'status' && data.userContactList.length > 0) {
+      let arr = []
+      data.userContactList.forEach(item => {
+        arr.push({ to: item.accid })
+      })
+      store.dispatch('subscribeEvent', arr)
+    }
     // 更新常用联系人列表
     if (type === 'init') {
       state.contactsToplist = data
@@ -1070,6 +1077,23 @@ export default {
           break
         }
       }
+    } else if (type === 'status') {
+      let newArr = Object.assign([], state.contactsToplist)
+      newArr.forEach(item => {
+        if (state.friendsStatusList[item.accid] > -1) {
+          item.status = state.friendsStatusList[item.accid]
+        }
+      })
+      state.contactsToplist = newArr
+    }
+    if (type !== 'status') {
+      let newArr = Object.assign([], state.contactsToplist)
+      newArr.forEach(item => {
+        if (state.friendsStatusList[item.accid] > -1) {
+          item.status = state.friendsStatusList[item.accid]
+        }
+      })
+      state.contactsToplist = newArr
     }
   }
 }
