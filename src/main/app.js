@@ -223,7 +223,7 @@ APP.prototype.initIPC = function () {
 
   ipcMain.on('screenShot', () => {
     var ssFile = process.platform === 'darwin' ? '/Screenshot.app/Contents/MacOS/Screenshot' : '/Screenshot'
-    var testFile = require('path').join(app.getAppPath(), '/static/addon/', process.platform, ssFile)
+    var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
     execFile(testFile, {}, (error, stdout, stderr) => {
       if (error) throw error
       console.log(stdout)
