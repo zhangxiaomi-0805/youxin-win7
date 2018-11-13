@@ -55,17 +55,19 @@
             <span>{{userInfos.sex === 1 ? '男' : '女'}}</span>
             <!-- 下拉箭头 -->
             <div class="select-sex"></div> 
+
+             <!-- 性别选择弹框 -->
+            <div v-if="showSexModal" class="sexModal-box">
+                <ul class='sex-content'>
+                  <li :class="selectedIndex == index? 'sex-item sex-item-select' : 'sex-item'" v-for="(item, index) in sexList" :key="index"
+                    @click.stop="selectSex(index)"
+                    >
+                      <div>{{item.name}}</div>
+                  </li>
+                </ul>
+            </div>
         </div>
-        <!-- 性别选择弹框 -->
-        <div v-if="showSexModal" class="sexModal-box">
-            <ul class='sex-content'>
-              <li :class="selectedIndex == index? 'sex-item sex-item-select' : 'sex-item'" v-for="(item, index) in sexList" :key="index"
-                @click.stop="selectSex(index)"
-                >
-                  <div>{{item.name}}</div>
-              </li>
-            </ul>
-        </div>
+       
     </div>
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || '-'}}</span></div>
     <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.orgName">{{userInfos.companyName || '-'}}</span></div>
@@ -456,8 +458,8 @@ export default {
     height: 40px;
     width: 52px;
     position: absolute;
-    bottom: 72px;
-    left: 97px;
+    top: 25px;
+    left: 1px;
     z-index: 1006;
     box-shadow: 0 2px 2px 0 #ccc;
     background-color: #fff
