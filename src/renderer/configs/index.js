@@ -13,9 +13,9 @@ var config = {
   // 默认用户头像
   defaultUserIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-icon.png',
   // 默认普通群头像
-  defaultGroupIcon: '../../../static/img/team/group-default.png',
+  defaultGroupIcon: './static/img/team/group-default.png',
   // 默认讨论组头像
-  defaultDiscussGroupIcon: '../../../static/img/team/discuss-group-default.png',
+  defaultDiscussGroupIcon: './static/img/team/discuss-group-default.png',
   // 默认高级群头像
   defaultAdvancedIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-advanced.png',
   // 系统通知图标

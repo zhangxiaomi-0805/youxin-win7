@@ -3,7 +3,7 @@
   <div class="u-nav-avatar" :style="{marginTop}">
     <img @click="getUserInfo($event)" :src="myInfo.avatar || defaultUserIcon"/>
   </div>
-  <div class="u-nav-status"><span>在线</span><i></i></div>
+  <!-- <div class="u-nav-status"><span>在线</span><i></i></div> -->
   <!-- 单聊 -->
   <div @click="navTo('session')" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'"></div>
   <!-- 常用联系人 -->
