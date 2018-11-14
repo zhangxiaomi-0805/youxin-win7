@@ -155,7 +155,6 @@
     mounted () {
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
-        console.log(this.rememberAccount)
       }
       if (localStorage.AUTOLOGIN) {
         // 已开启自动登录(30天内)
@@ -293,7 +292,7 @@
           }
         }).catch(err => {
           this.loading = false
-          if (err) this.errMsg = '用户或账号密码错误，登录失败'
+          if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
           if (localStorage.AUTOLOGIN) {
             this.password = ''
@@ -309,26 +308,6 @@
             // 登录sdk
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
-            this.$store.commit('updatePersonInfos', userInfo)
-            // 初始化组织架构、联系、常用联系人列表
-            IndexedDB.getItem('orgnizeObj')
-              .then(data => {
-                this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            IndexedDB.getAll('contactslist')
-              .then(data => {
-                this.$store.commit('updateContactslist', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            // IndexedDB.getAll('contactsToplist')
-            //   .then(data => {
-            //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
-            //   })
-            //   .catch(() => {})
-            Request.getContactUserList({tag: 0}, this).then(ret => {
-              this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
-            }).catch(() => {})
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {
@@ -337,8 +316,28 @@
                   this.loading = false
                   return
                 }
+                this.$store.commit('updatePersonInfos', userInfo)
+                // 初始化组织架构、联系、常用联系人列表
+                IndexedDB.getItem('orgnizeObj')
+                  .then(data => {
+                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+                  })
+                  .catch(() => {})
+                IndexedDB.getAll('contactslist')
+                  .then(data => {
+                    this.$store.commit('updateContactslist', {data, type: 'replace'})
+                  })
+                  .catch(() => {})
+                // IndexedDB.getAll('contactsToplist')
+                //   .then(data => {
+                //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
+                //   })
+                //   .catch(() => {})
+                Request.getContactUserList({tag: 0}, this).then(ret => {
+                  this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+                }).catch(() => {})
+                // 开启自动登录
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
-                  // 开启自动登录
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password),
@@ -347,8 +346,8 @@
                   this.isRember = true
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
+                // 记住密码
                 if (this.isRember) {
-                  // 记住密码
                   let accountInfo = {
                     id: ret.accid,
                     account: this.account,
