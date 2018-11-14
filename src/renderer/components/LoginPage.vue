@@ -52,14 +52,14 @@
           <div class="m-login-ctl">
             <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
             <a 
-              @click="autoLogin = !autoLogin" 
+              @click="autoLogin = !autoLogin, isRember = true" 
               @mouseover="showPrompt = true" 
               @mouseout="showPrompt = false"
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
             </a>
-            <a @click="isRember = !isRember">
-              <span :class="isRember ? 'common checked' : 'common check'"></span><span>记住密码</span>
+            <a @click="isRember = !isRember,autoLogin = autoLogin ? false : false">
+              <span :class="isRember ||  autoLogin ? 'common checked' : 'common check'"></span><span>记住密码</span>
             </a>
           </div>
 
@@ -166,9 +166,11 @@
           this.autoLogin = true
           this.account = USERINFO.account
           this.password = DES.decryptByDESModeEBC(USERINFO.password)
+          this.isRember = true
           this.login(1)
         } else {
           localStorage.removeItem('AUTOLOGIN')
+          this.isRember = false
         }
       } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
@@ -295,6 +297,7 @@
           // 自动登录情况且密码错误
           if (localStorage.AUTOLOGIN) {
             this.password = ''
+            this.isRember = false
             localStorage.removeItem('AUTOLOGIN')
           }
         })
@@ -341,6 +344,7 @@
                     password: DES.encryptByDES(this.password),
                     dateTime: new Date().getTime()
                   }
+                  this.isRember = true
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
                 if (this.isRember) {

@@ -15,6 +15,7 @@ export function onPushEvents (param) {
       })
     })
     store.commit('updateSessions', [])
+    store.commit('updateContactsToplist', {type: 'status'})
   }
 }
 

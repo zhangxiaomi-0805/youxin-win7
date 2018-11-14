@@ -29,11 +29,22 @@
     >
       <div class="u-list-item-container" :class="contacts.localCustom && contacts.localCustom.topTime ? 'contacts-box-item-isTop' : ''">
         <div style="display: flex; align-items: center; width:100%;">
-          <img class="icon" :src="contacts.avatar || defaultUserIcon"/>
+          <div 
+            class="icon"
+            style="position: relative;"
+          >
+            <img
+              :src="contacts.avatar"
+              style="width: 100%;height: 100%;border-radius: 50%;"
+            />
+            <div
+              v-if="contacts.status !== 0 && contacts.status !== 1"
+              class="u-status-cover"
+            />
+          </div>
           <div class="multi-content">
             <div class="title" style="width: 95%;">{{contacts.name}}</div>
             <div class="content">
-              <span>{{contacts.userStatus===1 ? '[离线]' : '[在线]'}}</span>
               <span>{{contacts.signature ? contacts.signature : ''}}</span>
             </div>
           </div>
@@ -225,6 +236,16 @@ export default {
   justify-content: center;
   width: 100%;
   height: 56px;
+}
+.u-status-cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
 }
 .u-search .u-cont {
   position: relative;
