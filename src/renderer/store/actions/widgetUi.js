@@ -1,4 +1,4 @@
-// import pageUtil from '../../utils/page'
+import util from '../../utils'
 import store from '../'
 
 // 显示加载中进度条
@@ -245,7 +245,7 @@ export async function showListOptions ({state, commit}, obj) {
     for (let i = 0; i < state.teamlist.length; i++) {
       const item = state.teamlist[i]
       if (item.teamId === obj.id.split('-')[1]) {
-        isDiscussGroup = item.custom && JSON.parse(item.custom).isDiscussGroup
+        isDiscussGroup = util.isDiscussGroup(item)
         valid = item.valid
         break
       }

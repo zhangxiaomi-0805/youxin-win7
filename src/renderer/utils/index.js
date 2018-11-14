@@ -248,7 +248,7 @@ Utils.generateTeamSysmMsg = function (data) {
     for (let i in store.state.teamlist) {
       let team = store.state.teamlist[i]
       if (team.teamId === data.to) {
-        if (team.custom && JSON.parse(team.custom).isDiscussGroup) {
+        if (Utils.isDiscussGroup(team)) {
           task = '讨论组'
         }
         break
@@ -406,6 +406,33 @@ Utils.uuid = () => {
 Utils.regExp = {
   regPhone: /^1[3456789]\d{9}$/,
   regEmail: /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/
+}
+
+// 是否是讨论组
+Utils.isDiscussGroup = (team) => {
+  if (team.custom) {
+    if (Utils.isJSON(team.custom)) {
+      if (JSON.parse(team.custom).isDiscussGroup) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
+Utils.isJSON = (str) => {
+  if (typeof str === 'string') {
+    try {
+      var obj = JSON.parse(str)
+      if (typeof obj === 'object' && obj) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      return false
+    }
+  }
 }
 
 export default Utils

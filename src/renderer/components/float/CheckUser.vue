@@ -4,7 +4,7 @@
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
     <div class="m-modify">
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
-      <div class="nick" :title="userInfos.nick">{{userInfos.nick || userInfos.name}}</div>
+      <div class="nick" :title="userInfos.nick || userInfos.name">{{userInfos.nick || userInfos.name}}</div>
     </div>
     <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.name ? '#333' : '#999'}" :title="userInfos.name">{{userInfos.name || '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>

@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import util from '../../utils'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
 export default {
@@ -77,13 +78,13 @@ export default {
   computed: {
     teamlist () {
       let teamlist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && !(item.custom && JSON.parse(item.custom).isDiscussGroup)
+        return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
       })
       return teamlist
     },
     grouplist () {
       let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && (item.custom && JSON.parse(item.custom).isDiscussGroup)
+        return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
       })
       return grouplist
     },

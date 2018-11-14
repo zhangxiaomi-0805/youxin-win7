@@ -138,6 +138,13 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
       if (store.state.currSessionId) {
         dispatch('setCurrSession', store.state.currSessionId)
       }
+    },
+    shouldIgnoreNotification: function onShouldIgnoreNotification (msg) {
+      // 是否要忽略某条通知类消息
+      if (msg.attach.type === 'updateTeam') {
+        let team = msg.attach.team
+        if (team.custom) return true
+      }
     }
   })
 }

@@ -101,7 +101,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
       }
     }).catch(() => {
       this.last_url = null
-      if (localStorage.sessionToken) {
+      if ($this) {
         $this.$store.commit('toastConfig', {
           show: true,
           type: 'fail',

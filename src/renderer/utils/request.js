@@ -11,7 +11,7 @@ function LoginAuth (params, $this) {
    * @param password  新密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/login/auth', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/login/auth', params).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -34,7 +34,7 @@ function ResetPassword (params, $this) {
    * @param confirmPassword: 要设置的确认密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/resetPassword', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/resetPassword', params).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -180,6 +180,17 @@ function DelTeam (params, $this) {
   })
 }
 
+function GenerateQrCode (params, $this) {
+  /**
+   * 生成二维码
+   * @param qrType  二维码类型（1群二维码，）
+   * @param teamId  群组Id，当qrType=1时为必须参数
+   */
+  return new Promise((resolve, reject) => {
+    Fetch.post('api/im/generateQrCode', params).then(res => resolve(res)).catch((err) => reject(err))
+  })
+}
+
 export default {
   LoginAuth,
   GetUserInfo,
@@ -196,5 +207,6 @@ export default {
   AddOrDelContactUser,
   GetThirdList,
   PullDepartment,
-  DelTeam
+  DelTeam,
+  GenerateQrCode
 }

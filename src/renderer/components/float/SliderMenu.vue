@@ -3,9 +3,9 @@
 <div id="sliderMenu" :class="className" v-clickoutside="closeMenu">
   <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
     <h4>{{scene === 'p2p' ? '聊天设置' : isDiscussGroup ? '讨论组设置' : '群设置'}}</h4>
-    <div style="width: 24px; height: 24px" v-if="scene !== 'p2p' && !isDiscussGroup">
-      <img src="../../../../static/img/setting/er-wei-ma.png" alt="" style="width: 100%">
-    </div>
+    <a style="width: 24px; height: 24px" v-if="scene !== 'p2p' && !isDiscussGroup" @click="eventBus.$emit('teamCode', {teamId, event: $event})">
+      <img :src="teamCode" alt="" style="width: 100%">
+    </a>
   </div> 
 
   <div v-if='scene === "p2p"'>
@@ -123,6 +123,7 @@ export default {
   data () {
     return {
       settingIcon: './static/img/nav/icon-plus.png',
+      teamCode: './static/img/setting/er-wei-ma.png',
       teamNick: '',
       teamNickCopy: '',
       myNick: '',

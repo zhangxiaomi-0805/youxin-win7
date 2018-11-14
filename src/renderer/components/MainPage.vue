@@ -26,6 +26,7 @@
             <logout/>
             <setting-name/>
             <down-line/>
+            <team-code/>
         </div>
     </div>
 </template>
@@ -52,12 +53,13 @@
   import SettingName from './float/SettingName.vue'
   import Logout from './float/Logout.vue'
   import DownLine from './float/DownLine.vue'
+  import TeamCode from './float/TeamCode.vue'
   import Resize from '../utils/resize.js'
   const electron = require('electron')
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'main-page',
-    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine},
+    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})

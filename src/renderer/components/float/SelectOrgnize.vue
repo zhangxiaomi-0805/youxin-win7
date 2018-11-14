@@ -58,6 +58,7 @@ import drag from '../../utils/drag.js'
 import Tree from '../tree/Tree.vue'
 import SearchContact from '../search/SearchContact'
 import configs from '../../configs/index.js'
+import Request from '../../utils/request.js'
 export default {
   name: 'select-orgnize',
   components: {Tree, SearchContact},
@@ -174,6 +175,7 @@ export default {
         inviteMode: 'manager',
         done: (error, obj) => {
           if (!error) {
+            this.generateQrCode(obj.team.teamId)
             this.showSelectOrgnize = false
             this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
             this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
@@ -315,6 +317,19 @@ export default {
         if (className.indexOf('searchevent') > -1) return
       }
       this.searchValue = ''
+    },
+    generateQrCode (teamId) {
+      // 获取群二维码
+      Request.GenerateQrCode({qrType: 1, teamId}).then(res => {
+        if (res) {
+          this.$store.dispatch('updateTeam', {
+            teamInfo: {
+              teamId,
+              custom: JSON.stringify({ teamQrUrl: res.url })
+            }
+          })
+        }
+      }).catch(() => {})
     }
   }
 }

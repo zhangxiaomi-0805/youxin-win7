@@ -41,6 +41,7 @@
 
 <script>
 import Request from '../../utils/request.js'
+import util from '../../utils'
 import SearchMember from '../search/SearchMember'
 import clickoutside from '../../utils/clickoutside.js'
 export default {
@@ -48,7 +49,6 @@ export default {
   directives: {clickoutside},
   components: {SearchMember},
   props: {
-    isDiscussGroup: Boolean,
     scene: String,
     to: String,
     teamId: String,
@@ -84,6 +84,9 @@ export default {
         return true
       }
       return false
+    },
+    isDiscussGroup () {
+      return util.isDiscussGroup(this.teamInfo)
     },
     acNoticeId () {
       return this.$store.state.noticeAc

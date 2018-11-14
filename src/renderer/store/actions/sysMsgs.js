@@ -31,6 +31,9 @@ export function onSysMsg (sysMsg) {
       break
     case 'teamInvite': // 被邀请入群
     case 'applyTeam': // 申请入群
+      console.log('申请入群=====================')
+      console.log(sysMsg)
+      break
     case 'rejectTeamApply': // 申请入群被拒绝
     case 'rejectTeamInvite': // 拒绝入群邀请
       store.commit('updateSysMsgs', [sysMsg])
