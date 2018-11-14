@@ -19,9 +19,20 @@
       <div class="u-editor-body" @mouseup="showPaste" contenteditable="false">
         <div class="u-editor-paste-btn" v-if="showPasteBtn" :style="{left: pasteLeft + 'px', top: pasteTop + 'px'}" @click="onPaste($event, 'click')" >粘贴</div>
         <!-- <input type="text" class="u-editor-at" :style="{left: inputPos.left + 'px', top: inputPos.top + 'px'}" v-model="inAtText" ref="atInput" @input="changeAtText($event)" /> -->
-        <div @selectstart="preventDefault($event)" contenteditable="true" @keydown="inputMsg($event)" @input="changeMsg($event)" ref="editDiv" class="edit-div" @paste="onPaste($event)" @click="changeEditRange($event)" @keyup="changeEditRange">
-        </div>
-        <div ref="editDivInner" style="display: none;"></div>
+        <div
+          @selectstart="preventDefault($event)"
+          contenteditable="true"
+          @keydown="inputMsg($event)"
+          @input="changeMsg($event)"
+          ref="editDiv"
+          class="edit-div"
+          @paste="onPaste($event)"
+          @click="changeEditRange($event)"
+          @keyup="changeEditRange"
+          @drop="onDragFile($event, 'drop')"
+          @dragenter="onDragFile($event, 'dragenter')"
+          @dragover="onDragFile($event, 'dragover')"
+        />
       </div>
     </div>
     <div class="u-editor-icons">
@@ -40,7 +51,7 @@
             <img :src="icon2"/>
           </i> -->
           <a class="b-common b-image" style="cursor: pointer;"> 
-          </a>  
+          </a>
         </div>
         <!-- 文件 -->
         <div v-if="!isRobot" class="u-editor-icon" @click="createInput" >
@@ -226,6 +237,16 @@ export default {
     }
   },
   methods: {
+    // 图片拖拽上传
+    async onDragFile (e, key) {
+      e.stopPropagation()
+      e.preventDefault()
+      if (key === 'drop') {
+        const file = e.dataTransfer.files[0]
+        const newFile = await this.getFile(file.path)
+        this.sendImgMsg(newFile)
+      }
+    },
     closeQuickSet (el, e) {
       let className = e.target.className
       if (className.indexOf('noevent') > -1) return
