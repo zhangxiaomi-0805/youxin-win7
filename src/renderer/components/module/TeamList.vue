@@ -14,7 +14,16 @@
       <a :class="listType === 'group' ? 't-title-item t-title-group active' : 't-title-item t-title-group'" @click="toggleList('group')">讨论组</a>
     </div>
   </div>
-  <div class="contact-con">
+  <ul class="u-list t-u-list apply-team" v-if="listType === 'team' && sysMsgUnread > 0" style="position: relative;">
+    <li class="t-u-list-item t-center">
+      <div class="t-list-item-left t-center">
+        <img :src="defaultGroupIcon"/>
+        <span class="teamname">群聊验证消息</span>
+      </div>
+      <span class="u-unread">{{sysMsgUnread}}</span>
+    </li>
+  </ul>
+  <div class="contact-con" :style="{top: listType === 'team' && sysMsgUnread > 0 ? '188px' : '120px'}">
     <ul class="u-list t-u-list" v-show="teamlist.length > 0 && listType === 'team'">
       <li
         :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
@@ -26,7 +35,7 @@
         @mouseup.stop="onShowMenu($event, team)"
       >
         <div class="t-list-item-left t-center">
-          <img :src="team.avatar || defaultIcon"/>
+          <img :src="team.avatar || defaultGroupIcon"/>
           <span class="teamname" :title="team.name">{{team.name}}</span>
         </div>
         <span class="t-num">{{team.memberNum}}</span>
@@ -43,7 +52,7 @@
         @mouseup.stop="onShowMenu($event, group, 'group')"
       >
         <div class="t-list-item-left t-center">
-          <img :src="group.avatar || defaultIcon"/>
+          <img :src="group.avatar || defaultDiscussGroupIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
         </div>
         <span class="t-num">{{group.memberNum}}</span>
@@ -58,6 +67,7 @@
 import util from '../../utils'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
+import configs from '../../configs'
 export default {
   name: 'team-list',
   directives: {clickoutside},
@@ -72,7 +82,9 @@ export default {
       activeId: '',
       listType: 'team',
       myNick: '',
-      myNickCopy: ''
+      myNickCopy: '',
+      defaultGroupIcon: configs.defaultGroupIcon,
+      defaultDiscussGroupIcon: configs.defaultDiscussGroupIcon
     }
   },
   computed: {
@@ -87,6 +99,10 @@ export default {
         return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
       })
       return grouplist
+    },
+    sysMsgUnread () {
+      let temp = this.$store.state.sysMsgUnread
+      return temp.applyTeam
     },
     hasBorder () {
       if (this.$store.state.showListOptions) {
@@ -243,9 +259,14 @@ export default {
   }
 
   .t-u-list-item .teamname {
+    display: inline-block;
+    width: 75%;
     font-size: 14px;
     padding-left: 11px;
     color: rgba(51,51,51,1);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 
   .t-u-list-item .t-num {
@@ -295,5 +316,10 @@ export default {
   .t-title-con .t-title-group {
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
+  }
+
+  .apply-team .teamname {
+    font-size: 15px;
+    color:rgba(51,51,51,1);
   }
 </style>

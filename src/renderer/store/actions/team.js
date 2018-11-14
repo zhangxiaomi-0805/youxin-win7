@@ -1,6 +1,7 @@
 import store from '../'
 import tools from '../../utils/tool'
 import config from '../../configs'
+import Utils from '../../utils'
 
 // 收到群列表及更新群列表接口
 export async function onTeams (teams) {
@@ -23,7 +24,11 @@ export async function onTeams (teams) {
     if (team.avatar && team.avatar.indexOf('nim.nosdn.127') > 0 && team.avatar.indexOf('?imageView') === -1) {
       team.avatar = team.avatar + '?imageView&thumbnail=300y300'
     } else if (!tools.isUrlValid(team.avatar)) {
-      team.avatar = config.defaultGroupIcon
+      if (Utils.isDiscussGroup(team)) {
+        team.avatar = config.defaultDiscussGroupIcon
+      } else {
+        team.avatar = config.defaultGroupIcon
+      }
     }
     if (team.teamId) {
       try {
