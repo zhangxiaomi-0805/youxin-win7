@@ -3,13 +3,17 @@
   <div class="u-nav-avatar" :style="{marginTop}">
     <img @click="getUserInfo($event)" :src="myInfo.avatar || defaultUserIcon"/>
   </div>
-  <!-- <div class="u-nav-status"><span>在线</span><i></i></div> -->
+  <div class="u-nav-status">
+    <!-- <span>在线</span><i></i> -->
+  </div>
   <!-- 单聊 -->
   <div @click="navTo('session')" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'"></div>
   <!-- 常用联系人 -->
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'nav-item u-nav-friends z-sel' : 'u-nav-friends'"></div>
   <!-- 群&讨论组 -->
-  <div @click="navTo('team')" :class="selectedItem === 'team' ? 'nav-item u-nav-work z-sel' : 'u-nav-work'"></div>
+  <div @click="navTo('team')" :class="selectedItem === 'team' ? 'nav-item u-nav-work z-sel' : 'u-nav-work'">
+    <div class="u-unread" v-if="sysMsgUnread">{{sysMsgUnread}}</div>
+  </div>
   <!-- 组织架构 -->
   <div @click="navTo('orgnize')" :class="selectedItem === 'orgnize' ? 'nav-item u-nav-jiagou z-sel' : 'u-nav-jiagou'"></div>
   <!-- 第三方应用 -->
@@ -91,6 +95,10 @@ export default {
         return item.valid && item.validToCurrentUser
       })
       return teamlist
+    },
+    sysMsgUnread () {
+      let temp = this.$store.state.sysMsgUnread
+      return temp.applyTeam
     }
   }
 }
@@ -153,6 +161,8 @@ export default {
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-qun-normal.png) no-repeat center center;
     background-size: 22px 22px;
+    box-sizing: border-box;
+    padding: 0 12px;
     margin-top: 5px;
   }
   .u-nav-work.z-sel{

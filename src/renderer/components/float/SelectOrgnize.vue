@@ -170,7 +170,7 @@ export default {
         type: 'advanced',
         name,
         accounts: accounts,
-        joinMode: 'noVerify',
+        joinMode: 'needVerify',
         beInviteMode: 'noVerify',
         inviteMode: 'manager',
         done: (error, obj) => {
@@ -208,6 +208,7 @@ export default {
       if (this.type === 4) {
         options.custom = JSON.stringify({isDiscussGroup: true})
         options.updateTeamMode = 'all'
+        options.joinMode = 'noVerify'
       }
       this.$store.dispatch('delegateTeamFunction', {
         functionName: 'createTeam', options

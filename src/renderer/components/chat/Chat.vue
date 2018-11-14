@@ -9,13 +9,14 @@
     </div>
   </div>
   <div style="display: none;">{{teamInfo}}</div>
+  <div style="display: none;">{{applyTeamPer}}</div>
   <div class="m-body-contain" :style="{right: scene === 'team' ? '152px' : 0}">
     <div class="g-hbf-body m-body" id="resize-chat-tp" style="bottom:150px;">
       <div class="u-position-btn" v-if="showPositionBtn" @click="scrollToUnread(unreadCount, 'click')">
         <div><span>{{unreadCount}}条新消息</span><span v-if="atCount">，{{atCount}}条@消息</span></div><i></i>
       </div>
-      <a v-if="scene === 'team' && false" class="u-sysmsg-tip">
-        <span>有人申请加入群聊</span><span class="confirm">去确认</span><span class="close">X</span>
+      <a v-if="scene === 'team' && showInvitMsgTip" class="u-sysmsg-tip">
+        <span class="nowap">{{`“${applyTeamPer}”申请加入群聊`}}</span><span class="confirm" @click="confirmApplyTeamMsg">去确认</span><span class="close" @click="showInvitMsgTip = false">X</span>
       </a>
       <chat-list
         type="session"
@@ -122,6 +123,7 @@ export default {
     return {
       showNewMsgTip: false,
       showPositionBtn: false,
+      showInvitMsgTip: false,
       unreadCount: 0,
       atCount: 0,
       logo: './static/img/no-msg.png'
@@ -152,6 +154,11 @@ export default {
     },
     teamId () {
       return this.sessionId.replace('team-', '')
+    },
+    teamMembers () {
+      let teamMembers = this.$store.state.teamMembers
+      let members = teamMembers && teamMembers[this.teamId]
+      return members
     },
     sessionName () {
       let sessionId = this.sessionId
@@ -291,6 +298,35 @@ export default {
         return item.valid && item.validToCurrentUser
       })
       return teamlist
+    },
+    power () {
+      let type = 'normal'
+      if (this.teamMembers) {
+        for (let i = 0; i < this.teamMembers.length; i++) {
+          if (this.teamMembers[i].account === this.myInfo.account) {
+            type = this.teamMembers[i].type
+            break
+          }
+        }
+      }
+      return type
+    },
+    applyTeamPer () {
+      if (this.power !== 'normal') {
+        let sysMsgs = this.$store.state.sysMsgs
+        let accid = ''
+        for (let i in sysMsgs) {
+          if (sysMsgs[i].type === 'applyTeam' && (sysMsgs[i].to === this.teamId)) {
+            accid = sysMsgs[i].from
+          }
+        }
+        if (accid) {
+          this.showInvitMsgTip = true
+          return this.$store.state.userInfos[accid].nick
+        }
+      }
+      this.showInvitMsgTip = false
+      return '有好友'
     }
   },
   watch: {
@@ -464,6 +500,11 @@ export default {
         return `你已被${this.nicks}移出本群`
       }
       return ''
+    },
+    confirmApplyTeamMsg () {
+      this.showInvitMsgTip = false
+      this.eventBus.$emit('updateNavBar', {navTo: 'team'})
+      this.$router.push({name: 'team'})
     }
   }
 }
@@ -556,11 +597,13 @@ export default {
   position: absolute;
   top: 0;
   left: 2px;
+  box-sizing: border-box;
   width: 100%;
   height: 40px;
+  padding: 0 40px;
   background: #fff;
   box-shadow:0px 5px 11px 0px rgba(0,0,0,0.05);
-  z-index: 100;
+  z-index: 30;
   font-size:13px;
   color:rgba(153,153,153,1);
 }
@@ -572,6 +615,13 @@ export default {
   position: absolute;
   right: 12px;
   top: 10px;
+}
+.u-sysmsg-tip .nowap {
+  display: inline-block;
+  max-width: 85%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 .invalidHint {

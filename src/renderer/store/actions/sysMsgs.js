@@ -31,8 +31,7 @@ export function onSysMsg (sysMsg) {
       break
     case 'teamInvite': // 被邀请入群
     case 'applyTeam': // 申请入群
-      console.log('申请入群=====================')
-      console.log(sysMsg)
+      store.commit('updateSysMsgs', [sysMsg])
       break
     case 'rejectTeamApply': // 申请入群被拒绝
     case 'rejectTeamInvite': // 拒绝入群邀请
@@ -47,7 +46,6 @@ export function onSysMsgUnread (obj) {
 }
 
 export function onCustomSysMsgs (customSysMsgs) {
-  console.log(customSysMsgs)
   if (!Array.isArray(customSysMsgs)) {
     customSysMsgs = [customSysMsgs]
   }
