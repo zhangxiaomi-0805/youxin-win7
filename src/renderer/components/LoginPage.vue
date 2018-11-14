@@ -43,7 +43,7 @@
               type="password" 
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;"
-              maxlength="20"
+              maxlength="32"
               v-model="password"
               placeholder="请输入密码"
               @keyup="keyToNext($event, 1)"/>
@@ -155,7 +155,6 @@
     mounted () {
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
-        console.log(this.rememberAccount)
       }
       if (localStorage.AUTOLOGIN) {
         // 已开启自动登录(30天内)
@@ -175,7 +174,9 @@
       } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
         let loginInfo = JSON.parse(localStorage.LOGININFO)
+        console.log(loginInfo)
         this.account = loginInfo.account
+        this.isRember = loginInfo.isRember
         if (loginInfo.isRember) {
           this.password = DES.decryptByDESModeEBC(loginInfo.password)
         }
@@ -214,6 +215,18 @@
       deleteAccount (index) {
         this.rememberAccount.map((obj, i) => {
           if (index === i) {
+            if (obj.account === this.account) {
+              this.account = ''
+              this.password = ''
+              this.isRember = false
+              this.autoLogin = false
+              this.showModal = false
+            }
+            let currentAccount = localStorage.CurrentAccount ? localStorage.CurrentAccount : ''
+            if (currentAccount && obj.account === currentAccount.account) {
+              localStorage.removeItem('CurrentAccount')
+              this.showModal = false
+            }
             this.rememberAccount.splice(index, 1)
           }
         })
@@ -221,8 +234,9 @@
       selectAccount (item) {
         this.account = item.account
         this.password = DES.decryptByDESModeEBC(item.password)
-        this.isRember = true
+        this.isRember = item.isRember
         this.showModal = false
+        this.autoLogin = item.autoLogin
       },
       setNewPwd () {
         // 设置新密码
@@ -261,6 +275,9 @@
         })
       },
       login (type) {
+        if (this.errMsg) {
+          this.errMsg = ''
+        }
         if (!(this.account && this.password)) return
         /**
          * type===1,直接密码登录，type===2,首次登录密码激活后登录
@@ -271,7 +288,7 @@
         if (this.account.length < 2) {
           errMsg = '用户或账号密码错误，登录失败'
         }
-        if (this.password.length < 8) {
+        if (this.password.length < 4) {
           errMsg = '用户或账号密码错误，登录失败'
         }
         this.errMsg = errMsg
@@ -293,13 +310,13 @@
           }
         }).catch(err => {
           this.loading = false
-          if (err) this.errMsg = '用户或账号密码错误，登录失败'
+          if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
-          if (localStorage.AUTOLOGIN) {
-            this.password = ''
-            this.isRember = false
-            localStorage.removeItem('AUTOLOGIN')
-          }
+          // if (localStorage.AUTOLOGIN) {
+          //   this.password = ''
+          //   this.isRember = false
+          //   localStorage.removeItem('AUTOLOGIN')
+          // }
         })
       },
       loginPC (userInfo) {
@@ -353,7 +370,8 @@
                     id: ret.accid,
                     account: this.account,
                     password: DES.encryptByDES(this.password),
-                    isRember: true
+                    isRember: true,
+                    autoLogin: this.autoLogin
                   }
                   if (this.rememberAccount && this.rememberAccount.length >= 5) { // 最多保留5条最新的记住密码的用户
                     this.rememberAccount.pop()
@@ -366,10 +384,12 @@
                   this.rememberAccount.unshift(accountInfo)
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
+
                 this.$store.commit('updateLoginInfo', {
                   account: this.account,
                   password: DES.encryptByDES(this.password),
-                  isRember: this.isRember
+                  isRember: this.isRember,
+                  autoLogin: this.autoLogin
                 })
                 ipcRenderer.send('onReset')
                 location.href = config.homeUrl
@@ -377,6 +397,7 @@
             })
           } else this.loading = false
         }).catch((err) => {
+          console.log(err)
           this.loading = false
           if (err) this.errMsg = err.msg
         })
