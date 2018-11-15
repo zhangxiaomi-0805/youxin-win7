@@ -200,11 +200,7 @@ export default {
                   })
                   break
                 case 1:
-                  console.log('邀请成员')
-                  break
-                case 9:
-                  // 退出群
-                  console.log('退出群')
+                  this.eventBus.$emit('selectOrgnize', {type: 3, teamId: info.teamId})
                   break
                 case 8:
                   // 取消免打扰
@@ -218,13 +214,6 @@ export default {
                   this.eventBus.$emit('dismissTeam', {
                     type: 3,
                     callBack: () => {
-                      // let deleteSeeionFn = () => {
-                      //   let sessionIdArr = this.$store.state.sessionlist.map(item => {
-                      //     return item.id
-                      //   })
-                      //   let currSessionId = info.teamId
-                      //   this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
-                      // }
                       let leaveTeamFn = () => {
                         this.$store.dispatch('leaveTeam', {
                           teamId: info.teamId,
@@ -241,7 +230,6 @@ export default {
                             type: 'success',
                             toastText: '已退出' + teamName
                           })
-                          // deleteSeeionFn()
                         }).catch(() => {
                           this.$store.commit('toastConfig', {
                             show: true,
@@ -292,7 +280,7 @@ export default {
                   })
                   break
                 case 1:
-                  console.log('邀请成员')
+                  this.eventBus.$emit('selectOrgnize', {type: 3, teamId: info.teamId})
                   break
                 case 9:
                   // 退出群

@@ -50,6 +50,21 @@ function getTeamMembers (id) {
     })
   })
 }
+
+function getTeams () {
+  return new Promise((resolve, reject) => {
+    store.state.nim.getTeams({
+      done: (err, teams) => {
+        if (!err) {
+          resolve(teams)
+        } else {
+          reject(err)
+        }
+      }
+    })
+  })
+}
+
 export async function showListOptions ({state, commit}, obj) {
   let items = []
   // 右键出现蓝框位置
@@ -207,7 +222,7 @@ export async function showListOptions ({state, commit}, obj) {
   }
   let event34 = {
     title: '邀请群成员',
-    callBack: () => {}
+    callBack: () => obj.callBack(1)
   }
   let event35 = {
     title: '退出讨论组',
@@ -245,6 +260,10 @@ export async function showListOptions ({state, commit}, obj) {
   }
   // 消息列表 群会话
   if (obj.key === 'team-notTop' || obj.key === 'team-isTop') {
+    const teams = await getTeams()
+    const hasTeam = teams.find(item => {
+      return item.teamId === obj.id.split('-')[1]
+    })
     let valid = true
     let isDiscussGroup = false
     let muteNotiType = -1
@@ -257,7 +276,7 @@ export async function showListOptions ({state, commit}, obj) {
         break
       }
     }
-    if (!valid) {
+    if (!valid || !hasTeam) {
       if (obj.key === 'team-notTop') {
         items = [
           event7, event8
