@@ -14,8 +14,9 @@
       <a :class="listType === 'group' ? 't-title-item t-title-group active' : 't-title-item t-title-group'" @click="toggleList('group')">讨论组</a>
     </div>
   </div>
-  <ul class="u-list t-u-list apply-team" v-if="listType === 'team' && sysMsgUnread > 0" style="position: relative;">
-    <li 
+  <ul class="u-list t-u-list apply-team" v-if="listType === 'team' && sysMsgs.length > 0" style="position: relative;">
+    <li
+      ref="sysmsgs"
       :class='activeId === 1 ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
       @click="checkApplyTeamMsg"
     >
@@ -23,10 +24,10 @@
         <img :src="sysmsg"/>
         <span class="teamname">群聊验证消息</span>
       </div>
-      <span class="u-unread">{{sysMsgUnread}}</span>
+      <span v-if="sysMsgUnread > 0" class="u-unread">{{sysMsgUnread}}</span>
     </li>
   </ul>
-  <div class="contact-con" :style="{top: listType === 'team' && sysMsgUnread > 0 ? '188px' : '120px'}">
+  <div class="contact-con" :style="{top: listType === 'team' && sysMsgs.length > 0 ? '188px' : '120px'}">
     <ul class="u-list t-u-list" v-show="teamlist.length > 0 && listType === 'team'">
       <li
         :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
@@ -77,6 +78,7 @@ export default {
   directives: {clickoutside},
   components: {Search},
   props: {
+    isApplyTeam: Boolean,
     callBack: Function
   },
   data () {
@@ -109,6 +111,12 @@ export default {
       let temp = this.$store.state.sysMsgUnread
       return temp.applyTeam
     },
+    sysMsgs () {
+      let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
+        return msg.type === 'applyTeam'
+      })
+      return sysMsgs
+    },
     hasBorder () {
       if (this.$store.state.showListOptions) {
         return true
@@ -132,6 +140,11 @@ export default {
       }
       return nickInTeam
     }
+  },
+  mounted () {
+    this.$nextTick(() => {
+      setTimeout(() => this.isApplyTeam && this.$refs.sysmsgs.click(), 100)
+    })
   },
   methods: {
     checkCard (group) {

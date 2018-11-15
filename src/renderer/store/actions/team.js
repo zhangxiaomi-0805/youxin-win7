@@ -75,7 +75,7 @@ function notifyForNewTeamMsg (nim, teamId) {
 
 // 收到群成员及更新群成员接口
 export function onTeamMembers (obj) {
-  store.commit('updateTeamMembers', obj)
+  obj.teamId && store.commit('updateTeamMembers', obj)
 }
 
 export function onCreateTeam (team, owner) {

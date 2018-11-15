@@ -410,6 +410,7 @@ Utils.regExp = {
 
 // 是否是讨论组
 Utils.isDiscussGroup = (team) => {
+  team = team || {}
   if (team.custom) {
     if (Utils.isJSON(team.custom)) {
       if (JSON.parse(team.custom).isDiscussGroup) {

@@ -133,11 +133,12 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
     onpushevents: onPushEvents,
     // // 同步完成
     onsyncdone: function onSyncDone () {
-      dispatch('hideLoading')
       // 说明在聊天列表页
       if (store.state.currSessionId) {
         dispatch('setCurrSession', store.state.currSessionId)
       }
+      // 同步本地系统通知
+      dispatch('getLocalSysMsgs', {})
     },
     shouldIgnoreNotification: function onShouldIgnoreNotification (msg) {
       // 是否要忽略某条通知类消息

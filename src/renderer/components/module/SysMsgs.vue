@@ -1,41 +1,24 @@
 <template>
 <div class="g-hbf-container m-sysmsg bg" style="top: 31px;">
-  <div class="m-body">
-    <ul class="u-list">
-      <li class="u-list-item" v-for="msg in msgList" :key="msg.idServer">
-        <div class="u-list-item-container" style="width:25rem;" :key="msg.idServer" v-if="msg.type ==='applyTeam' || msg.type ==='teamInvite'" @contextmenu="showMenu" :id="msg.idServer">
-          <img class="icon" :src="msg.avatar"/>
-          <div class="multi-content" style="width:18rem;">
-            <div class="title">{{msg.from}}</div>
-            <div class="content">{{msg.desc}}</div>
-          </div>
-          <div style="margin-left:0.6rem;display:list-item;width:7rem">
-            <div style="color:#ccc;overflow:hidden;white-space:nowrap;font-size:0.8rem;">{{msg.showTime}}</div> 
-            <div style="display: flex;align-items: center;" v-if='deleteIdServer !== msg.idServer'>
-              <div v-if='msg.state === "init"'>
-                <a @click="handleTeamApply(msg, true)" class="a-link">同意</a>
-                <a @click="handleTeamApply(msg, false)" class="a-link">拒绝</a>
-              </div>
-              <div style="color: #aaa;font-size: .9rem;" v-else>
-                {{msg.state === 'error'? '已过期' : msg.state === 'rejected' ? '已拒绝' : '已同意'}}
-              </div>
-            </div>
+  <ul class="u-list s-msg-list">
+    <li class="u-list-item s-msg-list-item" v-for="msg in msgList" :key="msg.idServer">
+      <div class="s-msg-list-item-container s-msg-center" :key="msg.idServer" v-if="msg.type ==='applyTeam' || msg.type ==='teamInvite'" @contextmenu="showMenu" :id="msg.idServer">
+        <div class="s-msg-center">
+          <img class="icon" style="marginRight: 10px;" :src="msg.avatar || defaultAvatar"/>
+          <div class="s-msg-content"><span style="color: rgba(4,154,255,1);">{{msg.nick || msg.from}}</span><span>申请加入</span><span style="color: rgba(4,154,255,1);">{{getTeamName(msg.to)}}</span></div>
+        </div>
+        <div class="s-msg-rt" v-if='deleteIdServer !== msg.idServer'>
+          <div class="s-msg-time">{{msg.showTime}}</div>
+          <a v-if='msg.state === "init"' class="s-msg-check" @click="checkUser($event, msg)">查看</a>
+          <div style="height:30px;lineHeight: 30px;" v-else>
+            <span v-if="msg.state === 'error'">已过期</span>
+            <span class="s-msg-rejected" v-else-if="msg.state === 'rejected'">已拒绝</span>
+            <span v-else>已同意</span>
           </div>
         </div>
-        <div class="u-list-item-container" style="width:25rem;" :key="msg.idServer" v-else>
-          <img class="icon" slot="icon" :src="msg.avatar"/>
-          <div class="multi-content" style="width:18rem;">
-            <div class="title">{{msg.showText}}</div>
-            <div class="content">{{msg.from}}</div>
-          </div>  
-          <div style="margin-left:0.6rem;display:list-item;">
-            <div style="color:#ccc;overflow:hidden;white-space:nowrap;font-size:0.8rem;">{{msg.showTime}}</div> 
-          </div>           
-        </div>
-      </li>      
-    </ul>
-    <div class='empty-hint bg' v-if='!msgList || msgList.length<1'>暂无任何消息</div>
-  </div>
+      </div>
+    </li>      
+  </ul>
 </div>
 </template>
 
@@ -70,32 +53,8 @@ export default {
       return this.$store.state.userInfos || {}
     },
     sysMsgs () {
-      console.log(this.$store.state.sysMsgs)
       let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
-        switch (msg.type) {
-          case 'applyTeam':
-            msg.showText = msg.from
-            msg.avatar = (this.userInfos[msg.from] && this.userInfos[msg.from].avatar) || this.defaultAvatar
-            msg.desc = `申请加入群:${this.getTeamName(msg.to)}`
-            return true
-          case 'teamInvite':
-            msg.showText = msg.attach.team.name
-            msg.avatar = (this.userInfos[msg.from] && this.userInfos[msg.from].avatar) || this.defaultAvatar
-            msg.desc = `邀请你加入群${msg.to}`
-            return true
-          case 'rejectTeamApply':
-            msg.showText = msg.attach.team.name
-            msg.desc = '管理员拒绝你加入本群'
-            msg.avatar = msg.attach.team.avatar || this.defaultAvatar
-            return true
-          case 'rejectTeamInvite':
-            let op = this.userInfos[msg.from]
-            msg.showText = op.nick
-            msg.avatar = op.avatar || this.defaultAvatar
-            msg.desc = `${op.nick}拒绝了群${this.getTeamName(msg.to)}的入群邀请`
-            return true
-        }
-        return false
+        return msg.type === 'applyTeam'
       })
       sysMsgs.sort((msg1, msg2) => {
         // 最新的排在前
@@ -173,6 +132,23 @@ export default {
           }
         }
       })
+    },
+    checkUser (event, msg) {
+      // 查看信息
+      this.eventBus.$emit('checkUser', {
+        event,
+        userInfos: {account: msg.from},
+        callBack: (type) => {
+          switch (type) {
+            case 1:
+              this.handleTeamApply(msg, true)
+              break
+            case 2:
+              this.handleTeamApply(msg, false)
+              break
+          }
+        }
+      })
     }
   }
 }
@@ -205,5 +181,77 @@ export default {
 
 .m-sysmsg .m-footer {
   height: 2rem;
+}
+
+.s-msg-list {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  padding: 25px 13px;
+}
+
+.s-msg-list .s-msg-list-item {
+  height:86px;
+  background:rgba(255,255,255,1);
+  border-radius:4px;
+  margin-bottom: 15px;
+  border:1px solid rgba(0, 0, 0, 0.1);
+}
+.s-msg-list-item-container {
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding-right: 15px;
+}
+
+.s-msg-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.s-msg-content {
+  width: 86%;
+  font-size:14px;
+  color:#333;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap
+}
+
+.s-msg-time {
+  font-size:12px;
+  color:rgb(175, 178, 177);
+  margin-bottom: 15px;
+}
+
+.s-msg-rt {
+  font-size:14px;
+  color:rgba(153,153,153,1);
+  text-align: right;
+}
+
+.s-msg-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width:60px;
+  height:30px;
+  background:rgba(4,154,255,1);
+  border-radius:4px;
+  font-size:14px;
+  color:rgba(255,255,255,1);
+  transition: all .2s linear;
+}
+
+.s-msg-check:hover {
+  background:rgba(1, 138, 230,1);
+}
+
+.s-msg-rejected {
+  color: rgba(253,47,47,1);
 }
 </style>

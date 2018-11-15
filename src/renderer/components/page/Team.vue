@@ -1,6 +1,6 @@
 <template>
 <div style="height:100%;">
-  <team-list :callBack="checkCard"/>
+  <team-list :callBack="checkCard" :isApplyTeam="isApplyTeam"/>
   <div class="m-main-content" id="resize-side-rt" style="margin-left:271px;">
     <system-caption/>
     <div class="c-default">
@@ -33,6 +33,11 @@ export default {
   mounted () {
     // 初始化窗口拖拽函数
     Resize.changeSideRange({max: 300, min: 250})
+  },
+  computed: {
+    isApplyTeam () {
+      return this.$route.query.isApplyTeam
+    }
   },
   methods: {
     checkCard (params) {
