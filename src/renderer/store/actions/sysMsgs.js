@@ -6,7 +6,7 @@ export function onSysMsgs (sysMsgs) {
   store.commit('updateSysMsgs', sysMsgs)
 }
 
-export function onSysMsg (sysMsg) {
+export async function onSysMsg (sysMsg) {
   switch (sysMsg.type) {
     // 在其他端添加或删除好友
     case 'addFriend':
@@ -31,6 +31,9 @@ export function onSysMsg (sysMsg) {
       break
     case 'teamInvite': // 被邀请入群
     case 'applyTeam': // 申请入群
+      try {
+        sysMsg = await manageSysMsg(sysMsg)
+      } catch (error) {}
       store.commit('updateSysMsgs', [sysMsg])
       break
     case 'rejectTeamApply': // 申请入群被拒绝
@@ -108,16 +111,9 @@ export function getLocalSysMsgs ({state}, obj) {
     done: function (_error, _obj) {
       if (!_error) {
         _obj.sysMsgs.forEach(async item => {
-          let userInfo = {}
-          if (state.userInfos[item.from]) {
-            userInfo = state.userInfos[item.from]
-          } else {
-            try {
-              userInfo = await getUserInfo(item.from)
-            } catch (error) {}
-          }
-          item.nick = userInfo.nick || ''
-          item.avatar = userInfo.avatar || ''
+          try {
+            item = await manageSysMsg(item)
+          } catch (error) {}
         })
         store.commit('updateSysMsgs', _obj.sysMsgs)
       }
@@ -127,6 +123,20 @@ export function getLocalSysMsgs ({state}, obj) {
     params.lastIdServer = obj.lastIdServer
   }
   nim.getLocalSysMsgs(params)
+}
+
+async function manageSysMsg (item) {
+  let userInfo = {}
+  if (store.state.userInfos[item.from]) {
+    userInfo = store.state.userInfos[item.from]
+  } else {
+    try {
+      userInfo = await getUserInfo(item.from)
+    } catch (error) {}
+  }
+  item.nick = userInfo.nick || ''
+  item.avatar = userInfo.avatar || ''
+  return item
 }
 
 function getUserInfo (account) {

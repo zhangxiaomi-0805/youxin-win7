@@ -203,7 +203,7 @@ export default {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: 0 15px;
+  padding-right: 15px;
 }
 
 .s-msg-center {

@@ -141,7 +141,9 @@ export default {
     }
   },
   mounted () {
-    this.isApplyTeam && this.$refs.sysmsgs.click()
+    this.$nextTick(() => {
+      setTimeout(() => this.isApplyTeam && this.$refs.sysmsgs.click(), 100)
+    })
   },
   methods: {
     checkCard (group) {
