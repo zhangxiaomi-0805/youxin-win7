@@ -309,6 +309,7 @@ export default {
         return item.id
       })
       let curSessionId = this.$router.history.current.query.sessionId
+      let teamInfo = {}
       if (e.button === 2) {
         let type = 'p2p-istop'
         if (session.scene === 'team') {
@@ -317,6 +318,9 @@ export default {
           } else {
             type = 'team-notTop'
           }
+          teamInfo = this.$store.state.teamlist.find(team => {
+            return team.teamId === session.to
+          })
         } else if (session.scene === 'p2p') {
           if (session.localCustom && session.localCustom.topTime) {
             type = 'p2p-isTop'
@@ -372,6 +376,21 @@ export default {
                 break
               case 7:
                 // 消息免打扰
+                this.$store.dispatch('updateInfoInTeam', {
+                  teamInfo: teamInfo,
+                  muteNotiType: 1
+                })
+                break
+              case 8:
+                // 取消免打扰
+                this.$store.dispatch('updateInfoInTeam', {
+                  teamInfo: teamInfo,
+                  muteNotiType: 0
+                })
+                break
+              case 9:
+                // 退出群
+                this.eventBus.$emit('dismissTeam', {teamId: session.to, type: 2, teamInfo: teamInfo})
                 break
             }
           }

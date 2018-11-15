@@ -339,14 +339,24 @@ export function updateTeam ({state}, params) {
 // 修改自己的群属性
 export function updateInfoInTeam ({state}, params) {
   let teamInfo = params.teamInfo
-  state.nim.updateInfoInTeam({
-    teamId: teamInfo.teamId,
-    nickInTeam: params.nickInTeam,
-    muteNotiType: params.muteNotiType || 0,
-    done: (error, obj) => {
-      error && console.log(error)
-    }
-  })
+  if (params.nickInTeam) {
+    state.nim.updateInfoInTeam({
+      teamId: teamInfo.teamId,
+      nickInTeam: params.nickInTeam,
+      muteNotiType: params.muteNotiType || 0,
+      done: (error, obj) => {
+        error && console.log(error)
+      }
+    })
+  } else {
+    state.nim.updateInfoInTeam({
+      teamId: teamInfo.teamId,
+      muteNotiType: params.muteNotiType || 0,
+      done: (error, obj) => {
+        error && console.log(error)
+      }
+    })
+  }
 }
 
 // 添加管理员

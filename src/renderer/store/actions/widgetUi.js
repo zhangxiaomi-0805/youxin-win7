@@ -205,7 +205,7 @@ export async function showListOptions ({state, commit}, obj) {
   let event33 = {
     title: '退出群',
     callBack: () => {
-      obj.callBack(2)
+      obj.callBack(9)
     }
   }
   let event34 = {
@@ -215,6 +215,12 @@ export async function showListOptions ({state, commit}, obj) {
   let event35 = {
     title: '退出讨论组',
     callBack: () => {}
+  }
+  let event36 = {
+    title: '取消免打扰',
+    callBack: () => {
+      obj.callBack(8)
+    }
   }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {
@@ -242,10 +248,12 @@ export async function showListOptions ({state, commit}, obj) {
   if (obj.key === 'team-notTop' || obj.key === 'team-isTop') {
     let valid = true
     let isDiscussGroup = false
+    let muteNotiType = -1
     for (let i = 0; i < state.teamlist.length; i++) {
       const item = state.teamlist[i]
       if (item.teamId === obj.id.split('-')[1]) {
         isDiscussGroup = util.isDiscussGroup(item)
+        muteNotiType = item.muteNotiType
         valid = item.valid
         break
       }
@@ -262,9 +270,27 @@ export async function showListOptions ({state, commit}, obj) {
         ]
       }
     } else if (isDiscussGroup) {
-      items = [
-        event21, event32, event35
-      ]
+      if (obj.key === 'team-notTop') {
+        if (muteNotiType === 1) {
+          items = [
+            event7, event36, event32, event8, event35
+          ]
+        } else {
+          items = [
+            event7, event21, event32, event8, event35
+          ]
+        }
+      } else {
+        if (muteNotiType === 1) {
+          items = [
+            event9, event36, event32, event8, event35
+          ]
+        } else {
+          items = [
+            event9, event21, event32, event8, event35
+          ]
+        }
+      }
     } else {
       const members = await getTeamMembers(obj.id.split('-')[1])
       let userType = ''
@@ -278,37 +304,73 @@ export async function showListOptions ({state, commit}, obj) {
       // 非置顶
       if (obj.key === 'team-notTop') {
         if (userType === 'normal') {
-          items = [
-            event7, event21, event8, event33
-          ]
+          if (muteNotiType === 1) {
+            items = [
+              event7, event36, event8, event33
+            ]
+          } else {
+            items = [
+              event7, event21, event8, event33
+            ]
+          }
         }
         if (userType === 'owner') {
-          items = [
-            event7, event21, event8, event17
-          ]
+          if (muteNotiType === 1) {
+            items = [
+              event7, event36, event8, event17
+            ]
+          } else {
+            items = [
+              event7, event21, event8, event17
+            ]
+          }
         }
         if (userType === 'manager') {
-          items = [
-            event7, event21, event8, event33, event17
-          ]
+          if (muteNotiType === 1) {
+            items = [
+              event7, event36, event8, event33, event17
+            ]
+          } else {
+            items = [
+              event7, event21, event8, event33, event17
+            ]
+          }
         }
       }
       // 置顶
       if (obj.key === 'team-isTop') {
         if (userType === 'normal') {
-          items = [
-            event9, event21, event8, event33
-          ]
+          if (muteNotiType === 1) {
+            items = [
+              event9, event36, event8, event33
+            ]
+          } else {
+            items = [
+              event9, event21, event8, event33
+            ]
+          }
         }
         if (userType === 'owner') {
-          items = [
-            event9, event21, event8, event17
-          ]
+          if (muteNotiType === 1) {
+            items = [
+              event9, event36, event8, event17
+            ]
+          } else {
+            items = [
+              event9, event21, event8, event17
+            ]
+          }
         }
         if (userType === 'manager') {
-          items = [
-            event9, event21, event8, event33, event17
-          ]
+          if (muteNotiType === 1) {
+            items = [
+              event9, event36, event8, event33, event17
+            ]
+          } else {
+            items = [
+              event9, event21, event8, event33, event17
+            ]
+          }
         }
       }
     }
