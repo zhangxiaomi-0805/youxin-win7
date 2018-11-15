@@ -15,7 +15,8 @@
     </div>
   </div>
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
-    <tree v-show="listType === 'team'" :callBack="callBack"/>
+    <tree v-if="listType === 'team'" :callBack="callBack" listType = 'team'/>
+    <tree v-if="listType === 'group'" :callBack="callBack" listType = 'group'/>
   </div>
   <div class="border" id="resize-we"></div>
 </div>
@@ -37,7 +38,7 @@ export default {
       scrollTop: 0,
       showSearch: false,
       searchValue: '',
-      listType: 'team'
+      listType: 'group'
     }
   },
   activated () {

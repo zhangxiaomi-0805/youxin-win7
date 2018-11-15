@@ -88,16 +88,17 @@
     </a>
     <div :class="orginzeopen ? 't-body active' : 't-body'">
       <tree-item
+        :listType="listType"
         :noAdd="noAdd"
         :showTitle="showTitle"
         :showCheck="showCheck"
-        :orgnizeObj="orgnizeObj"
-        :orgnizeLevelObj="orgnizeObj[0]"
+        :orgnizeObj="listType === 'team' ? orgnizeObj : groupObj"
+        :orgnizeLevelObj="listType === 'team' ? orgnizeObj[0] : groupObj[myDeptId]"
         :orgLevel="1"
         :orgSelectId="orgSelectId"
         :orgSelectLevel="orgSelectLevel"
         :orgSelectHandle="orgSelectHandle"
-        :renderOrgData="renderOrgData"/>
+        :renderOrgData="listType === 'team' ? renderOrgData : renderGroupData"/>
     </div>
   </div>
 </div>
@@ -115,7 +116,8 @@ export default {
     showTeam: Boolean,
     showCheck: Boolean,
     noAdd: Boolean,
-    callBack: Function
+    callBack: Function,
+    listType: String // lisType='team'---组织架构；lisType='group'---我的部门
   },
   components: {TreeItem},
   data () {
@@ -123,6 +125,7 @@ export default {
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
       orginzeopen: !this.showTitle, // 组织机构展开状态
+      myGroupOpen: false, // 我的部门展开状态
       companyopen: false, // 公司展开状态
       teamopen: false, // 群展开状态
       groupopen: false,
@@ -131,15 +134,23 @@ export default {
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
       teamAddAllId: -1,
-      groupAddAllId: -1
+      groupAddAllId: -1,
+      myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
     }
   },
   mounted () {
-    this.orgDataInit()
+    if (this.listType === 'team') {
+      this.orgDataInit()
+    } else if (this.listType === 'group') {
+      this.groupDataInit()
+    }
   },
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
+    },
+    groupObj () {
+      return this.$store.state.groupObj
     },
     contactsToplist () {
       return this.$store.state.contactsToplist
@@ -241,6 +252,15 @@ export default {
       if (this.$store.state.personInfos.accid === accid) return true
       return false
     },
+    groupDataInit () {
+      // 我的部门数据初始化
+      let tag = 0
+      if (this.groupObj[0] && this.groupObj[0].tag) {
+        tag = this.groupObj[0].tag
+      }
+      let params = {depId: this.myDeptId, tag, parentId: 0}
+      this.renderGroupData(params)
+    },
     orgDataInit () {
       // 组织数据初始化
       let tag = 0
@@ -268,6 +288,30 @@ export default {
         if (ret) {
           if (tag) type = 'update'
           this.$store.commit('updateOrgnizeObj', {
+            type,
+            set: this.$set,
+            currentId: depId,
+            parentId: parentId,
+            orgnizelist: ret.orgList,
+            userlist: ret.userList,
+            tag: ret.tag,
+            pullTag: ret.pullTag
+          })
+        }
+      }).catch(() => {
+      })
+    },
+    renderGroupData (params) {
+      // 拉取我的部门框架
+      let {depId, tag, parentId} = params
+      let type = 'init'
+      tag = tag || 0
+      Request.PullDepartment({
+        depId, tag
+      }, this).then(ret => {
+        if (ret) {
+          if (tag) type = 'update'
+          this.$store.commit('updateGroupObj', {
             type,
             set: this.$set,
             currentId: depId,
