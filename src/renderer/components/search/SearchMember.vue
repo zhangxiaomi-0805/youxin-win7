@@ -1,6 +1,6 @@
 <template>
   <!-- 群成员搜索 -->
-  <div class="s-cont">
+  <div class="s-cont" :style="{top: isDiscussGroup ? '35px' : '185px'}">
     <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
     <ul class="u-list"> 
       <li
@@ -22,6 +22,7 @@
   export default {
     name: 'search-member',
     props: {
+      isDiscussGroup: Boolean,
       value: String,
       memberList: Array,
       clearStatus: Function,

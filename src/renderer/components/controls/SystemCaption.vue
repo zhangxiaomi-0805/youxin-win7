@@ -21,23 +21,21 @@ export default {
       default: true
     }
   },
-  data () {
-    return {
-      isWindowMax: false
-    }
-  },
   computed: {
     showSystemCaption () {
       return platform.getOsInfo() === 'Windows'
+    },
+    isWindowMax () {
+      return this.$store.state.isWindowMax
     }
   },
   mounted () {
     ipcRenderer.on('doMax', () => {
-      this.isWindowMax = true
+      this.$store.commit('updateWindowMax', true)
     })
 
     ipcRenderer.on('doRestore', () => {
-      this.isWindowMax = false
+      this.$store.commit('updateWindowMax', false)
     })
   },
   methods: {

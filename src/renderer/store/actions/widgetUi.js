@@ -1,6 +1,5 @@
-// import pageUtil from '../../utils/page'
+import util from '../../utils'
 import store from '../'
-
 // 显示加载中进度条
 export function showLoading ({state, commit}) {
   // commit('updateLoading', true)
@@ -37,7 +36,6 @@ export function hideFullscreenImg ({state, commit}) {
   //  type: 'hide'
   // })out
 }
-
 function getTeamMembers (id) {
   return new Promise((resolve, reject) => {
     store.state.nim.getTeamMembers({
@@ -52,7 +50,6 @@ function getTeamMembers (id) {
     })
   })
 }
-
 export async function showListOptions ({state, commit}, obj) {
   let items = []
   // 右键出现蓝框位置
@@ -205,7 +202,7 @@ export async function showListOptions ({state, commit}, obj) {
   let event33 = {
     title: '退出群',
     callBack: () => {
-      obj.callBack(2)
+      obj.callBack(9)
     }
   }
   let event34 = {
@@ -214,7 +211,15 @@ export async function showListOptions ({state, commit}, obj) {
   }
   let event35 = {
     title: '退出讨论组',
-    callBack: () => {}
+    callBack: () => {
+      obj.callBack(10)
+    }
+  }
+  let event36 = {
+    title: '取消免打扰',
+    callBack: () => {
+      obj.callBack(8)
+    }
   }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {
@@ -242,10 +247,12 @@ export async function showListOptions ({state, commit}, obj) {
   if (obj.key === 'team-notTop' || obj.key === 'team-isTop') {
     let valid = true
     let isDiscussGroup = false
+    let muteNotiType = -1
     for (let i = 0; i < state.teamlist.length; i++) {
       const item = state.teamlist[i]
       if (item.teamId === obj.id.split('-')[1]) {
-        isDiscussGroup = item.custom && JSON.parse(item.custom).isDiscussGroup
+        isDiscussGroup = util.isDiscussGroup(item)
+        muteNotiType = item.muteNotiType
         valid = item.valid
         break
       }
@@ -262,53 +269,126 @@ export async function showListOptions ({state, commit}, obj) {
         ]
       }
     } else if (isDiscussGroup) {
-      items = [
-        event21, event32, event35
-      ]
-    } else {
-      const members = await getTeamMembers(obj.id.split('-')[1])
-      let userType = ''
-      for (let i = 0; i < members.length; i++) {
-        let item = members[i]
-        if (item.account === state.personInfos.accid) {
-          userType = item.type
-          break
-        }
-      }
-      // 非置顶
       if (obj.key === 'team-notTop') {
-        if (userType === 'normal') {
+        if (muteNotiType === 1) {
           items = [
-            event7, event21, event8, event33
+            event7, event36, event8, event35
+          ]
+        } else {
+          items = [
+            event7, event21, event8, event35
           ]
         }
-        if (userType === 'owner') {
+      } else {
+        if (muteNotiType === 1) {
           items = [
-            event7, event21, event8, event17
+            event9, event36, event8, event35
           ]
-        }
-        if (userType === 'manager') {
+        } else {
           items = [
-            event7, event21, event8, event33, event17
+            event9, event21, event8, event35
           ]
         }
       }
-      // 置顶
-      if (obj.key === 'team-isTop') {
-        if (userType === 'normal') {
+    } else {
+      let members = []
+      let valid = true
+      try {
+        members = await getTeamMembers(obj.id.split('-')[1])
+      } catch (err) {
+        valid = false
+      }
+      if (!valid) {
+        if (obj.key === 'team-notTop') {
           items = [
-            event9, event21, event8, event33
+            event7, event8
           ]
         }
-        if (userType === 'owner') {
+        if (obj.key === 'team-isTop') {
           items = [
-            event9, event21, event8, event17
+            event9, event8
           ]
         }
-        if (userType === 'manager') {
-          items = [
-            event9, event21, event8, event33, event17
-          ]
+      } else {
+        let userType = ''
+        for (let i = 0; i < members.length; i++) {
+          let item = members[i]
+          if (item.account === state.personInfos.accid) {
+            userType = item.type
+            break
+          }
+        }
+        // 非置顶
+        if (obj.key === 'team-notTop') {
+          if (userType === 'normal') {
+            if (muteNotiType === 1) {
+              items = [
+                event7, event36, event8, event33
+              ]
+            } else {
+              items = [
+                event7, event21, event8, event33
+              ]
+            }
+          }
+          if (userType === 'owner') {
+            if (muteNotiType === 1) {
+              items = [
+                event7, event36, event8, event17
+              ]
+            } else {
+              items = [
+                event7, event21, event8, event17
+              ]
+            }
+          }
+          if (userType === 'manager') {
+            if (muteNotiType === 1) {
+              items = [
+                event7, event36, event8, event33, event17
+              ]
+            } else {
+              items = [
+                event7, event21, event8, event33, event17
+              ]
+            }
+          }
+        }
+        // 置顶
+        if (obj.key === 'team-isTop') {
+          if (userType === 'normal') {
+            if (muteNotiType === 1) {
+              items = [
+                event9, event36, event8, event33
+              ]
+            } else {
+              items = [
+                event9, event21, event8, event33
+              ]
+            }
+          }
+          if (userType === 'owner') {
+            if (muteNotiType === 1) {
+              items = [
+                event9, event36, event8, event17
+              ]
+            } else {
+              items = [
+                event9, event21, event8, event17
+              ]
+            }
+          }
+          if (userType === 'manager') {
+            if (muteNotiType === 1) {
+              items = [
+                event9, event36, event8, event33, event17
+              ]
+            } else {
+              items = [
+                event9, event21, event8, event33, event17
+              ]
+            }
+          }
         }
       }
     }
@@ -433,6 +513,14 @@ export async function showListOptions ({state, commit}, obj) {
   }
   // 群或讨论组右键
   if (obj.key === 'team') {
+    let muteNotiType = -1
+    for (let i = 0; i < state.teamlist.length; i++) {
+      const item = state.teamlist[i]
+      if (item.teamId === obj.id) {
+        muteNotiType = item.muteNotiType
+        break
+      }
+    }
     const members = await getTeamMembers(obj.id)
     let userType = ''
     for (let i = 1; i < members.length; i++) {
@@ -443,26 +531,58 @@ export async function showListOptions ({state, commit}, obj) {
       }
     }
     if (userType === 'normal') {
-      items = [
-        event21, event33
-      ]
+      if (muteNotiType === 1) {
+        items = [
+          event36, event33
+        ]
+      } else {
+        items = [
+          event21, event33
+        ]
+      }
     }
     if (userType === 'owner') {
-      items = [
-        event21, event34, event17
-      ]
+      if (muteNotiType === 1) {
+        items = [
+          event36, event34, event17
+        ]
+      } else {
+        items = [
+          event21, event34, event17
+        ]
+      }
     }
     if (userType === 'manager') {
-      items = [
-        event21, event34, event33, event17
-      ]
+      if (muteNotiType === 1) {
+        items = [
+          event36, event34, event33, event17
+        ]
+      } else {
+        items = [
+          event21, event34, event33, event17
+        ]
+      }
     }
   }
 
   if (obj.key === 'group') {
-    items = [
-      event21, event32, event35
-    ]
+    let muteNotiType = -1
+    for (let i = 0; i < state.teamlist.length; i++) {
+      const item = state.teamlist[i]
+      if (item.teamId === obj.id) {
+        muteNotiType = item.muteNotiType
+        break
+      }
+    }
+    if (muteNotiType === 1) {
+      items = [
+        event36, event32, event35
+      ]
+    } else {
+      items = [
+        event21, event32, event35
+      ]
+    }
   }
 
   commit('updateListOptions', {

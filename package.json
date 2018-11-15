@@ -37,6 +37,7 @@
   "build": {
     "productName": "江苏优信",
     "appId": "org.netease.nice",
+    "asar": false,
     "directories": {
       "output": "build"
     },

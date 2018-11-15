@@ -2,26 +2,27 @@
 <!-- 公告、群成员管理 -->
 <div class="m-chat-nt" v-if="scene === 'team'">
   <div v-if="!teamInfo.valid" class="invalid"/>
-  <div class="m-content">
-    <div v-if="!isDiscussGroup" class="m-title notice">
+  <div v-if="!isDiscussGroup" class="m-content">
+    <div class="m-title notice">
       <span class="notice">公告</span>
     </div>
-    <div v-if="!isDiscussGroup" class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
-    <a v-if="!isDiscussGroup" class="b-edit" @click="showEditNotice('edit')"/>
+    <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
+    <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
   <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a class="point" @click.stop="showListOptions($event)" ></a></div>
   <div v-else class="search-bar">
     <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
     <span v-if="showSearch" class="clear" @click="clearStatus"/>
   </div>
-  <search-member 
+  <search-member
     v-if="showSearch"
+    :isDiscussGroup="isDiscussGroup"
     :value="searchValue"
     :memberList="memberList"
     :userInfos="userInfos"
     :myInfo="myInfo"
     :clearStatus="clearStatus"/>
-  <ul class="m-u-list">
+  <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px'}">
     <li 
       class="m-u-list-item" 
       v-for="member in memberList" 
@@ -40,6 +41,7 @@
 
 <script>
 import Request from '../../utils/request.js'
+import util from '../../utils'
 import SearchMember from '../search/SearchMember'
 import clickoutside from '../../utils/clickoutside.js'
 export default {
@@ -47,7 +49,6 @@ export default {
   directives: {clickoutside},
   components: {SearchMember},
   props: {
-    isDiscussGroup: Boolean,
     scene: String,
     to: String,
     teamId: String,
@@ -83,6 +84,9 @@ export default {
         return true
       }
       return false
+    },
+    isDiscussGroup () {
+      return util.isDiscussGroup(this.teamInfo)
     },
     acNoticeId () {
       return this.$store.state.noticeAc

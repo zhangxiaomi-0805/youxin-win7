@@ -58,6 +58,7 @@ import drag from '../../utils/drag.js'
 import Tree from '../tree/Tree.vue'
 import SearchContact from '../search/SearchContact'
 import configs from '../../configs/index.js'
+import Request from '../../utils/request.js'
 export default {
   name: 'select-orgnize',
   components: {Tree, SearchContact},
@@ -162,6 +163,7 @@ export default {
             type: 'fail',
             toastText: '无法操作，讨论组人数已达上限200人'
           })
+          this.loading = false
           return
         }
       }
@@ -169,11 +171,12 @@ export default {
         type: 'advanced',
         name,
         accounts: accounts,
-        joinMode: 'noVerify',
+        joinMode: 'needVerify',
         beInviteMode: 'noVerify',
         inviteMode: 'manager',
         done: (error, obj) => {
           if (!error) {
+            this.type === 2 && this.generateQrCode(obj.team.teamId)
             this.showSelectOrgnize = false
             this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
             this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
@@ -206,6 +209,7 @@ export default {
       if (this.type === 4) {
         options.custom = JSON.stringify({isDiscussGroup: true})
         options.updateTeamMode = 'all'
+        options.joinMode = 'noVerify'
       }
       this.$store.dispatch('delegateTeamFunction', {
         functionName: 'createTeam', options
@@ -315,6 +319,19 @@ export default {
         if (className.indexOf('searchevent') > -1) return
       }
       this.searchValue = ''
+    },
+    generateQrCode (teamId) {
+      // 获取群二维码
+      Request.GenerateQrCode({qrType: 1, teamId}).then(res => {
+        if (res) {
+          this.$store.dispatch('updateTeam', {
+            teamInfo: {
+              teamId,
+              custom: JSON.stringify({ teamQrUrl: res.url })
+            }
+          })
+        }
+      }).catch(() => {})
     }
   }
 }

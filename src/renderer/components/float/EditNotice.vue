@@ -155,7 +155,7 @@ export default {
           announcement: this.announcement
         },
         callback: () => {
-          this.closeModal()
+          setTimeout(() => this.closeModal(), 300)
         }
       })
       let text = `群公告\r\n\r\n${this.announcement}\r\n\r\n@所有人`

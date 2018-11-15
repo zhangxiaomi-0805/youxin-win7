@@ -14,7 +14,20 @@
       <a :class="listType === 'group' ? 't-title-item t-title-group active' : 't-title-item t-title-group'" @click="toggleList('group')">讨论组</a>
     </div>
   </div>
-  <div class="contact-con">
+  <ul class="u-list t-u-list apply-team" v-if="listType === 'team' && sysMsgs.length > 0" style="position: relative;">
+    <li
+      ref="sysmsgs"
+      :class='activeId === 1 ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
+      @click="checkApplyTeamMsg"
+    >
+      <div class="t-list-item-left t-center">
+        <img :src="sysmsg"/>
+        <span class="teamname">群聊验证消息</span>
+      </div>
+      <span v-if="sysMsgUnread > 0" class="u-unread">{{sysMsgUnread}}</span>
+    </li>
+  </ul>
+  <div class="contact-con" :style="{top: listType === 'team' && sysMsgs.length > 0 ? '188px' : '120px'}">
     <ul class="u-list t-u-list" v-show="teamlist.length > 0 && listType === 'team'">
       <li
         :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
@@ -26,7 +39,7 @@
         @mouseup.stop="onShowMenu($event, team)"
       >
         <div class="t-list-item-left t-center">
-          <img :src="team.avatar || defaultIcon"/>
+          <img :src="team.avatar || defaultGroupIcon"/>
           <span class="teamname" :title="team.name">{{team.name}}</span>
         </div>
         <span class="t-num">{{team.memberNum}}</span>
@@ -43,7 +56,7 @@
         @mouseup.stop="onShowMenu($event, group, 'group')"
       >
         <div class="t-list-item-left t-center">
-          <img :src="group.avatar || defaultIcon"/>
+          <img :src="group.avatar || defaultDiscussGroupIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
         </div>
         <span class="t-num">{{group.memberNum}}</span>
@@ -55,13 +68,17 @@
 </template>
 
 <script>
+import util from '../../utils'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
+import configs from '../../configs'
+import Request from '../../utils/request'
 export default {
   name: 'team-list',
   directives: {clickoutside},
   components: {Search},
   props: {
+    isApplyTeam: Boolean,
     callBack: Function
   },
   data () {
@@ -71,21 +88,34 @@ export default {
       activeId: '',
       listType: 'team',
       myNick: '',
-      myNickCopy: ''
+      myNickCopy: '',
+      defaultGroupIcon: configs.defaultGroupIcon,
+      defaultDiscussGroupIcon: configs.defaultDiscussGroupIcon,
+      sysmsg: './static/img/team/sysmsg.png'
     }
   },
   computed: {
     teamlist () {
       let teamlist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && !(item.custom && JSON.parse(item.custom).isDiscussGroup)
+        return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
       })
       return teamlist
     },
     grouplist () {
       let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && (item.custom && JSON.parse(item.custom).isDiscussGroup)
+        return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
       })
       return grouplist
+    },
+    sysMsgUnread () {
+      let temp = this.$store.state.sysMsgUnread
+      return temp.applyTeam
+    },
+    sysMsgs () {
+      let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
+        return msg.type === 'applyTeam'
+      })
+      return sysMsgs
     },
     hasBorder () {
       if (this.$store.state.showListOptions) {
@@ -111,39 +141,132 @@ export default {
       return nickInTeam
     }
   },
+  mounted () {
+    this.$nextTick(() => {
+      setTimeout(() => this.isApplyTeam && this.$refs.sysmsgs.click(), 100)
+    })
+  },
   methods: {
     checkCard (group) {
       if (this.activeId === group.teamId) return
       this.activeId = group.teamId
-      this.callBack({teamId: group.teamId})
+      this.callBack({type: 'team', teamId: group.teamId})
     },
     toggleList (value) {
       if (this.listType === value) return
       this.listType = value
     },
-    onShowMenu (e, group, key) {
+    onShowMenu (e, info, key) {
       // 单个列表右击事件
       if (e.button === 2) {
+        let userType = ''
+        let teamMembers = this.$store.state.teamMembers
+        let members = teamMembers && teamMembers[info.teamId]
+        if (members) {
+          for (let i = 0; i < members.length; i++) {
+            if (members[i].account === this.$store.state.personInfos.accid) {
+              userType = members[i].type
+              break
+            }
+          }
+        }
         if (key === 'group') {
+          let teamMembers = this.$store.state.teamMembers
+          let members = teamMembers && teamMembers[info.teamId]
+          if (members) {
+            for (let i = 0; i < members.length; i++) {
+              if (members[i].account === this.$store.state.personInfos.accid) {
+                userType = members[i].type
+                break
+              }
+            }
+          }
           this.$store.dispatch('showListOptions', {
             key: 'group',
             show: true,
-            id: group.teamId,
+            id: info.teamId,
             pos: {
               x: e.clientX,
               y: e.clientY
             },
+            userType,
             callBack: (type) => {
               switch (type) {
                 case 7:
-                  // this.toggleRemindType(1, group)
-                  console.log('消息免打扰')
+                  // 消息免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 1
+                  })
                   break
                 case 1:
                   console.log('邀请成员')
                   break
-                case 2:
+                case 9:
+                  // 退出群
                   console.log('退出群')
+                  break
+                case 8:
+                  // 取消免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 0
+                  })
+                  break
+                case 10:
+                  // 退出讨论组
+                  this.eventBus.$emit('dismissTeam', {
+                    type: 3,
+                    callBack: () => {
+                      // let deleteSeeionFn = () => {
+                      //   let sessionIdArr = this.$store.state.sessionlist.map(item => {
+                      //     return item.id
+                      //   })
+                      //   let currSessionId = info.teamId
+                      //   this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
+                      // }
+                      let leaveTeamFn = () => {
+                        this.$store.dispatch('leaveTeam', {
+                          teamId: info.teamId,
+                          teamName: info.name,
+                          that: this,
+                          callback: () => {}
+                        })
+                      }
+                      let teamName = info.name
+                      if (info.memberNum <= 3) {
+                        Request.DelTeam({tid: info.teamId, owner: info.owner}, this).then(res => {
+                          this.$store.commit('toastConfig', {
+                            show: true,
+                            type: 'success',
+                            toastText: '已退出' + teamName
+                          })
+                          // deleteSeeionFn()
+                        }).catch(() => {
+                          this.$store.commit('toastConfig', {
+                            show: true,
+                            type: 'fail',
+                            toastText: '退出讨论组失败！'
+                          })
+                        })
+                      } else {
+                        if (userType === 'owner') {
+                          let account = ''
+                          for (let i in members) {
+                            if (members[i].account !== this.$store.state.userUID) {
+                              account = members[i].account
+                              break
+                            }
+                          }
+                          this.$store.dispatch('transferTeam', {
+                            account,
+                            teamId: info.teamId,
+                            callback: () => leaveTeamFn()
+                          })
+                        } else leaveTeamFn()
+                      }
+                    }
+                  })
                   break
                 default:
                   break
@@ -154,7 +277,7 @@ export default {
           this.$store.dispatch('showListOptions', {
             key: 'team',
             show: true,
-            id: group.teamId,
+            id: info.teamId,
             pos: {
               x: e.clientX,
               y: e.clientY
@@ -162,14 +285,25 @@ export default {
             callBack: (type) => {
               switch (type) {
                 case 7:
-                  // this.toggleRemindType(1, group)
-                  console.log('消息免打扰')
+                  // 消息免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 1
+                  })
                   break
                 case 1:
                   console.log('邀请成员')
                   break
-                case 2:
-                  console.log('退出群')
+                case 9:
+                  // 退出群
+                  this.eventBus.$emit('dismissTeam', {teamId: info.teamId, type: 2, teamInfo: info})
+                  break
+                case 8:
+                  // 取消免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 0
+                  })
                   break
                 default:
                   break
@@ -196,6 +330,10 @@ export default {
       }
       this.showSearch = false
       this.searchValue = ''
+    },
+    checkApplyTeamMsg () {
+      this.activeId = 1
+      this.callBack({type: 'sysmsgs'})
     }
   }
 }
@@ -242,9 +380,14 @@ export default {
   }
 
   .t-u-list-item .teamname {
+    display: inline-block;
+    width: 75%;
     font-size: 14px;
     padding-left: 11px;
     color: rgba(51,51,51,1);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
   }
 
   .t-u-list-item .t-num {
@@ -294,5 +437,10 @@ export default {
   .t-title-con .t-title-group {
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
+  }
+
+  .apply-team .teamname {
+    font-size: 15px;
+    color:rgba(51,51,51,1);
   }
 </style>

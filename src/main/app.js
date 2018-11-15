@@ -53,16 +53,6 @@ APP.prototype.catchMainProcessError = function () {
 
 APP.prototype.initApp = function () {
   var _this = this
-  const shouldQuit = app.makeSingleInstance((commandLine, workingDirectory) => {
-    // Someone tried to run a second instance, we should focus our window.
-    if (_this.mainWindow) {
-      if (_this.mainWindow.isMinimized()) _this.mainWindow.restore()
-      _this.mainWindow.focus()
-    }
-  })
-  if (shouldQuit) {
-    app.quit()
-  }
   app.on('ready', function () {
     _this.ready = true
     protocol.registerFileProtocol('root', function (request, callback) {
@@ -74,7 +64,6 @@ APP.prototype.initApp = function () {
       if (error) { console.error('Failed to register protocol') }
     })
 
-    // _this.modifyFilePath()
     _this.createMainWindow()
     _this.dockMenu.setDockMenu()
     _this.appMenu.setAppMenu()
@@ -154,7 +143,7 @@ APP.prototype.initIPC = function () {
   ipcMain.on('logined', function (evt, arg) {
     _this.logined = true
 
-    const menubarPic = process.platform === 'darwin' ? `${__static}/img/logo-mac-menu.png` : `${__static}/img/logo.png`
+    const menubarPic = process.platform === 'darwin' ? `${__static}/img/logo-mac-menu.png` : `${__static}/img/systry-logo.png`
     _this.sysTray.create(menubarPic, '江苏优信客户端')
     _this.sysTray.enableMenuItem('login', false)
     _this.sysTray.enableMenuItem('logout', true)
@@ -223,7 +212,7 @@ APP.prototype.initIPC = function () {
 
   ipcMain.on('screenShot', () => {
     var ssFile = process.platform === 'darwin' ? '/Screenshot.app/Contents/MacOS/Screenshot' : '/Screenshot'
-    var testFile = require('path').join(app.getAppPath(), '/static/addon/', process.platform, ssFile)
+    var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
     execFile(testFile, {}, (error, stdout, stderr) => {
       if (error) throw error
       console.log(stdout)

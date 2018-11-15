@@ -160,9 +160,10 @@ export function deleteSession ({state, commit}, obj) {
     account = sessionId.replace(/^team-/, '')
   }
   if (account && scene) {
-    nim.deleteLocalSession({
-      id: sessionId,
-      done: function deleteLocalSessionDone (error, session) {
+    nim.deleteSession({
+      scene,
+      to: account,
+      done: function deleteServerSessionDone (error, session) {
         if (error) {
           store.commit('toastConfig', {
             show: true,
@@ -171,31 +172,44 @@ export function deleteSession ({state, commit}, obj) {
           })
           return
         }
-        let { curSessionId, sessionIdArr, that } = obj
-        if (curSessionId === sessionId) {
-          let arrLength = sessionIdArr.length
-          let curIndex = sessionIdArr.indexOf(curSessionId)
-          let queryId = null
-          if (arrLength - 1 <= 0) {
-            queryId = null
-          } else if (curIndex < arrLength - 1) {
-            queryId = sessionIdArr[curIndex + 1]
-          } else {
-            queryId = sessionIdArr[curIndex - 1]
+        nim.deleteLocalSession({
+          id: sessionId,
+          done: function deleteLocalSessionDone (error, session) {
+            if (error) {
+              return
+            }
+            let { curSessionId, sessionIdArr, that } = obj
+            if (curSessionId === sessionId) {
+              let arrLength = sessionIdArr.length
+              let curIndex = sessionIdArr.indexOf(curSessionId)
+              let queryId = null
+              if (arrLength - 1 <= 0) {
+                queryId = null
+              } else if (curIndex < arrLength - 1) {
+                queryId = sessionIdArr[curIndex + 1]
+              } else {
+                queryId = sessionIdArr[curIndex - 1]
+              }
+              const pathName = that.$router.history.current.name
+              if (!queryId) {
+                state.currSessionId = null
+                if (pathName === 'chat') {
+                  that.$router.push({name: 'session-default'})
+                }
+              } else {
+                if (pathName === 'chat') {
+                  that.$router.push({name: 'chat', query: {sessionId: queryId, firstFlag: true}})
+                }
+                that.eventBus.$emit('toggleSelect', {sessionId: queryId})
+              }
+              store.commit('toggleSlideMenuStatus', 4)
+            }
+            if (scene === 'p2p') {
+              store.dispatch('unSubscribeEvent', [account])
+            }
+            commit('deleteSessions', [sessionId])
           }
-          if (!queryId) {
-            state.currSessionId = null
-            that.$router.push({name: 'session-default'})
-          } else {
-            that.$router.push({name: 'chat', query: {sessionId: queryId, firstFlag: true}})
-            that.eventBus.$emit('toggleSelect', {sessionId: queryId})
-          }
-          store.commit('toggleSlideMenuStatus', 4)
-        }
-        if (scene === 'p2p') {
-          store.dispatch('unSubscribeEvent', [account])
-        }
-        commit('deleteSessions', [sessionId])
+        })
       }
     })
   }
@@ -240,6 +254,12 @@ export function insertLocalSession ({state}, params) {
       done: (error, obj) => {
         if (!error) {
           onUpdateSession(obj.session, params.callback)
+        } else {
+          store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: error.message
+          })
         }
       }
     })

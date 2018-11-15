@@ -6,7 +6,7 @@ export function onSysMsgs (sysMsgs) {
   store.commit('updateSysMsgs', sysMsgs)
 }
 
-export function onSysMsg (sysMsg) {
+export async function onSysMsg (sysMsg) {
   switch (sysMsg.type) {
     // 在其他端添加或删除好友
     case 'addFriend':
@@ -31,6 +31,11 @@ export function onSysMsg (sysMsg) {
       break
     case 'teamInvite': // 被邀请入群
     case 'applyTeam': // 申请入群
+      try {
+        sysMsg = await manageSysMsg(sysMsg)
+      } catch (error) {}
+      store.commit('updateSysMsgs', [sysMsg])
+      break
     case 'rejectTeamApply': // 申请入群被拒绝
     case 'rejectTeamInvite': // 拒绝入群邀请
       store.commit('updateSysMsgs', [sysMsg])
@@ -44,7 +49,6 @@ export function onSysMsgUnread (obj) {
 }
 
 export function onCustomSysMsgs (customSysMsgs) {
-  console.log(customSysMsgs)
   if (!Array.isArray(customSysMsgs)) {
     customSysMsgs = [customSysMsgs]
   }
@@ -97,4 +101,54 @@ export function resetSysMsgs ({state, commit}, obj) {
 
 export function deleteSysMsgs ({commit}, obj) {
   commit('deleteSysMsgs', obj)
+}
+
+// 获取本地系统通知
+export function getLocalSysMsgs ({state}, obj) {
+  const nim = state.nim
+  let params = {
+    limit: obj.limit || 100,
+    done: function (_error, _obj) {
+      if (!_error) {
+        _obj.sysMsgs.forEach(async item => {
+          try {
+            item = await manageSysMsg(item)
+          } catch (error) {}
+        })
+        store.commit('updateSysMsgs', _obj.sysMsgs)
+      }
+    }
+  }
+  if (obj.lastIdServer) {
+    params.lastIdServer = obj.lastIdServer
+  }
+  nim.getLocalSysMsgs(params)
+}
+
+async function manageSysMsg (item) {
+  let userInfo = {}
+  if (store.state.userInfos[item.from]) {
+    userInfo = store.state.userInfos[item.from]
+  } else {
+    try {
+      userInfo = await getUserInfo(item.from)
+    } catch (error) {}
+  }
+  item.nick = userInfo.nick || ''
+  item.avatar = userInfo.avatar || ''
+  return item
+}
+
+function getUserInfo (account) {
+  // 获取成员信息
+  return new Promise((resolve, reject) => {
+    let nim = store.state.nim
+    nim.getUser({
+      account,
+      done: (error, user) => {
+        if (!error) resolve(user)
+        else reject(error)
+      }
+    })
+  })
 }

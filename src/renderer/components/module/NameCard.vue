@@ -36,6 +36,7 @@
 <script>
 import configs from '../../configs/index.js'
 import Request from '../../utils/request.js'
+import util from '../../utils'
 export default {
   name: 'namecard',
   props: {
@@ -74,12 +75,7 @@ export default {
       return cardInfo || {}
     },
     isDiscussGroup () {
-      // 讨论组标识
-      if (this.cardInfo && this.cardInfo.custom) {
-        let custom = JSON.parse(this.cardInfo.custom)
-        if (custom.isDiscussGroup) return true
-      }
-      return false
+      return util.isDiscussGroup(this.cardInfo)
     },
     memberCount () {
       let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]

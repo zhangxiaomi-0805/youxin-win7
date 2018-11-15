@@ -106,6 +106,7 @@
 
 <script>
 import configs from '../../configs/index.js'
+import util from '../../utils'
 import TreeItem from './TreeItem.vue'
 import Request from '../../utils/request.js'
 import SearchData from '../search/search.js'
@@ -157,13 +158,13 @@ export default {
     },
     teamlist () {
       let teamlist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && !(item.custom && JSON.parse(item.custom).isDiscussGroup)
+        return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
       })
       return teamlist
     },
     grouplist () {
       let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && (item.custom && JSON.parse(item.custom).isDiscussGroup)
+        return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
       })
       return grouplist
     },

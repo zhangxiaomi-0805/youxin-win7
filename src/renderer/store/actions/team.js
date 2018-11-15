@@ -1,6 +1,7 @@
 import store from '../'
 import tools from '../../utils/tool'
 import config from '../../configs'
+import Utils from '../../utils'
 
 // 收到群列表及更新群列表接口
 export async function onTeams (teams) {
@@ -23,7 +24,11 @@ export async function onTeams (teams) {
     if (team.avatar && team.avatar.indexOf('nim.nosdn.127') > 0 && team.avatar.indexOf('?imageView') === -1) {
       team.avatar = team.avatar + '?imageView&thumbnail=300y300'
     } else if (!tools.isUrlValid(team.avatar)) {
-      team.avatar = config.defaultGroupIcon
+      if (Utils.isDiscussGroup(team)) {
+        team.avatar = config.defaultDiscussGroupIcon
+      } else {
+        team.avatar = config.defaultGroupIcon
+      }
     }
     if (team.teamId) {
       try {
@@ -70,7 +75,7 @@ function notifyForNewTeamMsg (nim, teamId) {
 
 // 收到群成员及更新群成员接口
 export function onTeamMembers (obj) {
-  store.commit('updateTeamMembers', obj)
+  obj.teamId && store.commit('updateTeamMembers', obj)
 }
 
 export function onCreateTeam (team, owner) {
@@ -334,14 +339,24 @@ export function updateTeam ({state}, params) {
 // 修改自己的群属性
 export function updateInfoInTeam ({state}, params) {
   let teamInfo = params.teamInfo
-  state.nim.updateInfoInTeam({
-    teamId: teamInfo.teamId,
-    nickInTeam: params.nickInTeam,
-    muteNotiType: params.muteNotiType || 0,
-    done: (error, obj) => {
-      error && console.log(error)
-    }
-  })
+  if (params.nickInTeam) {
+    state.nim.updateInfoInTeam({
+      teamId: teamInfo.teamId,
+      nickInTeam: params.nickInTeam,
+      muteNotiType: params.muteNotiType || 0,
+      done: (error, obj) => {
+        error && console.log(error)
+      }
+    })
+  } else {
+    state.nim.updateInfoInTeam({
+      teamId: teamInfo.teamId,
+      muteNotiType: params.muteNotiType || 0,
+      done: (error, obj) => {
+        error && console.log(error)
+      }
+    })
+  }
 }
 
 // 添加管理员

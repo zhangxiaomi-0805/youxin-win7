@@ -1232,5 +1232,9 @@ export default {
       })
       state.contactsToplist = newArr
     }
+  },
+  updateWindowMax (state, status) {
+    // 更新窗口放大状态
+    state.isWindowMax = status
   }
 }

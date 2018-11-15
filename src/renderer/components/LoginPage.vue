@@ -358,8 +358,28 @@
                   this.loading = false
                   return
                 }
+                this.$store.commit('updatePersonInfos', userInfo)
+                // 初始化组织架构、联系、常用联系人列表
+                IndexedDB.getItem('orgnizeObj')
+                  .then(data => {
+                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+                  })
+                  .catch(() => {})
+                IndexedDB.getAll('contactslist')
+                  .then(data => {
+                    this.$store.commit('updateContactslist', {data, type: 'replace'})
+                  })
+                  .catch(() => {})
+                // IndexedDB.getAll('contactsToplist')
+                //   .then(data => {
+                //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
+                //   })
+                //   .catch(() => {})
+                Request.getContactUserList({tag: 0}, this).then(ret => {
+                  this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+                }).catch(() => {})
+                // 开启自动登录
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
-                  // 开启自动登录
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password),
@@ -368,8 +388,8 @@
                   this.isRember = true
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
+                // 记住密码
                 if (this.isRember) {
-                  // 记住密码
                   let accountInfo = {
                     id: ret.accid,
                     account: this.account,
