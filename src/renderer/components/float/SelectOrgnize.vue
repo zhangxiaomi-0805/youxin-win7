@@ -163,6 +163,7 @@ export default {
             type: 'fail',
             toastText: '无法操作，讨论组人数已达上限200人'
           })
+          this.loading = false
           return
         }
       }
