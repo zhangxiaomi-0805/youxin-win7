@@ -38,7 +38,7 @@ export default {
       scrollTop: 0,
       showSearch: false,
       searchValue: '',
-      listType: 'group'
+      listType: 'team'
     }
   },
   activated () {
