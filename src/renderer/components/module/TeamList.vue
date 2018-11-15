@@ -15,9 +15,12 @@
     </div>
   </div>
   <ul class="u-list t-u-list apply-team" v-if="listType === 'team' && sysMsgUnread > 0" style="position: relative;">
-    <li class="t-u-list-item t-center">
+    <li 
+      :class='activeId === 1 ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
+      @click="checkApplyTeamMsg"
+    >
       <div class="t-list-item-left t-center">
-        <img :src="defaultGroupIcon"/>
+        <img :src="sysmsg"/>
         <span class="teamname">群聊验证消息</span>
       </div>
       <span class="u-unread">{{sysMsgUnread}}</span>
@@ -84,7 +87,8 @@ export default {
       myNick: '',
       myNickCopy: '',
       defaultGroupIcon: configs.defaultGroupIcon,
-      defaultDiscussGroupIcon: configs.defaultDiscussGroupIcon
+      defaultDiscussGroupIcon: configs.defaultDiscussGroupIcon,
+      sysmsg: './static/img/team/sysmsg.png'
     }
   },
   computed: {
@@ -213,6 +217,9 @@ export default {
       }
       this.showSearch = false
       this.searchValue = ''
+    },
+    checkApplyTeamMsg () {
+      this.activeId = 1
     }
   }
 }

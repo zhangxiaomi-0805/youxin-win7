@@ -153,5 +153,7 @@ export default {
   // 下线modal状态管理
   downlineStatus: false,
   // 常用联系人列表
-  contactsToplist: []
+  contactsToplist: [],
+  // 是否处于放大状态
+  isWindowMax: false
 }
