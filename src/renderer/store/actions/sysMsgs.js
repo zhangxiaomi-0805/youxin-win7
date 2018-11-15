@@ -3,12 +3,10 @@ import {onUpdateFriend, onDeleteFriend} from './friends'
 import {onRevocateMsg} from './msgs'
 
 export function onSysMsgs (sysMsgs) {
-  console.log('onSysMsgs==========')
   store.commit('updateSysMsgs', sysMsgs)
 }
 
 export function onSysMsg (sysMsg) {
-  console.log('onSysMsg==========')
   switch (sysMsg.type) {
     // 在其他端添加或删除好友
     case 'addFriend':
@@ -44,12 +42,10 @@ export function onSysMsg (sysMsg) {
 }
 
 export function onSysMsgUnread (obj) {
-  console.log('onSysMsgUnread==========')
   store.commit('updateSysMsgUnread', obj)
 }
 
 export function onCustomSysMsgs (customSysMsgs) {
-  console.log('onCustomSysMsgs==========')
   if (!Array.isArray(customSysMsgs)) {
     customSysMsgs = [customSysMsgs]
   }
@@ -109,14 +105,40 @@ export function getLocalSysMsgs ({state}, obj) {
   const nim = state.nim
   let params = {
     limit: obj.limit || 100,
-    done: function (error, sysMsgs) {
-      if (!error) {
-        console.log(sysMsgs)
+    done: function (_error, _obj) {
+      if (!_error) {
+        _obj.sysMsgs.forEach(async item => {
+          let userInfo = {}
+          if (state.userInfos[item.from]) {
+            userInfo = state.userInfos[item.from]
+          } else {
+            try {
+              userInfo = await getUserInfo(item.from)
+            } catch (error) {}
+          }
+          item.nick = userInfo.nick || ''
+          item.avatar = userInfo.avatar || ''
+        })
+        store.commit('updateSysMsgs', _obj.sysMsgs)
       }
     }
   }
   if (obj.lastIdServer) {
     params.lastIdServer = obj.lastIdServer
   }
-  nim.markSysMsgRead({params})
+  nim.getLocalSysMsgs(params)
+}
+
+function getUserInfo (account) {
+  // 获取成员信息
+  return new Promise((resolve, reject) => {
+    let nim = store.state.nim
+    nim.getUser({
+      account,
+      done: (error, user) => {
+        if (!error) resolve(user)
+        else reject(error)
+      }
+    })
+  })
 }

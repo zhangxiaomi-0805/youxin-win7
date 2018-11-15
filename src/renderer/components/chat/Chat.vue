@@ -16,7 +16,7 @@
         <div><span>{{unreadCount}}条新消息</span><span v-if="atCount">，{{atCount}}条@消息</span></div><i></i>
       </div>
       <a v-if="scene === 'team' && showInvitMsgTip" class="u-sysmsg-tip">
-        <span class="nowap">{{`“${applyTeamPer}”申请加入群聊`}}</span><span class="confirm" @click="confirmApplyTeamMsg">去确认</span><span class="close" @click="showInvitMsgTip = false">X</span>
+        <span class="nowap">{{applyTeamPer + '申请加入群聊'}}</span><span class="confirm" @click="confirmApplyTeamMsg">去确认</span><span class="close" @click="showInvitMsgTip = false">X</span>
       </a>
       <chat-list
         type="session"
@@ -312,7 +312,8 @@ export default {
       return type
     },
     applyTeamPer () {
-      if (this.power !== 'normal') {
+      let temp = this.$store.state.sysMsgUnread
+      if (this.power !== 'normal' && temp.applyTeam > 0) {
         let sysMsgs = this.$store.state.sysMsgs
         let accid = ''
         for (let i in sysMsgs) {
@@ -322,7 +323,11 @@ export default {
         }
         if (accid) {
           this.showInvitMsgTip = true
-          return this.$store.state.userInfos[accid].nick
+          let userInfo = this.$store.state.userInfos[accid]
+          if (userInfo) {
+            return `“${userInfo.nick}”`
+          }
+          return '有好友'
         }
       }
       this.showInvitMsgTip = false
@@ -504,7 +509,7 @@ export default {
     confirmApplyTeamMsg () {
       this.showInvitMsgTip = false
       this.eventBus.$emit('updateNavBar', {navTo: 'team'})
-      this.$router.push({name: 'team'})
+      this.$router.push({name: 'team', query: {isApplyTeam: true}})
     }
   }
 }

@@ -7,7 +7,7 @@
       <span class="notice">公告</span>
     </div>
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
-    <a class="b-edit" @click="showEditNotice('edit')"/>
+    <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
   <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a class="point" @click.stop="showListOptions($event)" ></a></div>
   <div v-else class="search-bar">

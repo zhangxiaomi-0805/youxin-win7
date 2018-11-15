@@ -15,6 +15,10 @@
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || "-"}}</span></div>
     <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.companyName">{{userInfos.companyName || "-"}}</span></div>
     <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || "-"}}</span></div>
+
+    <div v-if="callBack" style="marginTop: 15px;">
+      <a class="user-btn user-confirm" @click="userBtnFn(1)">通过验证</a><a class="user-btn" @click="userBtnFn(2)">拒绝</a>
+    </div>
   </div>
 </transition>
 </template>
@@ -33,6 +37,7 @@ export default {
         Request.GetUserInfo({}, this)
           .then(ret => {
             if (ret) {
+              this.height = '419px'
               this.userInfos = ret
               this.isSelf = true
               this.showCheckUser = true
@@ -57,14 +62,22 @@ export default {
               if (!this.userInfos.avatar) {
                 this.userInfos.avatar = config.defaultUserIcon
               }
+              if (data.callBack) {
+                this.callBack = data.callBack
+                this.height = '500px'
+              } else {
+                this.callBack = ''
+                this.height = '419px'
+              }
+              this.aliasCopy = data.userInfos.alias
+              this.isSelf = false
+              this.showCheckUser = true
+              this.managePosition(data.event)
             }
           }).catch(() => {
           })
-        this.aliasCopy = data.userInfos.alias
-        this.isSelf = false
-        this.showCheckUser = true
-        this.managePosition(data.event)
       } else {
+        this.height = '419px'
         this.showCheckUser = false
       }
     })
@@ -79,7 +92,8 @@ export default {
       aliasCopy: '',
       userInfos: {},
       isSelf: false,
-      isActive: false
+      isActive: false,
+      callBack: ''
     }
   },
   computed: {
@@ -167,6 +181,10 @@ export default {
     showInput () {
       this.isActive = true
       setTimeout(() => this.$refs.input.focus(), 0)
+    },
+    userBtnFn (type) {
+      this.showCheckUser = false
+      this.callBack(type)
     }
   }
 }
@@ -319,6 +337,32 @@ export default {
   }
   .m-checkuser-con .edit:hover, .edit:focus {
     background-image: url('../../../../static/img/setting/edit-h.png');
+  }
+
+  .m-checkuser-con .user-btn {
+    width: 100%;
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #F2F2F2;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background .2s linear;
+    color: #F43530;
+    font-size: 14px;
+  }
+
+  .m-checkuser-con .user-btn:hover {
+    background-color: #e0e0e0;
+  }
+
+  .m-checkuser-con .user-confirm {
+    background:rgba(4,154,255,1);
+    color: #fff;
+  }
+  .m-checkuser-con .user-confirm:hover {
+    background:rgba(1, 138, 230,1);
   }
 </style>
 
