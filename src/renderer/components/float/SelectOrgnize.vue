@@ -176,7 +176,7 @@ export default {
         inviteMode: 'manager',
         done: (error, obj) => {
           if (!error) {
-            this.generateQrCode(obj.team.teamId)
+            this.type === 2 && this.generateQrCode(obj.team.teamId)
             this.showSelectOrgnize = false
             this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
             this.$store.commit('updateOrgDisabledlist', {type: 'destory'})

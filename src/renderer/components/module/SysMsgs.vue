@@ -1,11 +1,6 @@
 <template>
-<div class="g-hbf-container m-sysmsg">
-  <div class="g-hbf-header m-header">
-    <a @click="sysType = 0" :class="sysType === 0 ? 'header-pushed' : ''" style="display:inline-block;margin-left: 2rem;margin-top: 0.2rem;">系统通知</a>
-    <a @click="sysType = 1" :class="sysType === 1 ? 'header-pushed' : ''" style="display:inline-block;margin-left: 2rem;">自定义消息</a>
-    <a style="float: right;margin-right: 2rem; margin-top: 0.2rem;" @click="clearMsgs">清空</a>
-  </div>
-  <div class="g-hbf-body m-body">
+<div class="g-hbf-container m-sysmsg bg" style="top: 31px;">
+  <div class="m-body">
     <ul class="u-list">
       <li class="u-list-item" v-for="msg in msgList" :key="msg.idServer">
         <div class="u-list-item-container" style="width:25rem;" :key="msg.idServer" v-if="msg.type ==='applyTeam' || msg.type ==='teamInvite'" @contextmenu="showMenu" :id="msg.idServer">
@@ -39,7 +34,7 @@
         </div>
       </li>      
     </ul>
-    <div class='empty-hint' v-if='!msgList || msgList.length<1'>暂无任何消息</div>
+    <div class='empty-hint bg' v-if='!msgList || msgList.length<1'>暂无任何消息</div>
   </div>
 </div>
 </template>
@@ -75,16 +70,9 @@ export default {
       return this.$store.state.userInfos || {}
     },
     sysMsgs () {
+      console.log(this.$store.state.sysMsgs)
       let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
         switch (msg.type) {
-          case 'addFriend':
-            msg.showText = `${msg.friend.alias || msg.friend.account} 添加您为好友~`
-            msg.avatar = this.userInfos[msg.from] && this.userInfos[msg.from].avatar
-            return true
-          case 'deleteFriend':
-            msg.showText = `${msg.from} 将您从好友中删除`
-            msg.avatar = this.userInfos[msg.from].avatar
-            return false
           case 'applyTeam':
             msg.showText = msg.from
             msg.avatar = (this.userInfos[msg.from] && this.userInfos[msg.from].avatar) || this.defaultAvatar
@@ -190,7 +178,11 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.bg {
+  background:rgba(242,242,242,1);
+}
+
 .m-sysmsg .m-header {
   height: 2rem;
   -webkit-app-region: no-drag;

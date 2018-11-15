@@ -3,10 +3,12 @@ import {onUpdateFriend, onDeleteFriend} from './friends'
 import {onRevocateMsg} from './msgs'
 
 export function onSysMsgs (sysMsgs) {
+  console.log('onSysMsgs==========')
   store.commit('updateSysMsgs', sysMsgs)
 }
 
 export function onSysMsg (sysMsg) {
+  console.log('onSysMsg==========')
   switch (sysMsg.type) {
     // 在其他端添加或删除好友
     case 'addFriend':
@@ -42,10 +44,12 @@ export function onSysMsg (sysMsg) {
 }
 
 export function onSysMsgUnread (obj) {
+  console.log('onSysMsgUnread==========')
   store.commit('updateSysMsgUnread', obj)
 }
 
 export function onCustomSysMsgs (customSysMsgs) {
+  console.log('onCustomSysMsgs==========')
   if (!Array.isArray(customSysMsgs)) {
     customSysMsgs = [customSysMsgs]
   }
@@ -98,4 +102,21 @@ export function resetSysMsgs ({state, commit}, obj) {
 
 export function deleteSysMsgs ({commit}, obj) {
   commit('deleteSysMsgs', obj)
+}
+
+// 获取本地系统通知
+export function getLocalSysMsgs ({state}, obj) {
+  const nim = state.nim
+  let params = {
+    limit: obj.limit || 100,
+    done: function (error, sysMsgs) {
+      if (!error) {
+        console.log(sysMsgs)
+      }
+    }
+  }
+  if (obj.lastIdServer) {
+    params.lastIdServer = obj.lastIdServer
+  }
+  nim.markSysMsgRead({params})
 }

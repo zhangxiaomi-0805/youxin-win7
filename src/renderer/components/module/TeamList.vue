@@ -136,7 +136,7 @@ export default {
     checkCard (group) {
       if (this.activeId === group.teamId) return
       this.activeId = group.teamId
-      this.callBack({teamId: group.teamId})
+      this.callBack({type: 'team', teamId: group.teamId})
     },
     toggleList (value) {
       if (this.listType === value) return
@@ -220,6 +220,7 @@ export default {
     },
     checkApplyTeamMsg () {
       this.activeId = 1
+      this.callBack({type: 'sysmsgs'})
     }
   }
 }

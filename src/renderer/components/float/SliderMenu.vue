@@ -111,7 +111,6 @@ import Request from '../../utils/request'
 export default {
   name: 'slider-menu',
   props: {
-    isDiscussGroup: Boolean,
     scene: String,
     to: String,
     teamId: String,
@@ -136,6 +135,9 @@ export default {
     }
   },
   computed: {
+    isDiscussGroup () {
+      return util.isDiscussGroup(this.teamInfo)
+    },
     muteTeamIds () {
       return this.$store.state.muteTeamIds
     },
