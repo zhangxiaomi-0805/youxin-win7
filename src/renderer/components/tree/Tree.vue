@@ -96,10 +96,10 @@
     >
       <div v-if="groupObj[myDeptId]" :class="myDeptOpen ? 't-open' : 't-takeup'"/>
       <div v-else class="t-common"/>
-      <span class="mydept" :title="myDept || ''">{{myDept || ''}}</span>
+      <span class="mydept" :title="myDept || '我的部门'">{{myDept || '我的部门'}}</span>
     </div>
 
-    <div :class="(orginzeopen &&listType !== 'group') || (myDeptOpen &&listType === 'group') ? 't-body active' : 't-body'">
+    <div :class="(orginzeopen && listType !== 'group') || (myDeptOpen && listType === 'group') ? 't-body active' : 't-body'">
       <tree-item
         :listType="listType"
         :noAdd="noAdd"
