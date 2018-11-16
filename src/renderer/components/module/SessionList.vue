@@ -80,8 +80,10 @@ export default {
     })
     // 默认加载第一个会话
     this.$nextTick(() => {
-      let session = this.sessionlist[0]
-      session && this.$refs[session.id][0].click()
+      setTimeout(() => {
+        let session = this.sessionlist[0]
+        session && this.$refs[session.id][0].click()
+      }, 150)
     })
   },
   watch: {
@@ -90,9 +92,11 @@ export default {
       // 默认加载第一个会话
       if (newData[0]) {
         this.$nextTick(() => {
-          if (this.$refs[newData[0].id]) {
-            this.$refs[newData[0].id][0].click()
-          }
+          setTimeout(() => {
+            if (this.$refs[newData[0].id]) {
+              this.$refs[newData[0].id][0].click()
+            }
+          }, 150)
         })
       }
     }

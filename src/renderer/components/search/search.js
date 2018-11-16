@@ -41,7 +41,11 @@ SearchData.getTeamMembersList = function (teamlimitNum, value, callback) {
       } else {
         let members = []
         try {
-          members = await this.getTeamMembers(group.teamId)
+          if (store.state.teamMembers[group.teamId] !== undefined) {
+            members = store.state.teamMembers[group.teamId]
+          } else {
+            members = await this.getTeamMembers(group.teamId)
+          }
           for (let i in members) {
             let user = {}
             if (members[i].account) {
@@ -62,7 +66,7 @@ SearchData.getTeamMembersList = function (teamlimitNum, value, callback) {
               break
             }
           }
-        } catch (error) { reject(error) }
+        } catch (error) {}
       }
     }
     resolve(teamlistTemp)
@@ -113,7 +117,7 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
           let records = []
           try {
             records = await this.getRecords(sessionlist[i], value)
-          } catch (error) { reject(error) }
+          } catch (error) {}
           if (records.length > 0) {
             let recordObj = { recordNum: records.length, text: records[0].text }
             recordObj = Object.assign(recordObj, sessionlist[i])
@@ -168,7 +172,7 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
         recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
       }
       resolve(recordlist)
-    } catch (error) { reject(error) }
+    } catch (error) {}
   })
 }
 
