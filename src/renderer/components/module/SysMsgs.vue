@@ -54,6 +54,7 @@ export default {
     },
     sysMsgs () {
       let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
+        console.log(msg)
         return msg.type === 'applyTeam'
       })
       sysMsgs.sort((msg1, msg2) => {
