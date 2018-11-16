@@ -314,6 +314,8 @@ export default {
       })
       let curSessionId = this.$router.history.current.query.sessionId
       let teamInfo = {}
+      let members = []
+      let userType = 'normal'
       if (e.button === 2) {
         let type = 'p2p-istop'
         if (session.scene === 'team') {
@@ -325,6 +327,16 @@ export default {
           teamInfo = this.$store.state.teamlist.find(team => {
             return team.teamId === session.to
           })
+          let teamMembers = this.$store.state.teamMembers
+          members = teamMembers && teamMembers[session.to]
+          if (members) {
+            for (let i = 0; i < members.length; i++) {
+              if (members[i].account === this.$store.state.personInfos.accid) {
+                userType = members[i].type
+                break
+              }
+            }
+          }
         } else if (session.scene === 'p2p') {
           if (session.localCustom && session.localCustom.topTime) {
             type = 'p2p-isTop'
@@ -340,6 +352,7 @@ export default {
             x: e.clientX,
             y: e.clientY
           },
+          userType,
           callBack: (type) => {
             switch (type) {
               case 1:
@@ -396,6 +409,60 @@ export default {
                 // 退出群
                 this.eventBus.$emit('dismissTeam', {teamId: session.to, type: 2, teamInfo: teamInfo})
                 break
+              case 10:
+                // 退出讨论组
+                this.eventBus.$emit('dismissTeam', {
+                  type: 3,
+                  callBack: () => {
+                    let deleteSeeionFn = () => {
+                      let sessionIdArr = this.$store.state.sessionlist.map(item => {
+                        return item.id
+                      })
+                      let currSessionId = session.id
+                      this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
+                    }
+                    let leaveTeamFn = () => {
+                      this.$store.dispatch('leaveTeam', {
+                        teamId: teamInfo.teamId,
+                        teamName: teamInfo.name,
+                        that: this,
+                        callback: () => setTimeout(() => deleteSeeionFn(), 200)
+                      })
+                    }
+                    let teamName = teamInfo.name
+                    if (teamInfo.memberNum <= 3) {
+                      Request.DelTeam({tid: teamInfo.teamId, owner: teamInfo.owner}, this).then(res => {
+                        this.$store.commit('toastConfig', {
+                          show: true,
+                          type: 'success',
+                          toastText: '已退出' + teamName
+                        })
+                        deleteSeeionFn()
+                      }).catch(() => {
+                        this.$store.commit('toastConfig', {
+                          show: true,
+                          type: 'fail',
+                          toastText: '退出讨论组失败！'
+                        })
+                      })
+                    } else {
+                      if (userType === 'owner') {
+                        let account = ''
+                        for (let i in members) {
+                          if (members[i].account !== this.$store.state.userUID) {
+                            account = members[i].account
+                            break
+                          }
+                        }
+                        this.$store.dispatch('transferTeam', {
+                          account,
+                          teamId: teamInfo.teamId,
+                          callback: () => leaveTeamFn()
+                        })
+                      } else leaveTeamFn()
+                    }
+                  }
+                })
             }
           }
         })

@@ -72,6 +72,7 @@ import util from '../../utils'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
 import configs from '../../configs'
+import Request from '../../utils/request'
 export default {
   name: 'team-list',
   directives: {clickoutside},
@@ -155,29 +156,105 @@ export default {
       if (this.listType === value) return
       this.listType = value
     },
-    onShowMenu (e, group, key) {
+    onShowMenu (e, info, key) {
       // 单个列表右击事件
       if (e.button === 2) {
+        let userType = ''
+        let teamMembers = this.$store.state.teamMembers
+        let members = teamMembers && teamMembers[info.teamId]
+        if (members) {
+          for (let i = 0; i < members.length; i++) {
+            if (members[i].account === this.$store.state.personInfos.accid) {
+              userType = members[i].type
+              break
+            }
+          }
+        }
         if (key === 'group') {
+          let teamMembers = this.$store.state.teamMembers
+          let members = teamMembers && teamMembers[info.teamId]
+          if (members) {
+            for (let i = 0; i < members.length; i++) {
+              if (members[i].account === this.$store.state.personInfos.accid) {
+                userType = members[i].type
+                break
+              }
+            }
+          }
           this.$store.dispatch('showListOptions', {
             key: 'group',
             show: true,
-            id: group.teamId,
+            id: info.teamId,
             pos: {
               x: e.clientX,
               y: e.clientY
             },
+            userType,
             callBack: (type) => {
               switch (type) {
                 case 7:
-                  // this.toggleRemindType(1, group)
-                  console.log('消息免打扰')
+                  // 消息免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 1
+                  })
                   break
                 case 1:
-                  console.log('邀请成员')
+                  this.eventBus.$emit('selectOrgnize', {type: 3, teamId: info.teamId})
                   break
-                case 2:
-                  console.log('退出群')
+                case 8:
+                  // 取消免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 0
+                  })
+                  break
+                case 10:
+                  // 退出讨论组
+                  this.eventBus.$emit('dismissTeam', {
+                    type: 3,
+                    callBack: () => {
+                      let leaveTeamFn = () => {
+                        this.$store.dispatch('leaveTeam', {
+                          teamId: info.teamId,
+                          teamName: info.name,
+                          that: this,
+                          callback: () => {}
+                        })
+                      }
+                      let teamName = info.name
+                      if (info.memberNum <= 3) {
+                        Request.DelTeam({tid: info.teamId, owner: info.owner}, this).then(res => {
+                          this.$store.commit('toastConfig', {
+                            show: true,
+                            type: 'success',
+                            toastText: '已退出' + teamName
+                          })
+                        }).catch(() => {
+                          this.$store.commit('toastConfig', {
+                            show: true,
+                            type: 'fail',
+                            toastText: '退出讨论组失败！'
+                          })
+                        })
+                      } else {
+                        if (userType === 'owner') {
+                          let account = ''
+                          for (let i in members) {
+                            if (members[i].account !== this.$store.state.userUID) {
+                              account = members[i].account
+                              break
+                            }
+                          }
+                          this.$store.dispatch('transferTeam', {
+                            account,
+                            teamId: info.teamId,
+                            callback: () => leaveTeamFn()
+                          })
+                        } else leaveTeamFn()
+                      }
+                    }
+                  })
                   break
                 default:
                   break
@@ -188,7 +265,7 @@ export default {
           this.$store.dispatch('showListOptions', {
             key: 'team',
             show: true,
-            id: group.teamId,
+            id: info.teamId,
             pos: {
               x: e.clientX,
               y: e.clientY
@@ -196,14 +273,25 @@ export default {
             callBack: (type) => {
               switch (type) {
                 case 7:
-                  // this.toggleRemindType(1, group)
-                  console.log('消息免打扰')
+                  // 消息免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 1
+                  })
                   break
                 case 1:
-                  console.log('邀请成员')
+                  this.eventBus.$emit('selectOrgnize', {type: 3, teamId: info.teamId})
                   break
-                case 2:
-                  console.log('退出群')
+                case 9:
+                  // 退出群
+                  this.eventBus.$emit('dismissTeam', {teamId: info.teamId, type: 2, teamInfo: info})
+                  break
+                case 8:
+                  // 取消免打扰
+                  this.$store.dispatch('updateInfoInTeam', {
+                    teamInfo: info,
+                    muteNotiType: 0
+                  })
                   break
                 default:
                   break

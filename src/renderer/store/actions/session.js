@@ -190,11 +190,16 @@ export function deleteSession ({state, commit}, obj) {
               } else {
                 queryId = sessionIdArr[curIndex - 1]
               }
+              const pathName = that.$router.history.current.name
               if (!queryId) {
                 state.currSessionId = null
-                that.$router.push({name: 'session-default'})
+                if (pathName === 'chat') {
+                  that.$router.push({name: 'session-default'})
+                }
               } else {
-                that.$router.push({name: 'chat', query: {sessionId: queryId, firstFlag: true}})
+                if (pathName === 'chat') {
+                  that.$router.push({name: 'chat', query: {sessionId: queryId, firstFlag: true}})
+                }
                 that.eventBus.$emit('toggleSelect', {sessionId: queryId})
               }
               store.commit('toggleSlideMenuStatus', 4)

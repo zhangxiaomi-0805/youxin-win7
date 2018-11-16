@@ -1,6 +1,5 @@
 import util from '../../utils'
 import store from '../'
-
 // 显示加载中进度条
 export function showLoading ({state, commit}) {
   // commit('updateLoading', true)
@@ -37,7 +36,6 @@ export function hideFullscreenImg ({state, commit}) {
   //  type: 'hide'
   // })out
 }
-
 function getTeamMembers (id) {
   return new Promise((resolve, reject) => {
     store.state.nim.getTeamMembers({
@@ -45,6 +43,20 @@ function getTeamMembers (id) {
       done: (err, obj) => {
         if (!err) {
           resolve(obj.members)
+        } else {
+          reject(err)
+        }
+      }
+    })
+  })
+}
+
+function getTeams () {
+  return new Promise((resolve, reject) => {
+    store.state.nim.getTeams({
+      done: (err, teams) => {
+        if (!err) {
+          resolve(teams)
         } else {
           reject(err)
         }
@@ -210,11 +222,13 @@ export async function showListOptions ({state, commit}, obj) {
   }
   let event34 = {
     title: '邀请群成员',
-    callBack: () => {}
+    callBack: () => obj.callBack(1)
   }
   let event35 = {
     title: '退出讨论组',
-    callBack: () => {}
+    callBack: () => {
+      obj.callBack(10)
+    }
   }
   let event36 = {
     title: '取消免打扰',
@@ -246,6 +260,10 @@ export async function showListOptions ({state, commit}, obj) {
   }
   // 消息列表 群会话
   if (obj.key === 'team-notTop' || obj.key === 'team-isTop') {
+    const teams = await getTeams()
+    const hasTeam = teams.find(item => {
+      return item.teamId === obj.id.split('-')[1]
+    })
     let valid = true
     let isDiscussGroup = false
     let muteNotiType = -1
@@ -258,7 +276,7 @@ export async function showListOptions ({state, commit}, obj) {
         break
       }
     }
-    if (!valid) {
+    if (!valid || !hasTeam) {
       if (obj.key === 'team-notTop') {
         items = [
           event7, event8
@@ -273,103 +291,122 @@ export async function showListOptions ({state, commit}, obj) {
       if (obj.key === 'team-notTop') {
         if (muteNotiType === 1) {
           items = [
-            event7, event36, event32, event8, event35
+            event7, event36, event8, event35
           ]
         } else {
           items = [
-            event7, event21, event32, event8, event35
+            event7, event21, event8, event35
           ]
         }
       } else {
         if (muteNotiType === 1) {
           items = [
-            event9, event36, event32, event8, event35
+            event9, event36, event8, event35
           ]
         } else {
           items = [
-            event9, event21, event32, event8, event35
+            event9, event21, event8, event35
           ]
         }
       }
     } else {
-      const members = await getTeamMembers(obj.id.split('-')[1])
-      let userType = ''
-      for (let i = 0; i < members.length; i++) {
-        let item = members[i]
-        if (item.account === state.personInfos.accid) {
-          userType = item.type
-          break
-        }
+      let members = []
+      let valid = true
+      try {
+        members = await getTeamMembers(obj.id.split('-')[1])
+      } catch (err) {
+        valid = false
       }
-      // 非置顶
-      if (obj.key === 'team-notTop') {
-        if (userType === 'normal') {
-          if (muteNotiType === 1) {
-            items = [
-              event7, event36, event8, event33
-            ]
-          } else {
-            items = [
-              event7, event21, event8, event33
-            ]
+      if (!valid) {
+        if (obj.key === 'team-notTop') {
+          items = [
+            event7, event8
+          ]
+        }
+        if (obj.key === 'team-isTop') {
+          items = [
+            event9, event8
+          ]
+        }
+      } else {
+        let userType = ''
+        for (let i = 0; i < members.length; i++) {
+          let item = members[i]
+          if (item.account === state.personInfos.accid) {
+            userType = item.type
+            break
           }
         }
-        if (userType === 'owner') {
-          if (muteNotiType === 1) {
-            items = [
-              event7, event36, event8, event17
-            ]
-          } else {
-            items = [
-              event7, event21, event8, event17
-            ]
+        // 非置顶
+        if (obj.key === 'team-notTop') {
+          if (userType === 'normal') {
+            if (muteNotiType === 1) {
+              items = [
+                event7, event36, event8, event33
+              ]
+            } else {
+              items = [
+                event7, event21, event8, event33
+              ]
+            }
+          }
+          if (userType === 'owner') {
+            if (muteNotiType === 1) {
+              items = [
+                event7, event36, event8, event17
+              ]
+            } else {
+              items = [
+                event7, event21, event8, event17
+              ]
+            }
+          }
+          if (userType === 'manager') {
+            if (muteNotiType === 1) {
+              items = [
+                event7, event36, event8, event33, event17
+              ]
+            } else {
+              items = [
+                event7, event21, event8, event33, event17
+              ]
+            }
           }
         }
-        if (userType === 'manager') {
-          if (muteNotiType === 1) {
-            items = [
-              event7, event36, event8, event33, event17
-            ]
-          } else {
-            items = [
-              event7, event21, event8, event33, event17
-            ]
+        // 置顶
+        if (obj.key === 'team-isTop') {
+          if (userType === 'normal') {
+            if (muteNotiType === 1) {
+              items = [
+                event9, event36, event8, event33
+              ]
+            } else {
+              items = [
+                event9, event21, event8, event33
+              ]
+            }
           }
-        }
-      }
-      // 置顶
-      if (obj.key === 'team-isTop') {
-        if (userType === 'normal') {
-          if (muteNotiType === 1) {
-            items = [
-              event9, event36, event8, event33
-            ]
-          } else {
-            items = [
-              event9, event21, event8, event33
-            ]
+          if (userType === 'owner') {
+            if (muteNotiType === 1) {
+              items = [
+                event9, event36, event8, event17
+              ]
+            } else {
+              items = [
+                event9, event21, event8, event17
+              ]
+            }
           }
-        }
-        if (userType === 'owner') {
-          if (muteNotiType === 1) {
-            items = [
-              event9, event36, event8, event17
-            ]
-          } else {
-            items = [
-              event9, event21, event8, event17
-            ]
-          }
-        }
-        if (userType === 'manager') {
-          if (muteNotiType === 1) {
-            items = [
-              event9, event36, event8, event33, event17
-            ]
-          } else {
-            items = [
-              event9, event21, event8, event33, event17
-            ]
+          if (userType === 'manager') {
+            if (muteNotiType === 1) {
+              items = [
+                event9, event36, event8, event33, event17
+              ]
+            } else {
+              items = [
+                event9, event21, event8, event33, event17
+              ]
+            }
           }
         }
       }
@@ -495,6 +532,14 @@ export async function showListOptions ({state, commit}, obj) {
   }
   // 群或讨论组右键
   if (obj.key === 'team') {
+    let muteNotiType = -1
+    for (let i = 0; i < state.teamlist.length; i++) {
+      const item = state.teamlist[i]
+      if (item.teamId === obj.id) {
+        muteNotiType = item.muteNotiType
+        break
+      }
+    }
     const members = await getTeamMembers(obj.id)
     let userType = ''
     for (let i = 1; i < members.length; i++) {
@@ -505,26 +550,58 @@ export async function showListOptions ({state, commit}, obj) {
       }
     }
     if (userType === 'normal') {
-      items = [
-        event21, event33
-      ]
+      if (muteNotiType === 1) {
+        items = [
+          event36, event33
+        ]
+      } else {
+        items = [
+          event21, event33
+        ]
+      }
     }
     if (userType === 'owner') {
-      items = [
-        event21, event34, event17
-      ]
+      if (muteNotiType === 1) {
+        items = [
+          event36, event34, event17
+        ]
+      } else {
+        items = [
+          event21, event34, event17
+        ]
+      }
     }
     if (userType === 'manager') {
-      items = [
-        event21, event34, event33, event17
-      ]
+      if (muteNotiType === 1) {
+        items = [
+          event36, event34, event33, event17
+        ]
+      } else {
+        items = [
+          event21, event34, event33, event17
+        ]
+      }
     }
   }
 
   if (obj.key === 'group') {
-    items = [
-      event21, event32, event35
-    ]
+    let muteNotiType = -1
+    for (let i = 0; i < state.teamlist.length; i++) {
+      const item = state.teamlist[i]
+      if (item.teamId === obj.id) {
+        muteNotiType = item.muteNotiType
+        break
+      }
+    }
+    if (muteNotiType === 1) {
+      items = [
+        event36, event32, event35
+      ]
+    } else {
+      items = [
+        event21, event32, event35
+      ]
+    }
   }
 
   commit('updateListOptions', {
