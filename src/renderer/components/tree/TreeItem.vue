@@ -1,16 +1,5 @@
 <template>
 <div>
-  <!-- 我的部门-我所在部门 -->
-  <div 
-    v-if="listType === 'group'"
-    class="t-orgname" 
-    style="paddingLeft: 13px"
-    @click="toggleStatus(myDeptId)"  
-  >
-    <div v-if="orgnizelist.length>0" class="t-open"/>
-    <div v-else class="t-common"/>
-    <span class="mydept" :title="myDept">{{myDept}}</span>
-  </div>
   <ul class="t-u-list"  
   style="{height: 'auto',overflow: 'hidden'}">
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
@@ -206,25 +195,7 @@ export default {
 </script>
 
 <style scoped>
-  .t-orgname .mydept {
-    font-size: 14px;
-    color: #333
-  }
-  .t-orgname {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    box-sizing: border-box;
-    width: 100%;
-    height: 36px;
-    padding-left: 12px;
-    padding-right: 12px;
-    font-size: 14px;
-    color: #333;
-    transition: all .3s linear;
-    cursor: default;
-  }
+  
   .t-u-list .t-u-list-item .t-orgname {
     position: relative;
     display: flex;

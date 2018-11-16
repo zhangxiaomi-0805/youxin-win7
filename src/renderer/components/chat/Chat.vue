@@ -3,7 +3,7 @@
   <div class="g-hbf-header m-header">
     <span class="session-name">{{sessionName}}</span>
     <div class="m-setting" v-if="funKey >= 2 && teamInvalid && valid">
-      <!-- <a class="b-check"/> -->
+      <a class="b-check" @click="showHistoryMsgModal"/> <!-- //显示历史记录弹框 -->
       <a class="b-add" v-if="funKey <= 2" @click="createTeam()"/>
       <a class="b-more" @click="openSliderMenu"/>
     </div>
@@ -273,6 +273,9 @@ export default {
     },
     funKey () {
       let sessionId = this.sessionId
+      console.log(sessionId)
+      console.log(this.$store.state.userUID)
+      console.log(this.teamInfo)
       let user = null
       if (/^p2p-/.test(sessionId)) {
         user = sessionId.replace(/^p2p-/, '')
@@ -487,6 +490,12 @@ export default {
       } else {
         this.$store.commit('toggleSlideMenuStatus', 2)
       }
+    },
+    showHistoryMsgModal () {
+      let type = this.funKey
+      console.log(type)
+      // 查看历史记录
+      this.eventBus.$emit('checkHistoryMsg', {type})
     },
     createTeam () {
       this.$store.commit('updateOrgDisabledlist', {type: 'put', accid: this.to})
