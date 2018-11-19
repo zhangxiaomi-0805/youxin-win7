@@ -395,8 +395,6 @@ export default {
       }
     },
     getHistoryMsgs (callBack) {
-      console.log(this)
-      console.log(this.$store.state.currSessionId)
       if (this.canLoadMore) {
         this.$store.dispatch('getLocalMsgs', {
           scene: this.scene,
@@ -494,7 +492,7 @@ export default {
       let sessionName = this.sessionName
       let teamInfo = this.teamInfo
       // 查看历史记录
-      this.eventBus.$emit('checkHistoryMsg', {scene: this.scene, to: this.to, sessionName, teamInfo})
+      this.eventBus.$emit('checkHistoryMsg', {isRobot: this.isRobot, scene: this.scene, to: this.to, sessionName, teamInfo})
     },
     createTeam () {
       this.$store.commit('updateOrgDisabledlist', {type: 'put', accid: this.to})

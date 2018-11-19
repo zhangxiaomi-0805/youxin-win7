@@ -31,11 +31,14 @@
       <!-- 内容 -->
       <div class="m-historymsg-content">
         <!-- 搜索 -->
-        <div class="search-box">
-          <div class="search-img"></div>
-          <!-- <img class="search-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg=="/> -->
-          <span class="search">搜索</span>
+        <div class="search-bar">
+          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+          <span v-if="showSearch" class="clear" @click="clearStatus"/>
         </div>
+        <!-- <div class="search-box">
+          <div class="search-img"></div>
+          <span class="search">搜索</span>
+        </div> -->
 
         <!-- 全部 && 图片 && 文件 -->
         <div class="tab-title">
@@ -54,24 +57,14 @@
         </div>
 
          <!-- 内容列表 -->
-      <ul style="width: 100%;">
-        <li 
-        v-for="(msg, $index) in msgList"
-        :key="$index"
-        class="list-item"
-        >
-          <div class="left">
-            <img :src="msg.avatar" alt="" class="avatar">
-            <div style="padding:0 8px">
-              <span style="font-size:12px; color:#999">{{msg.nickName}}</span>
-              <div 
-                style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
-                @mouseup.stop="showListOptions($event, msg.type)"
-                ref="clipboard">{{msg.message}}</div>
-            </div>
-          </div>
-          <div style="font-size:12px; color:#999">{{msg.time}}</div>
-        </li>
+      <ul style="width: 100%;overflow-y: scroll; height:300px">
+        <history-item
+          v-for="msg in msglist"
+          :rawMsg="msg"
+          :isRobot="isRobot"
+          :userInfos="userInfos"
+          :myInfo="myInfo"
+        ></history-item>
       </ul>
       </div>
     </div>    
@@ -83,13 +76,21 @@
 // import platform from '../../utils/platform'
 import drag from '../../utils/drag.js'
 import util from '../../utils'
-// import configs from '../../configs/index.js'
-// import Request from '../../utils/request.js'
+import clickoutside from '../../utils/clickoutside.js'
+import HistoryItem from './HistoryItem'
+// import SearchData from '../search/search.js'
 export default {
   name: 'check-history-msg',
+  directives: {clickoutside},
+  components: {
+    HistoryItem
+  },
   mounted () {
+    // 获取当前聊天记录
+    this.getHistoryMsgs()
     this.eventBus.$on('checkHistoryMsg', (data) => {
       this.showHistoryMsg = true
+      this.isRobot = data.isRobot
       this.sessionName = data.sessionName
       this.teamInfo = data.teamInfo
       this.scene = data.scene
@@ -100,18 +101,23 @@ export default {
     return {
       showHistoryMsg: false,
       showConfirmCover: false,
+      showSearch: false,
+      searchValue: '',
       loading: false,
+      isRobot: false,
       messageCheck: false, // 短信勾选状态
       checkType: 'all', // all---全部; pic---图片; file---文件
-      // type: 2, // 2-单聊，3-群组
-      scene: 'p2p',
+      scene: 'p2p', // p2p---单聊； team---群聊
       to: '',
       sessionName: '',
-      teamInfo: {},
-      msgList: [{type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '我那个时候考上公务员的城管 供电局也考上了 去了供电局 感觉比城管好 我那个时候考上公务员的城管', time: '12:42:00'}, {type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '他以为自己是什么小饼干', time: '12:42:00'}, {type: 'text', avatar: 'http://tx.haiqq.com/uploads/allimg/150323/151500B45-1.jpg', nickName: '大西瓜的瓜', message: '这是什么鬼登西', time: '12:42:00'}]
+      teamInfo: {}
+      // msgList: [{type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '我那个时候考上公务员的城管 供电局也考上了 去了供电局 感觉比城管好 我那个时候考上公务员的城管', time: '12:42:00'}, {type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '他以为自己是什么小饼干', time: '12:42:00'}, {type: 'text', avatar: 'http://tx.haiqq.com/uploads/allimg/150323/151500B45-1.jpg', nickName: '大西瓜的瓜', message: '这是什么鬼登西', time: '12:42:00'}]
     }
   },
   computed: {
+    myInfo () {
+      return this.$store.state.myInfo
+    },
     userInfos () {
       return this.$store.state.userInfos
     },
@@ -124,7 +130,6 @@ export default {
     },
     teamMembers () {
       let teamMembers = this.$store.state.teamMembers
-      console.log(teamMembers)
       let members = teamMembers && teamMembers[this.teamId]
       return members
     },
@@ -175,24 +180,26 @@ export default {
         }
         return members
       }
+    },
+    msglist () {
+      let msgs = this.$store.state.currSessionMsgs
+      return msgs
     }
   },
   updated () {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
-    // getHistoryMsgs () {
-    //   console.log(this)
-    //   console.log(this.$store.state.currSessionId)
-    //   // if (this.canLoadMore) {
-    //   //   this.$store.dispatch('getLocalMsgs', {
-    //   //     scene: this.scene,
-    //   //     to: this.to,
-    //   //     sessionId: this.$store.state.currSessionId,
-    //   //     callBack: callBack
-    //   //   })
-    //   // }
-    // },
+    getHistoryMsgs () {
+      let callBack = () => {}
+      console.log('历史消息记录')
+      this.$store.dispatch('getLocalMsgs', {
+        scene: this.scene,
+        to: this.to,
+        sessionId: this.$store.state.currSessionId,
+        callBack: callBack
+      })
+    },
     closeCover () {
       this.showConfirmCover = false
     },
@@ -200,154 +207,18 @@ export default {
       this.showHistoryMsg = false
       this.loading = false
     },
+    clearStatus (el, e) {
+      if (e) {
+        let className = e.target.className
+        if (className.indexOf('searchevent') > -1) return
+      }
+      this.showSearch = false
+      this.searchValue = ''
+    },
     toggleList (value) {
-      console.log(this)
-      console.log(this.$store.state.currSessionId)
       if (this.checkType === value) return
       this.checkType = value
-    },
-    showListOptions (e, type) {
-      console.log('aaa')
-      if (e.button === 2) {
-        let key = 'history-msg'
-        this.$store.dispatch('showListOptions', {
-          key,
-          show: true,
-          id: 'aaa',
-          pos: {
-            x: e.clientX,
-            y: e.clientY
-          },
-          that: this,
-          msg: 'aaa',
-          callBack: (type) => {
-            switch (type) {
-              case 0: // 多选
-                console.log('多选')
-                break
-              case 2: // 转发
-                console.log('转发')
-                // this.forwordMsg()
-                break
-              case 3: // 复制
-                console.log('复制')
-                // this.$refs.clipboard.innerText = this.getCopyText(e)
-                // this.$refs.clipboard.select()
-                // document.execCommand('Copy')
-                break
-              case 4: // 删除
-                console.log('删除')
-                // this.$store.dispatch('deleteMsg', this.msg)
-                break
-            }
-          }
-        })
-      } else {
-        this.$store.dispatch('showListOptions', {
-          show: false
-        })
-      }
-      // 处理侧栏窗口状态恢复
-      // if (this.$store.state.slideMenuStatus === 2 && type === 'text') {
-      //   this.$store.commit('toggleSlideMenuStatus', 3)
-      // }
-      // 处理拖拽窗口事件移除
-      document.onmousemove = null
-      document.onmouseup = null
-      document.body.style.cursor = 'default'
     }
-    // copyAll () {
-    //   // 右键复制全选
-    //   let isNeedAllSelect = true
-    //   let selection = window.getSelection()
-    //   let target = this.$refs[`copy_${this.idClient}`]
-    //   if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
-    //     let anchorNode = selection.anchorNode
-    //     let focusNode = selection.focusNode
-    //     if (this.isChildOf(anchorNode, target) && this.isChildOf(focusNode, target)) {
-    //       isNeedAllSelect = false
-    //       let range = selection.getRangeAt(0)
-    //       this.selectInfo = {
-    //         anchorNode: selection.anchorNode,
-    //         focusNode: selection.focusNode,
-    //         startOffset: range.startOffset,
-    //         endOffset: range.endOffset
-    //       }
-    //     }
-    //   }
-    //   if (isNeedAllSelect) { // 全选
-    //     let range = document.createRange()
-    //     range.selectNodeContents(target)
-    //     selection.removeAllRanges()
-    //     selection.addRange(range)
-    //   }
-    // },
-    // forwordMsg () {
-    //   // 转发消息
-    //   let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
-    //     item.name = ''
-    //     item.avatar = ''
-    //     if (item.scene === 'p2p') {
-    //       let userInfo = null
-    //       if (item.to !== this.myPhoneId) {
-    //         userInfo = this.userInfos[item.to]
-    //       } else {
-    //         userInfo = Object.assign({}, this.myInfo)
-    //         // userInfo.alias = '我的手机'
-    //         // userInfo.avatar = `${config.myPhoneIcon}`
-    //       }
-    //       if (userInfo) {
-    //         item.name = util.getFriendAlias(userInfo)
-    //         item.avatar = userInfo.avatar
-    //       }
-    //     } else if (item.scene === 'team') {
-    //       let teamInfo = null
-    //       teamInfo = this.$store.state.teamlist.find(team => {
-    //         if (team.teamId === item.to) {
-    //           item.memberNum = team.memberNum
-    //         }
-    //         return team.teamId === item.to
-    //       })
-    //       if (teamInfo) {
-    //         item.name = teamInfo.name
-    //         item.avatar = teamInfo.avatar || this.myGroupIcon
-    //       } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
-    //         item.name = item.lastMsg.attach.team.name
-    //         item.avatar = item.avatar || this.myGroupIcon
-    //       } else {
-    //         item.name = `群${item.to}`
-    //         item.avatar = item.avatar || this.myGroupIcon
-    //       }
-    //       if (!item.memberNum) {
-    //         return false
-    //       }
-    //     }
-    //     if (item.updateTime) {
-    //       item.updateTimeShow = util.formatDate(item.updateTime, true)
-    //     }
-    //     return item
-    //   })
-    //   let sessionlistTop = sessionlist.filter((item) => {
-    //     if (item.localCustom && item.localCustom.topTime) {
-    //       if (item.localCustom.topTime - item.lastMsg.time > 0) {
-    //         item.compareTime = item.localCustom.topTime
-    //       } else {
-    //         item.compareTime = item.lastMsg.time
-    //       }
-    //       return item
-    //     }
-    //   })
-    //   let newSessionlistTop = sessionlistTop.sort((a, b) => {
-    //     return b.compareTime - a.compareTime
-    //   })
-    //   let sessionlistBot = sessionlist.filter((item) => {
-    //     if (!item.localCustom || !item.localCustom.topTime) {
-    //       return item
-    //     }
-    //   })
-    //   let sidelist = [...newSessionlistTop, ...sessionlistBot]
-    //   this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
-    // }
   }
 }
 </script>
@@ -400,6 +271,8 @@ export default {
   }
   .m-historymsg-content {
     padding: 0 40px 0 0;
+    height: 420px;
+    overflow: hidden;
   }
   /* 聊天对象头像 && 昵称 */
   .m-info-box .session-box {
@@ -414,33 +287,46 @@ export default {
   }
   .m-info-box .session-name {
     font-size:14px;
-    color:'#333' ;
+    color:#333 ;
     padding-left: 10px
   }
 
   /* 搜索框 */
-  .m-info-box .search-box {
-    width: 520px;
-    height:28px;
-    background-color: #F0F0F0;
-    border-radius: 2px;
+  .m-info-box .search-bar {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    /* background: #F0F0F0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg==) 8px center no-repeat; */
-    /* background-size: 12px 12px; */
-
-  }
-  .m-info-box .search-box .search {
-    font-size: 12px;
-    color: #7D807E
-  }
-  .m-info-box .search-box .search-img{
-    width:28px;
+    width: 520px;
     height:28px;
-    /* background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg==) 8px center no-repeat; */
-    /* background-size: 12px 12px; */
+    box-sizing: border-box;
+    padding: 0;
   }
+  .m-info-box .search-bar input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
+    background-size: 12px 12px;
+    border-radius: 2px;
+    border: 1px solid rgb(220, 222, 224);
+    font-size: 12px;
+    color: #333;
+    padding: 0 26px;
+    border: 1px solid transparent;
+    transition: border .1s linear;
+  }
+  .m-info-box .search-bar .clear {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+    display: block;
+    width: 13px;
+    height: 13px;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAAAXNSR…ZrPJlEhfIZaoUiFPF/TRMFyifTApwOf58Im1DWfzPV/wbfFZVUmTg6ZgAAAABJRU5ErkJggg==);
+    background-size: 100% 100%;
+    cursor: pointer;
+}
   /* tab头 */
   .m-info-box .tab-title {
     display: flex;
@@ -495,24 +381,6 @@ export default {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 100% 100%;
   }
-  .m-info-box  .list-item {
-    width:100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-bottom: 10px;
-
-  }
-  .m-info-box  .list-item .left{
-    display: flex;
-    flex-direction: row;
-  }
-  .m-info-box .list-item .avatar {
-    width:32px;
-    height:32px;
-    border-radius: 50%;
-    margin-top: 5px;
-  }
+ 
 </style>
 
