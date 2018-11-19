@@ -1,17 +1,29 @@
 <template>
   <li 
-    v-if = "msg.type === 'text'"
     class="list-item"
 >
-    <div  v-if = "msg.type === 'text'" class="list-item">
+    <div  class="list-item">
         <div class="left">
             <img :src="msg.avatar" alt="" class="avatar">
             <div style="padding:0 8px">
-            <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
-            <div 
-                style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
-                @mouseup.stop="showListOptions($event, msg.type)"
-                ref="clipboard">{{msg.text}}</div>
+                <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
+                <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
+
+                <div 
+                    v-if="msg.type==='text'"
+                    style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
+                    @mouseup.stop="showListOptions($event, msg.type)"
+                    ref="clipboard"
+                    v-html="msg.showText"
+                ></div>
+                <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
+                <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></div>
+                <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></div>
+                <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></div>
+                <div v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')"><span>{{msg.showText.split(' ')[0]}}</span></div>
+                <div v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
+                <div v-else-if="msg.type==='notification'" class="msg-text notify">{{msg.showText}}</div>
+                <div v-else class="msg-text" v-html="msg.showText"></div>
             </div>
         </div>
         <div style="font-size:12px; color:#999">{{getTime(msg.time)}}</div>
@@ -75,27 +87,22 @@ export default {
       let item = Object.assign({}, this.rawMsg)
       // 标记用户，区分聊天室、普通消息
       if (item.flow === 'in') {
-        console.log('000')
         if (item.type === 'robot' && item.content && item.content.msgOut) {
-          console.log('111')
           // 机器人下行消息
           let robotAccid = item.content.robotAccid
           item.avatar = this.robotInfos[robotAccid].avatar
           item.isRobot = true
           item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
         } else if (item.from !== this.$store.state.userUID) {
-          console.log('222')
           item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
           item.link = `#/mainpage/contacts/card?accid=${item.from}`
           //  todo如果是未加好友的人发了消息，是否能看到名片
         } else {
           item.avatar = this.myInfo.avatar
-          console.log('333')
           // item.avatar = `${config.myPhoneIcon}`
         }
       } else if (item.flow === 'out') {
         item.avatar = this.myInfo.avatar
-        console.log('444')
       }
       if (item.type === 'timeTag') {
         // 标记发送的时间
@@ -231,6 +238,60 @@ export default {
     }
   },
   mounted () {
+    let item = this.msg
+    // 有时序问题的操作
+    this.$nextTick(() => {
+      let media = null
+      if (item.type === 'image') {
+        media = new Image()
+        media.src = item.file.url
+        media.style = 'width:auto;height:auto;max-width:100%;max-height:100%;vertical-align: bottom;'
+        if (item.status !== 'sending') {
+          // 图片消息缩略图
+          media.src = item.file.url + '?imageView&thumbnail=180x0&quality=85'
+        }
+      } else if (item.type === 'custom-type1') {
+        // 猜拳消息
+        media = new Image()
+        media.className = 'emoji-middle'
+        media.src = item.imgUrl
+      } else if (item.type === 'custom-type3') {
+        // 贴图表情
+        media = new Image()
+        media.className = 'emoji-big'
+        media.src = item.imgUrl
+      } else if (item.type === 'video') {
+        if (/(mov|mp4|ogg|webm)/i.test(item.file.ext)) {
+          media = document.createElement('video')
+          media.src = item.file.url
+          media.width = 640
+          media.height = 480
+          media.style.width = '100%'
+          media.autoStart = false
+          media.preload = 'metadata'
+          media.controls = 'controls'
+        } else {
+          let aLink = document.createElement('a')
+          aLink.href = item.file.url
+          aLink.target = '_blank'
+          //  TODO aLink.innerHTML = `<i class="u-icon icon-file"></i>${video.name}`
+          this.$refs.mediaMsg.appendChild(aLink)
+        }
+      }
+      if (media) {
+        if (this.$refs.mediaMsg) {
+          this.$refs.mediaMsg.appendChild(media)
+        }
+        media.onload = () => {
+          this.$emit('msg-loaded')
+        }
+        media.onerror = () => {
+          this.$emit('msg-loaded')
+        }
+      } else {
+        this.$emit('msg-loaded')
+      }
+    }) // end this.nextTick
   },
   methods: {
     getTime (timestamp) {
@@ -311,4 +372,16 @@ export default {
     border-radius: 50%;
     margin-top: 5px;
 }
+.msg-short .send-short-msg {
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 5px;
+  width: 16px;
+  height: 12px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url('../../../../static/img/edit/message-h.png');
+  background-size: 16px 12px;
+}
+
 </style>

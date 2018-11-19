@@ -43,7 +43,7 @@
         <!-- 全部 && 图片 && 文件 -->
         <div class="tab-title">
           <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('all')">全部</a>
-          <a :class="checkType === 'pic' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('pic')">图片</a>
+          <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('image')">图片</a>
           <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('file')">文件</a>
         </div>
 
@@ -87,7 +87,7 @@ export default {
   },
   mounted () {
     // 获取当前聊天记录
-    this.getHistoryMsgs()
+    this.InitHistoryMsg()
     this.eventBus.$on('checkHistoryMsg', (data) => {
       this.showHistoryMsg = true
       this.isRobot = data.isRobot
@@ -106,7 +106,7 @@ export default {
       loading: false,
       isRobot: false,
       messageCheck: false, // 短信勾选状态
-      checkType: 'all', // all---全部; pic---图片; file---文件
+      checkType: 'all', // all---全部; image---图片; file---文件
       scene: 'p2p', // p2p---单聊； team---群聊
       to: '',
       sessionName: '',
@@ -182,14 +182,68 @@ export default {
       }
     },
     msglist () {
-      let msgs = this.$store.state.currSessionMsgs
-      return msgs
+      let allMsgs = this.$store.state.currSessionMsgs
+      let imagelist = [] // 保存图片历史记录
+      let filelist = [] // 保存文件历史记录
+      let shortMsg = [] // 保存所有短信历史记录
+      allMsgs.map((item, index) => {
+        if (item.type === 'timeTag' || item.type === 'tip' || item.type === 'notification') { // 删除只有时间的、提示信息类列表
+          allMsgs.splice(index, 1)
+        }
+        if (item.type === 'image') {
+          imagelist.push(item)
+        }
+        if (item.type === 'file') {
+          filelist.push(item)
+        }
+        if (item.custom && JSON.parse(item.custom).isSmsMsg) { // 获取短信消息
+          shortMsg.push(item)
+        }
+      })
+      console.log(allMsgs)
+      if (this.checkType === 'all') { // 选择全部
+        if (this.messageCheck) {
+          return shortMsg
+        } else {
+          return allMsgs
+        }
+      } else if (this.checkType === 'image') { // 选择图片
+        console.log(imagelist)
+        let imageShortMsg = []
+        imagelist.map((item, index) => {
+          if (item.custom && JSON.parse(item.custom).isSmsMsg) { // 获取短信消息
+            imageShortMsg.push(item)
+          }
+        })
+        if (this.messageCheck) {
+          return imageShortMsg
+        } else {
+          return imagelist
+        }
+      } else if (this.checkType === 'file') { // 选择文件
+        let fileShortMsg = []
+        filelist.map((item, index) => {
+          if (item.custom && JSON.parse(item.custom).isSmsMsg) { // 获取短信消息
+            fileShortMsg.push(item)
+          }
+        })
+        if (this.messageCheck) {
+          return fileShortMsg
+        } else {
+          return filelist
+        }
+      }
     }
   },
   updated () {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
+    InitHistoryMsg () {
+      if (!this.msglist || this.msglist.length <= 10) {
+        this.getHistoryMsgs()
+      }
+    },
     getHistoryMsgs () {
       let callBack = () => {}
       console.log('历史消息记录')
