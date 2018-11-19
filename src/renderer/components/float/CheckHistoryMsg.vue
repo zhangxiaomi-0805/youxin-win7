@@ -182,13 +182,22 @@ export default {
       }
     },
     msglist () {
-      let allMsgs = this.$store.state.currSessionMsgs
+      let allMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
+      console.log(allMsgs)
+      let allList = [] // 保存所有历史记录
       let imagelist = [] // 保存图片历史记录
       let filelist = [] // 保存文件历史记录
       let shortMsg = [] // 保存所有短信历史记录
       allMsgs.map((item, index) => {
-        if (item.type === 'timeTag' || item.type === 'tip' || item.type === 'notification') { // 删除只有时间的、提示信息类列表
-          allMsgs.splice(index, 1)
+        // if (item.type === 'timeTag') { // 删除只有时间的、提示信息类列表
+        //   allMsgs.splice(index, 1)
+        // } else if (item.type === 'tip') { // 删除只有时间的、提示信息类列表
+        //   allMsgs.splice(index, 1)
+        // } else if (item.type === 'notification') { // 删除只有时间的、提示信息类列表
+        //   allMsgs.splice(index, 1)
+        // }
+        if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
+          allList.push(item)
         }
         if (item.type === 'image') {
           imagelist.push(item)
@@ -205,7 +214,7 @@ export default {
         if (this.messageCheck) {
           return shortMsg
         } else {
-          return allMsgs
+          return allList
         }
       } else if (this.checkType === 'image') { // 选择图片
         console.log(imagelist)

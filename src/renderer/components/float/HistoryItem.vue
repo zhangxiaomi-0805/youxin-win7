@@ -77,6 +77,8 @@ export default {
   },
   data () {
     return {
+      isPlay: false,
+      currentAudio: null
     }
   },
   computed: {
@@ -298,6 +300,17 @@ export default {
       let now = new Date(timestamp)
       return now.toTimeString().substr(0, 8)
     },
+    playAudio (src, msg) {
+      if (!this.currentAudio) {
+        this.currentAudio = new Audio(src)
+        this.currentAudio.play()
+        this.isPlay = true
+        this.currentAudio.onended = () => {
+          this.currentAudio = null
+          this.isPlay = false
+        }
+      }
+    },
     showListOptions (e, type) {
       console.log('aaa')
       if (e.button === 2) {
@@ -372,7 +385,7 @@ export default {
     border-radius: 50%;
     margin-top: 5px;
 }
-.msg-short .send-short-msg {
+.list-item .msg-short .send-short-msg {
   display: inline-block;
   vertical-align: middle;
   padding-left: 5px;
@@ -383,5 +396,26 @@ export default {
   background-image: url('../../../../static/img/edit/message-h.png');
   background-size: 16px 12px;
 }
-
+.list-item .msg-audio{
+  position: relative;
+  overflow: visible !important;
+  width: 60px;
+  height: 20px;
+  transition: all .2s;
+  cursor: pointer;
+  background: url(../../../../static/img/edit/voice-y.png) 12px center no-repeat;
+  background-size: 14px 20px;
+}
+.list-item .msg-audio.zel-play{
+  background: url(../../../../static/img/edit/voice-y-p.gif) 12px center no-repeat;
+  background-size: 14px 20px;
+}
+.msg-audio span{
+  position: absolute;
+  bottom: -2px;
+  right: 0;
+  display: block;
+  color: #999;
+  font-size: 14px;
+}
 </style>
