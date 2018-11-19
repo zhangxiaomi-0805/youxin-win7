@@ -288,7 +288,7 @@ Utils.generateTeamSysmMsg = function (data) {
         // 此情况为高级群设置不需要验证，用户申请入群后，收到的群消息提示
         text = `“${nicks}”加入${task}`
       } else {
-        text = `“${nicks}”通过了“${op}”的入${task}邀请`
+        text = `“${op}”通过了“${nicks}”的入${task}申请`
       }
       break
     }
