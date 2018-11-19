@@ -112,6 +112,10 @@ export async function showListOptions ({state, commit}, obj) {
   }
   // 定义选项事件
   // chatItem
+  let event0 = {
+    title: '多选',
+    callBack: () => obj.callBack(0)
+  }
   let event1 = {
     title: '撤回',
     callBack: () => obj.callBack(1)
@@ -235,6 +239,12 @@ export async function showListOptions ({state, commit}, obj) {
     callBack: () => {
       obj.callBack(8)
     }
+  }
+  // 历史消息记录
+  if (obj.key === 'history-msg') {
+    items = [
+      event3, event2, event0, event4
+    ]
   }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {

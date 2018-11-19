@@ -825,8 +825,6 @@ export default {
     state.personInfos = obj
   },
   updateOrgnizeObj (state, obj) {
-    console.log(state)
-    console.log(obj)
     // 更新组织信息
     if (obj.type === 'replace') {
       state.orgnizeObj = obj.data || {}
@@ -957,8 +955,6 @@ export default {
     }
   },
   updateGroupObj (state, obj) {
-    console.log(state)
-    console.log(obj)
     // 更新我的部门信息
     if (obj.type === 'replace') {
       state.groupObj = obj.data || {}
@@ -982,7 +978,6 @@ export default {
       return true
     }
     let SortGroupFn = (sortGroupList) => {
-      console.log(state.groupObj)
       IndexedDB.setItem('groupObj', state.groupObj)
       // 组织排序
       // for (let i = 0; i < sortGroupList.length; i++) {

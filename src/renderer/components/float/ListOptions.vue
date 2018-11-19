@@ -56,7 +56,7 @@ export default {
   background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0,0,0,0.16);
   border-radius: 10px;
-  z-index: 1000;
+  z-index: 1005;
 }
 
 .m-options .item {

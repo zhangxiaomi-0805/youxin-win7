@@ -6,7 +6,24 @@
     <div class="m-info-box" style="width:600px;height:502px;">
       <!-- 头部 -->
       <div class="drag" id="historyMsgDrag">
-        <span>{{type === 2 ? '个人' : '群组'}}</span>
+        <!-- 单聊 -->
+        <ul  v-if='scene === "p2p"' class="session-box">
+          <li 
+            class="session-box" 
+            v-for="member in memberList" 
+            :key="member.id" 
+            :id="member.id"
+          >
+            <img class="session-avatar" :src="member.avatar">
+            <div class="session-name">{{member.alias}}</div>
+          </li>
+        </ul>
+        <!-- 群聊 -->
+        <div v-else class="session-box">
+          <img :src="teamInfo.avatar" alt="" class="session-avatar">
+          <span class="session-name">{{sessionName}}</span>
+        </div>
+
         <div class="u-sysbtn close">
           <a class="btn-close" @click="closeModal"/>
         </div>
@@ -47,7 +64,10 @@
             <img :src="msg.avatar" alt="" class="avatar">
             <div style="padding:0 8px">
               <span style="font-size:12px; color:#999">{{msg.nickName}}</span>
-              <div style="font-size:13px; color:#333; line-height:18px;padding-top:2px">{{msg.message}}</div>
+              <div 
+                style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
+                @mouseup.stop="showListOptions($event, msg.type)"
+                ref="clipboard">{{msg.message}}</div>
             </div>
           </div>
           <div style="font-size:12px; color:#999">{{msg.time}}</div>
@@ -62,6 +82,7 @@
 <script>
 // import platform from '../../utils/platform'
 import drag from '../../utils/drag.js'
+import util from '../../utils'
 // import configs from '../../configs/index.js'
 // import Request from '../../utils/request.js'
 export default {
@@ -69,8 +90,10 @@ export default {
   mounted () {
     this.eventBus.$on('checkHistoryMsg', (data) => {
       this.showHistoryMsg = true
-      console.log(this.showHistoryMsg)
-      this.type = data.type
+      this.sessionName = data.sessionName
+      this.teamInfo = data.teamInfo
+      this.scene = data.scene
+      this.to = data.to
     })
   },
   data () {
@@ -80,16 +103,96 @@ export default {
       loading: false,
       messageCheck: false, // 短信勾选状态
       checkType: 'all', // all---全部; pic---图片; file---文件
-      type: 2, // 2-单聊，3-群组
-      msgList: [{avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '我那个时候考上公务员的城管 供电局也考上了 去了供电局 感觉比城管好 我那个时候考上公务员的城管', time: '12:42:00'}, {avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '他以为自己是什么小饼干', time: '12:42:00'}, {avatar: 'http://tx.haiqq.com/uploads/allimg/150323/151500B45-1.jpg', nickName: '大西瓜的瓜', message: '这是什么鬼登西', time: '12:42:00'}]
+      // type: 2, // 2-单聊，3-群组
+      scene: 'p2p',
+      to: '',
+      sessionName: '',
+      teamInfo: {},
+      msgList: [{type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '我那个时候考上公务员的城管 供电局也考上了 去了供电局 感觉比城管好 我那个时候考上公务员的城管', time: '12:42:00'}, {type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '他以为自己是什么小饼干', time: '12:42:00'}, {type: 'text', avatar: 'http://tx.haiqq.com/uploads/allimg/150323/151500B45-1.jpg', nickName: '大西瓜的瓜', message: '这是什么鬼登西', time: '12:42:00'}]
     }
   },
   computed: {
+    userInfos () {
+      return this.$store.state.userInfos
+    },
+    sessionId () {
+      let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
+      return sessionId
+    },
+    teamId () {
+      return this.sessionId.replace('team-', '')
+    },
+    teamMembers () {
+      let teamMembers = this.$store.state.teamMembers
+      console.log(teamMembers)
+      let members = teamMembers && teamMembers[this.teamId]
+      return members
+    },
+    memberList () {
+      if (this.scene === 'p2p') {
+        let members = []
+        if (this.to === this.$store.state.userUID) {
+          // 自己同自己发消息
+          members.push({
+            alias: this.$store.state.myInfo.nick,
+            avatar: this.$store.state.myInfo.avatar
+          })
+        } else {
+          let userInfo = this.userInfos[this.to]
+          if (userInfo) {
+            members.push({
+              alias: util.getFriendAlias(userInfo),
+              avatar: userInfo.avatar
+            })
+          }
+        }
+        return members
+      }
+      let teamMembers = this.$store.state.teamMembers
+      let members = teamMembers && teamMembers[this.teamId]
+      let needSearchAccounts = []
+      if (members) {
+        members = members.map(item => {
+          var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
+          member.valid = true // 被管理员移除后，标记为false
+          if (member.account === this.$store.state.userUID) {
+            member.alias = '我'
+            member.avatar = this.$store.state.myInfo.avatar
+          } else if (this.userInfos[member.account] === undefined) {
+            needSearchAccounts.push(member.account)
+            member.avatar = member.avatar || this.avatar
+            member.alias = member.nickInTeam || member.account
+          } else {
+            member.avatar = this.userInfos[member.account].avatar
+            member.alias = this.userInfos[member.account].alias || member.nickInTeam || this.userInfos[member.account].nick
+          }
+          return member
+        })
+        if (needSearchAccounts.length > 0) {
+          while (needSearchAccounts.length > 0) {
+            this.searchUsers(needSearchAccounts.splice(0, 150))
+          }
+        }
+        return members
+      }
+    }
   },
   updated () {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
+    // getHistoryMsgs () {
+    //   console.log(this)
+    //   console.log(this.$store.state.currSessionId)
+    //   // if (this.canLoadMore) {
+    //   //   this.$store.dispatch('getLocalMsgs', {
+    //   //     scene: this.scene,
+    //   //     to: this.to,
+    //   //     sessionId: this.$store.state.currSessionId,
+    //   //     callBack: callBack
+    //   //   })
+    //   // }
+    // },
     closeCover () {
       this.showConfirmCover = false
     },
@@ -98,9 +201,153 @@ export default {
       this.loading = false
     },
     toggleList (value) {
+      console.log(this)
+      console.log(this.$store.state.currSessionId)
       if (this.checkType === value) return
       this.checkType = value
+    },
+    showListOptions (e, type) {
+      console.log('aaa')
+      if (e.button === 2) {
+        let key = 'history-msg'
+        this.$store.dispatch('showListOptions', {
+          key,
+          show: true,
+          id: 'aaa',
+          pos: {
+            x: e.clientX,
+            y: e.clientY
+          },
+          that: this,
+          msg: 'aaa',
+          callBack: (type) => {
+            switch (type) {
+              case 0: // 多选
+                console.log('多选')
+                break
+              case 2: // 转发
+                console.log('转发')
+                // this.forwordMsg()
+                break
+              case 3: // 复制
+                console.log('复制')
+                // this.$refs.clipboard.innerText = this.getCopyText(e)
+                // this.$refs.clipboard.select()
+                // document.execCommand('Copy')
+                break
+              case 4: // 删除
+                console.log('删除')
+                // this.$store.dispatch('deleteMsg', this.msg)
+                break
+            }
+          }
+        })
+      } else {
+        this.$store.dispatch('showListOptions', {
+          show: false
+        })
+      }
+      // 处理侧栏窗口状态恢复
+      // if (this.$store.state.slideMenuStatus === 2 && type === 'text') {
+      //   this.$store.commit('toggleSlideMenuStatus', 3)
+      // }
+      // 处理拖拽窗口事件移除
+      document.onmousemove = null
+      document.onmouseup = null
+      document.body.style.cursor = 'default'
     }
+    // copyAll () {
+    //   // 右键复制全选
+    //   let isNeedAllSelect = true
+    //   let selection = window.getSelection()
+    //   let target = this.$refs[`copy_${this.idClient}`]
+    //   if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
+    //     let anchorNode = selection.anchorNode
+    //     let focusNode = selection.focusNode
+    //     if (this.isChildOf(anchorNode, target) && this.isChildOf(focusNode, target)) {
+    //       isNeedAllSelect = false
+    //       let range = selection.getRangeAt(0)
+    //       this.selectInfo = {
+    //         anchorNode: selection.anchorNode,
+    //         focusNode: selection.focusNode,
+    //         startOffset: range.startOffset,
+    //         endOffset: range.endOffset
+    //       }
+    //     }
+    //   }
+    //   if (isNeedAllSelect) { // 全选
+    //     let range = document.createRange()
+    //     range.selectNodeContents(target)
+    //     selection.removeAllRanges()
+    //     selection.addRange(range)
+    //   }
+    // },
+    // forwordMsg () {
+    //   // 转发消息
+    //   let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
+    //     item.name = ''
+    //     item.avatar = ''
+    //     if (item.scene === 'p2p') {
+    //       let userInfo = null
+    //       if (item.to !== this.myPhoneId) {
+    //         userInfo = this.userInfos[item.to]
+    //       } else {
+    //         userInfo = Object.assign({}, this.myInfo)
+    //         // userInfo.alias = '我的手机'
+    //         // userInfo.avatar = `${config.myPhoneIcon}`
+    //       }
+    //       if (userInfo) {
+    //         item.name = util.getFriendAlias(userInfo)
+    //         item.avatar = userInfo.avatar
+    //       }
+    //     } else if (item.scene === 'team') {
+    //       let teamInfo = null
+    //       teamInfo = this.$store.state.teamlist.find(team => {
+    //         if (team.teamId === item.to) {
+    //           item.memberNum = team.memberNum
+    //         }
+    //         return team.teamId === item.to
+    //       })
+    //       if (teamInfo) {
+    //         item.name = teamInfo.name
+    //         item.avatar = teamInfo.avatar || this.myGroupIcon
+    //       } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+    //         item.name = item.lastMsg.attach.team.name
+    //         item.avatar = item.avatar || this.myGroupIcon
+    //       } else {
+    //         item.name = `群${item.to}`
+    //         item.avatar = item.avatar || this.myGroupIcon
+    //       }
+    //       if (!item.memberNum) {
+    //         return false
+    //       }
+    //     }
+    //     if (item.updateTime) {
+    //       item.updateTimeShow = util.formatDate(item.updateTime, true)
+    //     }
+    //     return item
+    //   })
+    //   let sessionlistTop = sessionlist.filter((item) => {
+    //     if (item.localCustom && item.localCustom.topTime) {
+    //       if (item.localCustom.topTime - item.lastMsg.time > 0) {
+    //         item.compareTime = item.localCustom.topTime
+    //       } else {
+    //         item.compareTime = item.lastMsg.time
+    //       }
+    //       return item
+    //     }
+    //   })
+    //   let newSessionlistTop = sessionlistTop.sort((a, b) => {
+    //     return b.compareTime - a.compareTime
+    //   })
+    //   let sessionlistBot = sessionlist.filter((item) => {
+    //     if (!item.localCustom || !item.localCustom.topTime) {
+    //       return item
+    //     }
+    //   })
+    //   let sidelist = [...newSessionlistTop, ...sessionlistBot]
+    //   this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
+    // }
   }
 }
 </script>
@@ -141,7 +388,7 @@ export default {
     box-sizing: border-box;
     position: relative;
     width: 100%;
-    padding: 9px 10px;
+    padding: 15px 0 8px 0;
     font-size: 14px;
     color: #999;
   }
@@ -154,6 +401,22 @@ export default {
   .m-historymsg-content {
     padding: 0 40px 0 0;
   }
+  /* 聊天对象头像 && 昵称 */
+  .m-info-box .session-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center
+  }
+  .m-info-box .session-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px
+  }
+  .m-info-box .session-name {
+    font-size:14px;
+    color:'#333' ;
+    padding-left: 10px
+  }
 
   /* 搜索框 */
   .m-info-box .search-box {
@@ -164,8 +427,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #F0F0F0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg==) 8px center no-repeat;
-    background-size: 12px 12px;
+    /* background: #F0F0F0 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg==) 8px center no-repeat; */
+    /* background-size: 12px 12px; */
 
   }
   .m-info-box .search-box .search {
@@ -175,8 +438,8 @@ export default {
   .m-info-box .search-box .search-img{
     width:28px;
     height:28px;
-    background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg==) 8px center no-repeat;
-    background-size: 12px 12px;
+    /* background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAAXNSR…I6vSXCIp4eS+/iopLIDyItL7dMWMTz+XzjwtLSEyR4/h8s8iA5AK+B4wAAAABJRU5ErkJggg==) 8px center no-repeat; */
+    /* background-size: 12px 12px; */
   }
   /* tab头 */
   .m-info-box .tab-title {

@@ -176,11 +176,11 @@ export default {
       } else if (/^team-/.test(sessionId)) {
         if (this.teamInfo) {
           // 获取群成员
-          // var teamMembers = this.$store.state.teamMembers[this.to]
-          // if (teamMembers === undefined || teamMembers.length < this.teamInfo.memberNum) {
-          //   console.log('chat')
-          //   this.$store.dispatch('getTeamMembers', this.to)
-          // }
+          var teamMembers = this.$store.state.teamMembers[this.to]
+          if (teamMembers === undefined || teamMembers.length < this.teamInfo.memberNum) {
+            console.log('chat')
+            this.$store.dispatch('getTeamMembers', this.to)
+          }
           return this.teamInfo.name
         } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
           return this.lastMsg.attach.team.name
@@ -273,9 +273,6 @@ export default {
     },
     funKey () {
       let sessionId = this.sessionId
-      console.log(sessionId)
-      console.log(this.$store.state.userUID)
-      console.log(this.teamInfo)
       let user = null
       if (/^p2p-/.test(sessionId)) {
         user = sessionId.replace(/^p2p-/, '')
@@ -398,6 +395,8 @@ export default {
       }
     },
     getHistoryMsgs (callBack) {
+      console.log(this)
+      console.log(this.$store.state.currSessionId)
       if (this.canLoadMore) {
         this.$store.dispatch('getLocalMsgs', {
           scene: this.scene,
@@ -492,10 +491,10 @@ export default {
       }
     },
     showHistoryMsgModal () {
-      let type = this.funKey
-      console.log(type)
+      let sessionName = this.sessionName
+      let teamInfo = this.teamInfo
       // 查看历史记录
-      this.eventBus.$emit('checkHistoryMsg', {type})
+      this.eventBus.$emit('checkHistoryMsg', {scene: this.scene, to: this.to, sessionName, teamInfo})
     },
     createTeam () {
       this.$store.commit('updateOrgDisabledlist', {type: 'put', accid: this.to})
