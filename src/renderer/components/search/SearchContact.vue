@@ -219,6 +219,7 @@
         if (!user.accid) {
           return false
         }
+        if (this.isDisabled(user)) return false
         user.scene = 'p2p'
         user.to = user.accid
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})

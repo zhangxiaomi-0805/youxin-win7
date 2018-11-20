@@ -25,7 +25,7 @@
           </div>
 
           <!-- btn -->
-          <transition name="fade"><a class="btn" v-if="selectedIndex === $index" @click="openWindow">立即进入</a></transition>
+          <transition name="fade"><a class="btn" v-if="selectedIndex === $index" @click="openWindow(item)">立即进入</a></transition>
         </li>
       </ul>
     </div>
@@ -36,6 +36,7 @@
 <script>
 import SystemCaption from '../controls/SystemCaption.vue'
 import Request from '../../utils/request'
+import { shell } from 'electron'
 export default {
   name: 'workbench',
   components: {SystemCaption},
@@ -56,10 +57,22 @@ export default {
         this.dataList = ret
       }).catch(() => {})
     },
-    openWindow () {
-      const electron = require('electron')
-      const ipRenderer = electron.ipcRenderer
-      ipRenderer.send('openAplWindow')
+    async openWindow (item) {
+      let url = item.url
+      if (item.freeLogin === 1) {
+        try {
+          url = await Request.ThirdConnection({ url, appCode: item.appCode }, this)
+        } catch (error) {}
+      }
+      if (url) {
+        if (item.openType === 1) {
+          const electron = require('electron')
+          const ipRenderer = electron.ipcRenderer
+          ipRenderer.send('openAplWindow', {url: item.url, title: item.appName, appCode: item.appCode, type: 1})
+        } else {
+          shell.openExternal(url)
+        }
+      }
     }
   }
 }

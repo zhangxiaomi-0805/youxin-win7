@@ -152,7 +152,12 @@ function AddOrDelContactUser (params, $this) {
 }
 
 function GetThirdList (params, $this) {
-  // 获取接入系统列表
+  /**
+   * 获取接入系统列表
+   * 流程说明： 通过freeLogin来判断是否免登陆 （0-需要登陆 1-免登陆）
+   * 0直接访问URL，1的时候先调接入系统跳转接口，再访问返回的URL
+   * 通过openType来判断打开方式  （1-PC客户端打开 2-WEB浏览器打开 )
+   */
   return new Promise((resolve, reject) => {
     Fetch.post('api/appPc/thirdList', params, $this).then(res => resolve(res)).catch((err) => reject(err))
   })
@@ -191,6 +196,17 @@ function GenerateQrCode (params, $this) {
   })
 }
 
+function ThirdConnection (params, $this) {
+  /**
+   * 接入系统跳转 获取URL
+   * @param url      需要跳转的url
+   * @param appCode  应用编码
+   */
+  return new Promise((resolve, reject) => {
+    Fetch.post('api/appPc/thirdConnection', params).then(res => resolve(res)).catch((err) => reject(err))
+  })
+}
+
 export default {
   LoginAuth,
   GetUserInfo,
@@ -208,5 +224,6 @@ export default {
   GetThirdList,
   PullDepartment,
   DelTeam,
-  GenerateQrCode
+  GenerateQrCode,
+  ThirdConnection
 }
