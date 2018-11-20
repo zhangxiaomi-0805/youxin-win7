@@ -43,8 +43,8 @@
             <span class="file-size">
               {{fileSize}}
             </span>
-            <span v-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" >
-              <a :href="downloadFile" type="*" style="width: 100%;height: 100%;display: block;" download="*" />
+            <span v-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click="sendIpcMsgId">
+              <a :href="downloadFile" type="*" style="width: 100%;height: 100%;display: block;" download="*"/>
             </span>
             <span class="circle-bar" v-else-if="curProgress < 100">
               <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
@@ -55,7 +55,7 @@
               </span>
             </span>
             <span v-else style="color: #999;font-size: 12px;">
-              已发送
+              {{msg.flow === 'out' ? '已发送' : '已下载'}}
             </span>
           </span>
         </span>
@@ -180,7 +180,7 @@
         if (this.msg.flow === 'out') {
           return this.uploadprogress
         } else {
-          return this.downloadProgress
+          return this.isDownloaded ? 100 : this.downloadProgress
         }
       },
       msg () {
@@ -378,7 +378,7 @@
       // 0 -未下载 1 -已下载
       isDownloaded () {
         // 文件下载后保存的地址
-        if (this.msg.type === 'file') {
+        if (this.msg.type === 'file' && this.msg.flow === 'in') {
           const url = this.msg.localCustom && this.msg.localCustom.downloadUrl
           if (!url) {
             return 0
@@ -386,6 +386,7 @@
             return 1
           }
         }
+        return false
       }
     },
     mounted () {
@@ -442,14 +443,26 @@
         } else {
           this.$emit('msg-loaded')
         }
-      }) // end this.nextTick
-      ipcRenderer.on('downloading', (evt, obj) => {
-        if (this.curDownloadStatus !== 1) {
-          this.curDownloadStatus = 1
+        if (item.type === 'file' && item.flow === 'in') {
+          // 下载中
+          ipcRenderer.on(`downloading-${this.msg.idClient}`, (evt, obj) => {
+            if (this.curDownloadStatus !== 1) {
+              this.curDownloadStatus = 1
+            }
+            this.downloadProgress = obj.progressing
+          })
+          // 下载完成
+          ipcRenderer.on(`downloaded-${this.msg.idClient}`, (evt, obj) => {
+            if (this.curDownloadStatus !== 2) {
+              this.curDownloadStatus = 2
+            }
+            this.$store.state.nim.updateLocalMsg({
+              idClient: this.msg.idClient,
+              localCustom: {downloadUrl: obj.url}
+            })
+          })
         }
-        this.downloadProgress = obj.progressing
-        // if (this.downloadStatus)
-      })
+      }) // end this.nextTick
     },
     methods: {
       // testOpenFile () {
@@ -465,6 +478,9 @@
       //     console.log(`Child exited with code ${code}`)
       //   })
       // },
+      sendIpcMsgId () {
+        ipcRenderer.send('curFileMsg', {id: this.msg.idClient})
+      },
       preventDefault (e) {
         e.stopPropagation()
       },
