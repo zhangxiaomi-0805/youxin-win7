@@ -60,6 +60,7 @@
             v-for="(msg, $index) in allMsgList"
             :key = $index
             :msg="msg"
+            :idClient="msg.idClient"
             :isRobot="isRobot"
             :userInfos="userInfos"
             :myInfo="myInfo"/>
@@ -70,6 +71,7 @@
             v-for="(msg, $index) in imageMsgList"
             :key = $index
             :msg="msg"
+            :idClient="msg.idClient"
             :isRobot="isRobot"
             :userInfos="userInfos"
             :myInfo="myInfo"/>
@@ -80,13 +82,15 @@
             v-for="(msg, $index) in fileMsgList"
             :key = $index
             :msg="msg"
+            :idClient="msg.idClient"
             :isRobot="isRobot"
             :userInfos="userInfos"
             :myInfo="myInfo"/>
         </ul>
         <!-- 搜索结果 -->
         <search-history-msg
-          v-if="showSearch"
+          v-if="showSearch && checkType === 'all'"
+          keep-alive
           :value="searchValue"
           :historyMsgList="allMsgList"
           :userInfos="userInfos"
@@ -500,6 +504,9 @@ export default {
     padding: 0 26px;
     border: 1px solid transparent;
     transition: border .1s linear;
+  }
+  .m-info-box .search-bar input.active{
+    border: 1px solid rgba(4,154,255,1);
   }
   .m-info-box .search-bar .clear {
     position: absolute;

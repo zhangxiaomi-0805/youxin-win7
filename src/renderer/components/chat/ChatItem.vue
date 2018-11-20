@@ -481,6 +481,7 @@
           this.copyAll()
         }
         this.eventBus.$emit('checkUser', {})
+        console.log(this.msg)
         if (e.button === 2) {
           let key = ''
           if (this.msg.flow === 'out' && (this.to !== this.myInfo.account)) {

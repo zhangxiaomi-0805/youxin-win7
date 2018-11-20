@@ -88,10 +88,8 @@ export default {
         return
       }
       let searchlist = []
-      console.log(value)
-      console.log(this.historyMsgList)
       for (let i in this.historyMsgList) {
-        if (this.historyMsgList[i].text.indexOf(value) > -1) {
+        if (this.historyMsgList[i].text && this.historyMsgList[i].text.indexOf(value) > -1) {
           searchlist.push(this.historyMsgList[i])
         }
       }
