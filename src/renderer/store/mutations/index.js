@@ -828,6 +828,7 @@ export default {
     state.personInfos = obj
   },
   updateOrgnizeObj (state, obj) {
+    // 更新组织信息
     if (obj.type === 'replace') {
       state.orgnizeObj = obj.data || {}
       return
@@ -923,6 +924,137 @@ export default {
               }
             }
             SortOrgFn(currentOrgList)
+          }
+          // 更新成员
+          for (let i in obj.userlist) {
+            let objUpdate = obj.userlist[i]
+            let hasExit = false
+            for (let j in currentUserList) {
+              let user = Object.assign({}, currentUserList[j])
+              if (user.id === objUpdate.id) {
+                if (objUpdate.dataStatus === 1) {
+                  // 替换
+                  user = objUpdate
+                  currentUserList.splice(j, 1, user)
+                } else if (objUpdate.dataStatus === 2) {
+                  // 删除
+                  currentUserList.splice(j, 1)
+                }
+                hasExit = true
+                break
+              }
+            }
+            if (!hasExit) {
+              // 新增
+              if (objUpdate.dataStatus === 1) {
+                currentUserList.push(objUpdate)
+              }
+            }
+            SortUserFn(currentUserList)
+          }
+          currentOrgObj.tag = obj.tag
+        }
+      }
+    }
+  },
+  updateGroupObj (state, obj) {
+    // 更新我的部门信息
+    if (obj.type === 'replace') {
+      state.groupObj = obj.data || {}
+      return
+    }
+    let InitFn = () => {
+      let groupObj = {
+        currentId: obj.currentId,
+        parentId: obj.parentId,
+        orgnizelist: obj.orgnizelist,
+        userlist: obj.userlist,
+        tag: obj.tag
+      }
+      if (JSON.stringify(groupObj) === JSON.stringify(state.groupObj[obj.currentId])) {
+        // 数据未发生变化不做处理
+        return false
+      }
+      obj.set(state.groupObj, obj.currentId, groupObj)
+      SortGroupFn(state.groupObj[obj.currentId].orgnizelist)
+      SortUserFn(state.groupObj[obj.currentId].userlist)
+      return true
+    }
+    let SortGroupFn = (sortGroupList) => {
+      IndexedDB.setItem('groupObj', state.groupObj)
+      // 组织排序
+      // for (let i = 0; i < sortGroupList.length; i++) {
+      //   for (let j = 0; j < sortGroupList.length - 1 - i; j++) {
+      //     let orgSeqBef = sortGroupList[j].orgSeq
+      //     let orgSeqAft = sortGroupList[j + 1].orgSeq
+      //     if (orgSeqBef > orgSeqAft) {
+      //       let t = sortGroupList[j]
+      //       sortGroupList[j] = sortGroupList[j + 1]
+      //       sortGroupList[j + 1] = t
+      //     }
+      //   }
+      // }
+    }
+    let SortUserFn = (sortUserList) => {
+      console.log(state.groupObj)
+      IndexedDB.setItem('groupObj', state.groupObj)
+      // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
+      let superManger = []
+      let manager = []
+      let member = []
+      for (let i in sortUserList) {
+        let obj = sortUserList[i]
+        if (obj.userType === 2) {
+          superManger.push(obj)
+        } else if (obj.userType === 3) {
+          manager.push(obj)
+        } else {
+          member.push(obj)
+        }
+      }
+      superManger = listSort(superManger)
+      manager = listSort(manager)
+      member = listSort(member)
+      sortUserList = [...superManger, ...manager, ...member]
+    }
+    // 更新我的部门数据
+    if (obj.type === 'init') {
+      if (!InitFn()) return false
+    } else if (obj.type === 'update') {
+      // pullTag 拉取标识，1-全量拉取；2-增量拉取（当传入的tag与当前时间相差30天（暂定）以上，那么就会全量返回数据，需对已有数据做替换）
+      if (obj.pullTag === 1) {
+        if (!InitFn()) return false
+      } else {
+        let currentOrgObj = state.groupObj[obj.currentId]
+        if (currentOrgObj) {
+          let currentOrgList = currentOrgObj.orgnizelist
+          let currentUserList = currentOrgObj.userlist
+          // 更新我的部门
+          for (let i in obj.orgnizelist) {
+            let objUpdate = obj.orgnizelist[i]
+            let hasExit = false
+            for (let j in currentOrgList) {
+              let orgnize = Object.assign({}, currentOrgList[j])
+              if (orgnize.id === objUpdate.id) {
+                if (objUpdate.dataStatus === 1) {
+                  // 替换
+                  orgnize = objUpdate
+                  currentOrgList.splice(j, 1, orgnize)
+                } else if (objUpdate.dataStatus === 2) {
+                  // 删除
+                  currentOrgList.splice(j, 1)
+                }
+                hasExit = true
+                break
+              }
+            }
+            if (!hasExit) {
+              // 新增
+              if (objUpdate.dataStatus === 1) {
+                currentOrgList.push(objUpdate)
+              }
+            }
+            SortGroupFn(currentOrgList)
           }
           // 更新成员
           for (let i in obj.userlist) {

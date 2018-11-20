@@ -174,7 +174,6 @@
       } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
         let loginInfo = JSON.parse(localStorage.LOGININFO)
-        console.log(loginInfo)
         this.account = loginInfo.account
         this.isRember = loginInfo.isRember
         if (loginInfo.isRember) {
@@ -326,6 +325,31 @@
             // 登录sdk
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
+            this.$store.commit('updatePersonInfos', userInfo)
+            // 初始化组织架构、我的部门、联系、常用联系人列表
+            IndexedDB.getItem('orgnizeObj')
+              .then(data => {
+                this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+              })
+              .catch(() => {})
+            IndexedDB.getItem('groupObj')
+              .then(data => {
+                this.$store.commit('updateGroupObj', {data, type: 'replace'})
+              })
+              .catch(() => {})
+            IndexedDB.getAll('contactslist')
+              .then(data => {
+                this.$store.commit('updateContactslist', {data, type: 'replace'})
+              })
+              .catch(() => {})
+            // IndexedDB.getAll('contactsToplist')
+            //   .then(data => {
+            //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
+            //   })
+            //   .catch(() => {})
+            Request.getContactUserList({tag: 0}, this).then(ret => {
+              this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+            }).catch(() => {})
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {
@@ -397,7 +421,6 @@
             })
           } else this.loading = false
         }).catch((err) => {
-          console.log(err)
           this.loading = false
           if (err) this.errMsg = err.msg
         })

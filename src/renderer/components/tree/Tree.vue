@@ -86,18 +86,32 @@
         <div class="t-center"><span style="line-height: 14px;">组织架构</span></div>
       </div>
     </a>
-    <div :class="orginzeopen ? 't-body active' : 't-body'">
+
+    <!-- 我的部门-我所在部门 -->
+    <div 
+      v-if="listType === 'group'"
+      class="t-orgname" 
+      style="paddingLeft: 13px"
+      @click="toggleDept"  
+    >
+      <div v-if="groupObj[myDeptId]" :class="myDeptOpen ? 't-open' : 't-takeup'"/>
+      <div v-else class="t-common"/>
+      <span class="mydept" :title="myDept || '我的部门'">{{myDept || '我的部门'}}</span>
+    </div>
+
+    <div :class="(orginzeopen && listType !== 'group') || (myDeptOpen && listType === 'group') ? 't-body active' : 't-body'">
       <tree-item
+        :listType="listType"
         :noAdd="noAdd"
         :showTitle="showTitle"
         :showCheck="showCheck"
-        :orgnizeObj="orgnizeObj"
-        :orgnizeLevelObj="orgnizeObj[0]"
+        :orgnizeObj="listType === 'team' ? orgnizeObj : groupObj"
+        :orgnizeLevelObj="listType === 'team' ? orgnizeObj[0] : groupObj[myDeptId]"
         :orgLevel="1"
         :orgSelectId="orgSelectId"
         :orgSelectLevel="orgSelectLevel"
         :orgSelectHandle="orgSelectHandle"
-        :renderOrgData="renderOrgData"/>
+        :renderOrgData="listType === 'team' ? renderOrgData : renderGroupData"/>
     </div>
   </div>
 </div>
@@ -116,7 +130,8 @@ export default {
     showTeam: Boolean,
     showCheck: Boolean,
     noAdd: Boolean,
-    callBack: Function
+    callBack: Function,
+    listType: String // lisType='team'---组织架构；lisType='group'---我的部门
   },
   components: {TreeItem},
   data () {
@@ -124,23 +139,33 @@ export default {
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
       orginzeopen: !this.showTitle, // 组织机构展开状态
+      myDeptOpen: false, // 我的部门展开状态
       companyopen: false, // 公司展开状态
       teamopen: false, // 群展开状态
-      groupopen: false,
+      groupopen: false, // 讨论组
       contactsopen: false,
       companyInfo: {}, // 公司信息
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
       teamAddAllId: -1,
-      groupAddAllId: -1
+      groupAddAllId: -1,
+      myDept: this.$store.state.personInfos.companyName, // 获取我的组织
+      myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
     }
   },
   mounted () {
-    this.orgDataInit()
+    if (this.listType === 'team') {
+      this.orgDataInit()
+    } else if (this.listType === 'group') {
+      this.groupDataInit()
+    }
   },
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
+    },
+    groupObj () {
+      return this.$store.state.groupObj
     },
     contactsToplist () {
       return this.$store.state.contactsToplist
@@ -186,6 +211,10 @@ export default {
     toggleOrg () {
       // 组织架构展开、收起
       this.orginzeopen = !this.orginzeopen
+    },
+    toggleDept () {
+      // 我的部门展开、收起
+      this.myDeptOpen = !this.myDeptOpen
     },
     orgSelectHandle (user) {
       if (this.showCheck) {
@@ -242,6 +271,15 @@ export default {
       if (this.$store.state.personInfos.accid === accid) return true
       return false
     },
+    groupDataInit () {
+      // 我的部门数据初始化
+      let tag = 0
+      if (this.groupObj[0] && this.groupObj[0].tag) {
+        tag = this.groupObj[0].tag
+      }
+      let params = {depId: this.myDeptId, tag, parentId: 0}
+      this.renderGroupData(params)
+    },
     orgDataInit () {
       // 组织数据初始化
       let tag = 0
@@ -282,6 +320,30 @@ export default {
       }).catch(() => {
       })
     },
+    renderGroupData (params) {
+      // 拉取我的部门框架
+      let {depId, tag, parentId} = params
+      let type = 'init'
+      tag = tag || 0
+      Request.PullDepartment({
+        depId, tag
+      }, this).then(ret => {
+        if (ret) {
+          if (tag) type = 'update'
+          this.$store.commit('updateGroupObj', {
+            type,
+            set: this.$set,
+            currentId: depId,
+            parentId: parentId,
+            orgnizelist: ret.orgList,
+            userlist: ret.userList,
+            tag: ret.tag,
+            pullTag: ret.pullTag
+          })
+        }
+      }).catch(() => {
+      })
+    },
     mouseenter (type, id) {
       if (this.noAdd) return
       this[type] = id
@@ -295,6 +357,25 @@ export default {
 </script>
 
 <style scoped>
+  .t-orgname .mydept {
+    font-size: 14px;
+    color: #333
+  }
+  .t-orgname {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    height: 36px;
+    padding-left: 12px;
+    padding-right: 12px;
+    font-size: 14px;
+    color: #333;
+    transition: all .3s linear;
+    cursor: default;
+  }
   .t-center {
     display: flex;
     flex-direction: row;
