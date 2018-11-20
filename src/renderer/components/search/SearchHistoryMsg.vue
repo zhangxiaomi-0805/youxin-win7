@@ -47,6 +47,7 @@ import util from '../../utils'
 export default {
   name: 'search-history-msg',
   props: {
+    messageCheck: Boolean,
     value: String,
     historyMsgList: Array,
     clearStatus: Function,
@@ -76,6 +77,13 @@ export default {
         if (newValue !== this.beforeValue) return
         this.renderItem(newValue)
       }, 500)
+    },
+    messageCheck (newValue, oldValue) {
+      this.beforeValue = newValue
+      setTimeout(() => {
+        if (newValue !== this.beforeValue) return
+        this.renderItem(this.value)
+      }, 500)
     }
   },
   methods: {
@@ -83,17 +91,22 @@ export default {
       return util.formatDate(time, true)
     },
     renderItem (value) {
-      if (!value) {
-        this.reset()
-        return
-      }
       let searchlist = []
+      let searchMsgList = []
       for (let i in this.historyMsgList) {
         if (this.historyMsgList[i].text && this.historyMsgList[i].text.indexOf(value) > -1) {
-          searchlist.push(this.historyMsgList[i])
+          searchlist.unshift(this.historyMsgList[i])
+          if (this.historyMsgList[i].custom && JSON.parse(this.historyMsgList[i].custom).isSmsMsg) {
+            searchMsgList.unshift(this.historyMsgList[i])
+          }
         }
       }
-      this.searchlist = searchlist
+      if (this.messageCheck) {
+        this.searchlist = searchMsgList
+      } else {
+        this.searchlist = searchlist
+      }
+      console.log(this.searchlist)
     },
     nameClass (text, classname) {
       classname = classname || ''

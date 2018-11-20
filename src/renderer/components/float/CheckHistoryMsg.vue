@@ -89,12 +89,13 @@
         </ul>
         <!-- 搜索结果 -->
         <search-history-msg
-          v-if="showSearch && checkType === 'all'"
+          v-show="showSearch && checkType === 'all'"
           keep-alive
           :value="searchValue"
           :historyMsgList="allMsgList"
           :userInfos="userInfos"
           :myInfo="myInfo"
+          :messageCheck="messageCheck"
           :clearStatus="clearStatus"/>
       </div>
     </div>    
@@ -141,7 +142,17 @@ export default {
       scene: 'p2p', // p2p---单聊； team---群聊
       to: '',
       sessionName: '',
-      teamInfo: {}
+      teamInfo: {},
+      beforeValue: '' // 上一次输入的值，做延时搜索
+    }
+  },
+  watch: {
+    searchValue (newValue, oldValue) {
+      this.beforeValue = newValue
+      setTimeout(() => {
+        if (newValue !== this.beforeValue) return
+        this.checkType = 'all'
+      }, 500)
     }
   },
   computed: {
