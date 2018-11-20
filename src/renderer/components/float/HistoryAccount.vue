@@ -34,7 +34,6 @@ export default {
   },
   methods: {
     onMouseenter (id) {
-      console.log(id)
       this.selectedId = id
     },
     onMouseleave (id) {

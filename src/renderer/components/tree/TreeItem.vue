@@ -1,11 +1,12 @@
 <template>
 <div>
-  <ul class="t-u-list">
+  <ul class="t-u-list"  
+  style="{height: 'auto',overflow: 'hidden'}">
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
       <div 
         class="t-orgname" 
-        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : 1)) * 13 + 'px'}" 
-        @click="toggleStatus(orgnize, orgnize.id, $index)" 
+        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'group' ? 0 : 1)) * 13 + 'px'}" 
+        @click="toggleStatus(orgnize.id, orgnize, $index)" 
         @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
         @mouseleave="mouseleave('orgAddAllId')">
         <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
@@ -32,7 +33,8 @@
   </ul>
   <ul 
     v-if="userlist"
-    class="t-u-list t-body active">
+    class="t-u-list t-body active" 
+    style="{height: 'auto',overflow: 'hidden'}">
     <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
       <div 
         :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
@@ -65,13 +67,16 @@ export default {
     orgSelectId: String,
     orgSelectLevel: Number,
     orgSelectHandle: Function,
-    renderOrgData: Function
+    renderOrgData: Function,
+    listType: String // lisType='team'---组织架构；lisType='group'---我的部门
   },
   data () {
     return {
       activeId: -1,
       orgAddAllId: -1,
-      defaultUserIcon: configs.defaultUserIcon
+      defaultUserIcon: configs.defaultUserIcon,
+      myDept: this.$store.state.personInfos.companyName, // 获取我的组织
+      myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
     }
   },
   computed: {
@@ -108,10 +113,14 @@ export default {
       // 获取下一个父节点
       return this.orgnizeObj[id]
     },
-    toggleStatus (orgnize, id, index) {
+    toggleStatus (id, orgnize, index) {
       if (id === this.activeId) {
         this.activeId = -1
         return false
+      }
+      if (id === this.myDeptId) {
+        this.activeId = id
+        return
       }
       if (orgnize.hasChild) {
         // 切换展开、收起状态
@@ -186,6 +195,7 @@ export default {
 </script>
 
 <style scoped>
+  
   .t-u-list .t-u-list-item .t-orgname {
     position: relative;
     display: flex;

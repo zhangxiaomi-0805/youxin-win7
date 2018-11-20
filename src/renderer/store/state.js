@@ -142,6 +142,8 @@ export default {
   orgnizeObj: {},
   // 组织架构禁用成员列表
   orgDisabledlist: [],
+  // 我的部门列表
+  groupObj: {},
   // 登录信息保存
   loginInfo: {},
   // 群右键选中
@@ -155,5 +157,6 @@ export default {
   // 常用联系人列表
   contactsToplist: [],
   // 是否处于放大状态
-  isWindowMax: false
+  isWindowMax: false,
+  uploadprogressList: []
 }

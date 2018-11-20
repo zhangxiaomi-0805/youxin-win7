@@ -54,8 +54,9 @@
           </a>
         </div>
         <!-- 文件 -->
-        <div v-if="!isRobot" class="u-editor-icon" @click="createInput" >
+        <div v-if="!isRobot" class="u-editor-icon" >
           <a class="b-common b-file"/>
+          <input type="file" @change="onSendFlie($event)" />
         </div>
         <!-- 远程协助 -->
         <!-- <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
@@ -237,6 +238,10 @@ export default {
     }
   },
   methods: {
+    // 文件发送
+    onSendFlie (e) {
+      this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, fileInput: e.target})
+    },
     // 图片拖拽上传
     async onDragFile (e, key) {
       e.stopPropagation()
@@ -847,7 +852,7 @@ export default {
       }
       return new Promise((resolve, reject) => {
         if (this.type === 'session') {
-          this.$store.dispatch('sendFileMsg', {
+          this.$store.dispatch('sendImgMsg', {
             scene: this.scene,
             to: this.to,
             imageFile

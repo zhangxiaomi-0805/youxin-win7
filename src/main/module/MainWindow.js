@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 
 var MainWindow = function () {
   this.init()
@@ -67,6 +67,33 @@ MainWindow.prototype.createWindow = function () {
   this.mainWindow.on('unmaximize', () => {
     _this.mainWindow.webContents.send('doRestore')
   })
+
+  this.mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
+    item.on('updated', (event, state) => {
+      if (state === 'interrupted') {
+        console.log('Download is interrupted but can be resumed')
+      } else if (state === 'progressing') {
+        if (item.isPaused()) {
+          console.log('Download is paused')
+        } else {
+          webContents.send(`downloading-${this.curFileId}`, {
+            progressing: item.getReceivedBytes() / item.getTotalBytes() * 100
+          })
+          console.log(`Received bytes: ${item.getReceivedBytes()}`)
+        }
+      }
+    })
+    item.once('done', (event, state) => {
+      if (state === 'completed') {
+        console.log('Download successfully')
+        webContents.send(`downloaded-${this.curFileId}`, {
+          url: item.getSavePath()
+        })
+      } else {
+        console.log(`Download failed: ${state}`)
+      }
+    })
+  })
 }
 
 MainWindow.prototype.show = function () {
@@ -82,7 +109,10 @@ MainWindow.prototype.destroy = function () {
 }
 
 MainWindow.prototype.initIPC = function () {
-
+  const _this = this
+  ipcMain.on('curFileMsg', function (evt, obj) {
+    _this.curFileId = obj.id
+  })
 }
 
 MainWindow.prototype.maximize = function () {

@@ -18,6 +18,7 @@ class IndexedDB {
           const db = event.target.result
           // 设置标识为key
           db.createObjectStore('orgnizeObj', { keyPath: 'key' })
+          db.createObjectStore('groupObj', { keyPath: 'key' })
           db.createObjectStore('contactslist', { keyPath: 'key' })
           db.createObjectStore('contactsToplist', { keyPath: 'key' })
         }
