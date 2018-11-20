@@ -43,6 +43,10 @@ export default {
         leaveDiscuss: {
           content: '退出讨论组后，所有的消息记录将被删除，讨论组成员可以看到您退出讨论组的状态变更消息。',
           btn: '仍然退出'
+        },
+        clearSession: {
+          content: '删除会话后，该会话中所有的聊天内容将会被清空！',
+          btn: '确认删除'
         }
       }
       this.type = data.type
@@ -52,6 +56,9 @@ export default {
         this.config = Config.leave
       } else if (this.type === 3) {
         this.config = Config.leaveDiscuss
+        this.callBack = data.callBack
+      } else if (this.type === 4) {
+        this.config = Config.clearSession
         this.callBack = data.callBack
       }
       this.showDismissTeam = true
@@ -122,7 +129,7 @@ export default {
             }, 100)
           }
         })
-      } else if (this.type === 3) {
+      } else if (this.type === 3 || this.type === 4) {
         this.loading = false
         this.showDismissTeam = false
         this.callBack()
@@ -137,7 +144,7 @@ export default {
     position: absolute;
     left: 50%;
     top: 50%;
-    z-index: 90;
+    z-index: 1010;
     width: 380px;
     height: 197px;
     transform: translate(-50%, -50%);

@@ -19,7 +19,7 @@
         ref="imgMdBodyDom" 
       >
         <img 
-          :src="curImg" 
+          :src="curImg"
           alt="" 
           ref="curImgDom" 
           :style="{maxWidth: maxWidth + '%', maxHeight:  maxHeight +'%', width, height, top: imgTop + 'px', left: imgLeft + 'px', transform: `translate(-50%, -50%) rotate(${imgRotate}deg)`, cursor: canDrag ? 'pointer' : 'default', transition }" 

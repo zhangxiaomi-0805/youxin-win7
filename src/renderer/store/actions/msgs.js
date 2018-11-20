@@ -347,12 +347,90 @@ export function sendMsg ({state, commit}, obj) {
   })
 }
 // 发送文件消息
-export function sendFileMsg ({state, commit}, obj) {
+export function sendFileMsg ({ state, commit }, obj) {
   const nim = state.nim
-  let {scene, to, imageFile} = obj
+  let type = 'file'
+  const { scene, to, fileInput } = obj
+  // 伪造假的消息对象
+  let msgFake = {
+    sessionId: `${scene}-${to}`,
+    scene,
+    from: state.userUID,
+    to,
+    flow: 'out',
+    type,
+    idClientFake: util.uuid(),
+    status: 'sending',
+    time: (new Date()).getTime(),
+    file: {
+      name: fileInput.files[0].name,
+      size: fileInput.files[0].size,
+      ext: /\.(\w+)$/.exec(fileInput.files[0].name)[1]
+    }
+  }
+  onSendMsgDone(null, msgFake)
+  const id = msgFake.idClientFake
+  store.commit('updateUploadprogressList', { id, percentage: 0, type: 0 })
+  return new Promise((resolve, reject) => {
+    // 先预览文件，获取文件URL
+    // state.nim.previewFile({
+    //   type: 'file',
+    //   fileInput,
+    //   uploadprogress: (obj) => {
+    //     const percentage = obj.percentage
+    //     store.commit('updateUploadprogressList', { id, percentage, type: 1 })
+    //   },
+    //   done: (error, file) => {
+    //     console.log('done')
+    //     if (error) {
+    //       reject(error)
+    //       return
+    //     }
+    // 发送文件消息
+    nim.sendFile({
+      scene,
+      to,
+      type,
+      fileInput,
+      needMsgReceipt: true,
+      beginupload: function (upload) {
+        console.log(upload)
+        // - 如果开发者传入 fileInput, 在此回调之前不能修改 fileInput
+        // - 在此回调之后可以取消图片上传, 此回调会接收一个参数 `upload`, 调用 `upload.abort();` 来取消文件上传
+      },
+      uploadprogress: function (_data) {
+        const percentage = _data.percentage
+        store.commit('updateUploadprogressList', { id, percentage, type: 1 })
+      },
+      uploaderror: function () {
+        console.log('上传失败')
+      },
+      uploaddone: function (_error, _file) {
+        if (_error) {
+          reject(_error)
+        }
+      },
+      beforesend: function (_msg) {
+      },
+      done: function (error, msg) {
+        store.commit('updateUploadprogressList', { id, percentage: 100, type: 2 })
+        msg.idClientFake = msgFake.idClientFake
+        onSendMsgDone(error, msg)
+        resolve(msg)
+      }
+    })
+    // }
+  // })
+  })
+}
+
+// 发送图片消息
+export function sendImgMsg ({ state, commit }, obj) {
+  const nim = state.nim
+  let { scene, to, imageFile } = obj
   let type = 'image'
   store.dispatch('showLoading')
-  let {base64Str, w, h} = imageFile
+  let { base64Str, w, h } = imageFile
   // 伪造假的消息对象
   let msgFake = {
     sessionId: `${scene}-${to}`,

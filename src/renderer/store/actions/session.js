@@ -178,7 +178,13 @@ export function deleteSession ({state, commit}, obj) {
             if (error) {
               return
             }
-            let { curSessionId, sessionIdArr, that } = obj
+            // type为1是则删除所有
+            let { curSessionId, sessionIdArr, that, type } = obj
+            if (type === 1) {
+              that.$router.push({ name: 'session-default' })
+              commit('deleteSessions', [sessionId])
+              return
+            }
             if (curSessionId === sessionId) {
               let arrLength = sessionIdArr.length
               let curIndex = sessionIdArr.indexOf(curSessionId)
@@ -204,9 +210,9 @@ export function deleteSession ({state, commit}, obj) {
               }
               store.commit('toggleSlideMenuStatus', 4)
             }
-            if (scene === 'p2p') {
-              store.dispatch('unSubscribeEvent', [account])
-            }
+            // if (scene === 'p2p') {
+            //   store.dispatch('unSubscribeEvent', [account])
+            // }
             commit('deleteSessions', [sessionId])
           }
         })
@@ -264,6 +270,46 @@ export function insertLocalSession ({state}, params) {
       }
     })
   }
+}
+
+// 清理选中会话消息
+export function deleteLocalMsgs ({state, commit}, obj) {
+  const {idList, that} = obj
+  let accountList = []
+  idList.forEach(item => {
+    if (/^p2p-/.test(item)) {
+      accountList.push({acc: item.replace(/^p2p-/, ''), scene: 'p2p'})
+    } else if (/^team-/.test(item)) {
+      accountList.push({acc: item.replace(/^team-/, ''), scene: 'team'})
+    }
+  })
+  accountList.forEach(item => {
+    state.nim.deleteLocalMsgsBySession({
+      scene: item.scene,
+      to: item.acc,
+      done: (err, obj) => {
+        if (!err) {
+          const param = {
+            id: item.scene + '-' + item.acc,
+            that,
+            type: 1
+          }
+          store.dispatch('deleteSession', param)
+          // 记录删除状态
+          let session = state.sessionMap[item.scene + '-' + item.acc]
+          if (session && session.lastMsg) {
+            store.dispatch('updateLocalCustomSession', {
+              sessionId: item.scene + '-' + item.acc,
+              localCustom: { lastDelTime: session.lastMsg.time }
+            })
+          }
+          commit('clearCurrentSessionMsgs', {
+            sessionId: obj.sessionId
+          })
+        }
+      }
+    })
+  })
 }
 
 // 删除某个会话的本地消息

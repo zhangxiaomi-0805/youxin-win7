@@ -53,7 +53,7 @@
             <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
             <a 
               @click="autoLogin = !autoLogin, isRember = true" 
-              @mouseover="showPrompt = true" 
+              @mouseover="showPrompt = true"
               @mouseout="showPrompt = false"
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>

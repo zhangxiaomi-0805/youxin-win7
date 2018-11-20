@@ -225,6 +225,9 @@ export default {
     const nim = state.nim
     state.sessionlist = nim.cutSessionsByIds(state.sessionlist, sessionIds)
   },
+  deleteAllMsgs (state) {
+    state.msgs = {}
+  },
   // 初始化，收到离线漫游消息时调用
   updateMsgs (state, msgs) {
     const nim = state.nim
@@ -1099,5 +1102,26 @@ export default {
   updateWindowMax (state, status) {
     // 更新窗口放大状态
     state.isWindowMax = status
+  },
+  updateUploadprogressList (state, obj) {
+    // type 0 -初始化 1 -更新 2 -删除
+    const { id, percentage, type } = obj
+    if (type === 0) {
+      state.uploadprogressList.push({ id, percentage })
+    } else if (type === 1) {
+      let index = state.uploadprogressList.findIndex(item => {
+        return item.id === id
+      })
+      let newArr = Object.assign([], state.uploadprogressList)
+      newArr[index].percentage = percentage
+      state.uploadprogressList = newArr
+    } else if (type === 2) {
+      let index = state.uploadprogressList.findIndex(item => {
+        return item.id === id
+      })
+      let newArr = Object.assign([], state.uploadprogressList)
+      newArr.splice(index, 1)
+      state.uploadprogressList = newArr
+    }
   }
 }

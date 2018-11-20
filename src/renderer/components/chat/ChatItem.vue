@@ -32,7 +32,34 @@
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')"><span>{{msg.showText.split(' ')[0]}}</span></span>
-      <span v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></span>
+      <span v-else-if="msg.type==='file'" class="msg-text msg-file">
+        <!-- <img :src="" alt=""> -->
+        <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%'}"></span>
+        <span class="file-content">
+          <span class="file-title">
+            {{msg.file.name}}
+          </span>
+          <span class="file-bottom">
+            <span class="file-size">
+              {{fileSize}}
+            </span>
+            <span v-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" >
+              <a :href="downloadFile" type="*" style="width: 100%;height: 100%;display: block;" download="*" />
+            </span>
+            <span class="circle-bar" v-else-if="curProgress < 100">
+              <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
+              <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
+              <!-- 遮罩层，显示百分比 -->
+              <span class="mask">
+                <span class="percent"></span>
+              </span>
+            </span>
+            <span v-else style="color: #999;font-size: 12px;">
+              已发送
+            </span>
+          </span>
+        </span>
+      </span>
       <span v-else-if="msg.type==='notification'" class="msg-text notify">{{msg.showText}}</span>
       <span v-else class="msg-text" v-html="msg.showText"></span>
       <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
@@ -40,7 +67,7 @@
       <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
     </div>
     <div :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
-      <span v-if="teamMsgUnRead >=0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
+      <span v-if="teamMsgUnRead >= 0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
     </div>
     <div class="isRemoteRead" style="margin-right: 0px;" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip'">
       <span>{{(msg.localCustom && msg.localCustom.isRemoteRead) ? '已读' : '未读'}}</span>
@@ -53,7 +80,7 @@
   import util from '../../utils'
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
-
+  import {ipcRenderer} from 'electron'
   export default {
     props: {
       type: String, // 类型，chatroom, session
@@ -99,7 +126,9 @@
         showVioceToText: false,
         vioceToText: '',
         isPlay: false,
-        myGroupIcon: config.defaultGroupIcon
+        myGroupIcon: config.defaultGroupIcon,
+        curDownloadStatus: 0, // 当前文件下载状态 0 -初始化 1 -下载中
+        downloadProgress: 0
       }
     },
     computed: {
@@ -130,6 +159,29 @@
       },
       msgHighBgIdClient () {
         return this.$store.state.msgHighBgIdClient
+      },
+      uploadprogress () {
+        const list = this.$store.state.uploadprogressList
+        let msg = Object.assign({}, this.rawMsg)
+        if (msg.type === 'file') {
+          const curProgress = list.find(item => {
+            return item.id === msg.idClientFake
+          })
+          if (curProgress) {
+            const percentage = curProgress.percentage >= 99 ? 99 : curProgress.percentage
+            return percentage
+          } else {
+            return 100
+          }
+        }
+        return 100
+      },
+      curProgress () {
+        if (this.msg.flow === 'out') {
+          return this.uploadprogress
+        } else {
+          return this.downloadProgress
+        }
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
@@ -289,11 +341,50 @@
         }
         return item
       },
+      fileSize () {
+        if (this.msg.type === 'file') {
+          const size = (this.msg.file.size / 1024 / 1024).toFixed(2) + 'MB'
+          return size
+        }
+        return 0
+      },
+      fileIcon () {
+        const iconList = ['word', 'zip', 'excel', 'git', 'html', 'jpg', 'mp3', 'mp4', 'pdf', 'png', 'ppt', 'rar', 'txt']
+        if (this.msg.type === 'file') {
+          if (iconList.includes(this.msg.file.ext)) {
+            return `./static/img/file/file-icon-${this.msg.file.ext}.png`
+          } else {
+            return `./static/img/file/file-icon-unknow.png`
+          }
+        }
+      },
+      downloadFile () {
+        if (this.msg.type === 'file') {
+          const nim = this.$store.state.nim
+          const nameUrl = nim.packFileDownloadName({
+            url: this.msg.file.url,
+            name: this.msg.file.name
+          })
+          return nameUrl
+        }
+      },
       toMyPhone () {
         if (this.msg.flow === 'out' && this.msg.to === this.myPhoneId) {
           return true
         } else {
           return false
+        }
+      },
+      // 0 -未下载 1 -已下载
+      isDownloaded () {
+        // 文件下载后保存的地址
+        if (this.msg.type === 'file') {
+          const url = this.msg.localCustom && this.msg.localCustom.downloadUrl
+          if (!url) {
+            return 0
+          } else {
+            return 1
+          }
         }
       }
     },
@@ -352,8 +443,28 @@
           this.$emit('msg-loaded')
         }
       }) // end this.nextTick
+      ipcRenderer.on('downloading', (evt, obj) => {
+        if (this.curDownloadStatus !== 1) {
+          this.curDownloadStatus = 1
+        }
+        this.downloadProgress = obj.progressing
+        // if (this.downloadStatus)
+      })
     },
     methods: {
+      // testOpenFile () {
+      //   const { spawn } = require('child_process')
+      //   const bat = spawn('explorer.exe', ['/d', '10.1.rar'])
+      //   bat.stdout.on('data', (data) => {
+      //     console.log(data.toString())
+      //   })
+      //   bat.stderr.on('data', (data) => {
+      //     console.log(data.toString())
+      //   })
+      //   bat.on('exit', (code) => {
+      //     console.log(`Child exited with code ${code}`)
+      //   })
+      // },
       preventDefault (e) {
         e.stopPropagation()
       },
@@ -1110,7 +1221,7 @@
   color: rgba(175,178,177,1);
 }
 
-.g-window .u-msg .vioce-text{
+.g-window .u-msg .vioce-text {
   padding: 10px;
   margin: 6px 0 10px;
   width: fit-content;
@@ -1123,12 +1234,12 @@
   line-height: 14px;
 }
 
-.g-window .item-you .vioce-text{
+.g-window .item-you .vioce-text {
   float: left;
   margin-left: 62px;
 }
 
-.g-window .item-me .vioce-text{
+.g-window .item-me .vioce-text {
   float: right;
   margin-right: 62px;
 }
@@ -1179,6 +1290,61 @@
 .g-window .u-msg.session-chat.item-me .msg-audio.zel-play{
   background: #4F8DFF url(../../../../static/img/edit/voice-m-p.gif) 94px center no-repeat;
   background-size: 14px 20px;
+}
+
+.g-window .u-msg.session-chat .msg-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  width: 253px;
+  height: 100px;
+  background: #fff !important;
+  border: 1px solid #529EFF;
+}
+
+.g-window .u-msg.session-chat .msg-file .file-icon {
+  margin-left: 5px;
+  width: 60px;
+  height: 70px;
+}
+
+.g-window .u-msg.session-chat .msg-file .file-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 10px;
+  width: 144px;
+  height: 68px;
+}
+
+.g-window .u-msg.session-chat .msg-file .file-title {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+}
+
+.g-window .u-msg.session-chat .msg-file .file-size {
+  color: #999;
+  font-size: 12px;
+}
+
+.g-window .u-msg.session-chat .msg-file .file-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.g-window .u-msg.session-chat .msg-file .file-downloadBtn {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  border: 2px solid #d8d8d8;
+  border-radius: 50%;
+  background: center center url(../../../../static/img/setting/arrow-bot.png) no-repeat;
+  background-size: 14px;
 }
 
 .u-msg .isRemoteRead {
@@ -1233,4 +1399,18 @@
   background-size: 100% 100%;
 }
 
+/*圆形进度条*/
+.circle-bar {display: block; font-size:30px; width: 1em; height: 1em; position: relative;  background-color: #529EFF; }
+.circle-bar-left,.circle-bar-right {display: block; width: 1em; height: 1em; background-color: #eee; }
+
+.circle-bar-right { clip:rect(0,auto,auto,.5em); }
+.circle-bar-left { clip:rect(0,.5em,auto,0); }
+
+.mask {display: block; width: 0.8em; height: 0.8em;  background-color: #fff;text-align: center;line-height: 0.2em; color:rgba(0,0,0,0.5); }
+.mask :first-child {display: block; font-size: 0.3em; height: 0.8em; line-height: 0.8em; display: block;  }
+/*所有的后代都水平垂直居中，这样就是同心圆了*/
+.circle-bar * {display: block; position: absolute; top:0; right:0; bottom:0; left:0; margin:auto; }
+/*自身以及子元素都是圆*/
+.circle-bar, .circle-bar > * { border-radius: 50%; }
+.circle-bar .percent {background: center center url(../../../../static/img/setting/close.png);background-size: 100%;}
 </style>
