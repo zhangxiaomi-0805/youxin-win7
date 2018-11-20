@@ -19,6 +19,13 @@ export default {
     left () {
       let left = this.$store.state.listOptionsPos.x
       let leftMax = this.$store.state.listOptionsPos.left
+      let maxTitle = 0
+      this.items.forEach(item => {
+        if (item.title.length > maxTitle) {
+          maxTitle = item.title.length
+        }
+      })
+      leftMax = maxTitle * 14 + 66
       if (!leftMax) leftMax = 100
       // 超出右侧
       let clientWidth = document.body.clientWidth

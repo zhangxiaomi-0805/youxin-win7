@@ -32,9 +32,9 @@
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')"><span>{{msg.showText.split(' ')[0]}}</span></span>
-      <span v-else-if="msg.type==='file'" class="msg-text msg-file">
+      <span v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg.type)">
         <!-- <img :src="" alt=""> -->
-        <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%'}"></span>
+        <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
         <span class="file-content">
           <span class="file-title">
             {{msg.file.name}}
@@ -81,6 +81,7 @@
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
   import {ipcRenderer} from 'electron'
+  const {shell} = require('electron')
   export default {
     props: {
       type: String, // 类型，chatroom, session
@@ -127,11 +128,21 @@
         vioceToText: '',
         isPlay: false,
         myGroupIcon: config.defaultGroupIcon,
-        curDownloadStatus: 0, // 当前文件下载状态 0 -初始化 1 -下载中
-        downloadProgress: 0
+        downloadProgress: 0,
+        downloadUrl: ''
       }
     },
     computed: {
+      curDownloadStatus () {
+        const list = this.$store.state.downloadFileList
+        let status = 0
+        list.forEach(item => {
+          if (item.id === this.msg.idClient) {
+            status = item.status
+          }
+        })
+        return status
+      },
       robotInfos () {
         return this.$store.state.robotInfos
       },
@@ -185,6 +196,15 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
+        if (this.downloadUrl) {
+          if (item.localCustom === undefined) {
+            item.localCustom = {
+              downloadUrl: this.downloadUrl
+            }
+          } else {
+            item.localCustom.downloadUrl = this.downloadUrl
+          }
+        }
         // 标记用户，区分聊天室、普通消息
         if (this.type === 'session') {
           if (item.flow === 'in') {
@@ -445,39 +465,62 @@
         }
         if (item.type === 'file' && item.flow === 'in') {
           // 下载中
-          ipcRenderer.on(`downloading-${this.msg.idClient}`, (evt, obj) => {
-            if (this.curDownloadStatus !== 1) {
-              this.curDownloadStatus = 1
+          ipcRenderer.on(`downloading`, (evt, obj) => {
+            if (obj.id === this.msg.idClient) {
+              if (this.curDownloadStatus !== 1) {
+                this.$store.commit('updateDownloadFileList', {
+                  type: 1,
+                  id: this.msg.idClient,
+                  sessionId: `${this.scene}-${this.to}`
+                })
+              }
+              this.downloadProgress = obj.progressing
             }
-            this.downloadProgress = obj.progressing
           })
           // 下载完成
-          ipcRenderer.on(`downloaded-${this.msg.idClient}`, (evt, obj) => {
-            if (this.curDownloadStatus !== 2) {
-              this.curDownloadStatus = 2
+          ipcRenderer.on(`downloaded`, (evt, obj) => {
+            if (obj.id !== this.msg.idClient) {
+              return
             }
+            const list = this.$store.state.downloadFileList
+            let sessionId = ''
+            let idClient = ''
+            list.forEach(item => {
+              if (item.id === this.msg.idClient) {
+                sessionId = item.sessionId
+                idClient = item.id
+              }
+            })
+            let newMsg = Object.assign({}, this.msg)
+            if (newMsg.localCustom) {
+              newMsg.localCustom.downloadUrl = obj.url
+            } else {
+              newMsg.localCustom = {
+                downloadUrl: obj.url
+              }
+            }
+            const param = {
+              sessionId,
+              idClient,
+              msg: newMsg
+            }
+            this.$store.commit('updateDownloadFileList', {
+              type: 0,
+              id: this.msg.idClient
+            })
             this.$store.state.nim.updateLocalMsg({
               idClient: this.msg.idClient,
-              localCustom: {downloadUrl: obj.url}
+              localCustom: {downloadUrl: obj.url},
+              done: () => {
+                this.$store.commit('replaceMsg', param)
+                this.downloadUrl = obj.url
+              }
             })
           })
         }
       }) // end this.nextTick
     },
     methods: {
-      // testOpenFile () {
-      //   const { spawn } = require('child_process')
-      //   const bat = spawn('explorer.exe', ['/d', '10.1.rar'])
-      //   bat.stdout.on('data', (data) => {
-      //     console.log(data.toString())
-      //   })
-      //   bat.stderr.on('data', (data) => {
-      //     console.log(data.toString())
-      //   })
-      //   bat.on('exit', (code) => {
-      //     console.log(`Child exited with code ${code}`)
-      //   })
-      // },
       sendIpcMsgId () {
         ipcRenderer.send('curFileMsg', {id: this.msg.idClient})
       },
@@ -597,6 +640,12 @@
         return false
       },
       showListOptions (e, type) {
+        if (type === 'file' && this.msg.flow === 'out' && this.curProgress < 100) {
+          return
+        }
+        if (type === 'file' && this.msg.flow === 'in' && this.downloadProgress > 0 && this.downloadProgress < 100) {
+          return
+        }
         this.selectInfo = null
         let vioceCallBack = null
         if (type === 'audio') {
@@ -614,6 +663,9 @@
             key = type + '-out'
           } else {
             key = type + '-in'
+          }
+          if (this.msg.flow === 'in' && this.isDownloaded) {
+            key += '-isDownloaded'
           }
           this.$store.dispatch('showListOptions', {
             key,
@@ -644,8 +696,20 @@
                 case 5:
                   this.$store.dispatch('convertVoice', {url: this.msg.file.url, callBack: vioceCallBack})
                   break
+                // 图片或文件另存为
                 case 6:
-                  this.$store.dispatch('downloadImg', this.msg)
+                  if (this.msg === 'file') {
+                    const file = {
+                      name: this.msg.file.name,
+                      url: this.downloadUrl
+                    }
+                    this.$store.dispatch('downloadImg', file)
+                  } else {
+                    this.$store.dispatch('downloadImg', this.msg.file)
+                  }
+                  break
+                case 7:
+                  shell.showItemInFolder(this.msg.localCustom.downloadUrl)
                   break
               }
             }
@@ -1428,5 +1492,5 @@
 .circle-bar * {display: block; position: absolute; top:0; right:0; bottom:0; left:0; margin:auto; }
 /*自身以及子元素都是圆*/
 .circle-bar, .circle-bar > * { border-radius: 50%; }
-.circle-bar .percent {background: center center url(../../../../static/img/setting/close.png);background-size: 100%;}
+.circle-bar .percent {background: center center url(../../../../static/img/setting/close.png) no-repeat;background-size: 12px;width: 100%;height: 100%;}
 </style>

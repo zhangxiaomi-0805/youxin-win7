@@ -158,5 +158,6 @@ export default {
   contactsToplist: [],
   // 是否处于放大状态
   isWindowMax: false,
-  uploadprogressList: []
+  uploadprogressList: [],
+  downloadFileList: []
 }

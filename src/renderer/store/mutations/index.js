@@ -1255,5 +1255,26 @@ export default {
       newArr.splice(index, 1)
       state.uploadprogressList = newArr
     }
+  },
+  updateDownloadFileList (state, obj) {
+    // type 0 -下载完成 1 -下载中 2 -暂停
+    const {type, id, sessionId} = obj
+    let newArr = Object.assign([], state.downloadFileList)
+    const index = newArr.findIndex(item => {
+      return item.id === id
+    })
+    if (type === 1) {
+      if (index === -1) {
+        newArr.push({ id, sessionId, status: 1 })
+      } else {
+        newArr[index].status = 1
+      }
+    } else if (type === 0) {
+      const index = newArr.findIndex(item => {
+        return item.id === id
+      })
+      newArr.splice(index, 1)
+    }
+    state.downloadFileList = newArr
   }
 }

@@ -240,7 +240,19 @@ export default {
   methods: {
     // 文件发送
     onSendFlie (e) {
+      if (e.target.files[0].size > 100 * 1024 * 1024) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: '文件不能大于100M'
+        })
+        e.target.value = ''
+        return
+      }
       this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, fileInput: e.target})
+        .then(() => {
+          e.target.value = ''
+        })
     },
     // 图片拖拽上传
     async onDragFile (e, key) {
