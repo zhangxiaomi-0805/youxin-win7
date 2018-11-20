@@ -178,7 +178,6 @@ export default {
           // 获取群成员
           var teamMembers = this.$store.state.teamMembers[this.to]
           if (teamMembers === undefined || teamMembers.length < this.teamInfo.memberNum) {
-            console.log('chat')
             this.$store.dispatch('getTeamMembers', this.to)
           }
           return this.teamInfo.name
