@@ -245,6 +245,7 @@ export default {
     },
     add (key) {
       let list = this.sidelist[key]
+      console.log(this.sidelist)
       let SpliceFn = (account) => {
         for (let i in this.chooselist) {
           let identKey = this.chooselist[i].account || this.chooselist[i].id

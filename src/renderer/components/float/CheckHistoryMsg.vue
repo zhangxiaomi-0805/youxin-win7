@@ -37,17 +37,17 @@
         </div>
 
         <!-- 全部 && 图片 && 文件 -->
-        <div v-show="!isCheckMore" class="tab-left-title">
-          <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('all')">全部</a>
-          <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('image')">图片</a>
-          <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('file')">文件</a>
+        <div v-show="!isCheckMore || showSearch" class="tab-left-title">
+          <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('all')">全部</a>
+          <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('image')">图片</a>
+          <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('file')">文件</a>
         </div>
 
         <!-- 转发 && 删除 && 取消 -->
-        <div v-show="isCheckMore" class="tab-right-title">
-          <a :class="checkFunc === 'forword' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleFunc('forword')">转发</a>
-          <a :class="checkFunc === 'delete' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleFunc('delete')">删除</a>
-          <a :class="checkFunc === 'cancel' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleFunc('cancel')">取消</a>
+        <div v-show="isCheckMore && !showSearch" class="tab-right-title">
+          <a :class="className('forword')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">转发</a>
+          <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a>
+          <a :class="className('cancel')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('cancel') : null">取消</a>
         </div>
 
 
@@ -61,11 +61,12 @@
         </div>
 
          <!-- 内容列表 -->
-            
         <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <history-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
+            :sessionId="sessionId"
+            :checkedMsgList="checkedMsgList"
             keep-alive
             v-for="(msg, $index) in allMsgList"
             :key = $index
@@ -79,6 +80,8 @@
           <history-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
+            :sessionId="sessionId"
+            :checkedMsgList="checkedMsgList"
             keep-alive
             v-for="(msg, $index) in imageMsgList"
             :key = $index
@@ -92,6 +95,8 @@
           <history-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
+            :sessionId="sessionId"
+            :checkedMsgList="checkedMsgList"
             keep-alive
             v-for="(msg, $index) in fileMsgList"
             :key = $index
@@ -105,6 +110,7 @@
         <search-history-msg
           v-show="showSearch && checkType === 'all'"
           :isCheckMore="isCheckMore"
+          :sessionId="sessionId"
           keep-alive
           :value="searchValue"
           :historyMsgList="allMsgList"
@@ -293,12 +299,33 @@ export default {
       } else {
         return allFileList
       }
+    },
+    checkedMsgList () {
+      let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
+      if (this.$store.state.checkedMsgs && sessionId === this.$store.state.checkedMsgs.sessionId && this.$store.state.checkedMsgs.checkedMsgList.length > 0) {
+        return this.$store.state.checkedMsgs.checkedMsgList
+      } else {
+        return []
+      }
     }
   },
   updated () {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
+    className (value) {
+      let className = 'tab-title-item'
+      if (value === this.checkFunc) {
+        if (this.checkedMsgList && this.checkedMsgList.length > 0) {
+          className = 'tab-title-item active'
+        }
+      }
+      if (this.checkedMsgList.length <= 0) {
+        className = 'tab-title-item disable'
+        this.checkFunc = ''
+      }
+      return className
+    },
     checkMoreFn () {
       this.isCheckMore = true
       console.log(this.isCheckMore)
@@ -412,6 +439,7 @@ export default {
       this.checkType = 'all'
       this.isCheckMore = false
       this.checkFunc = ''
+      this.$store.commit('updateCheckedMsgs', {})
     },
     closeModal () {
       this.showHistoryMsg = false
@@ -421,6 +449,7 @@ export default {
       this.checkType = 'all'
       this.isCheckMore = false
       this.checkFunc = ''
+      this.$store.commit('updateCheckedMsgs', {})
     },
     clearStatus (el, e) {
       if (e) {
@@ -598,6 +627,7 @@ export default {
   .m-info-box .tab-left-title .tab-title-item.active {
     color: #049AFF;
   }
+  
   /* 右 */
   .m-info-box .tab-right-title {
     display: flex;
@@ -626,6 +656,9 @@ export default {
 
   .m-info-box .tab-right-title .tab-title-item.active {
     color: #F43530;
+  }
+  .m-info-box .tab-right-title .tab-title-item.disable {
+    opacity: .5;
   }
   /* 短信选择 */
   .m-info-box .message-box{

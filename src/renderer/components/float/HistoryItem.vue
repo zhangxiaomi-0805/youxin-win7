@@ -1,11 +1,11 @@
 <template>
   <li 
     class="list-item"
+    @click.stop="isCheckMore ? checkItemFn(msg) : null"
   >
     <div  class="list-item">
       <div 
         class="left"
-        @click="isCheckMore ? checkItemFn : null"
       >
         <span v-show="isCheckMore" :class="isItemChecked ? 'checked common' : 'check common'"></span>
         
@@ -49,6 +49,13 @@ export default {
     to: String,
     teamId: String,
     idClient: String,
+    sessionId: String,
+    checkedMsgList: {
+      type: Array,
+      default () {
+        return {}
+      }
+    },
     msg: {
       type: Object,
       default () {
@@ -84,7 +91,8 @@ export default {
     return {
       isPlay: false,
       currentAudio: null,
-      isItemChecked: false
+      isItemChecked: false,
+      checkedMsgs: []
     }
   },
   methods: {
@@ -151,7 +159,7 @@ export default {
           callBack: (type) => {
             switch (type) {
               case 0: // 多选
-                this.checkMoreFn()
+                this.checkMoreFn(msg)
                 break
               case 2: // 转发
                 this.forwordMsg()
@@ -316,11 +324,28 @@ export default {
       let sidelist = [...newSessionlistTop, ...sessionlistBot]
       this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
     },
-    checkMoreFn () {
+    checkMoreFn (msg) {
       this.$emit('checkMore')
-    },
-    checkItemFn () {
       this.isItemChecked = true
+      this.$store.commit('updateCheckedMsgs', {sessionId: this.sessionId, checkedMsgList: [msg]})
+    },
+    checkItemFn (msg) {
+      if (this.isItemChecked) {
+        this.isItemChecked = false
+        for (let i in this.checkedMsgList) {
+          let idClient = this.checkedMsgList[i].idClient
+          if (idClient === msg.idClient) {
+            this.checkedMsgList.splice(i, 1)
+            break
+          }
+        }
+      } else {
+        this.isItemChecked = true
+        this.checkedMsgList.push(msg)
+        console.log('11')
+      }
+      this.$store.commit('updateCheckedMsgs', {sessionId: this.sessionId, checkedMsgList: this.checkedMsgList})
+      console.log(this.$store.state.checkedMsgs)
     }
   }
 }

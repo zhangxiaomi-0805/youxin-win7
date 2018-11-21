@@ -793,6 +793,10 @@ export default {
     // 1-初始状态，2-开启，3-关闭，4-隐藏
     state.slideMenuStatus = status
   },
+  updateCheckedMsgs (state, obj) {
+    // 更新当前选中的历史消息
+    state.checkedMsgs = obj
+  },
   clearCurrentSessionMsgs (state, obj) {
     // 清空消息记录
     state.msgs[obj.sessionId] = []
