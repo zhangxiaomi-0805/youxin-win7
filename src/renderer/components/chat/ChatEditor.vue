@@ -54,9 +54,9 @@
           </a>
         </div>
         <!-- 文件 -->
-        <div v-if="!isRobot" class="u-editor-icon" >
+        <div v-if="!isRobot" class="u-editor-icon" @click="handleClickOpenIp" >
           <a class="b-common b-file"/>
-          <input type="file" @change="onSendFlie($event)" />
+          <input type="file" @change="onSendFlie($event)" style="display: none;" ref="fileIp" />
         </div>
         <!-- 远程协助 -->
         <!-- <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
@@ -249,19 +249,34 @@ export default {
         e.target.value = ''
         return
       }
-      this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, fileInput: e.target})
+      this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: e.target.files[0]})
         .then(() => {
           e.target.value = ''
         })
     },
-    // 图片拖拽上传
+    handleClickOpenIp () {
+      this.$refs.fileIp.click()
+    },
+    // 文件、图片拖拽上传
     async onDragFile (e, key) {
       e.stopPropagation()
       e.preventDefault()
       if (key === 'drop') {
         const file = e.dataTransfer.files[0]
-        const newFile = await this.getFile(file.path)
-        this.sendImgMsg(newFile)
+        if (file.type.indexOf('image') > -1) {
+          const newFile = await this.getFile(file.path)
+          this.sendImgMsg(newFile)
+        } else {
+          if (file.size > 100 * 1024 * 1024) {
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '文件不能大于100M'
+            })
+            return
+          }
+          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
+        }
       }
     },
     closeQuickSet (el, e) {

@@ -78,7 +78,8 @@ export default {
   continueRobotAccid: '',
 
   newMsg: {},
-
+  // 当前选中的历史消息记录 --- 格式：{sessionId: ***, checkedMsgList: []}
+  checkedMsgs: {},
   // 系统消息
   sysMsgs: [],
   customSysMsgs: [],
@@ -158,8 +159,10 @@ export default {
   contactsToplist: [],
   // 是否处于放大状态
   isWindowMax: false,
+  // 上传列表
   uploadprogressList: [],
   // 免登录域名列表
   thirdUrls: [],
+  // 下载文件列表
   downloadFileList: []
 }

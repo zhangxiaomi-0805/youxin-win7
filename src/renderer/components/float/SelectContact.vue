@@ -92,7 +92,7 @@ export default {
       this.type = data.type
       this.sidelist = Object.assign([], data.sidelist)
       this.sidelistCopy = Object.assign([], data.sidelist)
-      if (data.type !== 7) {
+      if (data.type !== 7 && data.type !== 8) {
         this.sidelist = listSort(this.sidelist)
       }
       this.chooselist = []
@@ -158,6 +158,9 @@ export default {
         case 7 :
           title = '选择聊天'
           break
+        case 8 :
+          title = '选择聊天'
+          break
       }
       return title
     },
@@ -183,6 +186,9 @@ export default {
           title = '群成员'
           break
         case 7 :
+          title = '最近聊天'
+          break
+        case 8 :
           title = '最近聊天'
           break
       }
@@ -245,6 +251,7 @@ export default {
     },
     add (key) {
       let list = this.sidelist[key]
+      console.log(this.sidelist)
       let SpliceFn = (account) => {
         for (let i in this.chooselist) {
           let identKey = this.chooselist[i].account || this.chooselist[i].id
@@ -321,7 +328,10 @@ export default {
           this.removeTeamMember(1)
           break
         case 7 :
-          this.forwordMsgList()
+          this.forwordMsgList(this.type)
+          break
+        case 8 :
+          this.forwordMsgList(this.type)
           break
       }
     },
@@ -473,12 +483,19 @@ export default {
       })
     },
     // 转发消息
-    async forwordMsgList () {
+    async forwordMsgList (type) {
       this.loading = true
       let failAccount = []
+      console.log(this.msg)
       for (let i = 0; i < this.chooselist.length; i++) {
         try {
-          await this.forwordMsg(this.chooselist[i])
+          if (type === 7) {
+            await this.forwordMsg(this.chooselist[i], this.msg)
+          } else if (type === 8) {
+            for (let j = 0; j < this.msg.length; j++) {
+              await this.forwordMsg(this.chooselist[i], this.msg[j])
+            }
+          }
         } catch (err) {
           failAccount.push(this.chooselist[i].name)
         }
@@ -504,10 +521,10 @@ export default {
       }
       this.closeModal()
     },
-    forwordMsg (item) {
+    forwordMsg (item, msg) {
       return new Promise((resolve, reject) => {
         this.$store.dispatch('onForwordMsg', {
-          msg: this.msg,
+          msg: msg,
           scene: item.scene,
           to: item.to
         }).then(() => {
@@ -555,7 +572,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1001;
+    z-index: 1002;
   }
 
   .m-selectcontact-contain .m-selectcontact-cover {
@@ -578,7 +595,7 @@ export default {
     background: #fff;
     border: 0.5px solid #CCCCCC;
     box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
-    z-index: 100;
+    z-index: 1002;
   }
 
   .m-selectcontact-contain .m-selectcontact .drag {
