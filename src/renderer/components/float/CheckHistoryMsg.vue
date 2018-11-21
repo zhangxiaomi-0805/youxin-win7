@@ -64,6 +64,7 @@
           :isRobot="isRobot"
           :userInfos="userInfos"
           :myInfo="myInfo"
+          :key="msg.idClient"
         ></history-item>
       </ul>
       </div>

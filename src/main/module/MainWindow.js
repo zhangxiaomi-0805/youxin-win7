@@ -167,4 +167,15 @@ MainWindow.prototype.sendMessage = function (message) {
   this.mainWindow.webContents.send(message)
 }
 
+MainWindow.prototype.isFocused = function () {
+  if (this.mainWindow) {
+    return this.mainWindow.isFocused()
+  }
+  return false
+}
+
+MainWindow.prototype.flashFrame = function (boolean) {
+  this.mainWindow && this.mainWindow.flashFrame(boolean)
+}
+
 export default MainWindow

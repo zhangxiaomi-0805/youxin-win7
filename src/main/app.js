@@ -11,6 +11,7 @@ function APP () {
   this.logined = false
   this.mainWindow = null
   this.aplWindow = null
+  this.twinkle = null
   this.ready = false
   this.shouldQuit = false
   this.fileTransferring = false
@@ -130,6 +131,10 @@ APP.prototype.initApp = function () {
 
   app.on('will-quit', function (e) {
     // _this.clearCookies()
+  })
+
+  app.on('show', function (e) {
+    _this.mainWindow.flashFrame(false)
   })
 
   // app ready 之后执行删除 log 操作
@@ -279,6 +284,39 @@ APP.prototype.initIPC = function () {
       _this.aplWindow.webContents.send('doRestore')
     })
     _this.aplWindow.on('closed', () => { _this.aplWindow = null })
+  })
+
+  ipcMain.on('receiveNewMsgs', function () {
+    !_this.mainWindow.isFocused() && _this.mainWindow.flashFrame(true)
+  })
+
+  ipcMain.on('sessionUnreadNums', function (evt, arg) {
+    // 系统托盘图标闪烁
+    if (arg.unreadNums <= 0) {
+      if (_this.twinkle) {
+        _this.sysTray.setImage(`${__static}/img/systry-logo.png`)
+        clearInterval(_this.twinkle)
+        _this.twinkle = null
+      }
+      return false
+    }
+    if (_this.twinkle) {
+      clearInterval(_this.twinkle)
+      _this.twinkle = null
+    }
+    let count = 0
+    _this.twinkle = setInterval(() => {
+      count++
+      if (count % 2 === 0) {
+        _this.sysTray.setImage(`${__static}/img/systry-logo.png`)
+      } else {
+        _this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
+      }
+    }, 600)
+  })
+
+  ipcMain.on('toggleSession', function (evt, arg) {
+    if (_this.aplWindow) _this.aplWindow.webContents.send('renderSession', arg)
   })
 }
 

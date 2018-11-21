@@ -47,6 +47,9 @@ export function onNewMsg (msg) {
   store.commit('updateNewMsg', newMsg)
   onMsg(msg)
   receiveMsg(newMsg)
+  // 通知主进程
+  const ipcRenderer = require('electron').ipcRenderer
+  ipcRenderer.send('receiveNewMsgs')
 }
 
 // 转发消息
