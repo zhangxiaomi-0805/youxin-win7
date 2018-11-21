@@ -322,7 +322,10 @@ export default {
           this.removeTeamMember(1)
           break
         case 7 :
-          this.forwordMsgList()
+          this.forwordMsgList(this.type)
+          break
+        case 8 :
+          this.forwordMsgList(this.type)
           break
       }
     },
@@ -474,12 +477,18 @@ export default {
       })
     },
     // 转发消息
-    async forwordMsgList () {
+    async forwordMsgList (type) {
       this.loading = true
       let failAccount = []
       for (let i = 0; i < this.chooselist.length; i++) {
         try {
-          await this.forwordMsg(this.chooselist[i])
+          if (type === 7) {
+            await this.forwordMsg(this.chooselist[i], this.msg)
+          } else if (type === 8) {
+            await this.msg.map((item, index) => {
+              this.forwordMsg(this.chooselist[i], item)
+            })
+          }
         } catch (err) {
           failAccount.push(this.chooselist[i].name)
         }
@@ -505,10 +514,10 @@ export default {
       }
       this.closeModal()
     },
-    forwordMsg (item) {
+    forwordMsg (item, msg) {
       return new Promise((resolve, reject) => {
         this.$store.dispatch('onForwordMsg', {
-          msg: this.msg,
+          msg: msg,
           scene: item.scene,
           to: item.to
         }).then(() => {

@@ -468,7 +468,7 @@ export default {
       this.checkFunc = value
       switch (value) {
         case 'forword':
-          console.log('转发')
+          this.forwordMsg()
           break
         case 'delete':
           console.log('删除')
@@ -476,8 +476,75 @@ export default {
         case 'cancel':
           this.checkFunc = ''
           this.isCheckMore = false
+          this.$store.commit('updateCheckedMsgs', {})
           break
       }
+    },
+    forwordMsg () {
+      // 转发消息
+      let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
+        item.name = ''
+        item.avatar = ''
+        if (item.scene === 'p2p') {
+          let userInfo = null
+          if (item.to !== this.myPhoneId) {
+            userInfo = this.userInfos[item.to]
+          } else {
+            userInfo = Object.assign({}, this.myInfo)
+            // userInfo.alias = '我的手机'
+            // userInfo.avatar = `${config.myPhoneIcon}`
+          }
+          if (userInfo) {
+            item.name = util.getFriendAlias(userInfo)
+            item.avatar = userInfo.avatar
+          }
+        } else if (item.scene === 'team') {
+          let teamInfo = null
+          teamInfo = this.$store.state.teamlist.find(team => {
+            if (team.teamId === item.to) {
+              item.memberNum = team.memberNum
+            }
+            return team.teamId === item.to
+          })
+          if (teamInfo) {
+            item.name = teamInfo.name
+            item.avatar = teamInfo.avatar || this.myGroupIcon
+          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+            item.name = item.lastMsg.attach.team.name
+            item.avatar = item.avatar || this.myGroupIcon
+          } else {
+            item.name = `群${item.to}`
+            item.avatar = item.avatar || this.myGroupIcon
+          }
+          if (!item.memberNum) {
+            return false
+          }
+        }
+        if (item.updateTime) {
+          item.updateTimeShow = util.formatDate(item.updateTime, true)
+        }
+        return item
+      })
+      let sessionlistTop = sessionlist.filter((item) => {
+        if (item.localCustom && item.localCustom.topTime) {
+          if (item.localCustom.topTime - item.lastMsg.time > 0) {
+            item.compareTime = item.localCustom.topTime
+          } else {
+            item.compareTime = item.lastMsg.time
+          }
+          return item
+        }
+      })
+      let newSessionlistTop = sessionlistTop.sort((a, b) => {
+        return b.compareTime - a.compareTime
+      })
+      let sessionlistBot = sessionlist.filter((item) => {
+        if (!item.localCustom || !item.localCustom.topTime) {
+          return item
+        }
+      })
+      let sidelist = [...newSessionlistTop, ...sessionlistBot]
+      this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
     },
     scrollEndLoad (e) {
       let { scrollTop, clientHeight, scrollHeight } = e.target
