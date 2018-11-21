@@ -116,14 +116,8 @@
           :historyMsgList="allMsgList"
           :userInfos="userInfos"
           :myInfo="myInfo"
-<<<<<<< HEAD
           :messageCheck="messageCheck"
           :clearStatus="clearStatus"/>
-=======
-          :key="msg.idClient"
-        ></history-item>
-      </ul>
->>>>>>> 90e2556468d504258c91c4375d00783e4c76cd19
       </div>
     </div>    
   </div>
@@ -477,7 +471,7 @@ export default {
           this.forwordMsg()
           break
         case 'delete':
-          console.log('删除')
+          this.deleteMsgs()
           break
         case 'cancel':
           this.checkFunc = ''
@@ -550,7 +544,15 @@ export default {
         }
       })
       let sidelist = [...newSessionlistTop, ...sessionlistBot]
+      this.checkType = 'all'
+      this.checkFunc = ''
+      this.isCheckMore = false
       this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
+    },
+    deleteMsgs () {
+      for (let i = 0; i < this.checkedMsgList.length; i++) {
+        this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
+      }
     },
     scrollEndLoad (e) {
       let { scrollTop, clientHeight, scrollHeight } = e.target

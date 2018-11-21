@@ -92,7 +92,7 @@ export default {
       this.type = data.type
       this.sidelist = Object.assign([], data.sidelist)
       this.sidelistCopy = Object.assign([], data.sidelist)
-      if (data.type !== 7) {
+      if (data.type !== 7 && data.type !== 8) {
         this.sidelist = listSort(this.sidelist)
       }
       this.chooselist = []
@@ -158,6 +158,9 @@ export default {
         case 7 :
           title = '选择聊天'
           break
+        case 8 :
+          title = '选择聊天'
+          break
       }
       return title
     },
@@ -183,6 +186,9 @@ export default {
           title = '群成员'
           break
         case 7 :
+          title = '最近聊天'
+          break
+        case 8 :
           title = '最近聊天'
           break
       }
@@ -480,14 +486,15 @@ export default {
     async forwordMsgList (type) {
       this.loading = true
       let failAccount = []
+      console.log(this.msg)
       for (let i = 0; i < this.chooselist.length; i++) {
         try {
           if (type === 7) {
             await this.forwordMsg(this.chooselist[i], this.msg)
           } else if (type === 8) {
-            await this.msg.map((item, index) => {
-              this.forwordMsg(this.chooselist[i], item)
-            })
+            for (let j = 0; j < this.msg.length; j++) {
+              await this.forwordMsg(this.chooselist[i], this.msg[j])
+            }
           }
         } catch (err) {
           failAccount.push(this.chooselist[i].name)
