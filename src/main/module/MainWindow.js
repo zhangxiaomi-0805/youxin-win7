@@ -76,17 +76,19 @@ MainWindow.prototype.createWindow = function () {
         if (item.isPaused()) {
           console.log('Download is paused')
         } else {
-          webContents.send(`downloading-${this.curFileId}`, {
+          webContents.send(`downloading`, {
+            id: this.curFileId,
             progressing: item.getReceivedBytes() / item.getTotalBytes() * 100
           })
-          console.log(`Received bytes: ${item.getReceivedBytes()}`)
+          // console.log(`Received bytes: ${item.getReceivedBytes()}`)
         }
       }
     })
     item.once('done', (event, state) => {
       if (state === 'completed') {
         console.log('Download successfully')
-        webContents.send(`downloaded-${this.curFileId}`, {
+        webContents.send(`downloaded`, {
+          id: this.curFileId,
           url: item.getSavePath()
         })
       } else {

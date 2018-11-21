@@ -160,5 +160,6 @@ export default {
   isWindowMax: false,
   uploadprogressList: [],
   // 免登录域名列表
-  thirdUrls: []
+  thirdUrls: [],
+  downloadFileList: []
 }

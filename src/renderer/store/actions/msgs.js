@@ -279,12 +279,12 @@ export function revocateMsg ({state, commit}, obj) {
   })
 }
 
-// 下载图片
-export function downloadImg ({state, commit}, msg) {
+// 下载图片或文件
+export function downloadImg ({state, commit}, file) {
   const nim = state.nim
   const nameUrl = nim.packFileDownloadName({
-    url: msg.file.url.split('?')[0],
-    name: msg.file.name
+    url: file.url.split('?')[0],
+    name: file.name
   })
   var $a = document.createElement('a')
   $a.setAttribute('href', nameUrl)
