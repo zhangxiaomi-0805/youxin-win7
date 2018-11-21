@@ -36,7 +36,10 @@ export async function onSysMsg (sysMsg) {
       } catch (error) {}
       store.commit('updateSysMsgs', [sysMsg])
       break
+    case 'passTeamApply': // 通过入群申请
+      break
     case 'rejectTeamApply': // 申请入群被拒绝
+      break
     case 'rejectTeamInvite': // 拒绝入群邀请
       store.commit('updateSysMsgs', [sysMsg])
       break

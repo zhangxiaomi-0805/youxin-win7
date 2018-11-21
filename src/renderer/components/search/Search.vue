@@ -16,7 +16,7 @@
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
-            <div class="searchevent"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div class="searchevent s-one-line"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
             <div class="s-name default searchevent">{{item.companyName}}</div>
           </div>
         </li>
@@ -36,7 +36,7 @@
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;">
-            <div class="searchevent"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div class="searchevent s-one-line"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
             <div v-if="item.contain">
               <span class="s-name default searchevent">包含:</span>
               <span :class="nameClass(val, 'default')" v-for="val in item.contain" :key="val.id" :id="val.id">{{val}}</span>
@@ -58,9 +58,9 @@
           @click="toggleSessin(record.scene, record.to, record.name)"
         >
           <img :src="record.avatar || myGroupIcon" class="s-img searchevent">
-          <div style="paddingLeft: 10px;">
+          <div style="paddingLeft: 10px;width: 80%;">
             <div class="s-name searchevent">{{record.name}}</div>
-            <div class="searchevent" v-if="record.recordNum === 1"><span :class="nameClass(text, 'default')" v-for="text in record.text" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div class="searchevent s-one-line" v-if="record.recordNum === 1"><span :class="nameClass(text, 'default')" v-for="text in record.text" :key="text.id" :id="text.id">{{text}}</span></div>
             <div v-else class="s-name default searchevent">{{record.recordNum > 99 ? '99+条相关聊天记录' : (record.recordNum + '条相关聊天记录')}}</div>
           </div>
         </li>
@@ -160,7 +160,11 @@
           if (contactlistTemp.length === (page > 1 ? 10 : 5)) this.contactShowMore = 1
           else contactlistTemp.push(result[i])
         }
-        if (page > 1 && contactlistTemp.length < 10) this.contactShowMore = 2
+        if (page > 1) {
+          if (contactlistTemp.length < 10) this.contactShowMore = 2
+        } else {
+          if (contactlistTemp.length < 5) this.contactShowMore = 0
+        }
         // 数据update
         let spareHeight = this.teamShowMore > 0 ? this.configs.spareHeight : this.configs.titleHeight
         this.contactHeight = contactlistTemp.length * this.configs.listHeight + spareHeight + 'px'
@@ -363,5 +367,12 @@
     padding: 6px 13px;
     font-size: 12px;
     color: #4F8DFF;
+  }
+
+  .s-one-line {
+    width: 100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap
   }
 </style>

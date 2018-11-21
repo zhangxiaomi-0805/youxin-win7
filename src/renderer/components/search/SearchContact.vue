@@ -18,7 +18,7 @@
         <span :class="className(item, 'user')"></span>
         <img :src="item.avatar || myGroupIcon" class="s-img">
         <div style="paddingLeft: 10px;">
-          <div><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
+          <div class="s-one-line"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
           <div class="s-name default">{{item.companyName}}</div>
         </div>
       </li>
@@ -38,7 +38,7 @@
         <span :class="className(item, 'team')"></span>
         <img :src="item.avatar || myGroupIcon" class="s-img">
         <div style="paddingLeft: 10px;">
-          <div><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
+          <div class="s-one-line"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
           <div v-if="item.contain">
             <span class="s-name default">包含:</span>
             <span :class="nameClass(val, 'default')" v-for="val in item.contain" :key="val.id" :id="val.id">{{val}}</span>
@@ -119,6 +119,8 @@
           } else {
             this.noMoreData = true
           }
+        } else {
+          if (this.showTeam && contactlistTemp.length < 5) this.contactShowMore = 0
         }
         // 数据update
         if (page > 1) this.contactlist = this.contactlist.concat(contactlistTemp)
@@ -217,6 +219,7 @@
         if (!user.accid) {
           return false
         }
+        if (this.isDisabled(user)) return false
         user.scene = 'p2p'
         user.to = user.accid
         this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
@@ -345,6 +348,13 @@
     padding: 6px 13px;
     font-size: 12px;
     color: #4F8DFF;
+  }
+
+  .s-one-line {
+    width: 100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap
   }
 </style>
 

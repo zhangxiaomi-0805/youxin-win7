@@ -315,19 +315,15 @@ export default {
       let temp = this.$store.state.sysMsgUnread
       if (this.power !== 'normal' && temp.applyTeam > 0) {
         let sysMsgs = this.$store.state.sysMsgs
-        let accid = ''
+        let currentSysMsg = ''
         for (let i in sysMsgs) {
           if (sysMsgs[i].type === 'applyTeam' && (sysMsgs[i].to === this.teamId)) {
-            accid = sysMsgs[i].from
+            currentSysMsg = sysMsgs[i]
           }
         }
-        if (accid) {
+        if (currentSysMsg && currentSysMsg.state === 'init') {
           this.showInvitMsgTip = true
-          let userInfo = this.$store.state.userInfos[accid]
-          if (userInfo) {
-            return `“${userInfo.nick}”`
-          }
-          return '有好友'
+          return `“${currentSysMsg.nick}”`
         }
       }
       this.showInvitMsgTip = false

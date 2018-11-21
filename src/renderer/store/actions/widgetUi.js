@@ -240,6 +240,13 @@ export async function showListOptions ({state, commit}, obj) {
       obj.callBack(8)
     }
   }
+  // 文件消息
+  let event37 = {
+    title: '在文件夹中显示',
+    callBack: () => {
+      obj.callBack(7)
+    }
+  }
   // 历史消息记录
   if (obj.key === 'history-msg') {
     items = [
@@ -612,6 +619,23 @@ export async function showListOptions ({state, commit}, obj) {
         event21, event32, event35
       ]
     }
+  }
+
+  // 文件消息右键处理
+  if (obj.key === 'file-out') {
+    items = [
+      event2, event6, event4, event1, event37
+    ]
+  }
+  if (obj.key === 'file-in') {
+    items = [
+      event2, event6, event4
+    ]
+  }
+  if (obj.key === 'file-in-isDownloaded') {
+    items = [
+      event2, event6, event4, event37
+    ]
   }
 
   commit('updateListOptions', {

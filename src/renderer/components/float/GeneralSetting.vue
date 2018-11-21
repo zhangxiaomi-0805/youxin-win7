@@ -60,7 +60,7 @@
             <!-- <div
               style="display: flex;justify-content: center;width: 100%;"
             >
-              <div 
+              <div
                 class="set-block logout"
                 style="height: 29px;margin: 0 36px 0 0;"
               >
@@ -98,27 +98,42 @@
             v-if="curPanelKey === 4"
             style="display: flex;flex-direction: column;justify-content: space-between;width: 100%;height: 100%;"
           >
-            <div>
+            <div class="session-list" v-if="sessionlist.length > 0">
               <div
-                v-for="item in cleanList"
-                :key="item.key"
-                @click="changeCurKey('curCleanKey', item.key)"
-                :class="`clean-item${curCleanKey === item.key ? ' active' : ''}`"
+                v-for="(item, index) in sessionlist"
+                :key="index"
+                style="display: flex;align-items: center;margin-bottom: 10px;width: 100%;height: 40px;"
               >
-                <span
-                  :class="`radio${curCleanKey === item.key ? ' active' : ''}`"
+                <i 
+                  :class="choseSessionList.indexOf(item.id) > -1 ? 'check z-sel' : 'check'"
+                  @click="choseSession(item.id)"
                 />
-                <span>{{item.title}}</span>
+                <div style="display: flex;align-items: center;margin-left: 10px;height: 100%;">
+                  <img alt="" :src="item.avatar" class="icon" style="width: 32px;height: 32px;border-radius: 50%;">
+                  <div style="display: flex;flex-direction: column;justify-content: space-between;margin-left: 10px;height: 100%;">
+                    <span style="color: #333;font-size: 13px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">{{item.name}}</span>
+                    <span style="color: #999;font-size: 12px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">{{item.lastMsgShow}}</span>
+                  </div>
+                </div>
               </div>
             </div>
+            <div v-else style="color: #999;font-size: 14px;">
+              暂无会话可清理~
+            </div>
             <div
-              style="display: flex;justify-content: center;width: 100%;"
+              style="display: flex;align-items: center;justify-content: space-between;width: 100%;"
             >
-              <div 
+              <i
+                :class="choseSessionList.length === sessionlist.length ? 'check z-sel' : 'check'"
+                @click="choseAllSession"
+              />
+              <span style="margin-left: -22px;">全选</span>
+              <div
                 class="set-block logout"
-                style="height: 29px;margin: 0 36px 0 0;"
+                style="height: 29px;margin-left: 38px;"
+                @click="deleteLocalMsgs"
               >
-                <a>确定</a>
+                <a>删除</a>
               </div>
               <div class="set-block" style="margin-bottom: 0;">
                 <a class="toggle" style="width: 77px;height: 29px;color: #999;">取消</a>
@@ -133,6 +148,8 @@
 </template>
 
 <script>
+import util from '../../utils'
+import config from '../../configs'
 export default {
   name: 'general-setting',
   data () {
@@ -155,7 +172,7 @@ export default {
           key: 3
         },
         {
-          title: '缓存清理',
+          title: '会话清理',
           key: 4
         }
       ],
@@ -173,32 +190,11 @@ export default {
         }
       ],
       curSysKey: localStorage.CLOSEMETHOD ? JSON.parse(localStorage.CLOSEMETHOD) : 1,
-      // 缓存清理列表
-      cleanList: [
-        {
-          title: '清理全部消息记录',
-          key: 1
-        },
-        {
-          title: '清理一个月前消息记录',
-          key: 2
-        },
-        {
-          title: '清理三个月前消息记录',
-          key: 3
-        },
-        {
-          title: '清理半年前消息记录',
-          key: 4
-        },
-        {
-          title: '清理一年前消息记录',
-          key: 5
-        }
-      ],
       curCleanKey: 1,
       // 软件升级
-      needUpdate: true
+      needUpdate: true,
+      myGroupIcon: config.defaultGroupIcon,
+      choseSessionList: []
     }
   },
   mounted () {
@@ -206,8 +202,95 @@ export default {
       this.showGeneralSetting = data.show
     })
   },
+  computed: {
+    personInfos () {
+      return this.$store.state.personInfos
+    },
+    myInfo () {
+      return this.$store.state.myInfo
+    },
+    myPhoneId () {
+      return `${this.$store.state.userUID}`
+    },
+    userInfos () {
+      return this.$store.state.userInfos
+    },
+    sessionlist () {
+      let sessionlist = this.$store.state.sessionlist.filter(item => {
+        item.name = ''
+        item.avatar = ''
+        if (item.scene === 'p2p') {
+          let userInfo = null
+          if (item.to !== this.myPhoneId) {
+            userInfo = this.userInfos[item.to]
+          } else {
+            userInfo = Object.assign({}, this.myInfo)
+            // userInfo.alias = '我的手机'
+            // userInfo.avatar = `${config.myPhoneIcon}`
+          }
+          if (userInfo) {
+            item.name = util.getFriendAlias(userInfo)
+            item.avatar = userInfo.avatar
+          }
+        } else if (item.scene === 'team') {
+          let teamInfo = this.$store.state.teamlist.find(team => {
+            return team.teamId === item.to
+          })
+          if (teamInfo) {
+            item.name = teamInfo.name
+            item.avatar = teamInfo.avatar || this.myGroupIcon
+          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+            item.name = item.lastMsg.attach.team.name
+            item.avatar = item.avatar || this.myGroupIcon
+          } else {
+            item.name = item.to
+            item.avatar = item.avatar || this.myGroupIcon
+          }
+        }
+        let lastMsg = item.lastMsg || {}
+        if (lastMsg.type === 'text') {
+          item.lastMsgShow = lastMsg.text || ''
+        } else if (lastMsg.type === 'custom') {
+          item.lastMsgShow = util.parseCustomMsg(lastMsg)
+        } else if (lastMsg.scene === 'team' && lastMsg.type === 'notification') {
+          item.lastMsgShow = util.generateTeamSysmMsg(lastMsg)
+        } else if (!lastMsg.type) {
+          item.lastMsgShow = ''
+        } else if (lastMsg.tip) {
+          item.lastMsgShow = lastMsg.tip
+        } else if (util.mapMsgType(lastMsg)) {
+          item.lastMsgShow = `[${util.mapMsgType(lastMsg)}]`
+        }
+        if (item.updateTime) {
+          item.updateTimeShow = util.formatDate(item.updateTime, true)
+        }
+        return item
+      })
+      let sessionlistTop = sessionlist.filter((item) => {
+        if (item.localCustom && item.localCustom.topTime) {
+          let time = item.lastMsg ? item.lastMsg.time : 0
+          if (item.localCustom.topTime - time > 0) {
+            item.compareTime = item.localCustom.topTime
+          } else {
+            item.compareTime = time
+          }
+          return item
+        }
+      })
+      let newSessionlistTop = sessionlistTop.sort((a, b) => {
+        return b.compareTime - a.compareTime
+      })
+      let sessionlistBot = sessionlist.filter((item) => {
+        if (!item.localCustom || !item.localCustom.topTime) {
+          return item
+        }
+      })
+      return [...newSessionlistTop, ...sessionlistBot]
+    }
+  },
   methods: {
     closeModal () {
+      this.choseSessionList = []
       this.showGeneralSetting = false
     },
     showDetail (event, setType) {
@@ -218,11 +301,38 @@ export default {
         localStorage.setItem('CLOSEMETHOD', key)
       }
       this[type] = key
-    }
-  },
-  computed: {
-    personInfos () {
-      return this.$store.state.personInfos
+    },
+    // 清理选中会话
+    deleteLocalMsgs () {
+      this.eventBus.$emit('dismissTeam', {
+        type: 4,
+        callBack: () => {
+          this.$store.dispatch('deleteLocalMsgs', {that: this, idList: this.choseSessionList})
+          this.closeModal()
+          this.choseSessionList = []
+        }
+      })
+    },
+    // 选择单项会话
+    choseSession (id) {
+      const index = this.choseSessionList.length > 0 ? this.choseSessionList.findIndex(item => item === id) : -1
+      if (index === -1) {
+        this.choseSessionList.push(id)
+      } else {
+        this.choseSessionList.splice(index, 1)
+      }
+    },
+    // 选择所有会话
+    choseAllSession () {
+      if (this.choseSessionList.length === this.sessionlist.length) {
+        this.choseSessionList = []
+      } else {
+        this.sessionlist.forEach(item => {
+          if (!this.choseSessionList.includes(item.id)) {
+            this.choseSessionList.push(item.id)
+          }
+        })
+      }
     }
   }
 }
@@ -235,7 +345,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1001;
+    z-index: 888;
   }
 
   .m-gen-set-con .m-gen-set-cover {
@@ -472,6 +582,29 @@ export default {
   .m-gen-set-con .clean-item.active span {
     color: #333;
   }
+
+  .m-gen-set-con .session-list {
+    width: 100%;height: 202px;border-bottom: 1px solid #d8d8d8;overflow-y: scroll;
+  }
+
+  .m-gen-set-con .check {
+    display: block;
+    width: 15px;
+    height: 15px;
+    transition: all .2s;
+    cursor: pointer;
+    background-size: 100%;
+    background-image: url(../../../../static/img/setting/checkboxborder.png);
+  }
+
+  .m-gen-set-con .check:hover {
+    background-image: url(../../../../static/img/setting/checkboxborder-p.png);
+  }
+
+  .m-gen-set-con .check.z-sel {
+    background-image: url(../../../../static/img/setting/checkbox-c.png);
+  }
+
 
 </style>
 

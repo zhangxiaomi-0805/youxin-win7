@@ -3,7 +3,7 @@
   <ul class="u-list s-msg-list">
     <li class="u-list-item s-msg-list-item" v-for="msg in msgList" :key="msg.idServer">
       <div class="s-msg-list-item-container s-msg-center" :key="msg.idServer" v-if="msg.type ==='applyTeam' || msg.type ==='teamInvite'" @contextmenu="showMenu" :id="msg.idServer">
-        <div class="s-msg-center">
+        <div class="s-msg-center" style="width: 75%">
           <img class="icon" style="marginRight: 10px;" :src="msg.avatar || defaultAvatar"/>
           <div class="s-msg-content"><span style="color: rgba(4,154,255,1);">{{msg.nick || msg.from}}</span><span>申请加入</span><span style="color: rgba(4,154,255,1);">{{getTeamName(msg.to)}}</span></div>
         </div>
@@ -11,7 +11,7 @@
           <div class="s-msg-time">{{msg.showTime}}</div>
           <a v-if='msg.state === "init"' class="s-msg-check" @click="checkUser($event, msg)">查看</a>
           <div style="height:30px;lineHeight: 30px;" v-else>
-            <span v-if="msg.state === 'error'">已过期</span>
+            <span v-if="msg.state === 'error'">已被其他管理员处理</span>
             <span class="s-msg-rejected" v-else-if="msg.state === 'rejected'">已拒绝</span>
             <span v-else>已同意</span>
           </div>
@@ -213,7 +213,7 @@ export default {
 }
 
 .s-msg-content {
-  width: 86%;
+  width: 80%;
   font-size:14px;
   color:#333;
   overflow:hidden;

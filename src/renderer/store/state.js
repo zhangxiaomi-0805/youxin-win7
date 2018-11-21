@@ -158,5 +158,9 @@ export default {
   // 常用联系人列表
   contactsToplist: [],
   // 是否处于放大状态
-  isWindowMax: false
+  isWindowMax: false,
+  uploadprogressList: [],
+  // 免登录域名列表
+  thirdUrls: [],
+  downloadFileList: []
 }

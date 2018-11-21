@@ -11,6 +11,7 @@ function APP () {
   this.logined = false
   this.mainWindow = null
   this.aplWindow = null
+  this.twinkle = null
   this.ready = false
   this.shouldQuit = false
   this.fileTransferring = false
@@ -132,6 +133,10 @@ APP.prototype.initApp = function () {
     // _this.clearCookies()
   })
 
+  app.on('show', function (e) {
+    _this.mainWindow.flashFrame(false)
+  })
+
   // app ready 之后执行删除 log 操作
   try {
     // log.deleteBefore3DaysLog()
@@ -182,15 +187,27 @@ APP.prototype.initIPC = function () {
     app.quit()
   })
 
-  ipcMain.on('onMax', () => {
+  ipcMain.on('onMax', (evt, arg) => {
+    if (arg && arg.window === 'aplWindow') {
+      _this.aplWindow.maximize()
+      return false
+    }
     _this.mainWindow.maximize()
   })
 
-  ipcMain.on('onRestore', () => {
+  ipcMain.on('onRestore', (evt, arg) => {
+    if (arg && arg.window === 'aplWindow') {
+      _this.aplWindow.restore()
+      return false
+    }
     _this.mainWindow.restore()
   })
 
-  ipcMain.on('onMinimize', () => {
+  ipcMain.on('onMinimize', (evt, arg) => {
+    if (arg && arg.window === 'aplWindow') {
+      _this.aplWindow.minimize()
+      return false
+    }
     _this.mainWindow.minimize()
   })
 
@@ -240,19 +257,54 @@ APP.prototype.initIPC = function () {
   ipcMain.on('openAplWindow', function (evt, arg) {
     // 打开外部应用窗口
     if (_this.aplWindow) {
+      _this.aplWindow.webContents.send('asynchronous-message', arg)
       _this.aplWindow.show()
       return
     }
     _this.aplWindow = new BrowserWindow({
-      width: 622,
-      height: 422,
+      width: 899,
+      height: 767,
       minWidth: 500,
       minHeight: 300,
+      frame: false,
       parent: _this.mainWindow
     })
     const winURL = path.join('file://', __static, '/windows/application.html')
     _this.aplWindow.loadURL(winURL)
+    _this.aplWindow.webContents.once('did-finish-load', () => {
+      _this.aplWindow.webContents.send('asynchronous-message', arg)
+    })
+    _this.aplWindow.on('maximize', () => {
+      _this.aplWindow.webContents.send('doMax')
+    })
+    _this.aplWindow.on('restore', () => {
+      _this.aplWindow.webContents.send('doRestore')
+    })
+    _this.aplWindow.on('unmaximize', () => {
+      _this.aplWindow.webContents.send('doRestore')
+    })
     _this.aplWindow.on('closed', () => { _this.aplWindow = null })
+  })
+
+  ipcMain.on('receiveNewMsgs', function () {
+    !_this.mainWindow.isFocused() && _this.mainWindow.flashFrame(true)
+    _this.tryTwinkle()
+  })
+
+  ipcMain.on('sessionUnreadNums', function (evt, arg) {
+    if (arg.unreadNums <= 0) {
+      if (_this.twinkle) {
+        _this.sysTray.setImage(`${__static}/img/systry-logo.png`)
+        clearInterval(_this.twinkle)
+        _this.twinkle = null
+      }
+      return false
+    }
+    _this.tryTwinkle()
+  })
+
+  ipcMain.on('toggleSession', function (evt, arg) {
+    if (_this.aplWindow) _this.aplWindow.webContents.send('renderSession', arg)
   })
 }
 
@@ -320,6 +372,23 @@ APP.prototype.modifyFilePath = function () {
     app.setPath('userData', FilePath)
     app.setPath('logs', FilePath)
   }
+}
+
+APP.prototype.tryTwinkle = function () {
+  // 系统托盘图标闪烁
+  if (this.twinkle) {
+    clearInterval(this.twinkle)
+    this.twinkle = null
+  }
+  let count = 0
+  this.twinkle = setInterval(() => {
+    count++
+    if (count % 2 === 0) {
+      this.sysTray.setImage(`${__static}/img/systry-logo.png`)
+    } else {
+      this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
+    }
+  }, 600)
 }
 
 export default APP

@@ -5,7 +5,7 @@ function SysTray (opts) {
   this.opts = opts
   this.tray = null
   var template = [
-    { label: '关于' },
+    // { label: '关于' },
     // { type: 'separator' },
     // {
     //   label: '状态',
@@ -62,6 +62,9 @@ SysTray.prototype = {
     // if (process.platform !== 'win32') return
     // var switchClientStatus = StatusMenuImpl.switchClientStatus.bind(this)
     // switchClientStatus(this.template.items[2].submenu.items, status)
+  },
+  setImage: function (icon) {
+    this.tray && this.tray.setImage(icon)
   }
 }
 

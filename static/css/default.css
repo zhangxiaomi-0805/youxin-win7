@@ -477,3 +477,146 @@ body,
     clear: both;
     color: #ed0e0e;
 }
+
+/* 外部接入系统 */
+.appli-window {
+    -webkit-user-select: none;
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.22);
+    box-shadow: 1px 0 4px 0 #D1D1D1, 1px 0 0 0 #D6D6D6;
+}
+
+.appli-window .appli-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.appli-window .webview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    visibility: hidden;
+    opacity: 0;
+    /* transform: scale(1.1); */
+    /* transition: visibility 0s .12s linear , opacity .12s ease-in, transform .12s ease-in; */
+}
+
+.appli-window .webview.active {
+    visibility: visible;
+    opacity: 1;
+    /* transform: scale(1); */
+    /* transition: visibility 0s 0s linear , opacity .24s ease-out, transform .24s ease-out; */
+}
+
+.appli-window header {
+    -webkit-app-region: drag;
+    position: relative;
+    height: 31px;
+    background-color: #fff;
+    border-bottom: 1px solid rgba(214,214,214,1);
+}
+
+.appli-window .tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    position: absolute;
+    top: 0;
+    left: 70px;
+    height: 31px;
+    z-index: 1001;
+    width: 82%;
+}
+
+.appli-window .tabs-item {
+    -webkit-app-region: no-drag;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1;
+    position: relative;
+    box-sizing: border-box;
+    max-width: 30%;
+    height: 100%;
+    padding: 0 5px;
+    background:rgba(236,236,236,1);
+    border:1px solid rgba(0,0,0,0.1);
+    transition: all .24s linear;
+    cursor: default;
+}
+
+.appli-window .tabs-item.active {
+    background:rgba(255,255,255,1);
+}
+
+.appli-window .tabs-item span {
+    display: block;
+    width: 80%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:14px;
+    color:rgba(51,51,51,1);
+}
+
+.appli-window .tabs-item i {
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    font-style: normal;
+    cursor: pointer;
+}
+
+.appli-window .u-caption {
+    width: 100%;
+    height: 31px;
+    background:rgba(236,236,236,1);
+}
+
+.appli-window .nav {
+    -webkit-app-region: no-drag;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 70px;
+    height: 31px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1002;
+}
+
+.appli-window .nav a {
+    font-size: 11px;
+    color: rgba(4,154,255,1);
+}
+.appli-window .nav a:first-child {
+    margin-right: 5px;
+}
+
+.appli-window .nav a.disabled {
+    color: #bbb;
+}
+
+.appli-window .appli-loading {
+    width: 100%;
+    height: 3px;
+    background-color: rgba(4,154,255,1);
+    animation: appliLoading 1s;
+}
+
+@keyframes appliLoading {
+    from { background-color: rgba(245,249,255,1) }
+    to { background-color: rgba(4,154,255,1) }
+}
+
+.appli-window .tabs-item .appli-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    margin-right: 5px;
+}

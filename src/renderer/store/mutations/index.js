@@ -225,6 +225,9 @@ export default {
     const nim = state.nim
     state.sessionlist = nim.cutSessionsByIds(state.sessionlist, sessionIds)
   },
+  deleteAllMsgs (state) {
+    state.msgs = {}
+  },
   // 初始化，收到离线漫游消息时调用
   updateMsgs (state, msgs) {
     const nim = state.nim
@@ -854,17 +857,10 @@ export default {
     let SortOrgFn = (sortOrgList) => {
       IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
       // 组织排序
-      for (let i = 0; i < sortOrgList.length; i++) {
-        for (let j = 0; j < sortOrgList.length - 1 - i; j++) {
-          let orgSeqBef = sortOrgList[j].orgSeq
-          let orgSeqAft = sortOrgList[j + 1].orgSeq
-          if (orgSeqBef > orgSeqAft) {
-            let t = sortOrgList[j]
-            sortOrgList[j] = sortOrgList[j + 1]
-            sortOrgList[j + 1] = t
-          }
-        }
-      }
+      let newOrgList = sortOrgList.sort((a, b) => {
+        return b.orgSeq - a.orgSeq
+      })
+      return newOrgList
     }
     let SortUserFn = (sortUserList) => {
       IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
@@ -997,7 +993,6 @@ export default {
       // }
     }
     let SortUserFn = (sortUserList) => {
-      console.log(state.groupObj)
       IndexedDB.setItem('groupObj', state.groupObj)
       // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
       let superManger = []
@@ -1235,5 +1230,51 @@ export default {
   updateWindowMax (state, status) {
     // 更新窗口放大状态
     state.isWindowMax = status
+  },
+  updateUploadprogressList (state, obj) {
+    // type 0 -初始化 1 -更新 2 -删除
+    const { id, percentage, type } = obj
+    if (type === 0) {
+      state.uploadprogressList.push({ id, percentage })
+    } else if (type === 1) {
+      let index = state.uploadprogressList.findIndex(item => {
+        return item.id === id
+      })
+      let newArr = Object.assign([], state.uploadprogressList)
+      newArr[index].percentage = percentage
+      state.uploadprogressList = newArr
+    } else if (type === 2) {
+      let index = state.uploadprogressList.findIndex(item => {
+        return item.id === id
+      })
+      let newArr = Object.assign([], state.uploadprogressList)
+      newArr.splice(index, 1)
+      state.uploadprogressList = newArr
+    }
+  },
+  updateThirdUrls (state, obj) {
+    // 更新免登录列表
+    state.thirdUrls = obj
+  },
+  updateDownloadFileList (state, obj) {
+    // type 0 -下载完成 1 -下载中 2 -暂停
+    const {type, id, sessionId} = obj
+    let newArr = Object.assign([], state.downloadFileList)
+    const index = newArr.findIndex(item => {
+      return item.id === id
+    })
+    if (type === 1) {
+      if (index === -1) {
+        newArr.push({ id, sessionId, status: 1 })
+      } else {
+        newArr[index].status = 1
+      }
+    } else if (type === 0) {
+      const index = newArr.findIndex(item => {
+        return item.id === id
+      })
+      newArr.splice(index, 1)
+    }
+    state.downloadFileList = newArr
   }
 }

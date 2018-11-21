@@ -616,6 +616,10 @@ export default {
     left: 10px;
     right: 10px;
     bottom: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
     height: 4rem;
     line-height: 4rem;
     text-align: right;
@@ -736,11 +740,11 @@ export default {
   }
 
   .m-selectcontact .confirm {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 55px;
     height: 28px;
-    line-height: 28px;
-    text-align: center;
     border-radius: 4px;
     color: #fff;
     font-size: 12px;
@@ -842,7 +846,6 @@ export default {
     height: 15px;
     background: url('../../../../static/img/setting/loading-blur.gif') no-repeat center center;
     background-size: 100% 100%;
-    margin-top: 5px;
   }
 
   .m-selectcontact .inline {

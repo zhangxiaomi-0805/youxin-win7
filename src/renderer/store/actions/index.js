@@ -11,8 +11,8 @@ import {updateMute} from './mute'
 import {subscribeEvent, unSubscribeEvent, publistEvents} from './statusEvent'
 import {updateFriend, addFriend, deleteFriend} from './friends'
 import {resetSearchResult, searchUsers, searchTeam} from './search'
-import {deleteSession, setCurrSession, resetCurrSession, insertLocalSession, setTopSession, deleteLocalMsgsBySession, updateLocalCustomSession} from './session'
-import { sendMsg, sendFileMsg, sendMsgReceipt, sendRobotMsg, revocateMsg, getHistoryMsgs, getLocalMsgs, resetNoMoreHistoryMsgs, continueRobotMsg, deleteMsg, downloadImg, convertVoice, previewFile, resendMsg, onForwordMsg } from './msgs'
+import {deleteSession, setCurrSession, resetCurrSession, insertLocalSession, setTopSession, deleteLocalMsgsBySession, updateLocalCustomSession, deleteLocalMsgs} from './session'
+import {sendMsg, sendFileMsg, sendImgMsg, sendMsgReceipt, sendRobotMsg, revocateMsg, getHistoryMsgs, getLocalMsgs, resetNoMoreHistoryMsgs, continueRobotMsg, deleteMsg, downloadImg, convertVoice, previewFile, resendMsg, onForwordMsg} from './msgs'
 import {markSysMsgRead, resetSysMsgs, deleteSysMsgs, markCustomSysMsgRead, getLocalSysMsgs} from './sysMsgs'
 // import {sendChatroomMsg, sendChatroomRobotMsg, sendChatroomFileMsg, getChatroomHistoryMsgs} from './chatroomMsgs'
 // import {initChatroomInfos, getChatroomInfo, getChatroomMembers, clearChatroomMembers} from './chatroomInfos'
@@ -122,11 +122,14 @@ export default {
   setTopSession,
   // 删除某个会话的本地消息
   deleteLocalMsgsBySession,
+  // 删除所有会话
+  deleteLocalMsgs,
   // 更新本地会话
   updateLocalCustomSession,
   // 发送消息
   sendMsg,
   sendFileMsg,
+  sendImgMsg,
   sendRobotMsg,
   // 发送消息已读回执
   sendMsgReceipt,

@@ -116,8 +116,14 @@
           :historyMsgList="allMsgList"
           :userInfos="userInfos"
           :myInfo="myInfo"
+<<<<<<< HEAD
           :messageCheck="messageCheck"
           :clearStatus="clearStatus"/>
+=======
+          :key="msg.idClient"
+        ></history-item>
+      </ul>
+>>>>>>> 90e2556468d504258c91c4375d00783e4c76cd19
       </div>
     </div>    
   </div>
