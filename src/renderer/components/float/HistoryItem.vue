@@ -7,7 +7,7 @@
       <div 
         class="left"
       >
-        <span v-show="isCheckMore" :class="isItemChecked ? 'checked common' : 'check common'"></span>
+        <span v-show="isCheckMore" :class="className(msg)"></span>
         
         <img :src="msg.avatar" alt="" class="avatar">
         <div style="padding:0 8px; width:90%">
@@ -96,6 +96,19 @@ export default {
     }
   },
   methods: {
+    className (msg) {
+      let className = 'check common'
+      if (this.isItemChecked) {
+        for (let i in this.checkedMsgList) {
+          let idClient = this.checkedMsgList[i].idClient
+          if (idClient === msg.idClient) {
+            className = 'checked common'
+            break
+          }
+        }
+      }
+      return className
+    },
     manageTime (time) {
       return util.formatDate(time, true)
     },

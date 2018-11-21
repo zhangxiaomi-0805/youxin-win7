@@ -550,6 +550,9 @@ export default {
       this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
     },
     deleteMsgs () {
+      this.checkType = 'all'
+      this.checkFunc = ''
+      this.isCheckMore = false
       for (let i = 0; i < this.checkedMsgList.length; i++) {
         this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
       }
