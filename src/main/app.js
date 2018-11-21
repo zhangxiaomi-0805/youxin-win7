@@ -288,10 +288,10 @@ APP.prototype.initIPC = function () {
 
   ipcMain.on('receiveNewMsgs', function () {
     !_this.mainWindow.isFocused() && _this.mainWindow.flashFrame(true)
+    _this.tryTwinkle()
   })
 
   ipcMain.on('sessionUnreadNums', function (evt, arg) {
-    // 系统托盘图标闪烁
     if (arg.unreadNums <= 0) {
       if (_this.twinkle) {
         _this.sysTray.setImage(`${__static}/img/systry-logo.png`)
@@ -300,19 +300,7 @@ APP.prototype.initIPC = function () {
       }
       return false
     }
-    if (_this.twinkle) {
-      clearInterval(_this.twinkle)
-      _this.twinkle = null
-    }
-    let count = 0
-    _this.twinkle = setInterval(() => {
-      count++
-      if (count % 2 === 0) {
-        _this.sysTray.setImage(`${__static}/img/systry-logo.png`)
-      } else {
-        _this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
-      }
-    }, 600)
+    _this.tryTwinkle()
   })
 
   ipcMain.on('toggleSession', function (evt, arg) {
@@ -384,6 +372,23 @@ APP.prototype.modifyFilePath = function () {
     app.setPath('userData', FilePath)
     app.setPath('logs', FilePath)
   }
+}
+
+APP.prototype.tryTwinkle = function () {
+  // 系统托盘图标闪烁
+  if (this.twinkle) {
+    clearInterval(this.twinkle)
+    this.twinkle = null
+  }
+  let count = 0
+  this.twinkle = setInterval(() => {
+    count++
+    if (count % 2 === 0) {
+      this.sysTray.setImage(`${__static}/img/systry-logo.png`)
+    } else {
+      this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
+    }
+  }, 600)
 }
 
 export default APP
