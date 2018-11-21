@@ -66,9 +66,8 @@ export default {
       }
       if (url) {
         if (item.openType === 1) {
-          const electron = require('electron')
-          const ipRenderer = electron.ipcRenderer
-          ipRenderer.send('openAplWindow', {url: item.url, title: item.appName, appCode: item.appCode, type: 1})
+          const ipcRenderer = require('electron').ipcRenderer
+          ipcRenderer.send('openAplWindow', {url: url, title: item.appName, appCode: item.appCode})
         } else {
           shell.openExternal(url)
         }

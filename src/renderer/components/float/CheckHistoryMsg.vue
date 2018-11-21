@@ -21,9 +21,9 @@
         <!-- 群聊 -->
         <div v-else class="session-box">
           <img :src="teamInfo.avatar" alt="" class="session-avatar">
-          <span class="session-name">{{sessionName}}</span>
+          <div class="session-name">{{sessionName}}</div>
         </div>
-
+        
         <div class="u-sysbtn close">
           <a class="btn-close" @click="closeModal"/>
         </div>
@@ -32,20 +32,24 @@
       <div class="m-historymsg-content">
         <!-- 搜索 -->
         <div class="search-bar">
-          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
           <span v-if="showSearch" class="clear" @click="clearStatus"/>
         </div>
-        <!-- <div class="search-box">
-          <div class="search-img"></div>
-          <span class="search">搜索</span>
-        </div> -->
 
         <!-- 全部 && 图片 && 文件 -->
-        <div class="tab-title">
-          <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('all')">全部</a>
-          <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('image')">图片</a>
-          <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('file')">文件</a>
+        <div v-show="!isCheckMore || showSearch" class="tab-left-title">
+          <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('all')">全部</a>
+          <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('image')">图片</a>
+          <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('file')">文件</a>
         </div>
+
+        <!-- 转发 && 删除 && 取消 -->
+        <div v-show="isCheckMore && !showSearch" class="tab-right-title">
+          <a :class="className('forword')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">转发</a>
+          <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a>
+          <a :class="className('cancel')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('cancel') : null">取消</a>
+        </div>
+
 
         <!-- 短信选择 -->
         <div
@@ -57,15 +61,63 @@
         </div>
 
          <!-- 内容列表 -->
-      <ul style="width: 100%;overflow-y: scroll; height:300px">
-        <history-item
-          v-for="msg in msglist"
-          :rawMsg="msg"
-          :isRobot="isRobot"
+        <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <history-item
+            @checkMore="checkMoreFn"
+            :isCheckMore="isCheckMore"
+            :sessionId="sessionId"
+            :checkedMsgList="checkedMsgList"
+            keep-alive
+            v-for="(msg, $index) in allMsgList"
+            :key = $index
+            :msg="msg"
+            :idClient="msg.idClient"
+            :isRobot="isRobot"
+            :userInfos="userInfos"
+            :myInfo="myInfo"/>
+        </ul>
+        <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <history-item
+            @checkMore="checkMoreFn"
+            :isCheckMore="isCheckMore"
+            :sessionId="sessionId"
+            :checkedMsgList="checkedMsgList"
+            keep-alive
+            v-for="(msg, $index) in imageMsgList"
+            :key = $index
+            :msg="msg"
+            :idClient="msg.idClient"
+            :isRobot="isRobot"
+            :userInfos="userInfos"
+            :myInfo="myInfo"/>
+        </ul>
+        <ul v-show ="checkType === 'file'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <history-item
+            @checkMore="checkMoreFn"
+            :isCheckMore="isCheckMore"
+            :sessionId="sessionId"
+            :checkedMsgList="checkedMsgList"
+            keep-alive
+            v-for="(msg, $index) in fileMsgList"
+            :key = $index
+            :msg="msg"
+            :idClient="msg.idClient"
+            :isRobot="isRobot"
+            :userInfos="userInfos"
+            :myInfo="myInfo"/>
+        </ul>
+        <!-- 搜索结果 -->
+        <search-history-msg
+          v-show="showSearch && checkType === 'all'"
+          :isCheckMore="isCheckMore"
+          :sessionId="sessionId"
+          keep-alive
+          :value="searchValue"
+          :historyMsgList="allMsgList"
           :userInfos="userInfos"
           :myInfo="myInfo"
-        ></history-item>
-      </ul>
+          :messageCheck="messageCheck"
+          :clearStatus="clearStatus"/>
       </div>
     </div>    
   </div>
@@ -73,17 +125,18 @@
 </template>
 
 <script>
-// import platform from '../../utils/platform'
 import drag from '../../utils/drag.js'
-import util from '../../utils'
 import clickoutside from '../../utils/clickoutside.js'
 import HistoryItem from './HistoryItem'
-// import SearchData from '../search/search.js'
+import SearchHistoryMsg from '../search/SearchHistoryMsg'
+import util from '../../utils'
+import config from '../../configs'
+import emojiObj from '../../configs/emoji'
 export default {
   name: 'check-history-msg',
   directives: {clickoutside},
   components: {
-    HistoryItem
+    HistoryItem, SearchHistoryMsg
   },
   mounted () {
     // 获取当前聊天记录
@@ -107,11 +160,22 @@ export default {
       isRobot: false,
       messageCheck: false, // 短信勾选状态
       checkType: 'all', // all---全部; image---图片; file---文件
+      checkFunc: '', // forword---转发; delete---删除; cancel---取消
       scene: 'p2p', // p2p---单聊； team---群聊
       to: '',
       sessionName: '',
-      teamInfo: {}
-      // msgList: [{type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '我那个时候考上公务员的城管 供电局也考上了 去了供电局 感觉比城管好 我那个时候考上公务员的城管', time: '12:42:00'}, {type: 'text', avatar: 'http://www.qqzhi.com/uploadpic/2014-06-06/000435511.jpg', nickName: '苏大元', message: '他以为自己是什么小饼干', time: '12:42:00'}, {type: 'text', avatar: 'http://tx.haiqq.com/uploads/allimg/150323/151500B45-1.jpg', nickName: '大西瓜的瓜', message: '这是什么鬼登西', time: '12:42:00'}]
+      teamInfo: {},
+      beforeValue: '', // 上一次输入的值，做延时搜索
+      isCheckMore: false
+    }
+  },
+  watch: {
+    searchValue (newValue, oldValue) {
+      this.beforeValue = newValue
+      setTimeout(() => {
+        if (newValue !== this.beforeValue) return
+        this.checkType = 'all'
+      }, 500)
     }
   },
   computed: {
@@ -181,57 +245,67 @@ export default {
         return members
       }
     },
-    msglist () {
-      let allMsgs = this.$store.state.currSessionMsgs
-      let imagelist = [] // 保存图片历史记录
-      let filelist = [] // 保存文件历史记录
-      let shortMsg = [] // 保存所有短信历史记录
-      allMsgs.map((item, index) => {
-        if (item.type === 'timeTag' || item.type === 'tip' || item.type === 'notification') { // 删除只有时间的、提示信息类列表
-          allMsgs.splice(index, 1)
-        }
-        if (item.type === 'image') {
-          imagelist.push(item)
-        }
-        if (item.type === 'file') {
-          filelist.push(item)
-        }
-        if (item.custom && JSON.parse(item.custom).isSmsMsg) { // 获取短信消息
-          shortMsg.push(item)
+    allMsgList () {
+      let allList = []
+      let allMsgList = []
+      this.$store.state.currSessionMsgs.map((item, index) => {
+        item = this.manageItem(item)
+        if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
+          allList.unshift(item)
+          if (item.custom && JSON.parse(item.custom).isSmsMsg) {
+            allMsgList.unshift(item)
+          }
         }
       })
-      console.log(allMsgs)
-      if (this.checkType === 'all') { // 选择全部
-        if (this.messageCheck) {
-          return shortMsg
-        } else {
-          return allMsgs
-        }
-      } else if (this.checkType === 'image') { // 选择图片
-        console.log(imagelist)
-        let imageShortMsg = []
-        imagelist.map((item, index) => {
-          if (item.custom && JSON.parse(item.custom).isSmsMsg) { // 获取短信消息
-            imageShortMsg.push(item)
+      if (this.messageCheck) {
+        return allMsgList
+      } else {
+        return allList
+      }
+    },
+    imageMsgList () {
+      let imageAllList = []
+      let imageMsgList = []
+      this.$store.state.currSessionMsgs.map((item, index) => {
+        item = this.manageItem(item)
+        if (item.type === 'image') {
+          imageAllList.unshift(item)
+          if (item.custom && JSON.parse(item.custom).isSmsMsg) {
+            imageMsgList.unshift(item)
           }
-        })
-        if (this.messageCheck) {
-          return imageShortMsg
-        } else {
-          return imagelist
         }
-      } else if (this.checkType === 'file') { // 选择文件
-        let fileShortMsg = []
-        filelist.map((item, index) => {
-          if (item.custom && JSON.parse(item.custom).isSmsMsg) { // 获取短信消息
-            fileShortMsg.push(item)
+      })
+      console.log(imageAllList)
+      if (this.messageCheck) {
+        return imageMsgList
+      } else {
+        return imageAllList
+      }
+    },
+    fileMsgList () {
+      let allFileList = []
+      let fileMsgList = []
+      this.$store.state.currSessionMsgs.map((item, index) => {
+        item = this.manageItem(item)
+        if (item.type === 'file') {
+          allFileList.unshift(item)
+          if (item.custom && JSON.parse(item.custom).isSmsMsg) {
+            fileMsgList.unshift(item)
           }
-        })
-        if (this.messageCheck) {
-          return fileShortMsg
-        } else {
-          return filelist
         }
+      })
+      if (this.messageCheck) {
+        return fileMsgList
+      } else {
+        return allFileList
+      }
+    },
+    checkedMsgList () {
+      let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
+      if (this.$store.state.checkedMsgs && sessionId === this.$store.state.checkedMsgs.sessionId && this.$store.state.checkedMsgs.checkedMsgList.length > 0) {
+        return this.$store.state.checkedMsgs.checkedMsgList
+      } else {
+        return []
       }
     }
   },
@@ -239,10 +313,25 @@ export default {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
-    InitHistoryMsg () {
-      if (!this.msglist || this.msglist.length <= 10) {
-        this.getHistoryMsgs()
+    className (value) {
+      let className = 'tab-title-item'
+      if (value === this.checkFunc) {
+        if (this.checkedMsgList && this.checkedMsgList.length > 0) {
+          className = 'tab-title-item active'
+        }
       }
+      if (this.checkedMsgList.length <= 0) {
+        className = 'tab-title-item disable'
+        this.checkFunc = ''
+      }
+      return className
+    },
+    checkMoreFn () {
+      this.isCheckMore = true
+      console.log(this.isCheckMore)
+    },
+    InitHistoryMsg () {
+      this.getHistoryMsgs()
     },
     getHistoryMsgs () {
       let callBack = () => {}
@@ -254,12 +343,113 @@ export default {
         callBack: callBack
       })
     },
+    manageItem (item) {
+      if (item.flow === 'in') {
+        if (item.type === 'robot' && item.content && item.content.msgOut) {
+          // 机器人下行消息
+          let robotAccid = item.content.robotAccid
+          item.avatar = this.robotInfos[robotAccid].avatar
+          item.isRobot = true
+          item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
+        } else if (item.from !== this.$store.state.userUID) {
+          item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
+          item.link = `#/mainpage/contacts/card?accid=${item.from}`
+          //  todo如果是未加好友的人发了消息，是否能看到名片
+        } else {
+          item.avatar = this.myInfo.avatar
+          // item.avatar = `${config.myPhoneIcon}`
+        }
+      } else if (item.flow === 'out') {
+        item.avatar = this.myInfo.avatar
+      }
+      if (item.type === 'text') {
+        // 文本消息
+        item.showText = util.escape(item.text)
+        if (item.apns && item.flow === 'in') {
+          if (!item.apns.accounts) {
+            item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
+          } else if (item.apns.accounts.includes(this.myInfo.account)) {
+            let name = util.escape(this.nickInTeam) || util.escape(this.myInfo.nick)
+            item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
+          }
+        }
+        if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
+          let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
+          emojiItems.forEach(text => {
+            let emojiCnt = emojiObj.emojiList.emoji
+            if (emojiCnt[text]) {
+              let dataKey = text.slice(1, -1)
+              item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+            }
+          })
+        }
+      } else if (item.type === 'custom') {
+        let content = JSON.parse(item.content)
+        // type 1 为猜拳消息
+        if (content.type === 1) {
+          let data = content.data
+          let resourceUrl = config.resourceUrl
+          // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
+          item.type = 'custom-type1'
+          item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
+        // type 3 为贴图表情
+        } else if (content.type === 3) {
+          let data = content.data
+          let emojiCnt = ''
+          if (emojiObj.pinupList[data.catalog]) {
+            emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
+            // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
+            item.type = 'custom-type3'
+            item.imgUrl = `${emojiCnt.img}`
+          }
+        } else {
+          item.showText = util.parseCustomMsg(item)
+          if (item.showText !== '[自定义消息]') {
+            item.showText += ',请到手机或电脑客户端查看'
+          }
+        }
+      } else if (item.type === 'image') {
+        // 原始图片全屏显示
+        item.originLink = item.file.url
+        if (item.file.w < 180) {
+          item.w = item.file.w
+          item.h = item.file.h
+        } else {
+          item.w = 180
+          item.h = 180 / (item.file.w / item.file.h)
+        }
+      } else if (item.type === 'video') {
+        // ...
+      } else if (item.type === 'audio') {
+        item.audioSrc = item.file.mp3Url
+        item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'
+      } else if (item.type === 'file') {
+        item.fileLink = item.file.url
+        item.showText = item.file.name
+      } else {
+        item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
+      }
+      console.log(item)
+      return item
+    },
     closeCover () {
       this.showConfirmCover = false
+      this.showSearch = false
+      this.searchValue = ''
+      this.checkType = 'all'
+      this.isCheckMore = false
+      this.checkFunc = ''
+      this.$store.commit('updateCheckedMsgs', {})
     },
     closeModal () {
       this.showHistoryMsg = false
       this.loading = false
+      this.showSearch = false
+      this.searchValue = ''
+      this.checkType = 'all'
+      this.isCheckMore = false
+      this.checkFunc = ''
+      this.$store.commit('updateCheckedMsgs', {})
     },
     clearStatus (el, e) {
       if (e) {
@@ -272,6 +462,106 @@ export default {
     toggleList (value) {
       if (this.checkType === value) return
       this.checkType = value
+    },
+    toggleFunc (value) {
+      if (this.checkFunc === value) return
+      this.checkFunc = value
+      switch (value) {
+        case 'forword':
+          this.forwordMsg()
+          break
+        case 'delete':
+          this.deleteMsgs()
+          break
+        case 'cancel':
+          this.checkFunc = ''
+          this.isCheckMore = false
+          this.$store.commit('updateCheckedMsgs', {})
+          break
+      }
+    },
+    forwordMsg () {
+      // 转发消息
+      let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
+        item.name = ''
+        item.avatar = ''
+        if (item.scene === 'p2p') {
+          let userInfo = null
+          if (item.to !== this.myPhoneId) {
+            userInfo = this.userInfos[item.to]
+          } else {
+            userInfo = Object.assign({}, this.myInfo)
+            // userInfo.alias = '我的手机'
+            // userInfo.avatar = `${config.myPhoneIcon}`
+          }
+          if (userInfo) {
+            item.name = util.getFriendAlias(userInfo)
+            item.avatar = userInfo.avatar
+          }
+        } else if (item.scene === 'team') {
+          let teamInfo = null
+          teamInfo = this.$store.state.teamlist.find(team => {
+            if (team.teamId === item.to) {
+              item.memberNum = team.memberNum
+            }
+            return team.teamId === item.to
+          })
+          if (teamInfo) {
+            item.name = teamInfo.name
+            item.avatar = teamInfo.avatar || this.myGroupIcon
+          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+            item.name = item.lastMsg.attach.team.name
+            item.avatar = item.avatar || this.myGroupIcon
+          } else {
+            item.name = `群${item.to}`
+            item.avatar = item.avatar || this.myGroupIcon
+          }
+          if (!item.memberNum) {
+            return false
+          }
+        }
+        if (item.updateTime) {
+          item.updateTimeShow = util.formatDate(item.updateTime, true)
+        }
+        return item
+      })
+      let sessionlistTop = sessionlist.filter((item) => {
+        if (item.localCustom && item.localCustom.topTime) {
+          if (item.localCustom.topTime - item.lastMsg.time > 0) {
+            item.compareTime = item.localCustom.topTime
+          } else {
+            item.compareTime = item.lastMsg.time
+          }
+          return item
+        }
+      })
+      let newSessionlistTop = sessionlistTop.sort((a, b) => {
+        return b.compareTime - a.compareTime
+      })
+      let sessionlistBot = sessionlist.filter((item) => {
+        if (!item.localCustom || !item.localCustom.topTime) {
+          return item
+        }
+      })
+      let sidelist = [...newSessionlistTop, ...sessionlistBot]
+      this.checkType = 'all'
+      this.checkFunc = ''
+      this.isCheckMore = false
+      this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
+    },
+    deleteMsgs () {
+      this.checkType = 'all'
+      this.checkFunc = ''
+      this.isCheckMore = false
+      for (let i = 0; i < this.checkedMsgList.length; i++) {
+        this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
+      }
+    },
+    scrollEndLoad (e) {
+      let { scrollTop, clientHeight, scrollHeight } = e.target
+      if (scrollTop + clientHeight === scrollHeight) {
+        this.InitHistoryMsg()
+      }
     }
   }
 }
@@ -327,6 +617,7 @@ export default {
     padding: 0 40px 0 0;
     height: 420px;
     overflow: hidden;
+    box-sizing: border-box;
   }
   /* 聊天对象头像 && 昵称 */
   .m-info-box .session-box {
@@ -342,7 +633,11 @@ export default {
   .m-info-box .session-name {
     font-size:14px;
     color:#333 ;
-    padding-left: 10px
+    padding-left: 10px;
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* 搜索框 */
@@ -360,7 +655,7 @@ export default {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
+    background: #F0F0F0 url('../../../../static/img/nav/main-tab-search.png') 8px center no-repeat;
     background-size: 12px 12px;
     border-radius: 2px;
     border: 1px solid rgb(220, 222, 224);
@@ -370,19 +665,23 @@ export default {
     border: 1px solid transparent;
     transition: border .1s linear;
   }
+  .m-info-box .search-bar input.active{
+    border: 1px solid rgba(4,154,255,1);
+  }
   .m-info-box .search-bar .clear {
     position: absolute;
-    right: 16px;
-    top: 10px;
+    right: 10px;
+    top: 8px;
     display: block;
     width: 13px;
     height: 13px;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAAAXNSR…ZrPJlEhfIZaoUiFPF/TRMFyifTApwOf58Im1DWfzPV/wbfFZVUmTg6ZgAAAABJRU5ErkJggg==);
+    background-image: url('../../../../static/img/setting/delete.png');
     background-size: 100% 100%;
     cursor: pointer;
 }
   /* tab头 */
-  .m-info-box .tab-title {
+  /* 左 */
+  .m-info-box .tab-left-title {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -390,7 +689,7 @@ export default {
     padding: 10px 0;
     border-bottom: 1px solid rgba(0,0,0,0.15)
   }
-  .m-info-box .tab-title .tab-title-item {
+  .m-info-box .tab-left-title .tab-title-item {
     width: 15%;
     height: 100%;
     line-height: 27px;
@@ -399,12 +698,45 @@ export default {
     font-size: 12px;
     transition: opacity .3s linear;
   }
-  .m-info-box .tab-title .tab-title-item:hover {
+  .m-info-box .tab-left-title .tab-title-item:hover {
     opacity: 0.7;
   }
 
-  .m-info-box .tab-title .tab-title-item.active {
+  .m-info-box .tab-left-title .tab-title-item.active {
     color: #049AFF;
+  }
+  
+  /* 右 */
+  .m-info-box .tab-right-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.15)
+  }
+  .m-info-box .tab-right-title .tab-title-item {
+    width: 11%;
+    height: 100%;
+    line-height: 27px;
+    text-align: left;
+    color: #333;
+    font-size: 12px;
+    transition: opacity .3s linear;
+    background-color: #F2F2F2;
+    border-radius: 4px;
+    margin-left: 10px;
+    text-align: center;
+  }
+  .m-info-box .tab-right-title .tab-title-item:hover {
+    opacity: 0.7;
+  }
+
+  .m-info-box .tab-right-title .tab-title-item.active {
+    color: #F43530;
+  }
+  .m-info-box .tab-right-title .tab-title-item.disable {
+    opacity: .5;
   }
   /* 短信选择 */
   .m-info-box .message-box{

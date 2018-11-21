@@ -612,4 +612,11 @@ body,
 @keyframes appliLoading {
     from { background-color: rgba(245,249,255,1) }
     to { background-color: rgba(4,154,255,1) }
-  }
+}
+
+.appli-window .tabs-item .appli-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    margin-right: 5px;
+}

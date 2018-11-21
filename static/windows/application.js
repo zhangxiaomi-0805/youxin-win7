@@ -56,6 +56,16 @@ TabManage.prototype.init = function () {
     document.getElementById('appli-max').style.display = 'inline-block'
     document.getElementById('appli-restore').style.display = 'none'
   })
+
+  ipcRenderer.on('renderSession', (evt, arg) => {
+    for (let i in this.data) {
+      if (this.data[i].appCode === arg.appCode) {
+        this.currentTab = arg.appCode
+        this.resetClass()
+        break
+      }
+    }
+  })
 }
 
 TabManage.prototype.PreDef = function () {
@@ -116,7 +126,8 @@ TabManage.prototype.createDom = function (arg) {
   // 动态生成界面元素
   let a = document.createElement('a')
   a.className = 'tabs-item'
-  a.innerHTML = `<span>${arg.title}</span>`
+  let icon = arg.icon || '../img/systry-logo.png'
+  a.innerHTML = `<img class="appli-icon" src="${icon}"></span><span>${arg.title}</span>`
   a.setAttribute('value', arg.appCode)
   a.onclick = () => {
     if (this.currentTab === arg.appCode) return

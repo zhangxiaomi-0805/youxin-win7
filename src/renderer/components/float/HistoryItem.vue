@@ -1,50 +1,62 @@
 <template>
   <li 
     class="list-item"
->
+    @click.stop="isCheckMore ? checkItemFn(msg) : null"
+  >
     <div  class="list-item">
-        <div class="left">
-            <img :src="msg.avatar" alt="" class="avatar">
-            <div style="padding:0 8px">
-                <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
-                <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
-
-                <div 
-                    v-if="msg.type==='text'"
-                    style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
-                    @mouseup.stop="showListOptions($event, msg.type)"
-                    ref="clipboard"
-                    v-html="msg.showText"
-                ></div>
-                <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
-                <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></div>
-                <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></div>
-                <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></div>
-                <div v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')"><span>{{msg.showText.split(' ')[0]}}</span></div>
-                <div v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
-                <div v-else-if="msg.type==='notification'" class="msg-text notify">{{msg.showText}}</div>
-                <div v-else class="msg-text" v-html="msg.showText"></div>
-            </div>
-        </div>
-        <div style="font-size:12px; color:#999">{{getTime(msg.time)}}</div>
-        </div>
+      <div 
+        class="left"
+      >
+        <span v-show="isCheckMore" :class="className(msg)"></span>
         
-    </li>
+        <img :src="msg.avatar" alt="" class="avatar">
+        <div style="padding:0 8px; width:90%">
+          <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
+          <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
+          <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
+          <div 
+            v-if="msg.type==='text'"
+            style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
+            @mousedown.stop="isCheckMore ? null : showListOptions($event, msg)"
+            @mouseup.stop="isCheckMore ? null : itemMouseUp($event)"
+            v-html="msg.showText"
+            :ref="`copy_${msg.idClient}`" 
+          ></div>
+          <div v-else-if="msg.type==='custom-type1'" ref="mediaMsg"></div>
+          <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;"></div>
+          <div v-else-if="msg.type==='image'"  ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
+            <img :src="msg.originLink" style="width: 100%; height: 100%"/> 
+          </div>
+          <div v-else-if="msg.type==='video'"  ref="mediaMsg"></div>
+          <div v-else-if="msg.type==='audio'"  :class="isPlay ? 'zel-play' : ''" @click="isCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
+          <div v-else-if="msg.type==='file'"  @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"><a href="javascript:;" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
+        </div>
+      </div>
+      <!-- 时间 -->
+      <div style="font-size:12px; color:#999">{{manageTime(msg.time)}}</div>
+    </div>
+        
+  </li>
 </template>
 
 <script type="text/javascript">
 import util from '../../utils'
-import config from '../../configs'
-import emojiObj from '../../configs/emoji'
 export default {
   name: 'history-item',
   props: {
-    type: String, // 类型，chatroom, session
+    isCheckMore: Boolean,
     scene: String,
     to: String,
     teamId: String,
     idClient: String,
-    rawMsg: {
+    sessionId: String,
+    checkedMsgList: {
+      type: Array,
+      default () {
+        return {}
+      }
+    },
+    msg: {
       type: Object,
       default () {
         return {}
@@ -77,259 +89,101 @@ export default {
   },
   data () {
     return {
+      isPlay: false,
+      currentAudio: null,
+      isItemChecked: false,
+      checkedMsgs: []
     }
-  },
-  computed: {
-    msg () {
-      if (this.rawMsg.type === 'timestamp') {
-        return {}
-      }
-      let item = Object.assign({}, this.rawMsg)
-      // 标记用户，区分聊天室、普通消息
-      if (item.flow === 'in') {
-        if (item.type === 'robot' && item.content && item.content.msgOut) {
-          // 机器人下行消息
-          let robotAccid = item.content.robotAccid
-          item.avatar = this.robotInfos[robotAccid].avatar
-          item.isRobot = true
-          item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
-        } else if (item.from !== this.$store.state.userUID) {
-          item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
-          item.link = `#/mainpage/contacts/card?accid=${item.from}`
-          //  todo如果是未加好友的人发了消息，是否能看到名片
-        } else {
-          item.avatar = this.myInfo.avatar
-          // item.avatar = `${config.myPhoneIcon}`
-        }
-      } else if (item.flow === 'out') {
-        item.avatar = this.myInfo.avatar
-      }
-      if (item.type === 'timeTag') {
-        // 标记发送的时间
-        item.showText = item.text
-      } else if (item.type === 'text') {
-        // 文本消息
-        item.showText = util.escape(item.text)
-        if (item.apns && item.flow === 'in') {
-          if (!item.apns.accounts) {
-            item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
-          } else if (item.apns.accounts.includes(this.myInfo.account)) {
-            let name = util.escape(this.nickInTeam) || util.escape(this.myInfo.nick)
-            item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
-          }
-        }
-        if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
-          let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
-          emojiItems.forEach(text => {
-            let emojiCnt = emojiObj.emojiList.emoji
-            if (emojiCnt[text]) {
-              let dataKey = text.slice(1, -1)
-              item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
-            }
-          })
-        }
-      } else if (item.type === 'custom') {
-        let content = JSON.parse(item.content)
-        // type 1 为猜拳消息
-        if (content.type === 1) {
-          let data = content.data
-          let resourceUrl = config.resourceUrl
-          // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
-          item.type = 'custom-type1'
-          item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
-        // type 3 为贴图表情
-        } else if (content.type === 3) {
-          let data = content.data
-          let emojiCnt = ''
-          if (emojiObj.pinupList[data.catalog]) {
-            emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
-            // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
-            item.type = 'custom-type3'
-            item.imgUrl = `${emojiCnt.img}`
-          }
-        } else {
-          item.showText = util.parseCustomMsg(item)
-          if (item.showText !== '[自定义消息]') {
-            item.showText += ',请到手机或电脑客户端查看'
-          }
-        }
-      } else if (item.type === 'image') {
-        // 原始图片全屏显示
-        item.originLink = item.file.url
-        if (item.file.w < 180) {
-          item.w = item.file.w
-          item.h = item.file.h
-        } else {
-          item.w = 180
-          item.h = 180 / (item.file.w / item.file.h)
-        }
-      } else if (item.type === 'video') {
-        // ...
-      } else if (item.type === 'audio') {
-        item.audioSrc = item.file.mp3Url
-        item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'
-      } else if (item.type === 'file') {
-        item.fileLink = item.file.url
-        item.showText = item.file.name
-      } else if (item.type === 'notification') {
-        if (item.scene === 'team') {
-          item.showText = util.generateTeamSysmMsg(item)
-        } else {
-          //  对于系统通知，更新下用户信息的状态
-          item.showText = util.generateChatroomSysMsg(item)
-        }
-      } else if (item.type === 'tip') {
-        //  对于系统通知，更新下用户信息的状态
-        item.showText = item.tip
-      } else if (item.type === 'robot') {
-        let content = item.content || {}
-        let message = content.message || []
-        if (!content.msgOut) {
-          // 机器人上行消息
-          item.robotFlow = 'out'
-          item.showText = item.text
-        } else if (content.flag === 'bot') {
-          item.subType = 'bot'
-          message = message.map(item => {
-            if (item.type === 'template') {
-              // 在vuex(store/actions/msgs.js)中已调用sdk方法做了转换
-              return item.content.json
-            } else if (item.type === 'text' || item.type === 'answer') {
-              // 保持跟template结构一致
-              return [{
-                type: 'text',
-                text: item.content
-              }]
-            } else if (item.type === 'image') {
-              // 保持跟template结构一致
-              return [{
-                type: 'image',
-                url: item.content
-              }]
-            }
-          })
-          item.message = message
-        } else if (item.content.flag === 'faq') {
-          item.subType = 'faq'
-          item.query = message.query
-          let match = message.match.sort((a, b) => {
-            // 返回最匹配的答案
-            return b.score - a.score
-          })
-          item.message = match[0]
-        }
-      } else {
-        item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
-      }
-      // 昵称处理
-      if (this.teamMembers) {
-        let memberInfo = this.teamMembers.find(member => {
-          return member.account === item.from
-        })
-        if (memberInfo) {
-          if (this.userInfos[memberInfo.account]) {
-            item.nickInTeam = this.userInfos[memberInfo.account].alias || memberInfo.nickInTeam
-          } else {
-            item.nickInTeam = memberInfo.nickInTeam
-          }
-        }
-      }
-      return item
-    }
-  },
-  mounted () {
-    let item = this.msg
-    // 有时序问题的操作
-    this.$nextTick(() => {
-      let media = null
-      if (item.type === 'image') {
-        media = new Image()
-        media.src = item.file.url
-        media.style = 'width:auto;height:auto;max-width:100%;max-height:100%;vertical-align: bottom;'
-        if (item.status !== 'sending') {
-          // 图片消息缩略图
-          media.src = item.file.url + '?imageView&thumbnail=180x0&quality=85'
-        }
-      } else if (item.type === 'custom-type1') {
-        // 猜拳消息
-        media = new Image()
-        media.className = 'emoji-middle'
-        media.src = item.imgUrl
-      } else if (item.type === 'custom-type3') {
-        // 贴图表情
-        media = new Image()
-        media.className = 'emoji-big'
-        media.src = item.imgUrl
-      } else if (item.type === 'video') {
-        if (/(mov|mp4|ogg|webm)/i.test(item.file.ext)) {
-          media = document.createElement('video')
-          media.src = item.file.url
-          media.width = 640
-          media.height = 480
-          media.style.width = '100%'
-          media.autoStart = false
-          media.preload = 'metadata'
-          media.controls = 'controls'
-        } else {
-          let aLink = document.createElement('a')
-          aLink.href = item.file.url
-          aLink.target = '_blank'
-          //  TODO aLink.innerHTML = `<i class="u-icon icon-file"></i>${video.name}`
-          this.$refs.mediaMsg.appendChild(aLink)
-        }
-      }
-      if (media) {
-        if (this.$refs.mediaMsg) {
-          this.$refs.mediaMsg.appendChild(media)
-        }
-        media.onload = () => {
-          this.$emit('msg-loaded')
-        }
-        media.onerror = () => {
-          this.$emit('msg-loaded')
-        }
-      } else {
-        this.$emit('msg-loaded')
-      }
-    }) // end this.nextTick
   },
   methods: {
-    getTime (timestamp) {
-      let now = new Date(timestamp)
-      return now.toTimeString().substr(0, 8)
+    className (msg) {
+      let className = 'check common'
+      this.isItemChecked = false
+      for (let i in this.checkedMsgList) {
+        let idClient = this.checkedMsgList[i].idClient
+        if (idClient === msg.idClient) {
+          this.isItemChecked = true
+          className = 'checked common'
+          break
+        }
+      }
+      return className
     },
-    showListOptions (e, type) {
-      console.log('aaa')
+    manageTime (time) {
+      return util.formatDate(time, true)
+    },
+    playAudio (src, msg) {
+      if (!this.currentAudio) {
+        this.currentAudio = new Audio(src)
+        this.currentAudio.play()
+        this.isPlay = true
+        this.currentAudio.onended = () => {
+          this.currentAudio = null
+          this.isPlay = false
+        }
+      }
+    },
+    isChildOf (child, parent) {
+      if (child === parent) return true
+      // 判断一个节点是否为另外一个节点的子节点
+      let parentNode = ''
+      if (child && parent) {
+        parentNode = child.parentNode
+        while (parentNode) {
+          if (parent === parentNode) {
+            return true
+          }
+          parentNode = parentNode.parentNode
+        }
+      }
+      return false
+    },
+    itemMouseUp (e) {
+      if (this.selectInfo) {
+        let range = document.createRange()
+        range.setStart(this.selectInfo.anchorNode, this.selectInfo.startOffset)
+        range.setEnd(this.selectInfo.focusNode, this.selectInfo.endOffset)
+        let selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+      // 处理拖拽窗口事件移除
+      document.onmousemove = null
+      document.onmouseup = null
+      document.body.style.cursor = 'default'
+    },
+    showListOptions (e, msg) {
+      this.selectInfo = null
+      if (msg.type === 'text' && e.button === 2) {
+        this.copyAll()
+      }
       if (e.button === 2) {
         let key = 'history-msg'
         this.$store.dispatch('showListOptions', {
           key,
           show: true,
-          id: 'aaa',
+          id: msg,
           pos: {
             x: e.clientX,
             y: e.clientY
           },
           that: this,
-          msg: 'aaa',
+          msg,
           callBack: (type) => {
             switch (type) {
               case 0: // 多选
-                console.log('多选')
+                this.checkMoreFn(msg)
                 break
               case 2: // 转发
-                console.log('转发')
-                // this.forwordMsg()
+                this.forwordMsg()
                 break
               case 3: // 复制
-                console.log('复制')
-                // this.$refs.clipboard.innerText = this.getCopyText(e)
-                // this.$refs.clipboard.select()
-                // document.execCommand('Copy')
+                this.$refs.clipboard.innerText = this.getCopyText(e)
+                this.$refs.clipboard.select()
+                document.execCommand('Copy')
                 break
               case 4: // 删除
-                console.log('删除')
-                // this.$store.dispatch('deleteMsg', this.msg)
+                this.$store.dispatch('deleteMsg', msg)
                 break
             }
           }
@@ -347,6 +201,164 @@ export default {
       document.onmousemove = null
       document.onmouseup = null
       document.body.style.cursor = 'default'
+    },
+    getSelectedText () {
+      let sel = window.getSelection && window.getSelection()
+      if (sel && sel.rangeCount > 0) {
+        let selection = window.getSelection().getRangeAt(0).cloneContents()
+        return selection
+      } else {
+        return ''
+      }
+    },
+    getCopyText (e) {
+      let text = ''
+      let dom = null
+      if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
+        let range = this.getSelectedText()
+        let container = document.createElement('div')
+        container.appendChild(range)
+        dom = container
+      }
+      if (dom === null) {
+        if (e.target.tagName === 'IMG') {
+          dom = e.target.parentNode
+        } else {
+          dom = e.target
+        }
+      }
+      dom.childNodes.forEach((item, index) => {
+        if (item.nodeType === 3) {
+          text += item.data
+        } else if (item.nodeType === 1) {
+          if (item.tagName === 'IMG') {
+            let dataKey = item.getAttribute('data-key')
+            if (dataKey) {
+              text += '[' + dataKey + ']'
+            }
+          } else if (item.tagName === 'SPAN') {
+            text += item.innerText
+          }
+        }
+      })
+      return text
+    },
+    copyAll () {
+      // 右键复制全选
+      console.log('全选')
+      let isNeedAllSelect = true
+      let selection = window.getSelection()
+      let target = this.$refs[`copy_${this.idClient}`]
+      console.log(target)
+      if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
+        let anchorNode = selection.anchorNode
+        let focusNode = selection.focusNode
+        if (this.isChildOf(anchorNode, target) && this.isChildOf(focusNode, target)) {
+          isNeedAllSelect = false
+          let range = selection.getRangeAt(0)
+          this.selectInfo = {
+            anchorNode: selection.anchorNode,
+            focusNode: selection.focusNode,
+            startOffset: range.startOffset,
+            endOffset: range.endOffset
+          }
+        }
+      }
+      if (isNeedAllSelect) { // 全选
+        let range = document.createRange()
+        range.selectNodeContents(target)
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+    },
+    forwordMsg () {
+      // 转发消息
+      let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
+        item.name = ''
+        item.avatar = ''
+        if (item.scene === 'p2p') {
+          let userInfo = null
+          if (item.to !== this.myPhoneId) {
+            userInfo = this.userInfos[item.to]
+          } else {
+            userInfo = Object.assign({}, this.myInfo)
+            // userInfo.alias = '我的手机'
+            // userInfo.avatar = `${config.myPhoneIcon}`
+          }
+          if (userInfo) {
+            item.name = util.getFriendAlias(userInfo)
+            item.avatar = userInfo.avatar
+          }
+        } else if (item.scene === 'team') {
+          let teamInfo = null
+          teamInfo = this.$store.state.teamlist.find(team => {
+            if (team.teamId === item.to) {
+              item.memberNum = team.memberNum
+            }
+            return team.teamId === item.to
+          })
+          if (teamInfo) {
+            item.name = teamInfo.name
+            item.avatar = teamInfo.avatar || this.myGroupIcon
+          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+            item.name = item.lastMsg.attach.team.name
+            item.avatar = item.avatar || this.myGroupIcon
+          } else {
+            item.name = `群${item.to}`
+            item.avatar = item.avatar || this.myGroupIcon
+          }
+          if (!item.memberNum) {
+            return false
+          }
+        }
+        if (item.updateTime) {
+          item.updateTimeShow = util.formatDate(item.updateTime, true)
+        }
+        return item
+      })
+      let sessionlistTop = sessionlist.filter((item) => {
+        if (item.localCustom && item.localCustom.topTime) {
+          if (item.localCustom.topTime - item.lastMsg.time > 0) {
+            item.compareTime = item.localCustom.topTime
+          } else {
+            item.compareTime = item.lastMsg.time
+          }
+          return item
+        }
+      })
+      let newSessionlistTop = sessionlistTop.sort((a, b) => {
+        return b.compareTime - a.compareTime
+      })
+      let sessionlistBot = sessionlist.filter((item) => {
+        if (!item.localCustom || !item.localCustom.topTime) {
+          return item
+        }
+      })
+      let sidelist = [...newSessionlistTop, ...sessionlistBot]
+      this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
+    },
+    checkMoreFn (msg) {
+      this.$emit('checkMore')
+      this.isItemChecked = true
+      this.$store.commit('updateCheckedMsgs', {sessionId: this.sessionId, checkedMsgList: [msg]})
+    },
+    checkItemFn (msg) {
+      if (this.isItemChecked) {
+        this.isItemChecked = false
+        for (let i in this.checkedMsgList) {
+          let idClient = this.checkedMsgList[i].idClient
+          if (idClient === msg.idClient) {
+            this.checkedMsgList.splice(i, 1)
+            break
+          }
+        }
+      } else {
+        this.isItemChecked = true
+        this.checkedMsgList.push(msg)
+        console.log('11')
+      }
+      this.$store.commit('updateCheckedMsgs', {sessionId: this.sessionId, checkedMsgList: this.checkedMsgList})
+      console.log(this.$store.state.checkedMsgs)
     }
   }
 }
@@ -354,17 +366,18 @@ export default {
 
 <style scoped>
 .list-item {
-    width:100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-bottom: 10px;
-
+  width:100%;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  position: relative;
 }
 .list-item .left{
     display: flex;
     flex-direction: row;
+    width: 88%
 }
 .list-item .avatar {
     width:32px;
@@ -372,7 +385,7 @@ export default {
     border-radius: 50%;
     margin-top: 5px;
 }
-.msg-short .send-short-msg {
+.list-item .msg-short .send-short-msg {
   display: inline-block;
   vertical-align: middle;
   padding-left: 5px;
@@ -383,5 +396,43 @@ export default {
   background-image: url('../../../../static/img/edit/message-h.png');
   background-size: 16px 12px;
 }
-
+.list-item .msg-audio{
+  position: relative;
+  overflow: visible !important;
+  width: 60px;
+  height: 20px;
+  transition: all .2s;
+  cursor: pointer;
+  background: url('/../../../../static/img/edit/voice-y.png') 12px center no-repeat;
+  background-size: 14px 20px;
+}
+.list-item .msg-audio.zel-play{
+  background: url('../../../../static/img/edit/voice-y-p.gif') 12px center no-repeat;
+  background-size: 14px 20px;
+}
+.msg-audio span{
+  position: absolute;
+  bottom: -2px;
+  right: 0;
+  display: block;
+  color: #999;
+  font-size: 14px;
+}
+.list-item .common {
+  display: inline-block;
+  width: 15px;
+  height: 32px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  transition: all .2s linear;
+  margin: 5px 5px 0 0 ;
+}
+.list-item .check {
+  background-image: url('../../../../static/img/setting/checkboxborder.png');
+  background-size: 15px 15px;
+}
+.list-item .checked {
+  background-image: url('../../../../static/img/setting/checkbox-c.png');
+  background-size: 15px 15px;
+}
 </style>

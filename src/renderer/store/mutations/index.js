@@ -796,6 +796,10 @@ export default {
     // 1-初始状态，2-开启，3-关闭，4-隐藏
     state.slideMenuStatus = status
   },
+  updateCheckedMsgs (state, obj) {
+    // 更新当前选中的历史消息
+    state.checkedMsgs = obj
+  },
   clearCurrentSessionMsgs (state, obj) {
     // 清空消息记录
     state.msgs[obj.sessionId] = []
@@ -853,17 +857,10 @@ export default {
     let SortOrgFn = (sortOrgList) => {
       IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
       // 组织排序
-      for (let i = 0; i < sortOrgList.length; i++) {
-        for (let j = 0; j < sortOrgList.length - 1 - i; j++) {
-          let orgSeqBef = sortOrgList[j].orgSeq
-          let orgSeqAft = sortOrgList[j + 1].orgSeq
-          if (orgSeqBef > orgSeqAft) {
-            let t = sortOrgList[j]
-            sortOrgList[j] = sortOrgList[j + 1]
-            sortOrgList[j + 1] = t
-          }
-        }
-      }
+      let newOrgList = sortOrgList.sort((a, b) => {
+        return b.orgSeq - a.orgSeq
+      })
+      return newOrgList
     }
     let SortUserFn = (sortUserList) => {
       IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
@@ -1255,6 +1252,10 @@ export default {
       newArr.splice(index, 1)
       state.uploadprogressList = newArr
     }
+  },
+  updateThirdUrls (state, obj) {
+    // 更新免登录列表
+    state.thirdUrls = obj
   },
   updateDownloadFileList (state, obj) {
     // type 0 -下载完成 1 -下载中 2 -暂停

@@ -134,6 +134,10 @@ export function onUpdateSession (session, callback) {
   } else {
     store.commit('updateSessions', sessions)
   }
+  // 通知主进程
+  const ipcRenderer = require('electron').ipcRenderer
+  let unreads = document.getElementsByClassName('u-unread')
+  ipcRenderer.send('sessionUnreadNums', {unreadNums: unreads.length})
 }
 
 // 置顶聊天

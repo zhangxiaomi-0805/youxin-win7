@@ -350,6 +350,7 @@
             Request.getContactUserList({tag: 0}, this).then(ret => {
               this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
             }).catch(() => {})
+            Request.ThirdUrls()
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {

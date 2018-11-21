@@ -11,7 +11,7 @@ function LoginAuth (params, $this) {
    * @param password  新密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/login/auth', params).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/login/auth', params || {}).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -22,7 +22,7 @@ function GetUserInfo (params, $this) {
    * @param(header) token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/userInfo', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/userInfo', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -34,7 +34,7 @@ function ResetPassword (params, $this) {
    * @param confirmPassword: 要设置的确认密码(需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/resetPassword', params).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/resetPassword', params || {}).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -53,7 +53,7 @@ function Logout (params, $this) {
    * 退出登录
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/logout', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/logout', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -62,7 +62,7 @@ function ModifyUserInfo (params, $this) {
    * 修改个人信息
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/modifyUserInfo', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/modifyUserInfo', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -72,7 +72,7 @@ function ConfirmOrigPassword (params, $this) {
    * @param password: 待确认的原密码 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/confirmOrigPassword', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/confirmOrigPassword', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -85,7 +85,7 @@ function ModifyMobileOrEmail (url, params, $this) {
    * @receive invalid: 1-验证码失效, 2-验证码错误
    */
   return new Promise((resolve, reject) => {
-    Fetch.post(url, params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post(url, params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -95,7 +95,7 @@ function ModifyPassword (params, $this) {
    * @param password: 修改密码的内容 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/modifyPassword', params, $this).then(res => resolve(res)).catch(err => reject(err))
+    Fetch.post('api/appPc/modifyPassword', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
 
@@ -107,14 +107,14 @@ function GetCode (url, params, $this) {
    * @param account: 账号 后台注册的 手机号或者邮箱 注意:海外手机号 格式:+xx-xxxx
    */
   return new Promise((resolve, reject) => {
-    Fetch.post(url, params, $this).then(res => resolve(res)).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post(url, params || {}, $this).then(res => resolve(res)).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
 function getContactUserList (params, $this) {
   // 获取常用联系人列表
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/contactUserList', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/appPc/contactUserList', params || {}, $this).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
@@ -126,7 +126,7 @@ function QueryUserList (params, $this) {
    * @param  lastId: 代表最后一条记录的accid，首次查询时 传 字符串0
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/queryUserList', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/appPc/queryUserList', params || {}, $this).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
@@ -136,7 +136,7 @@ function AddOrDelContactUser (params, $this) {
    * @param accid     （添加、删除）用户id
    * @param userType  （1-新增 2-删除）
    */
-  Fetch.post('api/appPc/addOrDelContactUser', params, $this).then(res => {
+  Fetch.post('api/appPc/addOrDelContactUser', params || {}, $this).then(res => {
     store.commit('toastConfig', {
       show: true,
       type: 'success',
@@ -159,7 +159,7 @@ function GetThirdList (params, $this) {
    * 通过openType来判断打开方式  （1-PC客户端打开 2-WEB浏览器打开 )
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/thirdList', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/appPc/thirdList', params || {}, $this).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
@@ -170,7 +170,7 @@ function PullDepartment (params, $this) {
    * @param  tag: 时间戳,拉取截止的时间戳, 拉取所有,传0
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/pullDepartment', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/appPc/pullDepartment', params || {}, $this).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
@@ -181,7 +181,7 @@ function DelTeam (params, $this) {
    * @param owner   群主账号
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/im/delTeam', params, $this).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/im/delTeam', params || {}, $this).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
@@ -192,7 +192,7 @@ function GenerateQrCode (params, $this) {
    * @param teamId  群组Id，当qrType=1时为必须参数
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/im/generateQrCode', params).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/im/generateQrCode', params || {}).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
@@ -203,8 +203,15 @@ function ThirdConnection (params, $this) {
    * @param appCode  应用编码
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/thirdConnection', params).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/appPc/thirdConnection', params || {}).then(res => resolve(res)).catch((err) => reject(err))
   })
+}
+
+function ThirdUrls (params, $this) {
+  /**
+   * 免登录域名列表
+   */
+  Fetch.post('api/appPc/thirdUrls', params || {}).then(res => store.commit('updateThirdUrls', res)).catch(() => {})
 }
 
 export default {
@@ -225,5 +232,6 @@ export default {
   PullDepartment,
   DelTeam,
   GenerateQrCode,
-  ThirdConnection
+  ThirdConnection,
+  ThirdUrls
 }

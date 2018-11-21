@@ -47,6 +47,9 @@ export function onNewMsg (msg) {
   store.commit('updateNewMsg', newMsg)
   onMsg(msg)
   receiveMsg(newMsg)
+  // 通知主进程
+  const ipcRenderer = require('electron').ipcRenderer
+  ipcRenderer.send('receiveNewMsgs')
 }
 
 // 转发消息
@@ -352,6 +355,11 @@ export function sendFileMsg ({ state, commit }, obj) {
   let type = 'file'
   const { scene, to, file } = obj
   // 伪造假的消息对象
+  let extArr = /\.(\w+)$/.exec(file.name)
+  let ext = ''
+  if (extArr.length > 0) {
+    ext = extArr[1]
+  }
   let msgFake = {
     sessionId: `${scene}-${to}`,
     scene,
@@ -365,7 +373,7 @@ export function sendFileMsg ({ state, commit }, obj) {
     file: {
       name: file.name,
       size: file.size,
-      ext: /\.(\w+)$/.exec(file.name)[1]
+      ext
     }
   }
   onSendMsgDone(null, msgFake)

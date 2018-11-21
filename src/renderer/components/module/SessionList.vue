@@ -297,6 +297,9 @@ export default {
       }
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
+      // 通知主进程
+      const ipcRenderer = require('electron').ipcRenderer
+      ipcRenderer.send('toggleSession', {appCode: session.id})
     },
     enterMyChat () {
       // 我的手机页面
