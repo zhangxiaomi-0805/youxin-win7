@@ -98,13 +98,13 @@ export default {
   methods: {
     className (msg) {
       let className = 'check common'
-      if (this.isItemChecked) {
-        for (let i in this.checkedMsgList) {
-          let idClient = this.checkedMsgList[i].idClient
-          if (idClient === msg.idClient) {
-            className = 'checked common'
-            break
-          }
+      this.isItemChecked = false
+      for (let i in this.checkedMsgList) {
+        let idClient = this.checkedMsgList[i].idClient
+        if (idClient === msg.idClient) {
+          this.isItemChecked = true
+          className = 'checked common'
+          break
         }
       }
       return className
