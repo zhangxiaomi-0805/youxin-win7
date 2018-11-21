@@ -316,7 +316,7 @@ export default {
       let lastMsgIndex = tempMsgs.length - 1
       for (let i = lastMsgIndex; i >= 0; i--) {
         let currMsg = tempMsgs[i]
-        if (msg.idClient === currMsg.idClient) {
+        if ((msg.idClient && msg.idClient === currMsg.idClient) || msg.idClientFake === currMsg.idClientFake) {
           state.msgs[sessionId].splice(i, 1)
           break
         }
@@ -327,7 +327,7 @@ export default {
       let lastMsgIndex = msgLen - 1
       if (msgLen > 0) {
         for (let i = lastMsgIndex; i >= 0; i--) {
-          if (state.currSessionMsgs[i].idClient === msg.idClient) {
+          if ((msg.idClient && state.currSessionMsgs[i].idClient === msg.idClient) || state.currSessionMsgs[i].idClientFake === msg.idClientFake) {
             state.currSessionMsgs.splice(i, 1)
             break
           }
@@ -345,7 +345,7 @@ export default {
     let lastMsgIndex = tempMsgs.length - 1
     for (let i = lastMsgIndex; i >= 0; i--) {
       let currMsg = tempMsgs[i]
-      if (idClient === currMsg.idClient) {
+      if (idClient === currMsg.idClient || idClient === currMsg.idClientFake) {
         state.msgs[sessionId].splice(i, 1, msg)
         break
       }
@@ -427,7 +427,7 @@ export default {
           if (lastMsgIndex > 0) {
             for (let i = lastMsgIndex; i >= 0; i--) {
               let currMsg = state.currSessionMsgs[i]
-              if (newMsg.idClient === currMsg.idClient || (newMsg.idClientFake && currMsg.idClientFake && newMsg.idClientFake === currMsg.idClientFake)) {
+              if ((newMsg.idClient && newMsg.idClient === currMsg.idClient) || (newMsg.idClientFake && currMsg.idClientFake && newMsg.idClientFake === currMsg.idClientFake)) {
                 needReplace = true
                 state.currSessionMsgs.splice(i, 1, newMsg)
                 break
@@ -480,7 +480,7 @@ export default {
       let lastMsgIndex = msgLen - 1
       if (msgLen > 0) {
         for (let i = lastMsgIndex; i >= 0; i--) {
-          if (state.currSessionMsgs[i].idClient === obj.idClient) {
+          if (state.currSessionMsgs[i].idClient === obj.idClient || state.currSessionMsgs[i].idClientFake === obj.idClient) {
             state.currSessionMsgs.splice(i, 1, obj.msg)
             break
           }
@@ -996,7 +996,6 @@ export default {
       // }
     }
     let SortUserFn = (sortUserList) => {
-      console.log(state.groupObj)
       IndexedDB.setItem('groupObj', state.groupObj)
       // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
       let superManger = []
@@ -1237,15 +1236,16 @@ export default {
   },
   updateUploadprogressList (state, obj) {
     // type 0 -初始化 1 -更新 2 -删除
-    const { id, percentage, type } = obj
+    const { id, percentage, type, abort, file } = obj
     if (type === 0) {
-      state.uploadprogressList.push({ id, percentage })
+      state.uploadprogressList.push({ id, percentage, abort, file })
     } else if (type === 1) {
       let index = state.uploadprogressList.findIndex(item => {
         return item.id === id
       })
       let newArr = Object.assign([], state.uploadprogressList)
       newArr[index].percentage = percentage
+      newArr[index].file = file
       state.uploadprogressList = newArr
     } else if (type === 2) {
       let index = state.uploadprogressList.findIndex(item => {
@@ -1274,6 +1274,8 @@ export default {
         return item.id === id
       })
       newArr.splice(index, 1)
+    } else if (type === 2) {
+      newArr[index].status = 2
     }
     state.downloadFileList = newArr
   }

@@ -350,7 +350,7 @@ export function sendMsg ({state, commit}, obj) {
 export function sendFileMsg ({ state, commit }, obj) {
   const nim = state.nim
   let type = 'file'
-  const { scene, to, fileInput } = obj
+  const { scene, to, file } = obj
   // 伪造假的消息对象
   let msgFake = {
     sessionId: `${scene}-${to}`,
@@ -363,44 +363,30 @@ export function sendFileMsg ({ state, commit }, obj) {
     status: 'sending',
     time: (new Date()).getTime(),
     file: {
-      name: fileInput.files[0].name,
-      size: fileInput.files[0].size,
-      ext: /\.(\w+)$/.exec(fileInput.files[0].name)[1]
+      name: file.name,
+      size: file.size,
+      ext: /\.(\w+)$/.exec(file.name)[1]
     }
   }
   onSendMsgDone(null, msgFake)
   const id = msgFake.idClientFake
-  store.commit('updateUploadprogressList', { id, percentage: 0, type: 0 })
   return new Promise((resolve, reject) => {
-    // 先预览文件，获取文件URL
-    // state.nim.previewFile({
-    //   type: 'file',
-    //   fileInput,
-    //   uploadprogress: (obj) => {
-    //     const percentage = obj.percentage
-    //     store.commit('updateUploadprogressList', { id, percentage, type: 1 })
-    //   },
-    //   done: (error, file) => {
-    //     console.log('done')
-    //     if (error) {
-    //       reject(error)
-    //       return
-    //     }
     // 发送文件消息
     nim.sendFile({
       scene,
       to,
       type,
-      fileInput,
+      blob: file,
       needMsgReceipt: true,
       beginupload: function (upload) {
-        console.log(upload)
+        store.commit('updateUploadprogressList', { id, percentage: 0, type: 0, abort: () => upload.abort(), file })
         // - 如果开发者传入 fileInput, 在此回调之前不能修改 fileInput
         // - 在此回调之后可以取消图片上传, 此回调会接收一个参数 `upload`, 调用 `upload.abort();` 来取消文件上传
       },
       uploadprogress: function (_data) {
+        // 更新进度条
         const percentage = _data.percentage
-        store.commit('updateUploadprogressList', { id, percentage, type: 1 })
+        store.commit('updateUploadprogressList', { id, percentage, type: 1, file })
       },
       uploaderror: function () {
         console.log('上传失败')
@@ -411,16 +397,29 @@ export function sendFileMsg ({ state, commit }, obj) {
         }
       },
       beforesend: function (_msg) {
+        // console.log('beforesend')
       },
       done: function (error, msg) {
         store.commit('updateUploadprogressList', { id, percentage: 100, type: 2 })
         msg.idClientFake = msgFake.idClientFake
-        onSendMsgDone(error, msg)
-        resolve(msg)
+        if (msg.localCustom) {
+          msg.localCustom.downloadUrl = file.path
+        } else {
+          msg.localCustom = {
+            downloadUrl: file.path
+          }
+        }
+        // 更新本地消息将下载保存路径存入自定义字段
+        nim.updateLocalMsg({
+          idClient: msg.idClient,
+          localCustom: { downloadUrl: file.path },
+          done: () => {
+            onSendMsgDone(error, msg)
+            resolve(msg)
+          }
+        })
       }
     })
-    // }
-  // })
   })
 }
 
