@@ -555,7 +555,7 @@ export default {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1001;
+    z-index: 1002;
   }
 
   .m-selectcontact-contain .m-selectcontact-cover {
@@ -578,7 +578,7 @@ export default {
     background: #fff;
     border: 0.5px solid #CCCCCC;
     box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
-    z-index: 1005;
+    z-index: 1002;
   }
 
   .m-selectcontact-contain .m-selectcontact .drag {

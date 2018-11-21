@@ -37,11 +37,19 @@
         </div>
 
         <!-- 全部 && 图片 && 文件 -->
-        <div class="tab-title">
+        <div v-show="!isCheckMore" class="tab-left-title">
           <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('all')">全部</a>
           <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('image')">图片</a>
           <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleList('file')">文件</a>
         </div>
+
+        <!-- 转发 && 删除 && 取消 -->
+        <div v-show="isCheckMore" class="tab-right-title">
+          <a :class="checkFunc === 'forword' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleFunc('forword')">转发</a>
+          <a :class="checkFunc === 'delete' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleFunc('delete')">删除</a>
+          <a :class="checkFunc === 'cancel' ? 'tab-title-item active' : 'tab-title-item'" @click="toggleFunc('cancel')">取消</a>
+        </div>
+
 
         <!-- 短信选择 -->
         <div
@@ -56,6 +64,8 @@
             
         <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <history-item
+            @checkMore="checkMoreFn"
+            :isCheckMore="isCheckMore"
             keep-alive
             v-for="(msg, $index) in allMsgList"
             :key = $index
@@ -67,6 +77,8 @@
         </ul>
         <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <history-item
+            @checkMore="checkMoreFn"
+            :isCheckMore="isCheckMore"
             keep-alive
             v-for="(msg, $index) in imageMsgList"
             :key = $index
@@ -78,6 +90,8 @@
         </ul>
         <ul v-show ="checkType === 'file'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <history-item
+            @checkMore="checkMoreFn"
+            :isCheckMore="isCheckMore"
             keep-alive
             v-for="(msg, $index) in fileMsgList"
             :key = $index
@@ -90,6 +104,7 @@
         <!-- 搜索结果 -->
         <search-history-msg
           v-show="showSearch && checkType === 'all'"
+          :isCheckMore="isCheckMore"
           keep-alive
           :value="searchValue"
           :historyMsgList="allMsgList"
@@ -139,11 +154,13 @@ export default {
       isRobot: false,
       messageCheck: false, // 短信勾选状态
       checkType: 'all', // all---全部; image---图片; file---文件
+      checkFunc: '', // forword---转发; delete---删除; cancel---取消
       scene: 'p2p', // p2p---单聊； team---群聊
       to: '',
       sessionName: '',
       teamInfo: {},
-      beforeValue: '' // 上一次输入的值，做延时搜索
+      beforeValue: '', // 上一次输入的值，做延时搜索
+      isCheckMore: false
     }
   },
   watch: {
@@ -282,6 +299,10 @@ export default {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
+    checkMoreFn () {
+      this.isCheckMore = true
+      console.log(this.isCheckMore)
+    },
     InitHistoryMsg () {
       this.getHistoryMsgs()
     },
@@ -388,6 +409,9 @@ export default {
       this.showConfirmCover = false
       this.showSearch = false
       this.searchValue = ''
+      this.checkType = 'all'
+      this.isCheckMore = false
+      this.checkFunc = ''
     },
     closeModal () {
       this.showHistoryMsg = false
@@ -395,6 +419,8 @@ export default {
       this.showSearch = false
       this.searchValue = ''
       this.checkType = 'all'
+      this.isCheckMore = false
+      this.checkFunc = ''
     },
     clearStatus (el, e) {
       if (e) {
@@ -407,6 +433,22 @@ export default {
     toggleList (value) {
       if (this.checkType === value) return
       this.checkType = value
+    },
+    toggleFunc (value) {
+      if (this.checkFunc === value) return
+      this.checkFunc = value
+      switch (value) {
+        case 'forword':
+          console.log('转发')
+          break
+        case 'delete':
+          console.log('删除')
+          break
+        case 'cancel':
+          this.checkFunc = ''
+          this.isCheckMore = false
+          break
+      }
     },
     scrollEndLoad (e) {
       let { scrollTop, clientHeight, scrollHeight } = e.target
@@ -531,7 +573,8 @@ export default {
     cursor: pointer;
 }
   /* tab头 */
-  .m-info-box .tab-title {
+  /* 左 */
+  .m-info-box .tab-left-title {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -539,7 +582,7 @@ export default {
     padding: 10px 0;
     border-bottom: 1px solid rgba(0,0,0,0.15)
   }
-  .m-info-box .tab-title .tab-title-item {
+  .m-info-box .tab-left-title .tab-title-item {
     width: 15%;
     height: 100%;
     line-height: 27px;
@@ -548,12 +591,41 @@ export default {
     font-size: 12px;
     transition: opacity .3s linear;
   }
-  .m-info-box .tab-title .tab-title-item:hover {
+  .m-info-box .tab-left-title .tab-title-item:hover {
     opacity: 0.7;
   }
 
-  .m-info-box .tab-title .tab-title-item.active {
+  .m-info-box .tab-left-title .tab-title-item.active {
     color: #049AFF;
+  }
+  /* 右 */
+  .m-info-box .tab-right-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.15)
+  }
+  .m-info-box .tab-right-title .tab-title-item {
+    width: 11%;
+    height: 100%;
+    line-height: 27px;
+    text-align: left;
+    color: #333;
+    font-size: 12px;
+    transition: opacity .3s linear;
+    background-color: #F2F2F2;
+    border-radius: 4px;
+    margin-left: 10px;
+    text-align: center;
+  }
+  .m-info-box .tab-right-title .tab-title-item:hover {
+    opacity: 0.7;
+  }
+
+  .m-info-box .tab-right-title .tab-title-item.active {
+    color: #F43530;
   }
   /* 短信选择 */
   .m-info-box .message-box{

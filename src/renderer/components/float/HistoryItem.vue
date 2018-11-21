@@ -3,8 +3,11 @@
     class="list-item"
   >
     <div  class="list-item">
-      <div class="left">
-        <span :class="ischecked ? 'checked common' : 'check common'"></span>
+      <div 
+        class="left"
+        @click="isCheckMore ? checkItemFn : null"
+      >
+        <span v-show="isCheckMore" :class="isItemChecked ? 'checked common' : 'check common'"></span>
         
         <img :src="msg.avatar" alt="" class="avatar">
         <div style="padding:0 8px; width:90%">
@@ -14,19 +17,19 @@
           <div 
             v-if="msg.type==='text'"
             style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
-            @mousedown.stop="showListOptions($event, msg)"
-            @mouseup.stop="itemMouseUp($event)"
+            @mousedown.stop="isCheckMore ? null : showListOptions($event, msg)"
+            @mouseup.stop="isCheckMore ? null : itemMouseUp($event)"
             v-html="msg.showText"
             :ref="`copy_${msg.idClient}`" 
           ></div>
           <div v-else-if="msg.type==='custom-type1'" ref="mediaMsg"></div>
-          <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg)" style="background:transparent;border:none;"></div>
-          <div v-else-if="msg.type==='image'"  ref="mediaMsg" @mouseup.stop="showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
+          <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;"></div>
+          <div v-else-if="msg.type==='image'"  ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
             <img :src="msg.originLink" style="width: 100%; height: 100%"/> 
           </div>
           <div v-else-if="msg.type==='video'"  ref="mediaMsg"></div>
-          <div v-else-if="msg.type==='audio'"  :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event)"><span>{{msg.showText.split(' ')[0]}}</span></div>
-          <div v-else-if="msg.type==='file'" ><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
+          <div v-else-if="msg.type==='audio'"  :class="isPlay ? 'zel-play' : ''" @click="isCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
+          <div v-else-if="msg.type==='file'"  @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"><a href="javascript:;" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
         </div>
       </div>
       <!-- 时间 -->
@@ -41,6 +44,7 @@ import util from '../../utils'
 export default {
   name: 'history-item',
   props: {
+    isCheckMore: Boolean,
     scene: String,
     to: String,
     teamId: String,
@@ -80,7 +84,7 @@ export default {
     return {
       isPlay: false,
       currentAudio: null,
-      ischecked: false
+      isItemChecked: false
     }
   },
   methods: {
@@ -147,7 +151,7 @@ export default {
           callBack: (type) => {
             switch (type) {
               case 0: // 多选
-                console.log('多选')
+                this.checkMoreFn()
                 break
               case 2: // 转发
                 this.forwordMsg()
@@ -311,6 +315,12 @@ export default {
       })
       let sidelist = [...newSessionlistTop, ...sessionlistBot]
       this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
+    },
+    checkMoreFn () {
+      this.$emit('checkMore')
+    },
+    checkItemFn () {
+      this.isItemChecked = true
     }
   }
 }
@@ -377,11 +387,7 @@ export default {
   background-repeat: no-repeat;
   background-position: center center;
   transition: all .2s linear;
-  margin-right: 5px;
-  /* position: absolute;
-  top: 10px;
-  left: -30px;
-  z-index: 100; */
+  margin: 5px 5px 0 0 ;
 }
 .list-item .check {
   background-image: url('../../../../static/img/setting/checkboxborder.png');
