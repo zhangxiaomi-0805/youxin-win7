@@ -214,6 +214,17 @@ function ThirdUrls (params, $this) {
   Fetch.post('api/appPc/thirdUrls', params || {}).then(res => store.commit('updateThirdUrls', res)).catch(() => {})
 }
 
+function AppVersions () {
+  /**
+   * 版本升级验证（有字段新增）
+   * @param osType      操作系统（1-IOS 2-Android 3-PC）
+   * @param versionNum  当前系统版本号
+   */
+  return new Promise((resolve, reject) => {
+    Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: process.env.npm_package_version}).then(res => resolve(res)).catch((err) => reject(err))
+  })
+}
+
 export default {
   LoginAuth,
   GetUserInfo,
@@ -233,5 +244,6 @@ export default {
   DelTeam,
   GenerateQrCode,
   ThirdConnection,
-  ThirdUrls
+  ThirdUrls,
+  AppVersions
 }

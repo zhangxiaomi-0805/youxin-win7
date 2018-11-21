@@ -28,6 +28,7 @@
             <down-line/>
             <team-code/>
             <check-history-msg/>
+            <update-app/>
         </div>
     </div>
 </template>
@@ -57,11 +58,12 @@
   import TeamCode from './float/TeamCode.vue'
   import Resize from '../utils/resize.js'
   import CheckHistoryMsg from './float/CheckHistoryMsg.vue'
+  import UpdateApp from './float/UpdateApp.vue'
   const electron = require('electron')
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'main-page',
-    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, CheckHistoryMsg},
+    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, CheckHistoryMsg, UpdateApp},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})

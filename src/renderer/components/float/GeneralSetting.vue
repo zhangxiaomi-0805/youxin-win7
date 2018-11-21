@@ -81,17 +81,13 @@
               <img style="width: 100%;height: 100%;" :src="logo">
             </div>
             <div style="margin-top: 15px;fontsize: 14px;color: #333;">
-              当前优信版本 V1.0
-            </div>
-            <div style="margin-top: 15px;font-size: 12px;color: #999;">
-              1.部分细节优化；<br />
-              2.新增生成图片分享功能，分享更多样；<br />
-              3.修复已知Bug
+              当前优信版本 {{version}}
             </div>
             <div
               class="update-btn"
+              @click="checkUpdate"
             >
-              去升级
+              检查更新
             </div>
           </div>
           <div
@@ -150,6 +146,7 @@
 <script>
 import util from '../../utils'
 import config from '../../configs'
+import Request from '../../utils/request.js'
 export default {
   name: 'general-setting',
   data () {
@@ -157,6 +154,7 @@ export default {
       showGeneralSetting: false,
       phone: '',
       email: '',
+      version: '',
       logo: './static/img/logo.png',
       menuList: [
         {
@@ -200,6 +198,7 @@ export default {
   mounted () {
     this.eventBus.$on('generalSetting', (data) => {
       this.showGeneralSetting = data.show
+      this.version = process.env.npm_package_version
     })
   },
   computed: {
@@ -333,6 +332,11 @@ export default {
           }
         })
       }
+    },
+    checkUpdate () {
+      this.closeModal()
+      // 检查更新
+      Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
     }
   }
 }
@@ -421,17 +425,17 @@ export default {
   }
 
   .m-gen-set-con .set-act-task span:first-child:hover {
-    color: rgba(79,141,255,1);
+    color: rgba(4,154,255,1);
   }
 
   .m-gen-set-con .set-act-task.active {
-    color: rgba(79,141,255,1);
+    color: rgba(4,154,255,1);
   }
   .m-gen-set-con .set-active {
     display: inline-block;
     width: 2px;
     height: 20px;
-    background: rgba(79,141,255,1);
+    background: rgba(4,154,255,1);
   }
 
   .m-gen-set-con .set-block {
@@ -562,6 +566,7 @@ export default {
     text-align: center;
     line-height: 29px;
     background: #f2f2f2;
+    transition: all .2s linear;
   }
   .m-gen-set-con .update-btn:hover {
     background-color: rgb(235, 228, 228);

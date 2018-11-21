@@ -260,13 +260,13 @@ export default {
     text-align: center;
     color: #fff;
     font-size: 14px;
-    background-color: rgba(79,141,255,1);
+    background-color: rgba(4,154,255,1);
     border-radius: 4px;
     cursor: pointer;
     transition: background .2s linear;
   }
   .nc-p2p .sendmsg:hover {
-    background: rgb(69, 122, 219);
+    background: rgb(1, 138, 230);
   }
 
   .nc-p2p .notActive {
@@ -318,7 +318,7 @@ export default {
     color: #ccc;
   }
   .nc-p2p .memo-input.active {
-    border: 1px solid rgba(79,141,255,1);
+    border: 1px solid rgba(4,154,255,1);
     border-radius: 4px;
   }
 

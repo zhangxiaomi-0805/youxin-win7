@@ -26,7 +26,7 @@
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
       <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow(msg)"></span>
+      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
@@ -250,8 +250,26 @@
               let emojiCnt = emojiObj.emojiList.emoji
               if (emojiCnt[text]) {
                 let dataKey = text.slice(1, -1)
-                item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+                item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small' src='${emojiCnt[text].img}'>`)
               }
+            })
+          }
+          // 处理url
+          let httpUrls = this.httpSpring(item.text)
+          if (httpUrls.length > 0) {
+            httpUrls.map(url => {
+              let a = document.createElement('a')
+              a.style = 'text-decoration: underline;'
+              a.innerHTML = url
+              a.onclick = (e) => {
+                console.log(3424)
+                // this.openAplWindow.bind(this, item, url)
+              }
+              let tmpNode = document.createElement('div')
+              tmpNode.appendChild(a)
+              let str = tmpNode.innerHTML
+              tmpNode = a = null
+              item.showText = item.showText.replace(new RegExp(url, 'g'), str)
             })
           }
         } else if (item.type === 'custom') {
@@ -890,12 +908,10 @@
         // 消息重发
         this.$store.dispatch('resendMsg', msg)
       },
-      openAplWindow (msg) {
+      openAplWindow (msg, url) {
         // 打开营业精灵
         let thirdUrls = this.$store.state.thirdUrls
         let sessionlist = this.$store.state.sessionlist
-        // let url = this.httpString(msg.text)
-        // console.log(url)
         let sessionInfo = {}
         for (let i in sessionlist) {
           if (sessionlist[i].id === msg.sessionId) {
@@ -903,8 +919,10 @@
             break
           }
         }
+        let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,4}))+\.?/
+        console.log(url.match(regDomain)[0])
         for (let i in thirdUrls) {
-          if (thirdUrls[i].url === msg.text) {
+          if (thirdUrls[i].url === url) {
             Request.ThirdConnection({url: thirdUrls[i].url, appCode: thirdUrls[i].appCode}).then(res => {
               ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: msg.sessionId})
             }).catch(() => {})
@@ -912,16 +930,21 @@
           }
         }
       },
-      httpString (s) {
-        let reg = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/g
-        // let reg = /(?:http(?:s)?:\/\/)?(?:www\.)?((\w|=|\?|\.|\/|&|-)+)/g
-        // var reg = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
-        // var reg = /(http(s)?\:\/\/)?(www\.)?(\w+\:\d+)?(\/\w+)+\.(swf|gif|jpg|bmp|jpeg)/gi
-        // var reg = /(http(s)?\:\/\/)?(www\.)?(\w+\:\d+)?(\/\w+)+\.(swf|gif|jpg|bmp|jpeg)/gi
-        // var reg = /(https?|http|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g
-        // var reg = /^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?$/
-        s = s.match(reg)
-        return s
+      httpSpring (str) {
+        // 匹配url
+        let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
+        let httpArr = []
+        str.split('\r\n').map(lineStr => {
+          // 分割空格
+          lineStr.split(/\s+/).map(minStr => {
+            let httpResult = minStr.match(regHttp)
+            if (httpResult) httpArr.push(httpResult[0])
+          })
+        })
+        httpArr = httpArr.filter((element, index, self) => {
+          return self.indexOf(element) === index
+        })
+        return httpArr
       }
     }
   }
