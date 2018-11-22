@@ -13,8 +13,8 @@
         </div>
       </div>
       <div class="update-footer">
-        <div class="btn confirm"><span>立即升级</span></div>
-        <div v-if="content.forceUpdate !== 1" class="btn cancel">忽略</div>
+        <div class="btn confirm" @click="goUpdate"><span>立即升级</span></div>
+        <div v-if="content.forceUpdate !== 1" class="btn cancel" @click="closeModal">忽略</div>
       </div>
     </div>
   </div>
@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { shell } from 'electron'
 export default {
   name: 'update-app',
   mounted () {
@@ -40,6 +41,9 @@ export default {
   methods: {
     closeModal () {
       this.showUpdateApp = false
+    },
+    goUpdate () {
+      this.content && shell.openExternal(this.content.downloadUrl)
     }
   }
 }
