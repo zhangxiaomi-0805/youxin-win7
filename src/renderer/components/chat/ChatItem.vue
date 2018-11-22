@@ -26,7 +26,7 @@
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
       <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow(msg)"></span>
+      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
@@ -43,7 +43,10 @@
             <span class="file-size">
               {{fileSize}}
             </span>
-            <span v-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click="sendIpcMsgId">
+            <span v-if="msg.status === 'fail'" style="color: red;font-size: 12px;">
+              发送失败
+            </span>
+            <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn">
               <a :href="downloadFile" type="*" style="width: 100%;height: 100%;display: block;" download="*"/>
             </span>
             <span class="circle-bar" v-else-if="curProgress < 100">
@@ -51,7 +54,7 @@
               <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
               <!-- 遮罩层，显示百分比 -->
               <span class="mask">
-                <span class="percent"></span>
+                <span :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click="handleCancelLoad"></span>
               </span>
             </span>
             <span v-else style="color: #999;font-size: 12px;">
@@ -66,10 +69,10 @@
       <span v-if="msg.status==='fail'" class="msg-failed" @click="resendMsg(msg)"><i class="weui-icon-warn"></i></span>
       <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
     </div>
-    <div :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
+    <div v-if="msg.status !== 'fail'" :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
       <span v-if="teamMsgUnRead >= 0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
     </div>
-    <div class="isRemoteRead" style="margin-right: 0px;" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip'">
+    <div class="isRemoteRead" style="margin-right: 0px;" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip' && msg.status !== 'fail'">
       <span>{{(msg.localCustom && msg.localCustom.isRemoteRead) ? '已读' : '未读'}}</span>
     </div>
     <div v-if="showVioceToText" class="vioce-text" >{{vioceToText}}</div>
@@ -80,9 +83,8 @@
   import util from '../../utils'
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
+  import {ipcRenderer, shell} from 'electron'
   import Request from '../../utils/request.js'
-  import {ipcRenderer} from 'electron'
-  const {shell} = require('electron')
   export default {
     props: {
       type: String, // 类型，chatroom, session
@@ -250,8 +252,15 @@
               let emojiCnt = emojiObj.emojiList.emoji
               if (emojiCnt[text]) {
                 let dataKey = text.slice(1, -1)
-                item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+                item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small' src='${emojiCnt[text].img}'>`)
               }
+            })
+          }
+          // 处理url
+          let httpUrls = this.httpSpring(item.text)
+          if (httpUrls.length > 0) {
+            httpUrls.map(url => {
+              item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
             })
           }
         } else if (item.type === 'custom') {
@@ -369,11 +378,25 @@
         }
         return 0
       },
+      // 文件格式匹配icon
       fileIcon () {
         const iconList = ['word', 'zip', 'excel', 'git', 'html', 'jpg', 'mp3', 'mp4', 'pdf', 'png', 'ppt', 'rar', 'txt']
         if (this.msg.type === 'file') {
-          if (iconList.includes(this.msg.file.ext)) {
-            return `./static/img/file/file-icon-${this.msg.file.ext}.png`
+          let ext = this.msg.file.ext
+          if (ext === 'docx' || ext === 'dotx' || ext === 'dotm' || ext === 'docm') {
+            ext = 'word'
+          }
+          if (ext === 'xlsx' || ext === 'xlsm' || ext === 'xltx') {
+            ext = 'excel'
+          }
+          if (ext === 'pptx' || ext === 'pptm' || ext === 'ppsx') {
+            ext = 'ppt'
+          }
+          if (ext === 'jpeg') {
+            ext = 'jpg'
+          }
+          if (iconList.includes(ext)) {
+            return `./static/img/file/file-icon-${ext}.png`
           } else {
             return `./static/img/file/file-icon-unknow.png`
           }
@@ -386,7 +409,7 @@
             url: this.msg.file.url,
             name: this.msg.file.name
           })
-          return nameUrl
+          return nameUrl + '#' + this.msg.idClient
         }
       },
       toMyPhone () {
@@ -467,15 +490,25 @@
         if (item.type === 'file' && item.flow === 'in') {
           // 下载中
           ipcRenderer.on(`downloading`, (evt, obj) => {
-            if (obj.id === this.msg.idClient) {
-              if (this.curDownloadStatus !== 1) {
+            if (obj.type !== 'fail') {
+              if (obj.id === this.msg.idClient) {
+                if (this.curDownloadStatus !== 1) {
+                  this.$store.commit('updateDownloadFileList', {
+                    type: 1,
+                    id: this.msg.idClient,
+                    sessionId: `${this.scene}-${this.to}`
+                  })
+                }
+                this.downloadProgress = obj.progressing
+              }
+            } else {
+              if (this.curDownloadStatus !== 0) {
                 this.$store.commit('updateDownloadFileList', {
-                  type: 1,
+                  type: 0,
                   id: this.msg.idClient,
                   sessionId: `${this.scene}-${this.to}`
                 })
               }
-              this.downloadProgress = obj.progressing
             }
           })
           // 下载完成
@@ -514,6 +547,13 @@
               localCustom: {downloadUrl: obj.url},
               done: () => {
                 this.$store.commit('replaceMsg', param)
+                if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
+                  this.$store.commit('updateCurrSessionMsgs', {
+                    type: 'replace',
+                    idClient: this.msg.idClient,
+                    msg: newMsg
+                  })
+                }
                 this.downloadUrl = obj.url
               }
             })
@@ -522,8 +562,48 @@
       }) // end this.nextTick
     },
     methods: {
-      sendIpcMsgId () {
-        ipcRenderer.send('curFileMsg', {id: this.msg.idClient})
+      // 点击取消当前下载或上传
+      handleCancelLoad () {
+        // 上传取消
+        if (this.msg.flow === 'out') {
+          const list = this.$store.state.uploadprogressList
+          const curProgress = list.find(item => {
+            return item.id === this.msg.idClientFake
+          })
+          curProgress.abort()
+          let newObj = Object.assign({}, this.msg)
+          this.msg.status = 'fail'
+          newObj.status = 'fail'
+          const param = {
+            sessionId: this.scene + '-' + this.to,
+            idClient: this.msg.idClientFake,
+            msg: newObj
+          }
+          this.$store.commit('replaceMsg', param)
+          if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
+            this.$store.commit('updateCurrSessionMsgs', {
+              type: 'replace',
+              idClient: this.msg.idClientFake,
+              msg: newObj
+            })
+          }
+        } else if (this.msg.flow === 'in') {
+          if (this.curDownloadStatus !== 2) {
+            // 下载暂停
+            this.$store.commit('updateDownloadFileList', {
+              type: 2,
+              id: this.msg.idClient,
+              sessionId: `${this.scene}-${this.to}`
+            })
+            // type
+            ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 1})
+            return false
+          } else {
+            // 恢复下载
+            ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 2})
+            return false
+          }
+        }
       },
       preventDefault (e) {
         e.stopPropagation()
@@ -658,7 +738,6 @@
           this.copyAll()
         }
         this.eventBus.$emit('checkUser', {})
-        console.log(this.msg)
         if (e.button === 2) {
           let key = ''
           if (this.msg.flow === 'out' && (this.to !== this.myInfo.account)) {
@@ -889,40 +968,59 @@
       },
       resendMsg (msg) {
         // 消息重发
-        this.$store.dispatch('resendMsg', msg)
-      },
-      openAplWindow (msg) {
-        // 打开营业精灵
-        let thirdUrls = this.$store.state.thirdUrls
-        let sessionlist = this.$store.state.sessionlist
-        // let url = this.httpString(msg.text)
-        // console.log(url)
-        let sessionInfo = {}
-        for (let i in sessionlist) {
-          if (sessionlist[i].id === msg.sessionId) {
-            sessionInfo = sessionlist[i]
-            break
-          }
-        }
-        for (let i in thirdUrls) {
-          if (thirdUrls[i].url === msg.text) {
-            Request.ThirdConnection({url: thirdUrls[i].url, appCode: thirdUrls[i].appCode}).then(res => {
-              ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: msg.sessionId})
-            }).catch(() => {})
-            return false
-          }
+        if (msg.type !== 'file') {
+          this.$store.dispatch('resendMsg', msg)
+        } else {
+          const list = this.$store.state.uploadprogressList
+          const curProgress = list.find(item => {
+            return item.id === this.msg.idClientFake
+          })
+          this.$store.commit('deleteMsg', msg)
+          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
         }
       },
-      httpString (s) {
-        let reg = /(http:\/\/|https:\/\/)((\w|=|\?|\.|\/|&|-)+)/g
-        // let reg = /(?:http(?:s)?:\/\/)?(?:www\.)?((\w|=|\?|\.|\/|&|-)+)/g
-        // var reg = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/
-        // var reg = /(http(s)?\:\/\/)?(www\.)?(\w+\:\d+)?(\/\w+)+\.(swf|gif|jpg|bmp|jpeg)/gi
-        // var reg = /(http(s)?\:\/\/)?(www\.)?(\w+\:\d+)?(\/\w+)+\.(swf|gif|jpg|bmp|jpeg)/gi
-        // var reg = /(https?|http|ftp|file):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]/g
-        // var reg = /^((ht|f)tps?):\/\/[\w\-]+(\.[\w\-]+)+([\w\-\.,@?^=%&:\/~\+#]*[\w\-\@?^=%&\/~\+#])?$/
-        s = s.match(reg)
-        return s
+      openAplWindow (evt) {
+        let url = evt.target.getAttribute('data-url')
+        if (url) {
+          // 打开营业精灵
+          let thirdUrls = this.$store.state.thirdUrls
+          let sessionlist = this.$store.state.sessionlist
+          let sessionInfo = {}
+          for (let i in sessionlist) {
+            if (sessionlist[i].id === this.msg.sessionId) {
+              sessionInfo = sessionlist[i]
+              break
+            }
+          }
+          let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,4}))+\.?/
+          let domain = url.match(regDomain)[0]
+          if (url.split('://').length <= 1) url = 'http://' + url
+          for (let i in thirdUrls) {
+            if (thirdUrls[i].url === domain) {
+              Request.ThirdConnection({url: url, appCode: thirdUrls[i].appCode}).then(res => {
+                ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+              }).catch(() => {})
+              return false
+            }
+          }
+          shell.openExternal(url)
+        }
+      },
+      httpSpring (str) {
+        // 匹配url
+        let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
+        let httpArr = []
+        str.split('\r\n').map(lineStr => {
+          // 分割空格
+          lineStr.split(/\s+/).map(minStr => {
+            let httpResult = minStr.match(regHttp)
+            if (httpResult) httpArr.push(httpResult[0])
+          })
+        })
+        httpArr = httpArr.filter((element, index, self) => {
+          return self.indexOf(element) === index
+        })
+        return httpArr
       }
     }
   }
@@ -1527,5 +1625,16 @@
 .circle-bar * {display: block; position: absolute; top:0; right:0; bottom:0; left:0; margin:auto; }
 /*自身以及子元素都是圆*/
 .circle-bar, .circle-bar > * { border-radius: 50%; }
-.circle-bar .percent {background: center center url(../../../../static/img/setting/close.png) no-repeat;background-size: 12px;width: 100%;height: 100%;}
+.circle-bar .percent {
+  background: center center url(../../../../static/img/setting/close.png) no-repeat;
+  background-size: 12px;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.circle-bar .percent.z-pause {
+  background: center center url(../../../../static/img/setting/file-pause.png) no-repeat;
+  background-size: 12px;
+}
+
 </style>

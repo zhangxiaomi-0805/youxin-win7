@@ -42,7 +42,6 @@ APP.prototype.catchMainProcessError = function () {
     app.exit(0)
   }
   process.on('uncaughtException', function (err) {
-    console.log(err)
     if (process.env.NODE_ENV !== 'development') {
       log.output({
         type: 'error',

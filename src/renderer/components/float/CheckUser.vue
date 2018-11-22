@@ -273,7 +273,7 @@ export default {
     text-align: center;
     color: #fff;
     font-size: 14px;
-    background-color: rgba(79,141,255,1);
+    background-color: rgba(4,154,255,1);
     border-radius: 4px;
     cursor: pointer;
   }
@@ -321,7 +321,7 @@ export default {
     color: #ccc;
   }
   .m-checkuser-con .memo-input.active {
-    border: 1px solid rgba(79,141,255,1);
+    border: 1px solid rgba(4,154,255,1);
     border-radius: 4px;
   }
 

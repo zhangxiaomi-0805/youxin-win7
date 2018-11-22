@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 
 var MainWindow = function () {
   this.init()
+  this.downList = {} // 初始化下载列表
 }
 
 MainWindow.prototype.getWinInstance = function () {
@@ -70,29 +71,41 @@ MainWindow.prototype.createWindow = function () {
 
   this.mainWindow.webContents.session.on('will-download', (event, item, webContents) => {
     item.on('updated', (event, state) => {
+      const strArr = item.getURL().split('#')
+      const id = strArr[strArr.length - 1]
       if (state === 'interrupted') {
-        console.log('Download is interrupted but can be resumed')
+        // console.log('Download is interrupted but can be resumed')
       } else if (state === 'progressing') {
         if (item.isPaused()) {
-          console.log('Download is paused')
+          // console.log('Download is paused')
         } else {
+          if (!this.downList[id]) {
+            this.downList[id] = item
+          }
           webContents.send(`downloading`, {
-            id: this.curFileId,
+            id,
             progressing: item.getReceivedBytes() / item.getTotalBytes() * 100
           })
-          // console.log(`Received bytes: ${item.getReceivedBytes()}`)
         }
       }
     })
     item.once('done', (event, state) => {
+      const strArr = item.getURL().split('#')
+      const id = strArr[strArr.length - 1]
       if (state === 'completed') {
         console.log('Download successfully')
         webContents.send(`downloaded`, {
-          id: this.curFileId,
+          list: this.downList,
+          id,
           url: item.getSavePath()
         })
       } else {
         console.log(`Download failed: ${state}`)
+        webContents.send(`downloading`, {
+          id,
+          progressing: 0,
+          type: 'fail'
+        })
       }
     })
   })
@@ -112,8 +125,14 @@ MainWindow.prototype.destroy = function () {
 
 MainWindow.prototype.initIPC = function () {
   const _this = this
-  ipcMain.on('curFileMsg', function (evt, obj) {
-    _this.curFileId = obj.id
+  // type 1 -暂停 2 -恢复下载
+  ipcMain.on('handleDownEvent', function (evt, obj) {
+    const {type, id} = obj
+    if (type === 1) {
+      _this.downList[id].pause()
+    } else if (type === 2) {
+      _this.downList[id].resume()
+    }
   })
 }
 

@@ -33,7 +33,7 @@
         :class='activeId === team.teamId ? "u-list-item-active t-u-list-item t-center" : "u-list-item t-u-list-item t-center"'
         :style="hasBorder && team.teamId === acTeamId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}"
         v-for="team in teamlist"
-        :key="team.id" 
+        :key="team.id"
         :id="team.id"
         @click="checkCard(team)"
         @mouseup.stop="onShowMenu($event, team)"
@@ -156,23 +156,12 @@ export default {
       if (this.listType === value) return
       this.listType = value
     },
-    onShowMenu (e, info, key) {
+    async onShowMenu (e, info, key) {
       // 单个列表右击事件
       if (e.button === 2) {
         let userType = ''
-        let teamMembers = this.$store.state.teamMembers
-        let members = teamMembers && teamMembers[info.teamId]
-        if (members) {
-          for (let i = 0; i < members.length; i++) {
-            if (members[i].account === this.$store.state.personInfos.accid) {
-              userType = members[i].type
-              break
-            }
-          }
-        }
         if (key === 'group') {
-          let teamMembers = this.$store.state.teamMembers
-          let members = teamMembers && teamMembers[info.teamId]
+          let members = await this.getTeamMembers(info.teamId)
           if (members) {
             for (let i = 0; i < members.length; i++) {
               if (members[i].account === this.$store.state.personInfos.accid) {
@@ -225,11 +214,13 @@ export default {
                       let teamName = info.name
                       if (info.memberNum <= 3) {
                         Request.DelTeam({tid: info.teamId, owner: info.owner}, this).then(res => {
+                          console.log(res)
                           this.$store.commit('toastConfig', {
                             show: true,
                             type: 'success',
                             toastText: '已退出' + teamName
                           })
+                          this.callBack({type: 'default'})
                         }).catch(() => {
                           this.$store.commit('toastConfig', {
                             show: true,
@@ -285,6 +276,7 @@ export default {
                 case 9:
                   // 退出群
                   this.eventBus.$emit('dismissTeam', {teamId: info.teamId, type: 2, teamInfo: info})
+                  this.callBack({type: 'default'})
                   break
                 case 8:
                   // 取消免打扰
@@ -300,6 +292,20 @@ export default {
           })
         }
       }
+    },
+    getTeamMembers (id) {
+      return new Promise((resolve, reject) => {
+        this.$store.state.nim.getTeamMembers({
+          teamId: id,
+          done: (err, obj) => {
+            if (!err) {
+              resolve(obj.members)
+            } else {
+              reject(err)
+            }
+          }
+        })
+      })
     },
     toggleRemindType (type, group) {
       if (this.remindMsgType === type) return
