@@ -241,7 +241,7 @@ export default {
       if (event.button === 2) {
         if (this.power === 'owner') { // 管理员
           key = 'owner-member-manager'
-        } else if (this.power === 'normal') { // 普通群成员
+        } else if (this.power === 'normal' || this.power === 'manager') { // 普通群成员
           key = 'normal-member-manager'
         }
         this.$store.dispatch('showListOptions', {
