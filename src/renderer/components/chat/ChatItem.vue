@@ -387,10 +387,10 @@
             ext = 'word'
           }
           if (ext === 'xlsx' || ext === 'xlsm' || ext === 'xltx') {
-            ext === 'excel'
+            ext = 'excel'
           }
           if (ext === 'pptx' || ext === 'pptm' || ext === 'ppsx') {
-            ext === 'ppt'
+            ext = 'ppt'
           }
           if (ext === 'jpeg') {
             ext = 'jpg'
