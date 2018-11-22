@@ -5,7 +5,7 @@
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
       <div 
         class="t-orgname" 
-        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'group' ? 0 : 1)) * 13 + 'px'}" 
+        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'group' ? 0 : 1)) * 14 + 'px'}" 
         @click="toggleStatus(orgnize.id, orgnize, $index)" 
         @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
         @mouseleave="mouseleave('orgAddAllId')">
@@ -23,7 +23,7 @@
           :showCheck="showCheck"
           :orgnizeObj="orgnizeObj"
           :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
-          :orgLevel="orgnize.orgLevel + 1"
+          :orgLevel="listType === 'group' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
           :orgSelectId="orgSelectId"
           :orgSelectLevel="orgSelectLevel"
           :orgSelectHandle="orgSelectHandle"

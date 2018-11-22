@@ -52,15 +52,15 @@
         <!-- 短信选择 -->
         <div
           class="message-box"
-          @click.stop="messageCheck = !messageCheck"
+          @click.stop="shortMsgCheck = !shortMsgCheck"
         >
-          <span :class="messageCheck ? 'checked common':'check common'"></span>
+          <span :class="shortMsgCheck ? 'checked common':'check common'"></span>
           <span style="font-size: 12px; color: #333; line-height:40px">短信</span>
         </div>
 
          <!-- 内容列表 -->
         <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
-          <history-item
+          <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
             :sessionId="sessionId"
@@ -75,7 +75,7 @@
             :myInfo="myInfo"/>
         </ul>
         <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
-          <history-item
+          <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
             :sessionId="sessionId"
@@ -90,7 +90,7 @@
             :myInfo="myInfo"/>
         </ul>
         <ul v-show ="checkType === 'file'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
-          <history-item
+          <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
             :sessionId="sessionId"
@@ -105,7 +105,7 @@
             :myInfo="myInfo"/>
         </ul>
         <!-- 搜索结果 -->
-        <search-history-msg
+        <search-msg
           v-show="searchValue && checkType === 'all'"
           @searchCheckMore="searchCheckMoreFn"
           :isSearchCheckMore="isSearchCheckMore"
@@ -116,7 +116,7 @@
           :historyMsgList="allMsgList"
           :userInfos="userInfos"
           :myInfo="myInfo"
-          :messageCheck="messageCheck"
+          :shortMsgCheck="shortMsgCheck"
           :clearStatus="clearStatus"/>
       </div>
     </div>    
@@ -127,16 +127,37 @@
 <script>
 import drag from '../../utils/drag.js'
 import clickoutside from '../../utils/clickoutside.js'
-import HistoryItem from './HistoryItem'
-import SearchHistoryMsg from '../search/SearchHistoryMsg'
+import MsgItem from './MsgItem'
+import SearchMsg from './SearchMsg'
 import util from '../../utils'
 import config from '../../configs'
 import emojiObj from '../../configs/emoji'
+import MsgRecordFn from './msgRecord.js'
 export default {
-  name: 'check-history-msg',
+  name: 'msg-record',
   directives: {clickoutside},
   components: {
-    HistoryItem, SearchHistoryMsg
+    MsgItem, SearchMsg
+  },
+  data () {
+    return {
+      showHistoryMsg: false,
+      showConfirmCover: false,
+      showSearch: false,
+      searchValue: '',
+      loading: false,
+      isRobot: false,
+      shortMsgCheck: false, // 短信勾选状态
+      checkType: 'all', // all---全部; image---图片; file---文件
+      checkFunc: '', // forword---转发; delete---删除; cancel---取消
+      scene: 'p2p', // p2p---单聊； team---群聊
+      to: '',
+      sessionName: '',
+      teamInfo: {},
+      beforeValue: '', // 上一次输入的值，做延时搜索
+      isCheckMore: false,
+      isSearchCheckMore: false
+    }
   },
   mounted () {
     // 获取当前聊天记录
@@ -150,32 +171,13 @@ export default {
       this.to = data.to
     })
   },
-  data () {
-    return {
-      showHistoryMsg: false,
-      showConfirmCover: false,
-      showSearch: false,
-      searchValue: '',
-      loading: false,
-      isRobot: false,
-      messageCheck: false, // 短信勾选状态
-      checkType: 'all', // all---全部; image---图片; file---文件
-      checkFunc: '', // forword---转发; delete---删除; cancel---取消
-      scene: 'p2p', // p2p---单聊； team---群聊
-      to: '',
-      sessionName: '',
-      teamInfo: {},
-      beforeValue: '', // 上一次输入的值，做延时搜索
-      isCheckMore: false,
-      isSearchCheckMore: false
-    }
-  },
   watch: {
     searchValue (newValue, oldValue) {
       this.beforeValue = newValue
       setTimeout(() => {
-        if (newValue !== this.beforeValue) return
         this.checkType = 'all'
+        if (newValue !== this.beforeValue) return
+        this.beforeValue = ''
       }, 500)
     }
   },
@@ -189,14 +191,6 @@ export default {
     sessionId () {
       let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
       return sessionId
-    },
-    teamId () {
-      return this.sessionId.replace('team-', '')
-    },
-    teamMembers () {
-      let teamMembers = this.$store.state.teamMembers
-      let members = teamMembers && teamMembers[this.teamId]
-      return members
     },
     memberList () {
       if (this.scene === 'p2p') {
@@ -219,7 +213,8 @@ export default {
         return members
       }
       let teamMembers = this.$store.state.teamMembers
-      let members = teamMembers && teamMembers[this.teamId]
+      let teamId = this.sessionId.replace('team-', '')
+      let members = teamMembers && teamMembers[teamId]
       let needSearchAccounts = []
       if (members) {
         members = members.map(item => {
@@ -258,7 +253,7 @@ export default {
           }
         }
       })
-      if (this.messageCheck) {
+      if (this.shortMsgCheck) {
         return allMsgList
       } else {
         return allList
@@ -277,7 +272,7 @@ export default {
         }
       })
       console.log(imageAllList)
-      if (this.messageCheck) {
+      if (this.shortMsgCheck) {
         return imageMsgList
       } else {
         return imageAllList
@@ -295,34 +290,16 @@ export default {
           }
         }
       })
-      if (this.messageCheck) {
+      if (this.shortMsgCheck) {
         return fileMsgList
       } else {
         return allFileList
       }
     },
-    allSearchMsgList () {
-      let allList = []
-      let allMsgList = []
-      this.$store.state.currSessionMsgs.map((item, index) => {
-        item = this.manageItem(item)
-        if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
-          allList.unshift(item)
-          if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-            allMsgList.unshift(item)
-          }
-        }
-      })
-      if (this.messageCheck) {
-        return allMsgList
-      } else {
-        return allList
-      }
-    },
     checkedMsgList () {
-      let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
-      if (this.$store.state.checkedMsgs && sessionId === this.$store.state.checkedMsgs.sessionId && this.$store.state.checkedMsgs.checkedMsgList.length > 0) {
-        return this.$store.state.checkedMsgs.checkedMsgList
+      // 多选时选中的消息
+      if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
+        return this.$store.state.checkedMsgs
       } else {
         return []
       }
@@ -462,7 +439,7 @@ export default {
       this.isCheckMore = false
       this.checkFunc = ''
       this.isSearchCheckMore = false
-      this.$store.commit('updateCheckedMsgs', {})
+      this.$store.commit('updateCheckedMsgs', [])
     },
     closeModal () {
       this.showHistoryMsg = false
@@ -473,7 +450,7 @@ export default {
       this.isCheckMore = false
       this.checkFunc = ''
       this.isSearchCheckMore = false
-      this.$store.commit('updateCheckedMsgs', {})
+      this.$store.commit('updateCheckedMsgs', [])
     },
     clearStatus (el, e) {
       if (e) {
@@ -484,7 +461,7 @@ export default {
       this.searchValue = ''
       this.isCheckMore = false
       this.isSearchCheckMore = false
-      this.$store.commit('updateCheckedMsgs', {})
+      this.$store.commit('updateCheckedMsgs', [])
     },
     toggleList (value) {
       if (this.checkType === value) return
@@ -495,96 +472,25 @@ export default {
       this.checkFunc = value
       switch (value) {
         case 'forword':
-          this.forwordMsg()
+          MsgRecordFn.forwordMsg(8, this.checkedMsgList) // type:8---多条转发， type:7---单条转发
+          // 状态重置
+          this.checkType = 'all'
+          this.checkFunc = ''
+          this.isCheckMore = false
+          this.isSearchCheckMore = false
+          this.searchValue = ''
           break
         case 'delete':
-          this.deleteMsgs()
+          MsgRecordFn.deleteMsgs(8, this.checkedMsgList)
+          this.checkType = 'all'
+          this.checkFunc = ''
+          this.isCheckMore = false
           break
         case 'cancel':
           this.checkFunc = ''
           this.isCheckMore = false
-          this.$store.commit('updateCheckedMsgs', {})
+          this.$store.commit('updateCheckedMsgs', [])
           break
-      }
-    },
-    forwordMsg () {
-      // 转发消息
-      let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
-        item.name = ''
-        item.avatar = ''
-        if (item.scene === 'p2p') {
-          let userInfo = null
-          if (item.to !== this.myPhoneId) {
-            userInfo = this.userInfos[item.to]
-          } else {
-            userInfo = Object.assign({}, this.myInfo)
-            // userInfo.alias = '我的手机'
-            // userInfo.avatar = `${config.myPhoneIcon}`
-          }
-          if (userInfo) {
-            item.name = util.getFriendAlias(userInfo)
-            item.avatar = userInfo.avatar
-          }
-        } else if (item.scene === 'team') {
-          let teamInfo = null
-          teamInfo = this.$store.state.teamlist.find(team => {
-            if (team.teamId === item.to) {
-              item.memberNum = team.memberNum
-            }
-            return team.teamId === item.to
-          })
-          if (teamInfo) {
-            item.name = teamInfo.name
-            item.avatar = teamInfo.avatar || this.myGroupIcon
-          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
-            item.name = item.lastMsg.attach.team.name
-            item.avatar = item.avatar || this.myGroupIcon
-          } else {
-            item.name = `群${item.to}`
-            item.avatar = item.avatar || this.myGroupIcon
-          }
-          if (!item.memberNum) {
-            return false
-          }
-        }
-        if (item.updateTime) {
-          item.updateTimeShow = util.formatDate(item.updateTime, true)
-        }
-        return item
-      })
-      let sessionlistTop = sessionlist.filter((item) => {
-        if (item.localCustom && item.localCustom.topTime) {
-          if (item.localCustom.topTime - item.lastMsg.time > 0) {
-            item.compareTime = item.localCustom.topTime
-          } else {
-            item.compareTime = item.lastMsg.time
-          }
-          return item
-        }
-      })
-      let newSessionlistTop = sessionlistTop.sort((a, b) => {
-        return b.compareTime - a.compareTime
-      })
-      let sessionlistBot = sessionlist.filter((item) => {
-        if (!item.localCustom || !item.localCustom.topTime) {
-          return item
-        }
-      })
-      let sidelist = [...newSessionlistTop, ...sessionlistBot]
-      this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
-      // 状态重置
-      this.checkType = 'all'
-      this.checkFunc = ''
-      this.isCheckMore = false
-      this.isSearchCheckMore = false
-      this.searchValue = ''
-    },
-    deleteMsgs () {
-      this.checkType = 'all'
-      this.checkFunc = ''
-      this.isCheckMore = false
-      for (let i = 0; i < this.checkedMsgList.length; i++) {
-        this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
       }
     },
     scrollEndLoad (e) {

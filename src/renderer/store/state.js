@@ -78,8 +78,8 @@ export default {
   continueRobotAccid: '',
 
   newMsg: {},
-  // 当前选中的历史消息记录 --- 格式：{sessionId: ***, checkedMsgList: []}
-  checkedMsgs: {},
+  // 当前选中的历史消息记录
+  checkedMsgs: [],
   // 系统消息
   sysMsgs: [],
   customSysMsgs: [],

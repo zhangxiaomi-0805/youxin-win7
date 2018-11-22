@@ -248,7 +248,7 @@ export async function showListOptions ({state, commit}, obj) {
     }
   }
   // 历史消息记录
-  if (obj.key === 'history-msg') {
+  if (obj.key === 'msg-record') {
     items = [
       event3, event2, event0, event4
     ]

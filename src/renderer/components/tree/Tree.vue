@@ -494,18 +494,16 @@ export default {
     width: 15px;
     height: 15px;
     background: url('../../../../static/img/orgnize/takeup.png') no-repeat center center;
-    background-size: 8px 7px;
+    background-size: 9px 7px;
     margin-right: 3.5px;
-    margin-left: 5px;
   }
 
   .t-orgname .t-open {
     width: 15px;
     height: 15px;
     margin-right: 3.5px;
-    margin-left: 5px;
     background: url('../../../../static/img/orgnize/open.png') no-repeat center center;
-    background-size: 8px 7px;
+    background-size: 9px 7px;
   }
 
   .t-orgname .common {
