@@ -378,11 +378,25 @@
         }
         return 0
       },
+      // 文件格式匹配icon
       fileIcon () {
         const iconList = ['word', 'zip', 'excel', 'git', 'html', 'jpg', 'mp3', 'mp4', 'pdf', 'png', 'ppt', 'rar', 'txt']
         if (this.msg.type === 'file') {
-          if (iconList.includes(this.msg.file.ext)) {
-            return `./static/img/file/file-icon-${this.msg.file.ext}.png`
+          let ext = this.msg.file.ext
+          if (ext === 'docx' || ext === 'dotx' || ext === 'dotm' || ext === 'docm') {
+            ext = 'word'
+          }
+          if (ext === 'xlsx' || ext === 'xlsm' || ext === 'xltx') {
+            ext === 'excel'
+          }
+          if (ext === 'pptx' || ext === 'pptm' || ext === 'ppsx') {
+            ext === 'ppt'
+          }
+          if (ext === 'jpeg') {
+            ext = 'jpg'
+          }
+          if (iconList.includes(ext)) {
+            return `./static/img/file/file-icon-${ext}.png`
           } else {
             return `./static/img/file/file-icon-unknow.png`
           }
