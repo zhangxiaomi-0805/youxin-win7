@@ -35,21 +35,19 @@
           <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
           <span v-if="showSearch" class="clear" @click="clearStatus"/>
         </div>
+        <!-- 转发 && 删除 && 取消 -->
+        <div v-if="(isCheckMore || isSearchCheckMore)" class="tab-right-title">
+          <a :class="className('forword')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">转发</a>
+          <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a>
+          <a :class="className('cancel')" @click.stop=" toggleFunc('cancel')">取消</a>
+        </div>
 
         <!-- 全部 && 图片 && 文件 -->
-        <div v-show="!isCheckMore || showSearch" class="tab-left-title">
+        <div v-else class="tab-left-title">
           <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('all')">全部</a>
           <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('image')">图片</a>
           <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('file')">文件</a>
         </div>
-
-        <!-- 转发 && 删除 && 取消 -->
-        <div v-show="isCheckMore && !showSearch" class="tab-right-title">
-          <a :class="className('forword')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">转发</a>
-          <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a>
-          <a :class="className('cancel')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('cancel') : null">取消</a>
-        </div>
-
 
         <!-- 短信选择 -->
         <div
@@ -108,9 +106,11 @@
         </ul>
         <!-- 搜索结果 -->
         <search-history-msg
-          v-show="showSearch && checkType === 'all'"
-          :isCheckMore="isCheckMore"
+          v-show="searchValue && checkType === 'all'"
+          @searchCheckMore="searchCheckMoreFn"
+          :isSearchCheckMore="isSearchCheckMore"
           :sessionId="sessionId"
+          :checkedMsgList="checkedMsgList"
           keep-alive
           :value="searchValue"
           :historyMsgList="allMsgList"
@@ -166,7 +166,8 @@ export default {
       sessionName: '',
       teamInfo: {},
       beforeValue: '', // 上一次输入的值，做延时搜索
-      isCheckMore: false
+      isCheckMore: false,
+      isSearchCheckMore: false
     }
   },
   watch: {
@@ -300,6 +301,24 @@ export default {
         return allFileList
       }
     },
+    allSearchMsgList () {
+      let allList = []
+      let allMsgList = []
+      this.$store.state.currSessionMsgs.map((item, index) => {
+        item = this.manageItem(item)
+        if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
+          allList.unshift(item)
+          if (item.custom && JSON.parse(item.custom).isSmsMsg) {
+            allMsgList.unshift(item)
+          }
+        }
+      })
+      if (this.messageCheck) {
+        return allMsgList
+      } else {
+        return allList
+      }
+    },
     checkedMsgList () {
       let sessionId = this.$route.query.sessionId || this.$store.state.currSessionId
       if (this.$store.state.checkedMsgs && sessionId === this.$store.state.checkedMsgs.sessionId && this.$store.state.checkedMsgs.checkedMsgList.length > 0) {
@@ -320,7 +339,7 @@ export default {
           className = 'tab-title-item active'
         }
       }
-      if (this.checkedMsgList.length <= 0) {
+      if (this.checkedMsgList.length <= 0 && value !== 'cancel') {
         className = 'tab-title-item disable'
         this.checkFunc = ''
       }
@@ -328,7 +347,10 @@ export default {
     },
     checkMoreFn () {
       this.isCheckMore = true
-      console.log(this.isCheckMore)
+    },
+    searchCheckMoreFn () {
+      this.isSearchCheckMore = true
+      console.log(this.isSearchCheckMore)
     },
     InitHistoryMsg () {
       this.getHistoryMsgs()
@@ -439,6 +461,7 @@ export default {
       this.checkType = 'all'
       this.isCheckMore = false
       this.checkFunc = ''
+      this.isSearchCheckMore = false
       this.$store.commit('updateCheckedMsgs', {})
     },
     closeModal () {
@@ -449,6 +472,7 @@ export default {
       this.checkType = 'all'
       this.isCheckMore = false
       this.checkFunc = ''
+      this.isSearchCheckMore = false
       this.$store.commit('updateCheckedMsgs', {})
     },
     clearStatus (el, e) {
@@ -458,6 +482,9 @@ export default {
       }
       this.showSearch = false
       this.searchValue = ''
+      this.isCheckMore = false
+      this.isSearchCheckMore = false
+      this.$store.commit('updateCheckedMsgs', {})
     },
     toggleList (value) {
       if (this.checkType === value) return
@@ -544,10 +571,13 @@ export default {
         }
       })
       let sidelist = [...newSessionlistTop, ...sessionlistBot]
+      this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
+      // 状态重置
       this.checkType = 'all'
       this.checkFunc = ''
       this.isCheckMore = false
-      this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
+      this.isSearchCheckMore = false
+      this.searchValue = ''
     },
     deleteMsgs () {
       this.checkType = 'all'

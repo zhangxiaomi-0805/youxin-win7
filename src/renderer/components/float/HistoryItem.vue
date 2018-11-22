@@ -7,6 +7,7 @@
       <div 
         class="left"
       >
+        <!-- 选择框 -->
         <span v-show="isCheckMore" :class="className(msg)"></span>
         
         <img :src="msg.avatar" alt="" class="avatar">
@@ -97,6 +98,7 @@ export default {
   },
   methods: {
     className (msg) {
+      // 选择框样式
       let className = 'check common'
       this.isItemChecked = false
       for (let i in this.checkedMsgList) {
@@ -372,7 +374,6 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   padding-bottom: 10px;
-  position: relative;
 }
 .list-item .left{
     display: flex;
