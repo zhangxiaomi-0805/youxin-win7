@@ -47,6 +47,7 @@ export default {
   },
   methods: {
     closeModal () {
+      console.log(3423454)
       this.$store.dispatch('showListOptions', {
         show: false
       })

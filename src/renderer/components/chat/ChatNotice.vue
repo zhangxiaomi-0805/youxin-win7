@@ -78,9 +78,6 @@ export default {
       searchValue: ''
     }
   },
-  mounted () {
-    this.$store.dispatch('getTeamMembers', this.to)
-  },
   computed: {
     hasBorder () {
       if (this.$store.state.showListOptions) {
@@ -134,6 +131,8 @@ export default {
             }
           }
           return members
+        } else {
+          this.$store.dispatch('getTeamMembers', this.to)
         }
       } else return []
     },

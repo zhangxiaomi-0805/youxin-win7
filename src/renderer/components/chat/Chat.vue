@@ -312,11 +312,11 @@ export default {
         let sysMsgs = this.$store.state.sysMsgs
         let currentSysMsg = ''
         for (let i in sysMsgs) {
-          if (sysMsgs[i].type === 'applyTeam' && (sysMsgs[i].to === this.teamId)) {
+          if (sysMsgs[i].type === 'applyTeam' && (sysMsgs[i].to === this.teamId) && sysMsgs[i].state === 'init') {
             currentSysMsg = sysMsgs[i]
           }
         }
-        if (currentSysMsg && currentSysMsg.state === 'init') {
+        if (currentSysMsg) {
           this.showInvitMsgTip = true
           return `“${currentSysMsg.nick}”`
         }

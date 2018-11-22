@@ -1,12 +1,15 @@
 <template>
 <!-- 群二维码 -->
 <transition name="fade">
-  <div class="m-checkuser-con" ref="teamCode" v-if="showTeamCode" :style="{left, top}" v-clickoutside="closeModal">
-    <div class="m-modify">
-      <div class="user-info"><img :src="teamInfo.avatar || defaultUserIcon"></div>
-      <div class="nick" :title="teamInfo.nick || teamInfo.name">{{teamInfo.nick || teamInfo.name}}</div>
+  <div class="m-checkuser-con b-more" ref="teamCode" v-if="showTeamCode" :style="{left, top}" v-clickoutside="closeModal">
+    <div class="m-modify b-more">
+      <div class="user-info b-more"><img class="b-more" :src="teamInfo.avatar || defaultUserIcon"></div>
+      <div class="nick b-more" :title="teamInfo.nick || teamInfo.name">{{teamInfo.nick || teamInfo.name}}</div>
     </div>
-    <div class="t-code" v-if="teamQrUrl"><img :src="teamQrUrl"><div>优信用户扫描二维码，即可加入群</div></div>
+    <div class="t-code b-more" v-if="teamQrUrl">
+      <img class="b-more" @mousedown.stop="showBtn($event)" :src="teamQrUrl"><div class="b-more">优信用户扫描二维码，即可加入群</div>
+      <div class="u-editor-paste-btn b-more" v-if="showPasteBtn" :style="{left: pasteLeft + 'px', top: pasteTop + 'px'}" @click="saveAs">另存为</div>
+    </div>
   </div>
 </transition>
 </template>
@@ -26,12 +29,20 @@ export default {
       this.showTeamCode = true
     })
   },
+  updated () {
+    window.document.body.addEventListener('click', () => {
+      this.showPasteBtn = false
+    })
+  },
   data () {
     return {
       showTeamCode: false,
       teamId: '',
       left: '38%',
-      top: '20%'
+      top: '20%',
+      showPasteBtn: false,
+      pasteLeft: '',
+      pasteTop: ''
     }
   },
   computed: {
@@ -68,6 +79,16 @@ export default {
           })
         }
       }).catch(() => {})
+    },
+    showBtn (e) {
+      if (e.button === 2) {
+        this.showPasteBtn = true
+        this.pasteLeft = e.offsetX
+        this.pasteTop = e.offsetY
+      }
+    },
+    saveAs () {
+      this.$store.dispatch('downloadImg', {url: this.teamQrUrl, name: this.teamQrUrl + '.jpg'})
     }
   }
 }
@@ -87,7 +108,7 @@ export default {
     border: 0.5px solid #ccc;
     box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
     border-radius: 4px;
-    z-index: 10001;
+    z-index: 1001;
   }
 
   .fade-enter-active, .fade-leave-active {
@@ -124,6 +145,7 @@ export default {
   }
 
   .t-code {
+    position: relative;
     text-align: center;
     font-size:12px;
     color:rgba(153,153,153,1);
@@ -132,6 +154,22 @@ export default {
   .t-code img {
     width: 220px;
     height: 220px;
+  }
+
+  .t-code .u-editor-paste-btn {
+    position: absolute;
+    z-index: 70;
+    width: 88px;
+    height: 30px;
+    background: rgba(255,255,255,1);
+    border: 1px solid #BEBEBE;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.16);
+    border-radius: 10px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    color: #049AFF;
+    font-size: 14px;
   }
 </style>
 
