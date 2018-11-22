@@ -26,7 +26,7 @@
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
       <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)"></span>
+      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
@@ -260,18 +260,7 @@
           let httpUrls = this.httpSpring(item.text)
           if (httpUrls.length > 0) {
             httpUrls.map(url => {
-              let a = document.createElement('a')
-              a.style = 'text-decoration: underline;'
-              a.innerHTML = url
-              a.onclick = (e) => {
-                console.log(3424)
-                // this.openAplWindow.bind(this, item, url)
-              }
-              let tmpNode = document.createElement('div')
-              tmpNode.appendChild(a)
-              let str = tmpNode.innerHTML
-              tmpNode = a = null
-              item.showText = item.showText.replace(new RegExp(url, 'g'), str)
+              item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
             })
           }
         } else if (item.type === 'custom') {
@@ -735,7 +724,6 @@
           this.copyAll()
         }
         this.eventBus.$emit('checkUser', {})
-        console.log(this.msg)
         if (e.button === 2) {
           let key = ''
           if (this.msg.flow === 'out' && (this.to !== this.myInfo.account)) {
@@ -977,26 +965,31 @@
           this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
         }
       },
-      openAplWindow (msg, url) {
-        // 打开营业精灵
-        let thirdUrls = this.$store.state.thirdUrls
-        let sessionlist = this.$store.state.sessionlist
-        let sessionInfo = {}
-        for (let i in sessionlist) {
-          if (sessionlist[i].id === msg.sessionId) {
-            sessionInfo = sessionlist[i]
-            break
+      openAplWindow (evt) {
+        let url = evt.target.getAttribute('data-url')
+        if (url) {
+          // 打开营业精灵
+          let thirdUrls = this.$store.state.thirdUrls
+          let sessionlist = this.$store.state.sessionlist
+          let sessionInfo = {}
+          for (let i in sessionlist) {
+            if (sessionlist[i].id === this.msg.sessionId) {
+              sessionInfo = sessionlist[i]
+              break
+            }
           }
-        }
-        let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,4}))+\.?/
-        console.log(url.match(regDomain)[0])
-        for (let i in thirdUrls) {
-          if (thirdUrls[i].url === url) {
-            Request.ThirdConnection({url: thirdUrls[i].url, appCode: thirdUrls[i].appCode}).then(res => {
-              ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: msg.sessionId})
-            }).catch(() => {})
-            return false
+          let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,4}))+\.?/
+          let domain = url.match(regDomain)[0]
+          if (url.split('://').length <= 1) url = 'http://' + url
+          for (let i in thirdUrls) {
+            if (thirdUrls[i].url === domain) {
+              Request.ThirdConnection({url: url, appCode: thirdUrls[i].appCode}).then(res => {
+                ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+              }).catch(() => {})
+              return false
+            }
           }
+          shell.openExternal(url)
         }
       },
       httpSpring (str) {

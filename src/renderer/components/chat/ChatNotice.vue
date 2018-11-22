@@ -78,6 +78,9 @@ export default {
       searchValue: ''
     }
   },
+  mounted () {
+    this.$store.dispatch('getTeamMembers', this.to)
+  },
   computed: {
     hasBorder () {
       if (this.$store.state.showListOptions) {
