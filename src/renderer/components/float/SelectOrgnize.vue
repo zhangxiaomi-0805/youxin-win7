@@ -177,6 +177,7 @@ export default {
         joinMode: 'needVerify',
         beInviteMode: 'noVerify',
         inviteMode: 'manager',
+        updateCustomMode: 'all',
         done: (error, obj) => {
           if (!error) {
             this.type === 2 && this.generateQrCode(obj.team.teamId)
@@ -203,7 +204,7 @@ export default {
               this.$store.commit('toastConfig', {
                 show: true,
                 type: 'fail',
-                toastText: error.message
+                toastText: '创建失败！'
               })
             }
           }

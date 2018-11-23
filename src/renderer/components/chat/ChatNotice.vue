@@ -131,8 +131,6 @@ export default {
             }
           }
           return members
-        } else {
-          this.$store.dispatch('getTeamMembers', this.to)
         }
       } else return []
     },
