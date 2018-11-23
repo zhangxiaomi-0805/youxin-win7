@@ -346,6 +346,7 @@ export default {
       })
     },
     manageItem (item) {
+      console.log(item)
       if (item.flow === 'in') {
         if (item.type === 'robot' && item.content && item.content.msgOut) {
           // 机器人下行消息
@@ -431,7 +432,6 @@ export default {
       } else {
         item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
       }
-      console.log(item)
       return item
     },
     closeCover () {
