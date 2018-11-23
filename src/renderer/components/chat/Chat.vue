@@ -175,10 +175,12 @@ export default {
         }
       } else if (/^team-/.test(sessionId)) {
         if (this.teamInfo) {
-          // 获取群成员
-          var teamMembers = this.$store.state.teamMembers[this.to]
-          if (teamMembers === undefined || teamMembers.length < this.teamInfo.memberNum) {
-            this.$store.dispatch('getTeamMembers', this.to)
+          if (this.teamInfo.valid) {
+            // 获取群成员
+            var teamMembers = this.$store.state.teamMembers[this.to]
+            if (teamMembers === undefined || teamMembers.length < this.teamInfo.memberNum) {
+              this.$store.dispatch('getTeamMembers', this.to)
+            }
           }
           return this.teamInfo.name
         } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
