@@ -32,7 +32,7 @@
       <div class="m-historymsg-content">
         <!-- 搜索 -->
         <div class="search-bar">
-          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" @blur="showSearch = false"/>
+          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
           <span v-if="showSearch" class="clear" @click="clearStatus"/>
         </div>
         <!-- 转发 && 删除 && 取消 -->
@@ -113,7 +113,7 @@
           :checkedMsgList="checkedMsgList"
           keep-alive
           :searchValue="searchValue"
-          :checkType="getType"
+          :checkType="checkType"
           :userInfos="userInfos"
           :myInfo="myInfo"
           :shortMsgCheck="shortMsgCheck"
@@ -183,15 +183,6 @@ export default {
     }
   },
   computed: {
-    getType () {
-      let checkType = ''
-      if (this.checkType === 'all') {
-        checkType = ''
-      } else {
-        checkType = this.checkType
-      }
-      return checkType
-    },
     myPhoneId () {
       return `${this.$store.state.userUID}`
     },
@@ -444,36 +435,17 @@ export default {
       return item
     },
     closeCover () {
-      this.showConfirmCover = false
-      this.showSearch = false
-      this.searchValue = ''
-      this.checkType = 'all'
-      this.isCheckMore = false
-      this.checkFunc = ''
-      this.isSearchCheckMore = false
-      this.$store.commit('updateCheckedMsgs', [])
+      this.reset()
     },
     closeModal () {
-      this.showHistoryMsg = false
-      this.loading = false
-      this.showSearch = false
-      this.searchValue = ''
-      this.checkType = 'all'
-      this.isCheckMore = false
-      this.checkFunc = ''
-      this.isSearchCheckMore = false
-      this.$store.commit('updateCheckedMsgs', [])
+      this.reset()
     },
     clearStatus (el, e) {
       if (e) {
         let className = e.target.className
         if (className.indexOf('searchevent') > -1) return
       }
-      this.showSearch = false
-      this.searchValue = ''
-      this.isCheckMore = false
-      this.isSearchCheckMore = false
-      this.$store.commit('updateCheckedMsgs', [])
+      this.reset()
     },
     toggleList (value) {
       if (this.checkType === value) return
@@ -487,34 +459,32 @@ export default {
           let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
           this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
           // 状态重置
-          this.checkType = 'all'
-          this.checkFunc = ''
-          this.isCheckMore = false
-          this.isSearchCheckMore = false
-          this.searchValue = ''
+          this.reset()
           break
         case 'delete':
-          console.log(this.checkedMsgList)
           this.deleteMsgs()
-          // this.$store.dispatch('deleteMsg', this.checkedMsgList)
-          // this.checkType = 'all'
-          // this.checkFunc = ''
-          // this.isCheckMore = false
           break
         case 'cancel':
-          this.checkFunc = ''
-          this.isCheckMore = false
-          this.$store.commit('updateCheckedMsgs', [])
+          this.reset()
           break
       }
     },
     deleteMsgs () {
-      this.checkType = 'all'
-      this.checkFunc = ''
-      this.isCheckMore = false
       for (let i = 0; i < this.checkedMsgList.length; i++) {
         this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
       }
+      this.reset()
+    },
+    reset () {
+      this.showHistoryMsg = false
+      this.loading = false
+      this.showSearch = false
+      this.searchValue = ''
+      this.checkType = 'all'
+      this.isCheckMore = false
+      this.checkFunc = ''
+      this.isSearchCheckMore = false
+      this.$store.commit('updateCheckedMsgs', [])
     },
     scrollEndLoad (e) {
       let { scrollTop, clientHeight, scrollHeight } = e.target

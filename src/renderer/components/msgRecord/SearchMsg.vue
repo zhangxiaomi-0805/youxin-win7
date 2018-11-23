@@ -46,6 +46,7 @@
 <script>
 import util from '../../utils'
 import config from '../../configs'
+import emojiObj from '../../configs/emoji'
 import MsgRecordFn from './msgRecord.js'
 export default {
   name: 'search-msg',
@@ -56,13 +57,7 @@ export default {
     clearStatus: Function,
     isSearchCheckMore: Boolean,
     sessionId: String,
-    checkType: String, // ''---全部; image---图片; file---文件
-    // checkedMsgList: {
-    //   type: Array,
-    //   default () {
-    //     return {}
-    //   }
-    // },
+    checkType: String, // 'all'---全部; image---图片; file---文件
     userInfos: {
       type: Object,
       default () {
@@ -83,9 +78,6 @@ export default {
       searchlist: [],
       isPlay: false
     }
-  },
-  mounted () {
-    this.InitSearchMsg()
   },
   watch: {
     searchValue (newValue, oldValue) {
@@ -120,25 +112,115 @@ export default {
     }
   },
   methods: {
-    InitSearchMsg () {
-      let searchMsgList = MsgRecordFn.getSearchRecords(this.searchValue, this.checkType)
-      console.log(searchMsgList)
-      return searchMsgList
-    },
     manageTime (time) {
       return util.formatDate(time, true)
     },
+    manageItem (item) {
+      if (item.flow === 'in') {
+        if (item.type === 'robot' && item.content && item.content.msgOut) {
+          // 机器人下行消息
+          let robotAccid = item.content.robotAccid
+          item.avatar = this.robotInfos[robotAccid].avatar
+          item.isRobot = true
+          item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
+        } else if (item.from !== this.$store.state.userUID) {
+          item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
+          item.link = `#/mainpage/contacts/card?accid=${item.from}`
+          //  todo如果是未加好友的人发了消息，是否能看到名片
+        } else {
+          item.avatar = this.myInfo.avatar
+          // item.avatar = `${config.myPhoneIcon}`
+        }
+      } else if (item.flow === 'out') {
+        item.avatar = this.myInfo.avatar
+      }
+      if (item.type === 'text') {
+        // 文本消息
+        item.showText = util.escape(item.text)
+        if (item.apns && item.flow === 'in') {
+          if (!item.apns.accounts) {
+            item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
+          } else if (item.apns.accounts.includes(this.myInfo.account)) {
+            let name = util.escape(this.nickInTeam) || util.escape(this.myInfo.nick)
+            item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
+          }
+        }
+        if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
+          let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
+          emojiItems.forEach(text => {
+            let emojiCnt = emojiObj.emojiList.emoji
+            if (emojiCnt[text]) {
+              let dataKey = text.slice(1, -1)
+              item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+            }
+          })
+        }
+      } else if (item.type === 'custom') {
+        let content = JSON.parse(item.content)
+        // type 1 为猜拳消息
+        if (content.type === 1) {
+          let data = content.data
+          let resourceUrl = config.resourceUrl
+          // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
+          item.type = 'custom-type1'
+          item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
+        // type 3 为贴图表情
+        } else if (content.type === 3) {
+          let data = content.data
+          let emojiCnt = ''
+          if (emojiObj.pinupList[data.catalog]) {
+            emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
+            // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
+            item.type = 'custom-type3'
+            item.imgUrl = `${emojiCnt.img}`
+          }
+        } else {
+          item.showText = util.parseCustomMsg(item)
+          if (item.showText !== '[自定义消息]') {
+            item.showText += ',请到手机或电脑客户端查看'
+          }
+        }
+      } else if (item.type === 'image') {
+        // 原始图片全屏显示
+        item.originLink = item.file.url
+        if (item.file.w < 180) {
+          item.w = item.file.w
+          item.h = item.file.h
+        } else {
+          item.w = 180
+          item.h = 180 / (item.file.w / item.file.h)
+        }
+      } else if (item.type === 'video') {
+        // ...
+      } else if (item.type === 'audio') {
+        item.audioSrc = item.file.mp3Url
+        item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'
+      } else if (item.type === 'file') {
+        item.fileLink = item.file.url
+        item.showText = item.file.name
+      } else {
+        item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
+      }
+      console.log(item)
+      return item
+    },
     async renderItem (searchValue, checkType) {
+      if (checkType === 'all') {
+        checkType = ['text', 'image', 'file', 'audio', 'video', 'custom-type3']
+      } else if (checkType === 'image') {
+        checkType = ['image']
+      } else if (checkType === 'file') {
+        checkType = ['file']
+      }
       let msgList = await MsgRecordFn.getSearchRecords(searchValue, checkType)
       let searchlist = []
       let searchMsgList = []
-      // let msgList = this.$store.state.currSessionMsgs
-      console.log(searchValue)
-      console.log(msgList)
       for (let i in msgList) {
         if (msgList[i].text && msgList[i].text.indexOf(searchValue) > -1) {
+          this.manageItem(msgList[i])
           searchlist.unshift(msgList[i])
           if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
+            this.manageItem(msgList[i])
             searchMsgList.unshift(msgList[i])
           }
         }
@@ -186,11 +268,13 @@ export default {
     showListOptions (e, msg) {
       if (msg.type === 'text' && e.button === 2) {
         let target = (this.$refs[`copy_${msg.idClient}`])[0]
-        console.log(target)
         MsgRecordFn.copyAll(target)
       }
       if (e.button === 2) {
         let key = 'msg-record'
+        if (msg.type === 'image') {
+          key = 'image-msg-record'
+        }
         this.$store.dispatch('showListOptions', {
           key,
           show: true,

@@ -144,8 +144,9 @@ export default {
       console.log(msg)
       if (e.button === 2) {
         let key = 'msg-record'
-        // let key = msg.type + '-msg-record'
-        console.log(key)
+        if (msg.type === 'image') {
+          key = 'image-msg-record'
+        }
         this.$store.dispatch('showListOptions', {
           key,
           show: true,

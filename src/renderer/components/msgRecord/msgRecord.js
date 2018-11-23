@@ -15,7 +15,7 @@ MsgRecordFn.getSearchRecords = function (searchValue, checkType) {
       sessionId: store.state.currSessionId,
       desc: true,
       limit: 20,
-      type: checkType,
+      types: checkType,
       keyword: searchValue,
       done: (error, obj) => {
         if (!error) resolve(obj.msgs)
