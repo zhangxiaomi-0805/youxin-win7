@@ -156,15 +156,9 @@ export default {
       return this.sessionId.replace('team-', '')
     },
     teamMembers () {
-      if (this.teamInfo && this.teamInfo.valid) {
-        let teamMembers = this.$store.state.teamMembers
-        let members = teamMembers && teamMembers[this.teamId]
-        if (members === undefined || members.length < this.teamInfo.memberNum) {
-          this.$store.dispatch('getTeamMembers', this.to)
-        }
-        return members
-      }
-      return []
+      let teamMembers = this.$store.state.teamMembers
+      let members = teamMembers && teamMembers[this.teamId]
+      return members
     },
     sessionName () {
       let sessionId = this.sessionId
@@ -181,6 +175,11 @@ export default {
         }
       } else if (/^team-/.test(sessionId)) {
         if (this.teamInfo) {
+          if (this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+            // 获取群成员
+            var teamMembers = this.$store.state.teamMembers[this.to]
+            if (!teamMembers) this.$store.dispatch('getTeamMembers', this.to)
+          }
           return this.teamInfo.name
         } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
           return this.lastMsg.attach.team.name
