@@ -106,14 +106,14 @@
         </ul>
         <!-- 搜索结果 -->
         <search-msg
-          v-show="searchValue && checkType === 'all'"
+          v-show="searchValue"
           @searchCheckMore="searchCheckMoreFn"
           :isSearchCheckMore="isSearchCheckMore"
           :sessionId="sessionId"
           :checkedMsgList="checkedMsgList"
           keep-alive
-          :value="searchValue"
-          :historyMsgList="allMsgList"
+          :searchValue="searchValue"
+          :checkType="getType"
           :userInfos="userInfos"
           :myInfo="myInfo"
           :shortMsgCheck="shortMsgCheck"
@@ -141,6 +141,7 @@ export default {
   },
   data () {
     return {
+      myGroupIcon: config.defaultGroupIcon,
       showHistoryMsg: false,
       showConfirmCover: false,
       showSearch: false,
@@ -182,6 +183,18 @@ export default {
     }
   },
   computed: {
+    getType () {
+      let checkType = ''
+      if (this.checkType === 'all') {
+        checkType = ''
+      } else {
+        checkType = this.checkType
+      }
+      return checkType
+    },
+    myPhoneId () {
+      return `${this.$store.state.userUID}`
+    },
     myInfo () {
       return this.$store.state.myInfo
     },
@@ -334,7 +347,6 @@ export default {
     },
     getHistoryMsgs () {
       let callBack = () => {}
-      console.log('历史消息记录')
       this.$store.dispatch('getLocalMsgs', {
         scene: this.scene,
         to: this.to,
@@ -472,7 +484,8 @@ export default {
       this.checkFunc = value
       switch (value) {
         case 'forword':
-          MsgRecordFn.forwordMsg(8, this.checkedMsgList) // type:8---多条转发， type:7---单条转发
+          let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+          this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
           // 状态重置
           this.checkType = 'all'
           this.checkFunc = ''
@@ -481,16 +494,26 @@ export default {
           this.searchValue = ''
           break
         case 'delete':
-          MsgRecordFn.deleteMsgs(8, this.checkedMsgList)
-          this.checkType = 'all'
-          this.checkFunc = ''
-          this.isCheckMore = false
+          console.log(this.checkedMsgList)
+          this.deleteMsgs()
+          // this.$store.dispatch('deleteMsg', this.checkedMsgList)
+          // this.checkType = 'all'
+          // this.checkFunc = ''
+          // this.isCheckMore = false
           break
         case 'cancel':
           this.checkFunc = ''
           this.isCheckMore = false
           this.$store.commit('updateCheckedMsgs', [])
           break
+      }
+    },
+    deleteMsgs () {
+      this.checkType = 'all'
+      this.checkFunc = ''
+      this.isCheckMore = false
+      for (let i = 0; i < this.checkedMsgList.length; i++) {
+        this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
       }
     },
     scrollEndLoad (e) {

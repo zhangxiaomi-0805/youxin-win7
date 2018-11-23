@@ -18,16 +18,15 @@
             <div style="padding:0 8px; width:85%">
                 <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
                 <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
-                <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
+                <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;" :ref="`clipboard_${msg.idClient}`"></textarea>
                 <div 
                   v-if="msg.type==='text'"
-                  @mousedown.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
-                  @mouseup.stop="isSearchCheckMore ? null : itemMouseUp($event)"
+                  @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
                   :ref="`copy_${msg.idClient}`" 
-                >
-                  <!-- :class="className2(text, 'searchValue')" -->
-                  <span class="searchValue" v-html="msg.showText"/>
-                </div>
+                  class="searchValue"
+                  style="-webkit-user-select: text"
+                  v-html="msg.showText"
+                />
                 <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
                 <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;"></div>
                 <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></div>
@@ -46,15 +45,18 @@
 
 <script>
 import util from '../../utils'
+import config from '../../configs'
+import MsgRecordFn from './msgRecord.js'
 export default {
   name: 'search-msg',
   props: {
-    messageCheck: Boolean,
-    value: String,
+    shortMsgCheck: Boolean,
+    searchValue: String,
     historyMsgList: Array,
     clearStatus: Function,
     isSearchCheckMore: Boolean,
     sessionId: String,
+    checkType: String, // ''---全部; image---图片; file---文件
     checkedMsgList: {
       type: Array,
       default () {
@@ -76,42 +78,60 @@ export default {
   },
   data () {
     return {
+      myGroupIcon: config.defaultGroupIcon,
       beforeValue: '', // 上一次输入的值，做延时搜索
-      searchlist: []
+      searchlist: [],
+      isPlay: false
     }
   },
+  mounted () {
+    this.InitSearchMsg()
+  },
   watch: {
-    value (newValue, oldValue) {
+    searchValue (newValue, oldValue) {
       this.beforeValue = newValue
       setTimeout(() => {
         if (newValue !== this.beforeValue) return
         this.renderItem(newValue)
       }, 500)
     },
-    messageCheck (newValue, oldValue) {
+    shortMsgCheck (newValue, oldValue) {
       this.beforeValue = newValue
       setTimeout(() => {
         if (newValue !== this.beforeValue) return
-        this.renderItem(this.value)
+        this.renderItem(this.searchValue)
       }, 500)
     }
   },
+  computed: {
+    myPhoneId () {
+      return `${this.$store.state.userUID}`
+    }
+  },
   methods: {
+    InitSearchMsg () {
+      let searchMsgList = MsgRecordFn.getSearchRecords(this.searchValue, this.checkType)
+      console.log(searchMsgList)
+      return searchMsgList
+    },
     manageTime (time) {
       return util.formatDate(time, true)
     },
     renderItem (value) {
       let searchlist = []
       let searchMsgList = []
-      for (let i in this.historyMsgList) {
-        if (this.historyMsgList[i].text && this.historyMsgList[i].text.indexOf(value) > -1) {
-          searchlist.unshift(this.historyMsgList[i])
-          if (this.historyMsgList[i].custom && JSON.parse(this.historyMsgList[i].custom).isSmsMsg) {
-            searchMsgList.unshift(this.historyMsgList[i])
+      let msgList = this.$store.state.currSessionMsgs
+      console.log(value)
+      console.log(msgList)
+      for (let i in msgList) {
+        if (msgList[i].text && msgList[i].text.indexOf(value) > -1) {
+          searchlist.unshift(msgList[i])
+          if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
+            searchMsgList.unshift(msgList[i])
           }
         }
       }
-      if (this.messageCheck) {
+      if (this.shortMsgCheck) {
         this.searchlist = searchMsgList
       } else {
         this.searchlist = searchlist
@@ -121,12 +141,9 @@ export default {
     className (msg) {
       // 选择框样式
       let className = 'check common'
-      this.isItemChecked = false
-      console.log(this.checkedMsgList)
       for (let i in this.checkedMsgList) {
         let idClient = this.checkedMsgList[i].idClient
         if (idClient === msg.idClient) {
-          this.isItemChecked = true
           className = 'checked common'
           break
         }
@@ -154,40 +171,12 @@ export default {
         }
       }
     },
-    isChildOf (child, parent) {
-      if (child === parent) return true
-      // 判断一个节点是否为另外一个节点的子节点
-      let parentNode = ''
-      if (child && parent) {
-        parentNode = child.parentNode
-        while (parentNode) {
-          if (parent === parentNode) {
-            return true
-          }
-          parentNode = parentNode.parentNode
-        }
-      }
-      return false
-    },
-    itemMouseUp (e) {
-      if (this.selectInfo) {
-        let range = document.createRange()
-        range.setStart(this.selectInfo.anchorNode, this.selectInfo.startOffset)
-        range.setEnd(this.selectInfo.focusNode, this.selectInfo.endOffset)
-        let selection = window.getSelection()
-        selection.removeAllRanges()
-        selection.addRange(range)
-      }
-      // 处理拖拽窗口事件移除
-      document.onmousemove = null
-      document.onmouseup = null
-      document.body.style.cursor = 'default'
-    },
     showListOptions (e, msg) {
-      this.selectInfo = null
-      // if (msg.type === 'text' && e.button === 2) {
-      //   this.copyAll(msg)
-      // }
+      if (msg.type === 'text' && e.button === 2) {
+        let target = (this.$refs[`copy_${msg.idClient}`])[0]
+        console.log(target)
+        MsgRecordFn.copyAll(target)
+      }
       if (e.button === 2) {
         let key = 'msg-record'
         this.$store.dispatch('showListOptions', {
@@ -206,11 +195,15 @@ export default {
                 this.searchCheckMoreFn(msg)
                 break
               case 2: // 转发
-                this.forwordMsg(msg)
+                // 转发消息 ***** type=8---多条转发， type=7---单条转发， msg---要转发的消息
+                let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+                this.eventBus.$emit('selectContact', {type: 7, sidelist, msg})
                 break
               case 3: // 复制
-                this.$refs.clipboard.innerText = this.getCopyText(e)
-                this.$refs.clipboard.select()
+                console.log(this.$refs[`clipboard_${msg.idClient}`])
+                let clipboard = (this.$refs[`clipboard_${msg.idClient}`])[0]
+                clipboard.innerText = MsgRecordFn.getCopyText(e)
+                clipboard.select()
                 document.execCommand('Copy')
                 break
               case 4: // 删除
@@ -233,162 +226,20 @@ export default {
       document.onmouseup = null
       document.body.style.cursor = 'default'
     },
-    getSelectedText () {
-      let sel = window.getSelection && window.getSelection()
-      if (sel && sel.rangeCount > 0) {
-        let selection = window.getSelection().getRangeAt(0).cloneContents()
-        return selection
-      } else {
-        return ''
-      }
-    },
-    getCopyText (e) {
-      let text = ''
-      let dom = null
-      if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
-        let range = this.getSelectedText()
-        let container = document.createElement('div')
-        container.appendChild(range)
-        dom = container
-      }
-      if (dom === null) {
-        if (e.target.tagName === 'IMG') {
-          dom = e.target.parentNode
-        } else {
-          dom = e.target
-        }
-      }
-      dom.childNodes.forEach((item, index) => {
-        if (item.nodeType === 3) {
-          text += item.data
-        } else if (item.nodeType === 1) {
-          if (item.tagName === 'IMG') {
-            let dataKey = item.getAttribute('data-key')
-            if (dataKey) {
-              text += '[' + dataKey + ']'
-            }
-          } else if (item.tagName === 'SPAN') {
-            text += item.innerText
-          }
-        }
-      })
-      return text
-    },
-    copyAll (msg) {
-      // 右键复制全选
-      let isNeedAllSelect = true
-      let selection = window.getSelection()
-      let target = this.$refs[`copy_${msg.idClient}`]
-      console.log(target)
-      if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
-        let anchorNode = selection.anchorNode
-        let focusNode = selection.focusNode
-        if (this.isChildOf(anchorNode, target) && this.isChildOf(focusNode, target)) {
-          isNeedAllSelect = false
-          let range = selection.getRangeAt(0)
-          this.selectInfo = {
-            anchorNode: selection.anchorNode,
-            focusNode: selection.focusNode,
-            startOffset: range.startOffset,
-            endOffset: range.endOffset
-          }
-        }
-      }
-      if (isNeedAllSelect) { // 全选
-        let range = document.createRange()
-        range.selectNodeContents(target)
-        selection.removeAllRanges()
-        selection.addRange(range)
-      }
-    },
-    forwordMsg (msg) {
-      // 转发消息
-      let sessionlist = this.$store.state.sessionlist.filter((item, index) => {
-        item.name = ''
-        item.avatar = ''
-        if (item.scene === 'p2p') {
-          let userInfo = null
-          if (item.to !== this.myPhoneId) {
-            userInfo = this.userInfos[item.to]
-          } else {
-            userInfo = Object.assign({}, this.myInfo)
-            // userInfo.alias = '我的手机'
-            // userInfo.avatar = `${config.myPhoneIcon}`
-          }
-          if (userInfo) {
-            item.name = util.getFriendAlias(userInfo)
-            item.avatar = userInfo.avatar
-          }
-        } else if (item.scene === 'team') {
-          let teamInfo = null
-          teamInfo = this.$store.state.teamlist.find(team => {
-            if (team.teamId === item.to) {
-              item.memberNum = team.memberNum
-            }
-            return team.teamId === item.to
-          })
-          if (teamInfo) {
-            item.name = teamInfo.name
-            item.avatar = teamInfo.avatar || this.myGroupIcon
-          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
-            item.name = item.lastMsg.attach.team.name
-            item.avatar = item.avatar || this.myGroupIcon
-          } else {
-            item.name = `群${item.to}`
-            item.avatar = item.avatar || this.myGroupIcon
-          }
-          if (!item.memberNum) {
-            return false
-          }
-        }
-        if (item.updateTime) {
-          item.updateTimeShow = util.formatDate(item.updateTime, true)
-        }
-        return item
-      })
-      let sessionlistTop = sessionlist.filter((item) => {
-        if (item.localCustom && item.localCustom.topTime) {
-          if (item.localCustom.topTime - item.lastMsg.time > 0) {
-            item.compareTime = item.localCustom.topTime
-          } else {
-            item.compareTime = item.lastMsg.time
-          }
-          return item
-        }
-      })
-      let newSessionlistTop = sessionlistTop.sort((a, b) => {
-        return b.compareTime - a.compareTime
-      })
-      let sessionlistBot = sessionlist.filter((item) => {
-        if (!item.localCustom || !item.localCustom.topTime) {
-          return item
-        }
-      })
-      let sidelist = [...newSessionlistTop, ...sessionlistBot]
-      this.eventBus.$emit('selectContact', {type: 7, sidelist, msg})
-    },
     searchCheckMoreFn (msg) {
       this.$emit('searchCheckMore')
-      this.isItemChecked = true
       this.$store.commit('updateCheckedMsgs', [msg])
     },
     checkItemFn (msg) {
-      if (this.isItemChecked) {
-        this.isItemChecked = false
-        for (let i in this.checkedMsgList) {
-          let idClient = this.checkedMsgList[i].idClient
-          if (idClient === msg.idClient) {
-            this.checkedMsgList.splice(i, 1)
-            break
-          }
-        }
-      } else {
-        this.isItemChecked = true
+      const index = this.checkedMsgList.findIndex(item => {
+        return item.idClient === msg.idClient
+      })
+      if (index === -1) {
         this.checkedMsgList.push(msg)
-        console.log('11')
+      } else {
+        this.checkedMsgList.splice(index, 1)
       }
-      this.$store.commit('updateCheckedMsgs', [this.checkedMsgList])
-      console.log(this.$store.state.checkedMsgs)
+      this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
     },
     reset () {
       this.beforeValue = ''

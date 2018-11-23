@@ -17,11 +17,10 @@
           <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
           <div 
             v-if="msg.type==='text'"
-            style="font-size:13px; color:#333; line-height:18px;padding-top:2px"
-            @mousedown.stop="isCheckMore ? null : showListOptions($event, msg)"
-            @mouseup.stop="isCheckMore ? null : itemMouseUp($event)"
+            style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text"
+            @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
             v-html="msg.showText"
-            :ref="`copy_${msg.idClient}`" 
+            :ref="`copy_${msg.idClient}`"
           ></div>
           <div v-else-if="msg.type==='custom-type1'" ref="mediaMsg"></div>
           <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;"></div>
@@ -42,6 +41,7 @@
 
 <script type="text/javascript">
 import util from '../../utils'
+import config from '../../configs'
 import MsgRecordFn from './msgRecord.js'
 export default {
   name: 'msg-item',
@@ -52,12 +52,12 @@ export default {
     teamId: String,
     idClient: String,
     sessionId: String,
-    checkedMsgList: {
-      type: Array,
-      default () {
-        return {}
-      }
-    },
+    // checkedMsgList: {
+    //   type: Array,
+    //   default () {
+    //     return {}
+    //   }
+    // },
     msg: {
       type: Object,
       default () {
@@ -93,18 +93,29 @@ export default {
     return {
       isPlay: false,
       currentAudio: null,
-      isItemChecked: false
+      myGroupIcon: config.defaultGroupIcon
+    }
+  },
+  computed: {
+    myPhoneId () {
+      return `${this.$store.state.userUID}`
+    },
+    checkedMsgList () {
+      // 多选时选中的消息
+      if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
+        return this.$store.state.checkedMsgs
+      } else {
+        return []
+      }
     }
   },
   methods: {
     className (msg) {
       // 选择框样式
       let className = 'check common'
-      this.isItemChecked = false
       for (let i in this.checkedMsgList) {
         let idClient = this.checkedMsgList[i].idClient
         if (idClient === msg.idClient) {
-          this.isItemChecked = true
           className = 'checked common'
           break
         }
@@ -125,43 +136,16 @@ export default {
         }
       }
     },
-    isChildOf (child, parent) {
-      if (child === parent) return true
-      // 判断一个节点是否为另外一个节点的子节点
-      let parentNode = ''
-      if (child && parent) {
-        parentNode = child.parentNode
-        while (parentNode) {
-          if (parent === parentNode) {
-            return true
-          }
-          parentNode = parentNode.parentNode
-        }
-      }
-      return false
-    },
-    itemMouseUp (e) {
-      if (this.selectInfo) {
-        let range = document.createRange()
-        range.setStart(this.selectInfo.anchorNode, this.selectInfo.startOffset)
-        range.setEnd(this.selectInfo.focusNode, this.selectInfo.endOffset)
-        let selection = window.getSelection()
-        selection.removeAllRanges()
-        selection.addRange(range)
-      }
-      // 处理拖拽窗口事件移除
-      document.onmousemove = null
-      document.onmouseup = null
-      document.body.style.cursor = 'default'
-    },
     showListOptions (e, msg) {
-      this.selectInfo = null
       if (msg.type === 'text' && e.button === 2) {
         let target = this.$refs[`copy_${this.idClient}`]
-        this.selectInfo = MsgRecordFn.copyAll(target)
+        MsgRecordFn.copyAll(target)
       }
+      console.log(msg)
       if (e.button === 2) {
         let key = 'msg-record'
+        // let key = msg.type + '-msg-record'
+        console.log(key)
         this.$store.dispatch('showListOptions', {
           key,
           show: true,
@@ -178,15 +162,32 @@ export default {
                 this.checkMoreFn(msg)
                 break
               case 2: // 转发
-                MsgRecordFn.forwordMsg(7, msg) // type:8---多条转发， type:7---单条转发
+                // 转发消息 ***** type=8---多条转发， type=7---单条转发， msg---要转发的消息
+                let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+                this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
                 break
               case 3: // 复制
+                console.log(this.$refs.clipboard)
                 this.$refs.clipboard.innerText = MsgRecordFn.getCopyText(e)
                 this.$refs.clipboard.select()
                 document.execCommand('Copy')
                 break
               case 4: // 删除
-                MsgRecordFn.deleteMsgs(7, msg) // type:8--多条删除， type:7---单条删除
+                this.$store.dispatch('deleteMsg', this.msg)
+                break
+              case 6: // 图片或文件另存为
+                // if (msg.type === 'file') {
+                //   const file = {
+                //     name: msg.file.name,
+                //     url: this.downloadUrl
+                //   }
+                //   this.$store.dispatch('downloadImg', file)
+                // } else {
+                //   this.$store.dispatch('downloadImg', msg.file)
+                // }
+                break
+              case 37: // 文件下载
+                // this.$store.dispatch('deleteMsg', this.msg)
                 break
             }
           }
@@ -203,26 +204,18 @@ export default {
     },
     checkMoreFn (msg) {
       this.$emit('checkMore')
-      this.isItemChecked = true
       this.$store.commit('updateCheckedMsgs', [msg])
     },
     checkItemFn (msg) {
-      if (this.isItemChecked) {
-        this.isItemChecked = false
-        for (let i in this.checkedMsgList) {
-          let idClient = this.checkedMsgList[i].idClient
-          if (idClient === msg.idClient) {
-            this.checkedMsgList.splice(i, 1)
-            break
-          }
-        }
-      } else {
-        this.isItemChecked = true
+      const index = this.checkedMsgList.findIndex(item => {
+        return item.idClient === msg.idClient
+      })
+      if (index === -1) {
         this.checkedMsgList.push(msg)
-        console.log('11')
+      } else {
+        this.checkedMsgList.splice(index, 1)
       }
-      this.$store.commit('updateCheckedMsgs', [this.checkedMsgList])
-      console.log(this.$store.state.checkedMsgs)
+      this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
     }
   }
 }

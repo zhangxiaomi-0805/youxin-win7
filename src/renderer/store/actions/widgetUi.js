@@ -253,6 +253,21 @@ export async function showListOptions ({state, commit}, obj) {
       event3, event2, event0, event4
     ]
   }
+  // if (obj.key === 'text-msg-record') {
+  //   items = [
+  //     event3, event2, event0, event4
+  //   ]
+  // }
+  // if (obj.key === 'image-msg-record') {
+  //   items = [
+  //     event6, event2, event0, event4
+  //   ]
+  // }
+  // if (obj.key === 'file-msg-record') {
+  //   items = [
+  //     event2, event6, event0, event4, event37
+  //   ]
+  // }
   // 贴图表情
   if (obj.key === 'custom-type3-out') {
     items = [
