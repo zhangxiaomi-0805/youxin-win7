@@ -32,7 +32,7 @@
       <div class="m-historymsg-content">
         <!-- 搜索 -->
         <div class="search-bar">
-          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
+          <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" @blur="showSearch = false"/>
           <span v-if="showSearch" class="clear" @click="clearStatus"/>
         </div>
         <!-- 转发 && 删除 && 取消 -->

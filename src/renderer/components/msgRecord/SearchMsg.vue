@@ -57,12 +57,12 @@ export default {
     isSearchCheckMore: Boolean,
     sessionId: String,
     checkType: String, // ''---全部; image---图片; file---文件
-    checkedMsgList: {
-      type: Array,
-      default () {
-        return {}
-      }
-    },
+    // checkedMsgList: {
+    //   type: Array,
+    //   default () {
+    //     return {}
+    //   }
+    // },
     userInfos: {
       type: Object,
       default () {
@@ -92,20 +92,31 @@ export default {
       this.beforeValue = newValue
       setTimeout(() => {
         if (newValue !== this.beforeValue) return
-        this.renderItem(newValue)
+        this.renderItem(newValue, this.checkType)
       }, 500)
     },
     shortMsgCheck (newValue, oldValue) {
       this.beforeValue = newValue
       setTimeout(() => {
         if (newValue !== this.beforeValue) return
-        this.renderItem(this.searchValue)
+        this.renderItem(this.searchValue, this.checkType)
       }, 500)
+    },
+    checkType () {
+      this.renderItem(this.searchValue, this.checkType)
     }
   },
   computed: {
     myPhoneId () {
       return `${this.$store.state.userUID}`
+    },
+    checkedMsgList () {
+      // 多选时选中的消息
+      if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
+        return this.$store.state.checkedMsgs
+      } else {
+        return []
+      }
     }
   },
   methods: {
@@ -117,14 +128,15 @@ export default {
     manageTime (time) {
       return util.formatDate(time, true)
     },
-    renderItem (value) {
+    async renderItem (searchValue, checkType) {
+      let msgList = await MsgRecordFn.getSearchRecords(searchValue, checkType)
       let searchlist = []
       let searchMsgList = []
-      let msgList = this.$store.state.currSessionMsgs
-      console.log(value)
+      // let msgList = this.$store.state.currSessionMsgs
+      console.log(searchValue)
       console.log(msgList)
       for (let i in msgList) {
-        if (msgList[i].text && msgList[i].text.indexOf(value) > -1) {
+        if (msgList[i].text && msgList[i].text.indexOf(searchValue) > -1) {
           searchlist.unshift(msgList[i])
           if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
             searchMsgList.unshift(msgList[i])

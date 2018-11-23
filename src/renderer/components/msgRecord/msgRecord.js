@@ -169,7 +169,6 @@ MsgRecordFn.getCopyText = function (e) {
       }
     }
   })
-  console.log(text)
   return text
 }
 export default MsgRecordFn
