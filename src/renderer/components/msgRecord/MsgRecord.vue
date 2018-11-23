@@ -435,9 +435,11 @@ export default {
       return item
     },
     closeCover () {
+      this.showHistoryMsg = false
       this.reset()
     },
     closeModal () {
+      this.showHistoryMsg = false
       this.reset()
     },
     clearStatus (el, e) {
@@ -476,7 +478,6 @@ export default {
       this.reset()
     },
     reset () {
-      this.showHistoryMsg = false
       this.loading = false
       this.showSearch = false
       this.searchValue = ''

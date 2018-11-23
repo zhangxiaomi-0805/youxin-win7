@@ -222,10 +222,10 @@ export default {
       for (let i in msgList) {
         if (msgList[i].text && msgList[i].text.indexOf(searchValue) > -1) {
           this.manageItem(msgList[i])
-          searchlist.unshift(msgList[i])
+          searchlist.push(msgList[i])
           if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
             this.manageItem(msgList[i])
-            searchMsgList.unshift(msgList[i])
+            searchMsgList.push(msgList[i])
           }
         }
       }
