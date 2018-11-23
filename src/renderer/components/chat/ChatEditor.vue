@@ -453,6 +453,8 @@ export default {
         // ctrl+回车发送消息
         e.preventDefault()
         this.sendBlendMsg()
+      } else if (this.quickIndex === 0 && e.ctrlKey && e.keyCode === 13) {
+        document.execCommand('insertHTML', false, '<div><br /></div>')
       }
     },
     selectAtItem () {
@@ -473,6 +475,7 @@ export default {
         [key]: this.members[this.atListIndex].showAlias
       }
       calcSpan.innerText = ''
+      this.changeEditRange()
       this.resetAtInfo()
     },
     getOffset (node, offset) {
@@ -584,7 +587,7 @@ export default {
       let msgToSent = this.getEditText(this.$refs.editDiv)
       let imgExcess = false
       let imgCount = msgToSent.filter((item) => {
-        if (!item.text) {
+        if (item.size) {
           if (item.size > 5 * 1024 * 1024) {
             imgExcess = true
           }
@@ -612,7 +615,7 @@ export default {
       for (let i = 0; i < msgToSent.length; i++) {
         let item = msgToSent[i]
         try {
-          if (item.text) {
+          if (!item.size) {
             let text = item.text.trim()
             let dataAt = item.atInfo
             if (text) {
@@ -627,21 +630,31 @@ export default {
     },
     // 获取编辑器信息
     getEditText (dom, msgToSent = []) {
-      let i = 0
-      if (msgToSent.length !== 0) {
+      let i = msgToSent.length - 1 >= 0 ? msgToSent.length - 1 : 0
+      if (msgToSent.length !== 0 && msgToSent[i] && msgToSent[i].text) {
         msgToSent[i].text += '\r\n'
       }
       dom.childNodes.forEach((item, index) => {
         if (item.nodeType === 3) {
           if (msgToSent[i]) {
-            msgToSent[i].text += item.data
+            if (msgToSent[i].size) {
+              msgToSent[++i] = {}
+              msgToSent[i].text = item.data
+            } else {
+              msgToSent[i].text += item.data
+            }
           } else {
             msgToSent[i] = {}
             msgToSent[i].text = item.data
           }
         } else if (item.nodeType === 1) {
           if (item.outerHTML === '<div><br></div>') {
-            msgToSent[i].text += '\r\n'
+            if (!msgToSent[i]) {
+              msgToSent[i] = {}
+              msgToSent[i].text = '\r\n'
+            } else {
+              msgToSent[i].text += '\r\n'
+            }
           } else if (item.tagName === 'INPUT') {
             if (msgToSent[i]) {
               msgToSent[i].text += item.value
@@ -679,7 +692,7 @@ export default {
               }
             }
           } else if (item.tagName === 'DIV') {
-            this.getEditText(item, msgToSent)
+            return this.getEditText(item, msgToSent)
           }
         }
       })
