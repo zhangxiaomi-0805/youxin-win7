@@ -281,7 +281,7 @@ export default {
     addTeamMember () {
       // 添加成员
       this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-      this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId})
+      this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId, isDiscussGroup: this.isDiscussGroup})
     },
     removeTeamMember () {
       // 移出成员

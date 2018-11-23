@@ -19,7 +19,7 @@
           </div>
           <div v-show="!searchValue" class="title" style="paddingTop: 0;paddingBottom: 0;">联系人</div>
           <div v-show="!searchValue" class="contact">
-            <tree showCheck showTitle showTeam :noAdd="type === 5"/>
+            <tree showCheck showTitle showTeam :noAdd="type === 5" listType="team"/>
           </div>
           <search-contact 
             v-if="searchValue"
@@ -68,6 +68,8 @@ export default {
       this.type = data.type
       this.teamId = data.teamId || -1
       this.msg = data.msg || ''
+      if (data.isDiscussGroup) this.isDiscussGroup = true
+      else this.isDiscussGroup = false
     })
   },
   data () {
@@ -79,7 +81,8 @@ export default {
       teamId: -1,
       type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员，4-创建讨论组，5-转发到新聊天
       searchValue: '',
-      msg: ''
+      msg: '',
+      isDiscussGroup: false
     }
   },
   computed: {
@@ -234,8 +237,19 @@ export default {
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
     },
     addTeamMember () {
+      if (this.isDiscussGroup) {
+        let orgDisabledlist = this.$store.state.orgDisabledlist
+        if ((orgDisabledlist.length + this.chooselist.length) > 199) {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '无法操作，讨论组人数已达上限200人'
+          })
+          return false
+        }
+      }
       this.loading = true
-      // 拉人入群
+      // 拉人入群、讨论组
       let accounts = []
       this.chooselist.map(item => {
         item.accid && accounts.push(item.accid)

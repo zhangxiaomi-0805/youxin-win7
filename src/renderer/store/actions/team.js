@@ -366,7 +366,7 @@ export function addTeamManagers ({state}, params) {
     accounts: params.accounts,
     done: (error, obj) => {
       params.callback && params.callback()
-      error && console.log(error)
+      if (error) console.log(error)
     }
   })
 }
