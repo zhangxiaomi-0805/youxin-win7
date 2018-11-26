@@ -4,6 +4,7 @@
 import store from '../../store'
 import util from '../../utils'
 import Request from '../../utils/request.js'
+import emojiObj from '../../configs/emoji'
 var SearchData = {}
 
 SearchData.getContactlists = function (keyParam, pageSize, lastId, $this) {
@@ -119,6 +120,18 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
             records = await this.getRecords(sessionlist[i], value)
           } catch (error) {}
           if (records.length > 0) {
+            // 处理表情
+            if (/\[[\u4e00-\u9fa5]+\]/.test(records[0].text)) {
+              let emojiItems = records[0].text.match(/\[[\u4e00-\u9fa5]+\]/g)
+              emojiItems.forEach(text => {
+                let emojiCnt = emojiObj.emojiList.emoji
+                if (emojiCnt[text]) {
+                  records[0].text = records[0].text.replace(text, `<img style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small' src='${emojiCnt[text].img}'>`)
+                }
+              })
+            }
+            // 处理高亮文字
+            records[0].text = records[0].text.replace(new RegExp(value, 'g'), `<span style="color: rgba(79,141,255,1);">${value}</span>`)
             let recordObj = { recordNum: records.length, text: records[0].text }
             recordObj = Object.assign(recordObj, sessionlist[i])
             recordlistTemp.push(recordObj)
@@ -170,6 +183,19 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
         recordlist[i].avatar = userInfo.avatar
         recordlist[i].name = userInfo.name || recordlist[i].fromNick
         recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
+        recordlist[i].searchText = recordlist[i].text
+        // 处理表情
+        if (/\[[\u4e00-\u9fa5]+\]/.test(recordlist[i].searchText)) {
+          let emojiItems = recordlist[i].searchText.match(/\[[\u4e00-\u9fa5]+\]/g)
+          emojiItems.forEach(text => {
+            let emojiCnt = emojiObj.emojiList.emoji
+            if (emojiCnt[text]) {
+              recordlist[i].searchText = recordlist[i].searchText.replace(text, `<img style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small' src='${emojiCnt[text].img}'>`)
+            }
+          })
+        }
+        // 处理高亮文字
+        recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue, 'g'), `<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
       }
       resolve(recordlist)
     } catch (error) {}

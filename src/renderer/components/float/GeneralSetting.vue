@@ -107,8 +107,8 @@
                 <div style="display: flex;align-items: center;margin-left: 10px;height: 100%;">
                   <img alt="" :src="item.avatar" class="icon" style="width: 32px;height: 32px;border-radius: 50%;">
                   <div style="display: flex;flex-direction: column;justify-content: space-between;margin-left: 10px;height: 100%;">
-                    <span style="color: #333;font-size: 13px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">{{item.name}}</span>
-                    <span style="color: #999;font-size: 12px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;">{{item.lastMsgShow}}</span>
+                    <span style="color: #333;font-size: 13px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;max-width: 215px;">{{item.name}}</span>
+                    <span style="color: #999;font-size: 12px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;max-width: 215px;">{{item.lastMsgShow}}</span>
                   </div>
                 </div>
               </div>
@@ -131,7 +131,7 @@
               >
                 <a>删除</a>
               </div>
-              <div class="set-block" style="margin-bottom: 0;">
+              <div class="set-block" style="margin-bottom: 0;" @click="closeModal">
                 <a class="toggle" style="width: 77px;height: 29px;color: #999;">取消</a>
               </div>
             </div>
@@ -303,10 +303,18 @@ export default {
     },
     // 清理选中会话
     deleteLocalMsgs () {
+      if (this.choseSessionList.length === 0) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: '未选择会话'
+        })
+        return
+      }
       this.eventBus.$emit('dismissTeam', {
         type: 4,
         callBack: () => {
-          this.$store.dispatch('deleteLocalMsgs', {that: this, idList: this.choseSessionList})
+          this.$store.dispatch('deleteLocalMsgs', {that: this, idList: this.choseSessionList, type: this.choseSessionList.length === this.sessionlist.length ? 1 : 0})
           this.closeModal()
           this.choseSessionList = []
         }

@@ -68,7 +68,7 @@ async function systemNewMsgsManage (msg) {
   if (!isMute) {
     let audio = new Audio(`${__static}/img/msg.wav`)
     audio.play()
-    setTimeout(() => audio.pause(), 600)
+    setTimeout(() => audio.pause(), 800)
   }
 }
 

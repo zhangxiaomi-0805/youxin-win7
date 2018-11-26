@@ -453,6 +453,7 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     min-height: 1.2rem;
+    max-width: 65px;
   }
 
   .m-chat-nt .m-u-list .m-u-list-item .t-img {

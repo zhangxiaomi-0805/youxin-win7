@@ -1185,7 +1185,7 @@ export default {
     if (obj.type !== 'status' && obj.type !== 'delete' && data.userContactList.length > 0) {
       let arr = []
       data.userContactList.forEach(item => {
-        arr.push({ to: item.accid, scene: 'p2p' })
+        arr.push({ to: item.accid })
       })
       store.dispatch('subscribeEvent', arr)
     }
@@ -1203,14 +1203,14 @@ export default {
             contactTop = userContact
             contactTop.tag = data.tag
             hasExit = true
-            // IndexedDB.setItem('contactsToplist ', contactTop, contactTop.accid)
+            IndexedDB.setItem('contactsToplist', contactTop, contactTop.accid)
             break
           }
         }
         if (!hasExit) {
           let contactTop = userContact
           contactTop.tag = data.tag
-          // IndexedDB.setItem('contactsToplist', contactTop, contactTop.accid)
+          IndexedDB.setItem('contactsToplist', contactTop, contactTop.accid)
           state.contactsToplist.push(contactTop)
         }
       }
@@ -1219,7 +1219,7 @@ export default {
         let contactTop = state.contactsToplist[j]
         if (accid === contactTop.accid) {
           state.contactsToplist.splice(j, 1)
-          // IndexedDB.removeItem('contactsToplist ', accid)
+          IndexedDB.removeItem('contactsToplist', accid)
           break
         }
       }
