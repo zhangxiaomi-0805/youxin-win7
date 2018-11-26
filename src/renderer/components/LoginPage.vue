@@ -325,6 +325,11 @@
             // 登录sdk
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
+            this.$store.commit('updatePersonInfos', userInfo)
+            Request.getContactUserList({tag: 0}, this).then(ret => {
+              this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+            }).catch(() => {})
+            Request.ThirdUrls()
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {
@@ -333,16 +338,15 @@
                   this.loading = false
                   return
                 }
-                // 初始化个人信息、组织架构、我的部门、通讯录、常用联系人列表
-                this.$store.commit('updatePersonInfos', userInfo)
+                // 初始化组织架构、我的部门、联系、常用联系人列表
                 IndexedDB.getItem('orgnizeObj')
                   .then(data => {
-                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
                   })
                   .catch(() => {})
-                IndexedDB.getItem('groupObj')
+                IndexedDB.getItem('myDeptObj')
                   .then(data => {
-                    this.$store.commit('updateGroupObj', {data, type: 'replace'})
+                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
                   })
                   .catch(() => {})
                 IndexedDB.getAll('contactslist')

@@ -275,7 +275,6 @@ export default {
           }
         }
       })
-      console.log(imageAllList)
       if (this.shortMsgCheck) {
         return imageMsgList
       } else {
@@ -331,7 +330,6 @@ export default {
     },
     searchCheckMoreFn () {
       this.isSearchCheckMore = true
-      console.log(this.isSearchCheckMore)
     },
     InitHistoryMsg () {
       this.getHistoryMsgs()
@@ -392,7 +390,6 @@ export default {
         if (content.type === 1) {
           let data = content.data
           let resourceUrl = config.resourceUrl
-          // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
           item.type = 'custom-type1'
           item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
         // type 3 为贴图表情
@@ -401,7 +398,6 @@ export default {
           let emojiCnt = ''
           if (emojiObj.pinupList[data.catalog]) {
             emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
-            // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
             item.type = 'custom-type3'
             item.imgUrl = `${emojiCnt.img}`
           }
@@ -422,7 +418,12 @@ export default {
           item.h = 180 / (item.file.w / item.file.h)
         }
       } else if (item.type === 'video') {
-        // ...
+        if (/(mov|mp4|ogg|webm)/i.test(item.file.ext)) {
+          item.src = item.file.url
+        } else {
+          item.src = ''
+          item.href = item.file.url
+        }
       } else if (item.type === 'audio') {
         item.audioSrc = item.file.mp3Url
         item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'

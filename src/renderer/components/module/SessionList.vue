@@ -312,10 +312,6 @@ export default {
     },
     onShowMenu (e, session) {
       // 单个列表右击事件
-      let sessionIdArr = this.sessionlist.map((item, index) => {
-        return item.id
-      })
-      let curSessionId = this.$router.history.current.query.sessionId
       let teamInfo = {}
       let members = []
       let userType = 'normal'
@@ -367,7 +363,7 @@ export default {
                 break
               case 2:
                 // 删除聊天
-                this.$store.dispatch('deleteSession', {id: session.id, that: this, curSessionId, sessionIdArr})
+                this.$store.dispatch('deleteSession', {id: session.id, that: this})
                 break
               case 3:
                 // 取消置顶
@@ -418,11 +414,8 @@ export default {
                   type: 3,
                   callBack: () => {
                     let deleteSeeionFn = () => {
-                      let sessionIdArr = this.$store.state.sessionlist.map(item => {
-                        return item.id
-                      })
                       let currSessionId = session.id
-                      this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
+                      this.$store.dispatch('deleteSession', {id: currSessionId, that: this})
                     }
                     let leaveTeamFn = () => {
                       this.$store.dispatch('leaveTeam', {

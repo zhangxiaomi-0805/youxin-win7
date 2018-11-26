@@ -8,7 +8,6 @@ export function onLoginPortsChange (loginPorts) {
 
 export function onPushEvents (param) {
   if (param.msgEvents) {
-    console.log(param.msgEvents)
     param.msgEvents.forEach(data => {
       store.commit('updateFriendsStatusList', {
         account: data.account,
@@ -164,7 +163,7 @@ export async function subscribeEvent ({state}, sessions) {
         if (err) {
           console.error('订阅好友事件失败', err)
         } else {
-          console.log(res)
+          // console.log(res)
         }
       }
     })

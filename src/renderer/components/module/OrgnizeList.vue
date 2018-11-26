@@ -11,12 +11,12 @@
   <div class="t-title-con">
     <div class="t-title">
       <a :class="listType === 'team' ? 't-title-item t-title-team active' : 't-title-item t-title-team'" @click="toggleList('team')">组织架构</a>
-      <a :class="listType === 'group' ? 't-title-item t-title-group active' : 't-title-item t-title-group'" @click="toggleList('group')">我的部门</a>
+      <a :class="listType === 'myDept' ? 't-title-item t-title-myDept active' : 't-title-item t-title-myDept'" @click="toggleList('myDept')">我的部门</a>
     </div>
   </div>
   <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
     <tree v-show="listType === 'team'" :callBack="callBack" listType = 'team'/>
-    <tree v-show="listType === 'group'" :callBack="callBack" listType = 'group'/>
+    <tree v-show="listType === 'myDept'" :callBack="callBack" listType = 'myDept'/>
   </div>
   <div class="border" id="resize-we"></div>
 </div>
@@ -110,7 +110,7 @@ export default {
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
   }
-  .t-title-con .t-title-group {
+  .t-title-con .t-title-myDept {
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
   }

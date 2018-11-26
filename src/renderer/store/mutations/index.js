@@ -173,7 +173,7 @@ export default {
           if (err) {
             console.error('订阅好友事件失败', err)
           } else {
-            console.log(res)
+            // console.log(res)
           }
         }
       })
@@ -832,30 +832,43 @@ export default {
     state.personInfos = obj
   },
   updateOrgnizeObj (state, obj) {
+    let pageType = obj.pageType // pageType: orgnize---'我的组织', myDept---'我的部门'
     // 更新组织信息
     if (obj.type === 'replace') {
       state.orgnizeObj = obj.data || {}
+      if (pageType === 'myDept') {
+        state.myDeptObj = obj.data || {}
+      }
       return
     }
+    let curStateObj = ''
+    let targetObj = ''
+    if (pageType === 'myDept') { // 我的部门
+      curStateObj = state.myDeptObj
+      targetObj = 'myDeptObj'
+    } else if (pageType === 'orgnize') { // 我的组织
+      curStateObj = state.orgnizeObj
+      targetObj = 'orgnizeObj'
+    }
     let InitFn = () => {
-      let orgnizeObj = {
+      let curObj = {
         currentId: obj.currentId,
         parentId: obj.parentId,
         orgnizelist: obj.orgnizelist,
         userlist: obj.userlist,
         tag: obj.tag
       }
-      if (JSON.stringify(orgnizeObj) === JSON.stringify(state.orgnizeObj[obj.currentId])) {
+      if (JSON.stringify(curObj) === JSON.stringify(curStateObj)) {
         // 数据未发生变化不做处理
         return false
       }
-      obj.set(state.orgnizeObj, obj.currentId, orgnizeObj)
-      SortOrgFn(state.orgnizeObj[obj.currentId].orgnizelist)
-      SortUserFn(state.orgnizeObj[obj.currentId].userlist)
+      obj.set(curStateObj, obj.currentId, curObj)
+      SortOrgFn(curStateObj[obj.currentId].orgnizelist)
+      SortUserFn(curStateObj[obj.currentId].userlist)
       return true
     }
     let SortOrgFn = (sortOrgList) => {
-      IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
+      IndexedDB.setItem(targetObj, curStateObj)
       // 组织排序
       let newOrgList = sortOrgList.sort((a, b) => {
         return b.orgSeq - a.orgSeq
@@ -863,7 +876,7 @@ export default {
       return newOrgList
     }
     let SortUserFn = (sortUserList) => {
-      IndexedDB.setItem('orgnizeObj', state.orgnizeObj)
+      IndexedDB.setItem(targetObj, curStateObj)
       // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
       let superManger = []
       let manager = []
@@ -891,7 +904,7 @@ export default {
       if (obj.pullTag === 1) {
         if (!InitFn()) return false
       } else {
-        let currentOrgObj = state.orgnizeObj[obj.currentId]
+        let currentOrgObj = curStateObj[obj.currentId]
         if (currentOrgObj) {
           let currentOrgList = currentOrgObj.orgnizelist
           let currentUserList = currentOrgObj.userlist
@@ -954,136 +967,136 @@ export default {
       }
     }
   },
-  updateGroupObj (state, obj) {
-    // 更新我的部门信息
-    if (obj.type === 'replace') {
-      state.groupObj = obj.data || {}
-      return
-    }
-    let InitFn = () => {
-      let groupObj = {
-        currentId: obj.currentId,
-        parentId: obj.parentId,
-        orgnizelist: obj.orgnizelist,
-        userlist: obj.userlist,
-        tag: obj.tag
-      }
-      if (JSON.stringify(groupObj) === JSON.stringify(state.groupObj[obj.currentId])) {
-        // 数据未发生变化不做处理
-        return false
-      }
-      obj.set(state.groupObj, obj.currentId, groupObj)
-      SortGroupFn(state.groupObj[obj.currentId].orgnizelist)
-      SortUserFn(state.groupObj[obj.currentId].userlist)
-      return true
-    }
-    let SortGroupFn = (sortGroupList) => {
-      IndexedDB.setItem('groupObj', state.groupObj)
-      // 组织排序
-      // for (let i = 0; i < sortGroupList.length; i++) {
-      //   for (let j = 0; j < sortGroupList.length - 1 - i; j++) {
-      //     let orgSeqBef = sortGroupList[j].orgSeq
-      //     let orgSeqAft = sortGroupList[j + 1].orgSeq
-      //     if (orgSeqBef > orgSeqAft) {
-      //       let t = sortGroupList[j]
-      //       sortGroupList[j] = sortGroupList[j + 1]
-      //       sortGroupList[j + 1] = t
-      //     }
-      //   }
-      // }
-    }
-    let SortUserFn = (sortUserList) => {
-      IndexedDB.setItem('groupObj', state.groupObj)
-      // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
-      let superManger = []
-      let manager = []
-      let member = []
-      for (let i in sortUserList) {
-        let obj = sortUserList[i]
-        if (obj.userType === 2) {
-          superManger.push(obj)
-        } else if (obj.userType === 3) {
-          manager.push(obj)
-        } else {
-          member.push(obj)
-        }
-      }
-      superManger = listSort(superManger)
-      manager = listSort(manager)
-      member = listSort(member)
-      sortUserList = [...superManger, ...manager, ...member]
-    }
-    // 更新我的部门数据
-    if (obj.type === 'init') {
-      if (!InitFn()) return false
-    } else if (obj.type === 'update') {
-      // pullTag 拉取标识，1-全量拉取；2-增量拉取（当传入的tag与当前时间相差30天（暂定）以上，那么就会全量返回数据，需对已有数据做替换）
-      if (obj.pullTag === 1) {
-        if (!InitFn()) return false
-      } else {
-        let currentOrgObj = state.groupObj[obj.currentId]
-        if (currentOrgObj) {
-          let currentOrgList = currentOrgObj.orgnizelist
-          let currentUserList = currentOrgObj.userlist
-          // 更新我的部门
-          for (let i in obj.orgnizelist) {
-            let objUpdate = obj.orgnizelist[i]
-            let hasExit = false
-            for (let j in currentOrgList) {
-              let orgnize = Object.assign({}, currentOrgList[j])
-              if (orgnize.id === objUpdate.id) {
-                if (objUpdate.dataStatus === 1) {
-                  // 替换
-                  orgnize = objUpdate
-                  currentOrgList.splice(j, 1, orgnize)
-                } else if (objUpdate.dataStatus === 2) {
-                  // 删除
-                  currentOrgList.splice(j, 1)
-                }
-                hasExit = true
-                break
-              }
-            }
-            if (!hasExit) {
-              // 新增
-              if (objUpdate.dataStatus === 1) {
-                currentOrgList.push(objUpdate)
-              }
-            }
-            SortGroupFn(currentOrgList)
-          }
-          // 更新成员
-          for (let i in obj.userlist) {
-            let objUpdate = obj.userlist[i]
-            let hasExit = false
-            for (let j in currentUserList) {
-              let user = Object.assign({}, currentUserList[j])
-              if (user.id === objUpdate.id) {
-                if (objUpdate.dataStatus === 1) {
-                  // 替换
-                  user = objUpdate
-                  currentUserList.splice(j, 1, user)
-                } else if (objUpdate.dataStatus === 2) {
-                  // 删除
-                  currentUserList.splice(j, 1)
-                }
-                hasExit = true
-                break
-              }
-            }
-            if (!hasExit) {
-              // 新增
-              if (objUpdate.dataStatus === 1) {
-                currentUserList.push(objUpdate)
-              }
-            }
-            SortUserFn(currentUserList)
-          }
-          currentOrgObj.tag = obj.tag
-        }
-      }
-    }
-  },
+  // updateMyDeptObj (state, obj) {
+  //   // 更新我的部门信息
+  //   if (obj.type === 'replace') {
+  //     state.myDeptObj = obj.data || {}
+  //     return
+  //   }
+  //   let InitFn = () => {
+  //     let myDeptObj = {
+  //       currentId: obj.currentId,
+  //       parentId: obj.parentId,
+  //       orgnizelist: obj.orgnizelist,
+  //       userlist: obj.userlist,
+  //       tag: obj.tag
+  //     }
+  //     if (JSON.stringify(myDeptObj) === JSON.stringify(state.myDeptObj[obj.currentId])) {
+  //       // 数据未发生变化不做处理
+  //       return false
+  //     }
+  //     obj.set(state.myDeptObj, obj.currentId, myDeptObj)
+  //     SortMydeptFn(state.myDeptObj[obj.currentId].orgnizelist)
+  //     SortUserFn(state.myDeptObj[obj.currentId].userlist)
+  //     return true
+  //   }
+  //   let SortMydeptFn = (sortMydeptList) => {
+  //     IndexedDB.setItem('myDeptObj', state.myDeptObj)
+  //     // 组织排序
+  //     for (let i = 0; i < sortMydeptList.length; i++) {
+  //       for (let j = 0; j < sortMydeptList.length - 1 - i; j++) {
+  //         let orgSeqBef = sortMydeptList[j].orgSeq
+  //         let orgSeqAft = sortMydeptList[j + 1].orgSeq
+  //         if (orgSeqBef > orgSeqAft) {
+  //           let t = sortMydeptList[j]
+  //           sortMydeptList[j] = sortMydeptList[j + 1]
+  //           sortMydeptList[j + 1] = t
+  //         }
+  //       }
+  //     }
+  //   }
+  //   let SortUserFn = (sortUserList) => {
+  //     IndexedDB.setItem('myDeptObj', state.myDeptObj)
+  //     // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
+  //     let superManger = []
+  //     let manager = []
+  //     let member = []
+  //     for (let i in sortUserList) {
+  //       let obj = sortUserList[i]
+  //       if (obj.userType === 2) {
+  //         superManger.push(obj)
+  //       } else if (obj.userType === 3) {
+  //         manager.push(obj)
+  //       } else {
+  //         member.push(obj)
+  //       }
+  //     }
+  //     superManger = listSort(superManger)
+  //     manager = listSort(manager)
+  //     member = listSort(member)
+  //     sortUserList = [...superManger, ...manager, ...member]
+  //   }
+  //   // 更新我的部门数据
+  //   if (obj.type === 'init') {
+  //     if (!InitFn()) return false
+  //   } else if (obj.type === 'update') {
+  //     // pullTag 拉取标识，1-全量拉取；2-增量拉取（当传入的tag与当前时间相差30天（暂定）以上，那么就会全量返回数据，需对已有数据做替换）
+  //     if (obj.pullTag === 1) {
+  //       if (!InitFn()) return false
+  //     } else {
+  //       let currentOrgObj = state.myDeptObj[obj.currentId]
+  //       if (currentOrgObj) {
+  //         let currentOrgList = currentOrgObj.orgnizelist
+  //         let currentUserList = currentOrgObj.userlist
+  //         // 更新我的部门
+  //         for (let i in obj.orgnizelist) {
+  //           let objUpdate = obj.orgnizelist[i]
+  //           let hasExit = false
+  //           for (let j in currentOrgList) {
+  //             let orgnize = Object.assign({}, currentOrgList[j])
+  //             if (orgnize.id === objUpdate.id) {
+  //               if (objUpdate.dataStatus === 1) {
+  //                 // 替换
+  //                 orgnize = objUpdate
+  //                 currentOrgList.splice(j, 1, orgnize)
+  //               } else if (objUpdate.dataStatus === 2) {
+  //                 // 删除
+  //                 currentOrgList.splice(j, 1)
+  //               }
+  //               hasExit = true
+  //               break
+  //             }
+  //           }
+  //           if (!hasExit) {
+  //             // 新增
+  //             if (objUpdate.dataStatus === 1) {
+  //               currentOrgList.push(objUpdate)
+  //             }
+  //           }
+  //           SortMydeptFn(currentOrgList)
+  //         }
+  //         // 更新成员
+  //         for (let i in obj.userlist) {
+  //           let objUpdate = obj.userlist[i]
+  //           let hasExit = false
+  //           for (let j in currentUserList) {
+  //             let user = Object.assign({}, currentUserList[j])
+  //             if (user.id === objUpdate.id) {
+  //               if (objUpdate.dataStatus === 1) {
+  //                 // 替换
+  //                 user = objUpdate
+  //                 currentUserList.splice(j, 1, user)
+  //               } else if (objUpdate.dataStatus === 2) {
+  //                 // 删除
+  //                 currentUserList.splice(j, 1)
+  //               }
+  //               hasExit = true
+  //               break
+  //             }
+  //           }
+  //           if (!hasExit) {
+  //             // 新增
+  //             if (objUpdate.dataStatus === 1) {
+  //               currentUserList.push(objUpdate)
+  //             }
+  //           }
+  //           SortUserFn(currentUserList)
+  //         }
+  //         currentOrgObj.tag = obj.tag
+  //       }
+  //     }
+  //   }
+  // },
   upadteContactSelectObj (state, obj) {
     // 更新通讯录选中状态
     state.contactSelectObj = obj
@@ -1159,7 +1172,9 @@ export default {
   },
   // 更新好友状态列表
   updateFriendsStatusList (state, obj) {
-    state.friendsStatusList[obj.account] = obj.type
+    let newObj = state.friendsStatusList
+    newObj[obj.account] = obj.type
+    state.friendsStatusList = Object.assign({}, newObj)
   },
   updateDownlineModal (state, obj) {
     // 更新下线通知modal状态
@@ -1170,7 +1185,7 @@ export default {
     if (obj.type !== 'status' && obj.type !== 'delete' && data.userContactList.length > 0) {
       let arr = []
       data.userContactList.forEach(item => {
-        arr.push({ to: item.accid })
+        arr.push({ to: item.accid, scene: 'p2p' })
       })
       store.dispatch('subscribeEvent', arr)
     }

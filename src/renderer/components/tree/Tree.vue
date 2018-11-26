@@ -52,7 +52,7 @@
     </div>
   </div>
   <!-- 讨论组 -->
-  <div v-if="showTeam && grouplist.length > 0">
+  <div v-if="showTeam && myDeptlist.length > 0">
     <a class="t-list" @click="groupopen = !groupopen">
       <div class="t-center t-title">
         <span :class="groupopen ? 't-up' : 't-down'"/>
@@ -89,29 +89,29 @@
 
     <!-- 我的部门-我所在部门 -->
     <div 
-      v-if="listType === 'group'"
+      v-if="listType === 'myDept'"
       class="t-orgname" 
       style="paddingLeft: 13px"
       @click="toggleDept"  
     >
-      <div v-if="groupObj[myDeptId]" :class="myDeptOpen ? 't-open' : 't-takeup'"/>
+      <div v-if="myDeptObj[myDeptId]" :class="myDeptOpen ? 't-open' : 't-takeup'"/>
       <div v-else class="t-common"/>
-      <span class="mydept" :title="myDept || '我的部门'">{{myDept || '我的部门'}}</span>
+      <span class="mydept" :title="myDept || ''">{{myDept || ''}}</span>
     </div>
 
-    <div :class="(orginzeopen && listType !== 'group') || (myDeptOpen && listType === 'group') ? 't-body active' : 't-body'">
+    <div :class="(orginzeopen && listType !== 'myDept') || (myDeptOpen && listType === 'myDept') ? 't-body active' : 't-body'">
       <tree-item
         :listType="listType"
         :noAdd="noAdd"
         :showTitle="showTitle"
         :showCheck="showCheck"
-        :orgnizeObj="listType === 'team' ? orgnizeObj : groupObj"
-        :orgnizeLevelObj="listType === 'team' ? orgnizeObj[0] : groupObj[myDeptId]"
+        :orgnizeObj="listType === 'team' ? orgnizeObj : myDeptObj"
+        :orgnizeLevelObj="listType === 'team' ? orgnizeObj[0] : myDeptObj[myDeptId]"
         :orgLevel="1"
         :orgSelectId="orgSelectId"
         :orgSelectLevel="orgSelectLevel"
         :orgSelectHandle="orgSelectHandle"
-        :renderOrgData="listType === 'team' ? renderOrgData : renderGroupData"/>
+        :renderOrgData="listType === 'team' ? renderOrgData : renderMyDeptData"/>
     </div>
   </div>
 </div>
@@ -131,7 +131,7 @@ export default {
     showCheck: Boolean,
     noAdd: Boolean,
     callBack: Function,
-    listType: String // lisType='team'---组织架构；lisType='group'---我的部门
+    listType: String // lisType='team'---组织架构；lisType='myDept'---我的部门
   },
   components: {TreeItem},
   data () {
@@ -142,13 +142,13 @@ export default {
       myDeptOpen: false, // 我的部门展开状态
       companyopen: false, // 公司展开状态
       teamopen: false, // 群展开状态
-      groupopen: false, // 讨论组
+      groupopen: false, // 讨论组展开状态
       contactsopen: false,
       companyInfo: {}, // 公司信息
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
       teamAddAllId: -1,
-      groupAddAllId: -1,
+      myDeptAddAllId: -1,
       myDept: this.$store.state.personInfos.companyName, // 获取我的组织
       myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
     }
@@ -156,16 +156,16 @@ export default {
   mounted () {
     if (this.listType === 'team') {
       this.orgDataInit()
-    } else if (this.listType === 'group') {
-      this.groupDataInit()
+    } else if (this.listType === 'myDept') {
+      this.myDeptDataInit()
     }
   },
   computed: {
     orgnizeObj () {
       return this.$store.state.orgnizeObj
     },
-    groupObj () {
-      return this.$store.state.groupObj
+    myDeptObj () {
+      return this.$store.state.myDeptObj
     },
     contactsToplist () {
       return this.$store.state.contactsToplist
@@ -176,11 +176,11 @@ export default {
       })
       return teamlist
     },
-    grouplist () {
-      let grouplist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
+    myDeptlist () {
+      let myDeptlist = this.$store.state.teamlist.filter(item => {
+        return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
       })
-      return grouplist
+      return myDeptlist
     },
     createTeamSelect () {
       return this.$store.state.createTeamSelect
@@ -199,10 +199,10 @@ export default {
       }
       return 'check common'
     },
-    classNameTeam (group) {
+    classNameTeam (myDept) {
       for (let i in this.createTeamSelect) {
         let item = this.createTeamSelect[i]
-        if (item.teamId === group.teamId) {
+        if (item.teamId === myDept.teamId) {
           return 'checked common'
         }
       }
@@ -230,17 +230,17 @@ export default {
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', accid: user.accid})
       this.callBack({accid: user.accid})
     },
-    async groupSelectHandle (group) {
+    async myDeptSelectHandle (myDept) {
       if (this.noAdd) {
-        group.scene = 'team'
-        group.to = group.teamId
-        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
+        myDept.scene = 'team'
+        myDept.to = myDept.teamId
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: myDept})
         return
       }
       // 群成员全选
       let teamMembers = []
       try {
-        teamMembers = await SearchData.getTeamMembers(group.teamId)
+        teamMembers = await SearchData.getTeamMembers(myDept.teamId)
       } catch (error) {}
       let userInfos = this.$store.state.userInfos
       for (let i in teamMembers) {
@@ -271,14 +271,14 @@ export default {
       if (this.$store.state.personInfos.accid === accid) return true
       return false
     },
-    groupDataInit () {
+    myDeptDataInit () {
       // 我的部门数据初始化
       let tag = 0
-      if (this.groupObj[0] && this.groupObj[0].tag) {
-        tag = this.groupObj[0].tag
+      if (this.myDeptObj[0] && this.myDeptObj[0].tag) {
+        tag = this.myDeptObj[0].tag
       }
       let params = {depId: this.myDeptId, tag, parentId: 0}
-      this.renderGroupData(params)
+      this.renderMyDeptData(params)
     },
     orgDataInit () {
       // 组织数据初始化
@@ -297,7 +297,7 @@ export default {
       this.companyopen = !this.companyopen
     },
     renderOrgData (params) {
-      // 拉取组织框架
+      // 拉取组织框架 || 我的部门框架
       let {depId, tag, parentId} = params
       let type = 'init'
       tag = tag || 0
@@ -308,6 +308,7 @@ export default {
           if (tag) type = 'update'
           this.$store.commit('updateOrgnizeObj', {
             type,
+            pageType: 'orgnize',
             set: this.$set,
             currentId: depId,
             parentId: parentId,
@@ -320,7 +321,7 @@ export default {
       }).catch(() => {
       })
     },
-    renderGroupData (params) {
+    renderMyDeptData (params) {
       // 拉取我的部门框架
       let {depId, tag, parentId} = params
       let type = 'init'
@@ -330,8 +331,9 @@ export default {
       }, this).then(ret => {
         if (ret) {
           if (tag) type = 'update'
-          this.$store.commit('updateGroupObj', {
+          this.$store.commit('updateOrgnizeObj', {
             type,
+            pageType: 'myDept',
             set: this.$set,
             currentId: depId,
             parentId: parentId,

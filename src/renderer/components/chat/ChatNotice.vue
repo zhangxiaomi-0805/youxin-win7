@@ -32,7 +32,13 @@
       @mouseup.stop="showMemberOptions($event, member)"
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
-      <div class="m-left"><img class="t-img" :src="member.avatar"><span class="t-style">{{member.alias}}</span></div>
+      <div class="m-left">
+        <div class="t-img">
+          <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
+          <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" />
+        </div>
+        <span class="t-style">{{member.alias}}</span>
+      </div>
       <span :class="member.type" v-show="member.type !== 'normal' && !isDiscussGroup"/>
     </li>
   </ul>
@@ -75,7 +81,8 @@ export default {
     return {
       settingIcon: './static/img/nav/icon-plus.png',
       showSearch: false,
-      searchValue: ''
+      searchValue: '',
+      onlineMembers: 0
     }
   },
   computed: {
@@ -99,9 +106,9 @@ export default {
         // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
         var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
         var memberCount = members && members.length
-        return (this.isDiscussGroup ? '讨论组成员 ' : '群成员 ') + (memberCount ? `(${memberCount}) 人` : '')
+        return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
       }
-      return this.isDiscussGroup ? '讨论组成员' : '群成员'
+      return '成员'
     },
     memberList () {
       if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
@@ -115,6 +122,7 @@ export default {
             if (member.account === this.$store.state.userUID) {
               member.alias = '我'
               member.avatar = this.$store.state.myInfo.avatar
+              member.isSelf = true
             } else if (this.userInfos[member.account] === undefined) {
               needSearchAccounts.push(member.account)
               member.avatar = member.avatar || this.avatar
@@ -130,6 +138,17 @@ export default {
               this.searchUsers(needSearchAccounts.splice(0, 150))
             }
           }
+          members.forEach(item => {
+            if (this.$store.state.friendsStatusList[item.account] > -1) {
+              item.status = this.$store.state.friendsStatusList[item.account]
+            }
+          })
+          // 统计在线人数
+          let onlineMembers = members.filter(item => {
+            return item.status === 0
+          })
+          // 加上自己
+          this.onlineMembers = onlineMembers.length + 1
           return members
         }
       } else return []
@@ -372,6 +391,13 @@ export default {
     align-items: center;
   }
 
+  .m-chat-nt .m-title span {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
+
   .m-chat-nt .team-control {
     display: flex;
     flex-direction: row;
@@ -430,9 +456,9 @@ export default {
   }
 
   .m-chat-nt .m-u-list .m-u-list-item .t-img {
+    position: relative;
     width: 24px;
     height: 24px;
-    background-color:#eee;
     border-radius: 50%;
     margin-right: 9px;
   }

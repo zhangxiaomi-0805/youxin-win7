@@ -153,6 +153,10 @@ export function setTopSession ({state}, obj) {
 
 export function deleteSession ({state, commit}, obj) {
   const nim = state.nim
+  let sessionIdArr = state.sessionlist.map((item, index) => {
+    return item.id
+  })
+  let curSessionId = obj.that.$router.history.current.query.sessionId
   let sessionId = obj.id || ''
   let scene = null
   let account = null
@@ -183,7 +187,7 @@ export function deleteSession ({state, commit}, obj) {
               return
             }
             // type为1是则删除所有
-            let { curSessionId, sessionIdArr, that, type } = obj
+            let { that, type } = obj
             if (type === 1) {
               that.$router.push({ name: 'session-default' })
               commit('deleteSessions', [sessionId])
@@ -296,7 +300,7 @@ export function deleteLocalMsgs ({state, commit}, obj) {
           const param = {
             id: item.scene + '-' + item.acc,
             that,
-            type: 1
+            type: obj.type
           }
           store.dispatch('deleteSession', param)
           // 记录删除状态
