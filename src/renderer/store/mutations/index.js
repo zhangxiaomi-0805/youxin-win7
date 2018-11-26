@@ -173,7 +173,7 @@ export default {
           if (err) {
             console.error('订阅好友事件失败', err)
           } else {
-            console.log(res)
+            // console.log(res)
           }
         }
       })
@@ -1159,7 +1159,9 @@ export default {
   },
   // 更新好友状态列表
   updateFriendsStatusList (state, obj) {
-    state.friendsStatusList[obj.account] = obj.type
+    let newObj = state.friendsStatusList
+    newObj[obj.account] = obj.type
+    state.friendsStatusList = Object.assign({}, newObj)
   },
   updateDownlineModal (state, obj) {
     // 更新下线通知modal状态
@@ -1170,7 +1172,7 @@ export default {
     if (obj.type !== 'status' && obj.type !== 'delete' && data.userContactList.length > 0) {
       let arr = []
       data.userContactList.forEach(item => {
-        arr.push({ to: item.accid })
+        arr.push({ to: item.accid, scene: 'p2p' })
       })
       store.dispatch('subscribeEvent', arr)
     }
