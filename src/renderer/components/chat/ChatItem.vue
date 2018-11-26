@@ -721,6 +721,7 @@
         return false
       },
       showListOptions (e, type) {
+        console.log(type)
         if (type === 'file' && this.msg.flow === 'out' && this.curProgress < 100) {
           return
         }
