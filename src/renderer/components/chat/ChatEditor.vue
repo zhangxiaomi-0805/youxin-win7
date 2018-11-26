@@ -1388,8 +1388,13 @@ export default {
     justify-content: space-between
 }
 
-.g-window .m-chat-editor-main .u-editor-icons .u-editor-icon{
+.g-window .m-chat-editor-main .u-editor-icons .u-editor-icon {
   cursor: pointer;
+}
+
+.g-window .m-chat-editor-main .u-editor-icons .u-editor-icon a{
+  width: 20px;
+  background-size: 100%;
 }
 
 .g-window .m-chat-editor-main .u-editor-icons .b-common {
