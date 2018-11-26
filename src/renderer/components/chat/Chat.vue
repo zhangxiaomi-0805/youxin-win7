@@ -3,7 +3,7 @@
   <div class="g-hbf-header m-header">
     <span class="session-name">{{sessionName}}</span>
     <div class="m-setting" v-if="funKey >= 2 && teamInvalid && valid">
-      <!-- <a class="b-check" @click="showHistoryMsgModal"/> -->
+      <a class="b-check" @click="showHistoryMsgModal"/>
       <a class="b-add" v-if="funKey <= 2" @click="createTeam()"/>
       <a class="b-more" @click="openSliderMenu"/>
     </div>
