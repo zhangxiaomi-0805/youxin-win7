@@ -329,17 +329,17 @@
             // 初始化组织架构、我的部门、联系、常用联系人列表
             IndexedDB.getItem('orgnizeObj')
               .then(data => {
-                this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+                this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
               })
               .catch(() => {})
-            IndexedDB.getItem('groupObj')
+            IndexedDB.getItem('myDeptObj')
               .then(data => {
-                this.$store.commit('updateGroupObj', {data, type: 'replace'})
+                this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
               })
               .catch(() => {})
             IndexedDB.getAll('contactslist')
               .then(data => {
-                this.$store.commit('updateContactslist', {data, type: 'replace'})
+                this.$store.commit('updateContactslist', {data, type: 'replace', pageType: 'orgnize'})
               })
               .catch(() => {})
             // IndexedDB.getAll('contactsToplist')

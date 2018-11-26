@@ -205,7 +205,6 @@ export default {
       } else {
         item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
       }
-      console.log(item)
       return item
     },
     async renderItem (searchValue, checkType) {
@@ -234,7 +233,6 @@ export default {
       } else {
         this.searchlist = searchlist
       }
-      console.log(this.searchlist)
     },
     className (msg) {
       // 选择框样式
@@ -302,7 +300,6 @@ export default {
                 this.eventBus.$emit('selectContact', {type: 7, sidelist, msg})
                 break
               case 3: // 复制
-                console.log(this.$refs[`clipboard_${msg.idClient}`])
                 let clipboard = (this.$refs[`clipboard_${msg.idClient}`])[0]
                 clipboard.innerText = MsgRecordFn.getCopyText(e)
                 clipboard.select()

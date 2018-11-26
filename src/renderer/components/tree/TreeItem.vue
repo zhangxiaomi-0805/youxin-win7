@@ -5,7 +5,7 @@
     <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
       <div 
         class="t-orgname" 
-        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'group' ? 0 : 1)) * 14 + 'px'}" 
+        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'myDept' ? 0 : 1)) * 14 + 'px'}" 
         @click="toggleStatus(orgnize.id, orgnize, $index)" 
         @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
         @mouseleave="mouseleave('orgAddAllId')">
@@ -23,7 +23,7 @@
           :showCheck="showCheck"
           :orgnizeObj="orgnizeObj"
           :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
-          :orgLevel="listType === 'group' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
+          :orgLevel="listType === 'myDept' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
           :orgSelectId="orgSelectId"
           :orgSelectLevel="orgSelectLevel"
           :orgSelectHandle="orgSelectHandle"
@@ -68,7 +68,7 @@ export default {
     orgSelectLevel: Number,
     orgSelectHandle: Function,
     renderOrgData: Function,
-    listType: String // lisType='team'---组织架构；lisType='group'---我的部门
+    listType: String // lisType='team'---组织架构；lisType='myDept'---我的部门
   },
   data () {
     return {

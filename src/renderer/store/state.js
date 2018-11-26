@@ -144,7 +144,7 @@ export default {
   // 组织架构禁用成员列表
   orgDisabledlist: [],
   // 我的部门列表
-  groupObj: {},
+  myDeptObj: {},
   // 登录信息保存
   loginInfo: {},
   // 群右键选中
