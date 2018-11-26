@@ -34,7 +34,9 @@
                 <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
                   <img :src="msg.imgUrl" style="width: 230px; height: 230px"/>
                 </div>
-                <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></div>
+                <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg">
+                  <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
+                </div>
                 <div v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="isSearchCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
                 <div v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
             </div>

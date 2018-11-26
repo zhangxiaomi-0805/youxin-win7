@@ -90,7 +90,7 @@
             @blur="blurFn($refs.loginIptNew)"/>
             <span v-if="newPwd.length > 0" class="clear" @click="newPwd = ''"/>
         </div>
-        <div class="toast-text" style="marginBottom: 20px;">密码长度6-20位数字、字母组合</div>
+        <div class="toast-text" style="marginBottom: 20px;">密码长度8-20位数字、字母组合</div>
         <div class="mdy-title">确认密码</div>
         <div class="m-set-ipt" ref="loginIptConfirm">
           <input
@@ -105,7 +105,7 @@
             @keyup="keyToNext($event, 3)"/>
             <span v-if="confirmNewPwd.length > 0" class="clear" @click="confirmNewPwd = ''"/>
         </div>
-        <div class="toast-text" style="marginBottom: 30px;">密码长度6-20位数字、字母组合</div>
+        <div class="toast-text" style="marginBottom: 30px;">密码长度8-20位数字、字母组合</div>
         <login-button text="确定" :disabled="!(password && newPwd && confirmNewPwd)" :loading="loading" :callBack="modifyPwd"/>
       </div>
     </div>
