@@ -213,10 +213,6 @@ export function getTeamMembers ({ state }, teamId) {
             teamId: obj.teamId,
             members: obj.members
           })
-        } else {
-          // setTimeout(() => {
-          //   getTeamMembers(store, teamId)
-          // }, 200)
         }
       }
     })
