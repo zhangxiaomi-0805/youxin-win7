@@ -1,7 +1,7 @@
 <template>
 <!-- 公告、群成员管理 -->
 <div class="m-chat-nt" v-if="scene === 'team'">
-  <div v-if="!teamInfo.valid" class="invalid"/>
+  <div v-if="!teamInfo.valid || !teamInfo.validToCurrentUser" class="invalid"/>
   <div v-if="!isDiscussGroup" class="m-content">
     <div class="m-title notice">
       <span class="notice">公告</span>
@@ -9,7 +9,7 @@
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
-  <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a class="point" @click.stop="showListOptions($event)" ></a></div>
+  <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a></div>
   <div v-else class="search-bar">
     <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
     <span v-if="showSearch" class="clear" @click="clearStatus"/>
@@ -78,9 +78,6 @@ export default {
       searchValue: ''
     }
   },
-  mounted () {
-    this.$store.dispatch('getTeamMembers', this.to)
-  },
   computed: {
     hasBorder () {
       if (this.$store.state.showListOptions) {
@@ -98,16 +95,16 @@ export default {
       return this.$store.state.sessionlist
     },
     sessionName () {
-      if (this.teamInfo) {
+      if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
         // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
         var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
         var memberCount = members && members.length
         return (this.isDiscussGroup ? '讨论组成员 ' : '群成员 ') + (memberCount ? `(${memberCount}) 人` : '')
       }
-      return this.isDiscussGroup ? '讨论组' : '群'
+      return this.isDiscussGroup ? '讨论组成员' : '群成员'
     },
     memberList () {
-      if (this.teamInfo && this.teamInfo.valid) {
+      if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
         let teamMembers = this.$store.state.teamMembers
         let members = teamMembers && teamMembers[this.teamId]
         let needSearchAccounts = []
@@ -155,6 +152,9 @@ export default {
         disabled = false
       }
       return disabled
+    },
+    teamMembers () {
+      return this.$store.state.teamMembers
     }
   },
   watch: {
@@ -282,7 +282,7 @@ export default {
     addTeamMember () {
       // 添加成员
       this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-      this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId})
+      this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId, isDiscussGroup: this.isDiscussGroup})
     },
     removeTeamMember () {
       // 移出成员

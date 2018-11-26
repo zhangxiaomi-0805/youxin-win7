@@ -72,8 +72,8 @@
     <div v-if="msg.status !== 'fail'" :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
       <span v-if="teamMsgUnRead >= 0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
     </div>
-    <div class="isRemoteRead" style="margin-right: 0px;" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip' && msg.status !== 'fail'">
-      <span>{{(msg.localCustom && msg.localCustom.isRemoteRead) ? '已读' : '未读'}}</span>
+    <div style="-webkit-user-select: none;margin-right: 0px;" class="isRemoteRead" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip' && msg.status !== 'fail'">
+      <span style="-webkit-user-select: none;" >{{(msg.localCustom && msg.localCustom.isRemoteRead) ? '已读' : '未读'}}</span>
     </div>
     <div v-if="showVioceToText" class="vioce-text" >{{vioceToText}}</div>
   </li>

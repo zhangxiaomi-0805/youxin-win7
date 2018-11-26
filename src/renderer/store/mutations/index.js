@@ -1167,7 +1167,7 @@ export default {
   },
   updateContactsToplist (state, obj) {
     let { type, data, accid } = obj
-    if (obj.type !== 'status' && data.userContactList.length > 0) {
+    if (obj.type !== 'status' && obj.type !== 'delete' && data.userContactList.length > 0) {
       let arr = []
       data.userContactList.forEach(item => {
         arr.push({ to: item.accid })

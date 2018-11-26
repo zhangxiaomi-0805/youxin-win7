@@ -213,10 +213,6 @@ export function getTeamMembers ({ state }, teamId) {
             teamId: obj.teamId,
             members: obj.members
           })
-        } else {
-          // setTimeout(() => {
-          //   getTeamMembers(store, teamId)
-          // }, 200)
         }
       }
     })
@@ -366,7 +362,7 @@ export function addTeamManagers ({state}, params) {
     accounts: params.accounts,
     done: (error, obj) => {
       params.callback && params.callback()
-      error && console.log(error)
+      if (error) console.log(error)
     }
   })
 }

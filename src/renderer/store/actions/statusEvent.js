@@ -8,6 +8,7 @@ export function onLoginPortsChange (loginPorts) {
 
 export function onPushEvents (param) {
   if (param.msgEvents) {
+    console.log(param.msgEvents)
     param.msgEvents.forEach(data => {
       store.commit('updateFriendsStatusList', {
         account: data.account,

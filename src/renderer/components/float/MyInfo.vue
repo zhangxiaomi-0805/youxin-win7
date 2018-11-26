@@ -236,7 +236,7 @@ export default {
     updateAvatar (e) {
       // 判断图片格式及大小
       let imgType = e.files[0].type.split('/')[1]
-      if (!['png', 'jpg', 'jpeg'].includes(imgType)) {
+      if (!['png', 'jpg', 'jpeg', 'gif'].includes(imgType)) {
         this.$store.commit('toastConfig', {
           show: true,
           type: 'fail',

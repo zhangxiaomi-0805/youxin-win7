@@ -22,6 +22,7 @@
           <ul 
             class="u-list"
             :style="type === 7 ? {top: '100px'} : {}"
+            v-if="sidelist.length > 0"
           >
             <li class="u-list-item" v-for="(friend, $index) in sidelist" :key="$index" :id="friend.id" @click="add($index)">
               <span v-if="type === 4" :class="friend.checked ? 'radio-active common' : 'radio common'"></span>
@@ -32,6 +33,7 @@
               <span :class="friend.type" v-show="(type === 4 || type === 6) && friend.type !== 'normal'"/>
             </li>
           </ul>
+          <div style="fontSize: 13px;color: #C4C4C4;padding: 20px;textAlign: center;" v-if="sidelist.length <= 0">暂无搜索结果~</div>
         </div>
         <div class="side-list" style="float:right;">
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
@@ -118,7 +120,8 @@ export default {
       type: 1, // 类型:  1-选择联系人创建群组, 2-添加管理员, 3-移除管理员, 4-转让群, 5-添加群成员，6-移出群成员, 7-转发消息
       msg: null, // 转发消息
       searchValue: '',
-      beforeValue: ''
+      beforeValue: '',
+      managerNum: 0 // 群管理员数量
     }
   },
   computed: {
@@ -221,6 +224,7 @@ export default {
           case 2 :
             if (item.type !== 'normal') {
               item.disabled = true
+              this.managerNum++
             }
             break
           case 3 :
@@ -245,13 +249,13 @@ export default {
       this.loading = false
       this.searchValue = ''
       this.beforeValue = ''
+      this.managerNum = 0
     },
     closeCover () {
       this.showConfirmCover = false
     },
     add (key) {
       let list = this.sidelist[key]
-      console.log(this.sidelist)
       let SpliceFn = (account) => {
         for (let i in this.chooselist) {
           let identKey = this.chooselist[i].account || this.chooselist[i].id
@@ -390,6 +394,14 @@ export default {
       })
     },
     addManager () {
+      if ((this.managerNum + this.chooselist.length) > 5) {
+        this.$store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: '当前最多可添加5名管理员'
+        })
+        return false
+      }
       this.loading = true
       // 添加管理员
       let accounts = []
@@ -486,7 +498,6 @@ export default {
     async forwordMsgList (type) {
       this.loading = true
       let failAccount = []
-      console.log(this.msg)
       for (let i = 0; i < this.chooselist.length; i++) {
         try {
           if (type === 7) {
@@ -642,7 +653,7 @@ export default {
   .m-selectcontact .delete {
     position: absolute;
     right: 10px;
-    top: 15px;
+    top: 14px;
     display: block;
     width: 14px;
     height: 14px;
@@ -860,7 +871,7 @@ export default {
     text-overflow:ellipsis;
     white-space:nowrap;
     width: fit-content;
-    max-width: 50%;
+    max-width: 70%;
   }
 
   .side-list-contain .side-list .new-chat {

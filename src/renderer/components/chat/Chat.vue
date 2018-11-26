@@ -3,7 +3,7 @@
   <div class="g-hbf-header m-header">
     <span class="session-name">{{sessionName}}</span>
     <div class="m-setting" v-if="funKey >= 2 && teamInvalid && valid">
-      <a class="b-check" @click="showHistoryMsgModal"/> <!-- //显示历史记录弹框 -->
+      <!-- <a class="b-check" @click="showHistoryMsgModal"/> -->
       <a class="b-add" v-if="funKey <= 2" @click="createTeam()"/>
       <a class="b-more" @click="openSliderMenu"/>
     </div>
@@ -175,6 +175,11 @@ export default {
         }
       } else if (/^team-/.test(sessionId)) {
         if (this.teamInfo) {
+          if (this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+            // 获取群成员
+            var teamMembers = this.$store.state.teamMembers[this.to]
+            if (!teamMembers) this.$store.dispatch('getTeamMembers', this.to)
+          }
           return this.teamInfo.name
         } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
           return this.lastMsg.attach.team.name
@@ -312,11 +317,11 @@ export default {
         let sysMsgs = this.$store.state.sysMsgs
         let currentSysMsg = ''
         for (let i in sysMsgs) {
-          if (sysMsgs[i].type === 'applyTeam' && (sysMsgs[i].to === this.teamId)) {
+          if (sysMsgs[i].type === 'applyTeam' && (sysMsgs[i].to === this.teamId) && sysMsgs[i].state === 'init') {
             currentSysMsg = sysMsgs[i]
           }
         }
-        if (currentSysMsg && currentSysMsg.state === 'init') {
+        if (currentSysMsg) {
           this.showInvitMsgTip = true
           return `“${currentSysMsg.nick}”`
         }
