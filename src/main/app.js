@@ -53,6 +53,8 @@ APP.prototype.catchMainProcessError = function () {
 
 APP.prototype.initApp = function () {
   var _this = this
+  // 更新App版本号
+  global.APPVERSION = app.getVersion()
   app.on('ready', function () {
     _this.ready = true
     protocol.registerFileProtocol('root', function (request, callback) {
@@ -288,7 +290,6 @@ APP.prototype.initIPC = function () {
   ipcMain.on('receiveNewMsgs', function () {
     if (!_this.mainWindow.isFocused()) _this.mainWindow.flashFrame(true)
     _this.tryTwinkle()
-    _this.mainWindow.playAudio()
   })
 
   ipcMain.on('sessionUnreadNums', function (evt, arg) {

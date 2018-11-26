@@ -354,12 +354,11 @@
                     this.$store.commit('updateContactslist', {data, type: 'replace'})
                   })
                   .catch(() => {})
-                // IndexedDB.getAll('contactsToplist')
-                //   .then(data => {
-                //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
-                //   })
-                //   .catch(() => {})
-                Request.getContactUserList({tag: 0}, this).then(ret => this.$store.commit('updateContactsToplist', {type: 'update', data: ret})).catch(() => {})
+                IndexedDB.getAll('contactsToplist')
+                  .then(data => {
+                    this.$store.commit('updateContactsToplist', {data, type: 'init'})
+                  })
+                  .catch(() => {})
                 Request.ThirdUrls()
                 // 开启自动登录
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
