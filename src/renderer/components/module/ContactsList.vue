@@ -110,7 +110,10 @@ export default {
     getData () {
       // 获取常用联系人列表
       let tag = this.contactslist[0] ? this.contactslist[0].tag : 0
-      Request.getContactUserList({tag}, this).then(ret => this.$store.commit('updateContactsToplist', {type: 'update', data: ret})).catch(() => {})
+      Request.getContactUserList({tag}, this).then(ret => {
+        console.log(ret)
+        this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+      }).catch(() => {})
     },
     toggleNameCard (contacts) {
       if (this.activeId === contacts.accid) return

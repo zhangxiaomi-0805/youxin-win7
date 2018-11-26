@@ -170,15 +170,15 @@ export default {
     contactsToplist () {
       return this.$store.state.contactsToplist
     },
-    teamlist () {
+    teamlist () { // 群
       let teamlist = this.$store.state.teamlist.filter(item => {
         return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
       })
       return teamlist
     },
-    myDeptlist () {
+    grouplist () { // 讨论组
       let myDeptlist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
+        return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
       })
       return myDeptlist
     },
