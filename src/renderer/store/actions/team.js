@@ -213,6 +213,12 @@ export function getTeamMembers ({ state }, teamId) {
             teamId: obj.teamId,
             members: obj.members
           })
+          // 订阅群成员
+          let arr = []
+          obj.members.forEach(item => {
+            arr.push({ to: item.account, scene: 'p2p' })
+          })
+          store.dispatch('subscribeEvent', arr)
         }
       }
     })
