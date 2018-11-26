@@ -14,7 +14,7 @@
       </div>
       <div class="update-footer">
         <div class="btn confirm" @click="goUpdate"><span>立即升级</span></div>
-        <div v-if="content.forceUpdate !== 1" class="btn cancel" @click="closeModal">忽略</div>
+        <div v-if="content.forceUpdate !== 1" class="btn cancel" @click="Ignore">忽略</div>
       </div>
     </div>
   </div>
@@ -29,6 +29,7 @@ export default {
     this.eventBus.$on('updateApp', (data) => {
       this.showUpdateApp = true
       this.content = data
+      this.updateLocalVersion()
     })
   },
   data () {
@@ -44,6 +45,18 @@ export default {
     },
     goUpdate () {
       this.content && shell.openExternal(this.content.downloadUrl)
+    },
+    Ignore () {
+      // 忽略更新
+      this.updateLocalVersion(true)
+      this.closeModal()
+    },
+    updateLocalVersion (ignore) {
+      // 更新本地存储
+      let APPVERSIONS = localStorage.APPVERSIONS ? JSON.parse(localStorage.APPVERSIONS) : {}
+      APPVERSIONS.dateTime = new Date().getTime()
+      if (ignore) APPVERSIONS.ignore = ignore
+      localStorage.setItem('APPVERSIONS', JSON.stringify(APPVERSIONS))
     }
   }
 }

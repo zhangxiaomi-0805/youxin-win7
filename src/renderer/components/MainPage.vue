@@ -57,6 +57,7 @@
   import DownLine from './float/DownLine.vue'
   import TeamCode from './float/TeamCode.vue'
   import Resize from '../utils/resize.js'
+  import Request from '../utils/request.js'
   import MsgRecord from './msgRecord/MsgRecord.vue'
   import UpdateApp from './float/UpdateApp.vue'
   const electron = require('electron')
@@ -67,6 +68,15 @@
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
+      // 检查更新
+      if (localStorage.APPVERSIONS) {
+        let APPVERSIONS = JSON.parse(localStorage.APPVERSIONS)
+        if (APPVERSIONS.ignore) return false
+        let nowDate = new Date().getTime()
+        if (nowDate - APPVERSIONS.dateTime > 24 * 3600 * 1000) {
+          Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
+        }
+      } else Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
     },
     watch: {
       incomingMsg (newMsg, oldMsg) {

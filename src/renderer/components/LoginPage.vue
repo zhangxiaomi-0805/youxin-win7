@@ -376,9 +376,7 @@
                 //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
                 //   })
                 //   .catch(() => {})
-                Request.getContactUserList({tag: 0}, this).then(ret => {
-                  this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
-                }).catch(() => {})
+                Request.getContactUserList({tag: 0}, this).then(ret => this.$store.commit('updateContactsToplist', {type: 'update', data: ret})).catch(() => {})
                 // 开启自动登录
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
                   let USERINFO = {
