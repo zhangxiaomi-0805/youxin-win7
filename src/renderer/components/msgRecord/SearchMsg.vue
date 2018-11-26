@@ -275,7 +275,7 @@ export default {
         MsgRecordFn.copyAll(target)
       }
       if (e.button === 2) {
-       let key = ''
+        let key = ''
         if (msg.type === 'text') {
           key = 'msg-record'
         } else {
