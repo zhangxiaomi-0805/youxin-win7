@@ -59,8 +59,8 @@
         >
           <img :src="record.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;width: 80%;">
-            <div class="s-name searchevent">{{record.name}}</div>
-            <div class="searchevent s-one-line" v-if="record.recordNum === 1"><span :class="nameClass(text, 'default')" v-for="text in record.text" :key="text.id" :id="text.id">{{text}}</span></div>
+            <div class="s-name searchevent s-one-line">{{record.name}}</div>
+            <div class="searchevent s-one-line" v-if="record.recordNum === 1"><span class="s-name default searchevent s-text" v-html="record.text"></span></div>
             <div v-else class="s-name default searchevent">{{record.recordNum > 99 ? '99+条相关聊天记录' : (record.recordNum + '条相关聊天记录')}}</div>
           </div>
         </li>
