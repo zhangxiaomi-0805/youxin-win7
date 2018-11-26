@@ -286,8 +286,9 @@ APP.prototype.initIPC = function () {
   })
 
   ipcMain.on('receiveNewMsgs', function () {
-    !_this.mainWindow.isFocused() && _this.mainWindow.flashFrame(true)
+    if (!_this.mainWindow.isFocused()) _this.mainWindow.flashFrame(true)
     _this.tryTwinkle()
+    _this.mainWindow.playAudio()
   })
 
   ipcMain.on('sessionUnreadNums', function (evt, arg) {

@@ -326,27 +326,6 @@
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
             this.$store.commit('updatePersonInfos', userInfo)
-            // 初始化组织架构、我的部门、联系、常用联系人列表
-            IndexedDB.getItem('orgnizeObj')
-              .then(data => {
-                this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
-              })
-              .catch(() => {})
-            IndexedDB.getItem('myDeptObj')
-              .then(data => {
-                this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
-              })
-              .catch(() => {})
-            IndexedDB.getAll('contactslist')
-              .then(data => {
-                this.$store.commit('updateContactslist', {data, type: 'replace', pageType: 'orgnize'})
-              })
-              .catch(() => {})
-            // IndexedDB.getAll('contactsToplist')
-            //   .then(data => {
-            //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
-            //   })
-            //   .catch(() => {})
             Request.getContactUserList({tag: 0}, this).then(ret => {
               this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
             }).catch(() => {})
@@ -359,11 +338,15 @@
                   this.loading = false
                   return
                 }
-                this.$store.commit('updatePersonInfos', userInfo)
-                // 初始化组织架构、联系、常用联系人列表
+                // 初始化组织架构、我的部门、联系、常用联系人列表
                 IndexedDB.getItem('orgnizeObj')
                   .then(data => {
-                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
+                  })
+                  .catch(() => {})
+                IndexedDB.getItem('myDeptObj')
+                  .then(data => {
+                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
                   })
                   .catch(() => {})
                 IndexedDB.getAll('contactslist')
@@ -376,9 +359,8 @@
                 //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
                 //   })
                 //   .catch(() => {})
-                Request.getContactUserList({tag: 0}, this).then(ret => {
-                  this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
-                }).catch(() => {})
+                Request.getContactUserList({tag: 0}, this).then(ret => this.$store.commit('updateContactsToplist', {type: 'update', data: ret})).catch(() => {})
+                Request.ThirdUrls()
                 // 开启自动登录
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
                   let USERINFO = {

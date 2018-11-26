@@ -47,9 +47,42 @@ export function onNewMsg (msg) {
   store.commit('updateNewMsg', newMsg)
   onMsg(msg)
   receiveMsg(newMsg)
+  systemNewMsgsManage(msg)
+}
+
+async function systemNewMsgsManage (msg) {
   // 通知主进程
   const ipcRenderer = require('electron').ipcRenderer
   ipcRenderer.send('receiveNewMsgs')
+  // 发送音频
+  let isMute = false
+  if (msg.scene === 'p2p') {
+    isMute = store.state.mutelist.find(item => {
+      return item.account === msg.from
+    })
+  } else {
+    let map = await notifyForNewTeamMsg(msg.to)
+    let muteNotiType = Number(map[msg.to])
+    if (muteNotiType === 1) isMute = true
+  }
+  if (!isMute) {
+    let audio = new Audio(`${__static}/img/msg.wav`)
+    audio.play()
+    setTimeout(() => audio.pause(), 600)
+  }
+}
+
+function notifyForNewTeamMsg (teamId) {
+  // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
+  return new Promise((resolve, reject) => {
+    store.state.nim.notifyForNewTeamMsg({
+      teamIds: [teamId],
+      done: (error, map) => {
+        if (error) reject(error)
+        else resolve(map)
+      }
+    })
+  })
 }
 
 // 转发消息

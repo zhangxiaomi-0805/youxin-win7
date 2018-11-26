@@ -40,7 +40,7 @@
             <div style="color:#AFB2B1;overflow:hidden;white-space:nowrap;font-size: 12px;">{{session.updateTimeShow}}</div> 
             <div v-if="isMute(session)" class="mute-contain">
               <span class="mute"></span>
-              <span v-if="session.unread > 0" class="u-unread nomsg"></span>
+              <span v-if="session.unread > 0" class="nomsg"></span>
             </div>
             <span v-else-if="lastMsgStatus(session)" class="u-unread">1</span>
             <span v-else-if="session.unread > 0" class="u-unread">{{session.unread > 99 ? "99+" : session.unread}}</span>
@@ -548,7 +548,19 @@ export default {
     text-align: center;
     border-radius: 8px;
 }
-.g-window .u-unread.nomsg {
+.g-window .nomsg {
+  display: inline-block;
+  float: right;
+  margin: 2px auto 0;
+  padding: 0 4px;
+  min-width: 7px;
+  height: 15px;
+  line-height: 15px;
+  font-size: 12px;
+  background-color: #F43530;
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
   width: 10px;
   height: 10px;
   padding: 0;
