@@ -143,10 +143,11 @@ export default {
         let target = this.$refs[`copy_${this.idClient}`]
         MsgRecordFn.copyAll(target)
       }
-      console.log(msg)
       if (e.button === 2) {
-        let key = 'msg-record'
-        if (msg.type === 'image') {
+        let key = ''
+        if (msg.type === 'text') {
+          key = 'msg-record'
+        } else {
           key = 'image-msg-record'
         }
         this.$store.dispatch('showListOptions', {

@@ -275,8 +275,10 @@ export default {
         MsgRecordFn.copyAll(target)
       }
       if (e.button === 2) {
-        let key = 'msg-record'
-        if (msg.type === 'image') {
+       let key = ''
+        if (msg.type === 'text') {
+          key = 'msg-record'
+        } else {
           key = 'image-msg-record'
         }
         this.$store.dispatch('showListOptions', {
