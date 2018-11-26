@@ -325,32 +325,6 @@
             // 登录sdk
             LocalStorage.setItem('uid', userInfo.accid)
             LocalStorage.setItem('sdktoken', userInfo.token)
-            this.$store.commit('updatePersonInfos', userInfo)
-            // 初始化组织架构、我的部门、联系、常用联系人列表
-            IndexedDB.getItem('orgnizeObj')
-              .then(data => {
-                this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            IndexedDB.getItem('groupObj')
-              .then(data => {
-                this.$store.commit('updateGroupObj', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            IndexedDB.getAll('contactslist')
-              .then(data => {
-                this.$store.commit('updateContactslist', {data, type: 'replace'})
-              })
-              .catch(() => {})
-            // IndexedDB.getAll('contactsToplist')
-            //   .then(data => {
-            //     this.$store.commit('updateContactsToplist', {data, type: 'init'})
-            //   })
-            //   .catch(() => {})
-            Request.getContactUserList({tag: 0}, this).then(ret => {
-              this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
-            }).catch(() => {})
-            Request.ThirdUrls()
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {
@@ -359,11 +333,16 @@
                   this.loading = false
                   return
                 }
+                // 初始化个人信息、组织架构、我的部门、通讯录、常用联系人列表
                 this.$store.commit('updatePersonInfos', userInfo)
-                // 初始化组织架构、联系、常用联系人列表
                 IndexedDB.getItem('orgnizeObj')
                   .then(data => {
                     this.$store.commit('updateOrgnizeObj', {data, type: 'replace'})
+                  })
+                  .catch(() => {})
+                IndexedDB.getItem('groupObj')
+                  .then(data => {
+                    this.$store.commit('updateGroupObj', {data, type: 'replace'})
                   })
                   .catch(() => {})
                 IndexedDB.getAll('contactslist')
@@ -377,6 +356,7 @@
                 //   })
                 //   .catch(() => {})
                 Request.getContactUserList({tag: 0}, this).then(ret => this.$store.commit('updateContactsToplist', {type: 'update', data: ret})).catch(() => {})
+                Request.ThirdUrls()
                 // 开启自动登录
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
                   let USERINFO = {

@@ -17,7 +17,7 @@ export function onMutelist (mutes) {
   // 在好友身上打上标记
   store.commit('updateFriends', mutes)
   // 更新好友信息字典
-  store.commit('updateUserInfo', mutes)
+  // store.commit('updateUserInfo', mutes)
 }
 
 export function onMarkInMutelist (obj) {
