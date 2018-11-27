@@ -287,21 +287,13 @@ APP.prototype.initIPC = function () {
     _this.aplWindow.on('closed', () => { _this.aplWindow = null })
   })
 
-  ipcMain.on('receiveNewMsgs', function () {
+  ipcMain.on('receiveNewMsgs', function (evt, arg) {
     if (!_this.mainWindow.isFocused()) _this.mainWindow.flashFrame(true)
-    _this.tryTwinkle()
+    _this.tryTwinkle(arg)
   })
 
   ipcMain.on('sessionUnreadNums', function (evt, arg) {
-    if (arg.unreadNums <= 0) {
-      if (_this.twinkle) {
-        _this.sysTray.setImage(`${__static}/img/systry-logo.png`)
-        clearInterval(_this.twinkle)
-        _this.twinkle = null
-      }
-      return false
-    }
-    _this.tryTwinkle()
+    _this.tryTwinkle(arg)
   })
 
   ipcMain.on('toggleSession', function (evt, arg) {
@@ -375,7 +367,15 @@ APP.prototype.modifyFilePath = function () {
   }
 }
 
-APP.prototype.tryTwinkle = function () {
+APP.prototype.tryTwinkle = function (arg) {
+  if (arg.unreadNums <= 0) {
+    if (this.twinkle) {
+      this.sysTray.setImage(`${__static}/img/systry-logo.png`)
+      clearInterval(this.twinkle)
+      this.twinkle = null
+    }
+    return false
+  }
   // 系统托盘图标闪烁
   if (this.twinkle) {
     clearInterval(this.twinkle)

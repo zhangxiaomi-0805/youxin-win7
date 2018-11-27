@@ -51,9 +51,11 @@ export function onNewMsg (msg) {
 }
 
 async function systemNewMsgsManage (msg) {
+  if (msg.from === store.state.userUID || msg.type === 'notification') return false
   // 通知主进程
   const ipcRenderer = require('electron').ipcRenderer
-  ipcRenderer.send('receiveNewMsgs')
+  let unreads = document.getElementsByClassName('u-unread')
+  ipcRenderer.send('receiveNewMsgs', {unreadNums: unreads.length})
   // 发送音频
   let isMute = false
   if (msg.scene === 'p2p') {
