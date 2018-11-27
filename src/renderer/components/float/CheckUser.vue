@@ -37,7 +37,7 @@ export default {
         Request.GetUserInfo({}, this)
           .then(ret => {
             if (ret) {
-              this.height = '419px'
+              this.height = '459px'
               this.userInfos = ret
               this.isSelf = true
               this.showCheckUser = true
@@ -64,10 +64,10 @@ export default {
               }
               if (data.callBack) {
                 this.callBack = data.callBack
-                this.height = '500px'
+                this.height = '550px'
               } else {
                 this.callBack = ''
-                this.height = '419px'
+                this.height = '459px'
               }
               this.aliasCopy = data.userInfos.alias
               this.isSelf = false
@@ -77,7 +77,7 @@ export default {
           }).catch(() => {
           })
       } else {
-        this.height = '419px'
+        this.height = '459px'
         this.showCheckUser = false
       }
     })
@@ -216,7 +216,7 @@ export default {
     flex-direction: row;
     align-items: center;
     border-bottom: 1px solid rgba(214,214,214,1);
-    padding-bottom: 30px;
+    padding-bottom: 20px;
     margin-bottom: 15px;
   }
 
@@ -244,8 +244,8 @@ export default {
   }
 
   .m-checkuser-con .m-modify img {
-    width: 42px;
-    height: 42px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
     margin-right: 10px;
   } 
