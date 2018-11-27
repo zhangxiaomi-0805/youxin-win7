@@ -155,8 +155,20 @@ export default {
         }
         this.$store.commit('updateContactsToplist', {type: 'delete', accid})
       } else { // 添加
-        let userContactList = this.contactslist.concat([this.userInfos])
-        this.$store.commit('updateContactsToplist', {type: 'update', data: {userContactList}})
+        let addList = {
+          accid: this.userInfos.accid,
+          key: this.userInfos.accid,
+          tag: new Date().getTime(),
+          avatar: this.userInfos.avatar,
+          dataStatus: this.userInfos.dataStatus,
+          name: this.userInfos.name,
+          signature: this.userInfos.signature,
+          phone: this.userInfos.phone,
+          telephone: this.userInfos.telephone,
+          userStatus: this.userInfos.userStatus
+        }
+        let userContactList = this.$store.state.contactsToplist.concat([addList])
+        this.$store.commit('updateContactsToplist', {type: 'update', data: {tag: new Date().getTime(), userContactList}})
       }
       Request.AddOrDelContactUser(params, this)
     }
