@@ -1,4 +1,3 @@
-import store from '../store'
 class IndexedDB {
   constructor () {
     this.db = null // 初始化数据库
@@ -6,7 +5,7 @@ class IndexedDB {
 
   // 打开数据库
   openDB () {
-    const accid = store.state.personInfos.accid
+    const accid = localStorage.getItem('uid')
     return new Promise((resolve, reject) => {
       // 判断是否已经打开数据库
       if (this.db) {
@@ -18,7 +17,7 @@ class IndexedDB {
           const db = event.target.result
           // 设置标识为key
           db.createObjectStore('orgnizeObj', { keyPath: 'key' })
-          db.createObjectStore('groupObj', { keyPath: 'key' })
+          db.createObjectStore('myDeptObj', { keyPath: 'key' })
           db.createObjectStore('contactslist', { keyPath: 'key' })
           db.createObjectStore('contactsToplist', { keyPath: 'key' })
         }

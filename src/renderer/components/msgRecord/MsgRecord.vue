@@ -344,7 +344,6 @@ export default {
       })
     },
     manageItem (item) {
-      console.log(item)
       if (item.flow === 'in') {
         if (item.type === 'robot' && item.content && item.content.msgOut) {
           // 机器人下行消息
@@ -374,13 +373,21 @@ export default {
             item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
           }
         }
+        // 处理url
+        let httpUrls = MsgRecordFn.httpSpring(item.text)
+        if (httpUrls.length > 0) {
+          httpUrls.map(url => {
+            item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="[${url}]">${url}</a>`)
+          })
+        }
+        // 表情处理
         if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
           let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
           emojiItems.forEach(text => {
             let emojiCnt = emojiObj.emojiList.emoji
             if (emojiCnt[text]) {
               let dataKey = text.slice(1, -1)
-              item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+              item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
             }
           })
         }

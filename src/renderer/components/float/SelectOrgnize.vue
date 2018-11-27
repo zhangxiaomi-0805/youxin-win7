@@ -79,7 +79,7 @@ export default {
       loading: false,
       showBorder: false,
       teamId: -1,
-      type: 1, // 1-创建群，2-添加成员（创建群聊），3-添加群成员，4-创建讨论组，5-转发到新聊天
+      type: 1, // 1-创建群，2-添加成员（创建讨论组），3-添加群成员，4-创建讨论组，5-转发到新聊天
       searchValue: '',
       msg: '',
       isDiscussGroup: false
@@ -130,7 +130,7 @@ export default {
           this.eventBus.$emit('settingName', {type: 1, callBack: this.createTeam})
           break
         case 2:
-          this.eventBus.$emit('settingName', {type: 1, callBack: this.createTeam})
+          this.eventBus.$emit('settingName', {type: 2, callBack: this.createTeam})
           break
         case 3:
           this.addTeamMember()
@@ -159,7 +159,7 @@ export default {
         this.errToast()
         return
       }
-      if (this.type === 4) {
+      if (this.type === 2 || this.type === 4) {
         if (this.chooselist.length > 199) {
           this.$store.commit('toastConfig', {
             show: true,
@@ -180,7 +180,7 @@ export default {
         updateCustomMode: 'all',
         done: (error, obj) => {
           if (!error) {
-            this.type === 2 && this.generateQrCode(obj.team.teamId)
+            this.type === 1 && this.generateQrCode(obj.team.teamId)
             this.showSelectOrgnize = false
             this.$store.commit('upadteCreateTeamSelect', {type: 'reset'})
             this.$store.commit('updateOrgDisabledlist', {type: 'destory'})
@@ -210,7 +210,7 @@ export default {
           }
         }
       }
-      if (this.type === 4) {
+      if (this.type === 2 || this.type === 4) {
         options.custom = JSON.stringify({isDiscussGroup: true})
         options.updateTeamMode = 'all'
         options.joinMode = 'noVerify'

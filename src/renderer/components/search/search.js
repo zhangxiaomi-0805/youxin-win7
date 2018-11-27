@@ -120,6 +120,8 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
             records = await this.getRecords(sessionlist[i], value)
           } catch (error) {}
           if (records.length > 0) {
+            // 处理高亮文字
+            records[0].text = records[0].text.replace(new RegExp(value + '(?![^\\[]*\\])', 'gmi'), `<span style="color: rgba(79,141,255,1);">${value}</span>`)
             // 处理表情
             if (/\[[\u4e00-\u9fa5]+\]/.test(records[0].text)) {
               let emojiItems = records[0].text.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -130,8 +132,6 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
                 }
               })
             }
-            // 处理高亮文字
-            records[0].text = records[0].text.replace(new RegExp(value, 'g'), `<span style="color: rgba(79,141,255,1);">${value}</span>`)
             let recordObj = { recordNum: records.length, text: records[0].text }
             recordObj = Object.assign(recordObj, sessionlist[i])
             recordlistTemp.push(recordObj)
@@ -184,6 +184,8 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
         recordlist[i].name = userInfo.name || recordlist[i].fromNick
         recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
         recordlist[i].searchText = recordlist[i].text
+        // 处理高亮文字
+        recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue + '(?![^\\[]*\\])', 'gmi'), `<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
         // 处理表情
         if (/\[[\u4e00-\u9fa5]+\]/.test(recordlist[i].searchText)) {
           let emojiItems = recordlist[i].searchText.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -194,8 +196,6 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
             }
           })
         }
-        // 处理高亮文字
-        recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue, 'g'), `<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
       }
       resolve(recordlist)
     } catch (error) {}

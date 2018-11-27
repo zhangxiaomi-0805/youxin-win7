@@ -71,13 +71,13 @@ li {
 
 ::-webkit-scrollbar-thumb:vertical {
     height: 32px;
-    background-color: rgba(0,0,0,0.22);
+    background-color: rgba(0,0,0,0.18);
     -webkit-border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:horizontal {
     width: 32px;
-    background-color: rgba(0,0,0,0.22);
+    background-color: rgba(0,0,0,0.18);
     -webkit-border-radius: 4px;
 }
 

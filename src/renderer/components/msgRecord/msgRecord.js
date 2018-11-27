@@ -3,11 +3,10 @@
  */
 import store from '../../store'
 import util from '../../utils'
+import {ipcRenderer, shell} from 'electron'
+import Request from '../../utils/request.js'
 var MsgRecordFn = {}
 MsgRecordFn.getSearchRecords = function (searchValue, checkType) {
-  console.log(searchValue)
-  console.log(checkType)
-  console.log(store.state.currSessionId)
   // 搜索
   return new Promise((resolve, reject) => {
     let nim = store.state.nim
@@ -164,11 +163,55 @@ MsgRecordFn.getCopyText = function (e) {
         if (dataKey) {
           text += '[' + dataKey + ']'
         }
-      } else if (item.tagName === 'SPAN') {
+      } else if (item.tagName === 'SPAN' || item.tagName === 'A') {
         text += item.innerText
       }
     }
   })
   return text
+}
+MsgRecordFn.httpSpring = function (str) {
+  // 匹配url
+  let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
+  let httpArr = []
+  str.split('\r\n').map(lineStr => {
+    // 分割空格
+    lineStr.split(/\s+/).map(minStr => {
+      let httpResult = minStr.match(regHttp)
+      if (httpResult) httpArr.push(httpResult[0])
+    })
+  })
+  httpArr = httpArr.filter((element, index, self) => {
+    return self.indexOf(element) === index
+  })
+  return httpArr
+}
+MsgRecordFn.openAplWindow = function (evt, sessionId) {
+  let url = evt.target.getAttribute('data-url')
+  if (url) {
+    url = url.slice(1, url.length - 1)
+    // 打开营业精灵
+    let thirdUrls = store.state.thirdUrls
+    let sessionlist = store.state.sessionlist
+    let sessionInfo = {}
+    for (let i in sessionlist) {
+      if (sessionlist[i].id === sessionId) {
+        sessionInfo = sessionlist[i]
+        break
+      }
+    }
+    let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,4}))+\.?/
+    let domain = url.match(regDomain)[0]
+    if (url.split('://').length <= 1) url = 'http://' + url
+    for (let i in thirdUrls) {
+      if (thirdUrls[i].url === domain) {
+        Request.ThirdConnection({url: url, appCode: thirdUrls[i].appCode}).then(res => {
+          ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId})
+        }).catch(() => {})
+        return false
+      }
+    }
+    shell.openExternal(url)
+  }
 }
 export default MsgRecordFn
