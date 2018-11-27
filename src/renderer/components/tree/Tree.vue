@@ -66,14 +66,14 @@
           v-for="group in grouplist" 
           :key="group.id"
           :id="group.id"
-          @click="noAdd && groupSelectHandle(group)"
+          @click="noAdd && groupSelectHandle (group)"
           @mouseenter="mouseenter('groupAddAllId', group.teamId)"
           @mouseleave="mouseleave('groupAddAllId')"
         >
           <span v-if="noAdd" :class="classNameTeam(group)"></span>
           <img :src="group.avatar || defaultIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
-          <transition name="fade"><a v-if="group.teamId === groupAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a></transition>
+          <transition name="fade"><a v-if="group.teamId === groupAddAllId" class="t-addAll" @click.stop="groupSelectHandle (group)">+</a></transition>
         </li>
       </ul>
     </div>
@@ -230,17 +230,17 @@ export default {
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', accid: user.accid})
       this.callBack({accid: user.accid})
     },
-    async myDeptSelectHandle (myDept) {
+    async groupSelectHandle  (group) {
       if (this.noAdd) {
-        myDept.scene = 'team'
-        myDept.to = myDept.teamId
-        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: myDept})
+        group.scene = 'team'
+        group.to = group.teamId
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
         return
       }
       // 群成员全选
       let teamMembers = []
       try {
-        teamMembers = await SearchData.getTeamMembers(myDept.teamId)
+        teamMembers = await SearchData.getTeamMembers(group.teamId)
       } catch (error) {}
       let userInfos = this.$store.state.userInfos
       for (let i in teamMembers) {
