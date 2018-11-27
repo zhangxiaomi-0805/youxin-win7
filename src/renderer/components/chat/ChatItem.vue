@@ -559,6 +559,10 @@
             })
           })
         }
+        setTimeout(() => {
+          // 停止高亮聊天记录闪烁
+          this.$store.commit('updateMsgHighBgIdClient', '')
+        }, 2000)
       }) // end this.nextTick
     },
     methods: {

@@ -52,7 +52,7 @@
     </div>
   </div>
   <!-- 讨论组 -->
-  <div v-if="showTeam && myDeptlist.length > 0">
+  <div v-if="showTeam && grouplist.length > 0">
     <a class="t-list" @click="groupopen = !groupopen">
       <div class="t-center t-title">
         <span :class="groupopen ? 't-up' : 't-down'"/>
@@ -66,14 +66,14 @@
           v-for="group in grouplist" 
           :key="group.id"
           :id="group.id"
-          @click="noAdd && groupSelectHandle(group)"
+          @click="noAdd && groupSelectHandle (group)"
           @mouseenter="mouseenter('groupAddAllId', group.teamId)"
           @mouseleave="mouseleave('groupAddAllId')"
         >
           <span v-if="noAdd" :class="classNameTeam(group)"></span>
           <img :src="group.avatar || defaultIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
-          <transition name="fade"><a v-if="group.teamId === groupAddAllId" class="t-addAll" @click.stop="groupSelectHandle(group)">+</a></transition>
+          <transition name="fade"><a v-if="group.teamId === groupAddAllId" class="t-addAll" @click.stop="groupSelectHandle (group)">+</a></transition>
         </li>
       </ul>
     </div>
@@ -148,7 +148,7 @@ export default {
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
       teamAddAllId: -1,
-      myDeptAddAllId: -1,
+      groupAddAllId: -1,
       myDept: this.$store.state.personInfos.companyName, // 获取我的组织
       myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
     }
@@ -170,15 +170,15 @@ export default {
     contactsToplist () {
       return this.$store.state.contactsToplist
     },
-    teamlist () {
+    teamlist () { // 群
       let teamlist = this.$store.state.teamlist.filter(item => {
         return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
       })
       return teamlist
     },
-    myDeptlist () {
+    grouplist () { // 讨论组
       let myDeptlist = this.$store.state.teamlist.filter(item => {
-        return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
+        return item.valid && item.validToCurrentUser && util.isDiscussGroup(item)
       })
       return myDeptlist
     },
@@ -230,17 +230,17 @@ export default {
       this.$store.commit('upadteContactSelectObj', {type: 'p2p', accid: user.accid})
       this.callBack({accid: user.accid})
     },
-    async myDeptSelectHandle (myDept) {
+    async groupSelectHandle  (group) {
       if (this.noAdd) {
-        myDept.scene = 'team'
-        myDept.to = myDept.teamId
-        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: myDept})
+        group.scene = 'team'
+        group.to = group.teamId
+        this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: group})
         return
       }
       // 群成员全选
       let teamMembers = []
       try {
-        teamMembers = await SearchData.getTeamMembers(myDept.teamId)
+        teamMembers = await SearchData.getTeamMembers(group.teamId)
       } catch (error) {}
       let userInfos = this.$store.state.userInfos
       for (let i in teamMembers) {

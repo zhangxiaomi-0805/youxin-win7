@@ -12,7 +12,7 @@
         <img :src="msg.avatar || myUserIcon" class="s-img">
         <div class="s-contain">
           <div>{{msg.name}}</div>
-          <div class="s-btm"><span :class="nameClass(text)" v-for="text in msg.text" :key="text.id" :id="text.id">{{text}}</span></div>
+          <div class="s-btm"><span class="s-name" v-html="msg.searchText"></span></div>
         </div>
         <div class="s-time">{{msg.updateTimeShow}}</div>
       </li>

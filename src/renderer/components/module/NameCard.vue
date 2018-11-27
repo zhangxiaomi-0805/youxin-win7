@@ -20,8 +20,11 @@
         <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || '-'}}</span></div>
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
-        <a v-if="type === 'contactsTop'" class="delete-contact" @click="contactsTopManage(userInfos.accid, 2)">删除常用联系人</a>
-        <a v-else class="add-contact" @click="contactsTopManage(userInfos.accid, 1)">添加为常用联系人</a>
+        <a :class="isInContactslist ? 'delete-contact' : 'add-contact'" @click.stop="isInContactslist ? contactsTopManage(userInfos.accid, 2) : contactsTopManage(userInfos.accid, 1)">
+          {{isInContactslist ? '删除常用联系人' : '添加为常用联系人'}}
+        </a>
+        <!-- <a v-if="type === 'contactsTop'" class="delete-contact" @click="contactsTopManage(userInfos.accid, 2)">删除常用联系人</a>
+        <a v-else class="add-contact" @click="contactsTopManage(userInfos.accid, 1)">添加为常用联系人</a> -->
       </div>
       <div class="nc-team" v-else-if="pageType === 'team'">
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
@@ -64,6 +67,20 @@ export default {
     }
   },
   computed: {
+    contactslist () {
+      return this.$store.state.contactsToplist // 常用联系人列表
+    },
+    isInContactslist () {
+      const index = this.contactslist.findIndex(item => {
+        return item.accid === this.accid
+      })
+      console.log(index)
+      if (index === -1) {
+        return false
+      } else {
+        return true
+      }
+    },
     sessionlist () {
       return this.$store.state.sessionlist
     },
@@ -133,8 +150,13 @@ export default {
         userType
       }
       if (userType === 2) {
-        this.callBack()
+        if (this.callBack) {
+          this.callBack()
+        }
         this.$store.commit('updateContactsToplist', {type: 'delete', accid})
+      } else {
+        let userContactList = this.contactslist.push(this.userInfos)
+        this.$store.commit('updateContactsToplist', {type: 'update', data: {userContactList}})
       }
       Request.AddOrDelContactUser(params, this)
     }
