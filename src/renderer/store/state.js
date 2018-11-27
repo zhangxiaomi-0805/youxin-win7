@@ -153,6 +153,7 @@ export default {
   msgHighBgIdClient: '',
   // 好友状态列表
   friendsStatusList: {},
+  mobileOnline: false,
   // 下线modal状态管理
   downlineStatus: false,
   // 常用联系人列表

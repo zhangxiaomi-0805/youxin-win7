@@ -450,6 +450,11 @@ export async function showListOptions ({state, commit}, obj) {
       event1, event3, event2, event4
     ]
   }
+  if (obj.key === 'text-out-fail') {
+    items = [
+      event3, event2, event4
+    ]
+  }
   // 选择他人的text
   if (obj.key === 'text-in') {
     items = [
@@ -462,6 +467,11 @@ export async function showListOptions ({state, commit}, obj) {
       event1, event2, event6, event4
     ]
   }
+  if (obj.key === 'image-out-fail') {
+    items = [
+      event2, event6, event4
+    ]
+  }
   // 选择他人的image
   if (obj.key === 'image-in') {
     items = [
@@ -472,6 +482,11 @@ export async function showListOptions ({state, commit}, obj) {
   if (obj.key === 'audio-out') {
     items = [
       event1, event5, event4
+    ]
+  }
+  if (obj.key === 'audio-out-fail') {
+    items = [
+      event5, event4
     ]
   }
   // 选择他人的audio
