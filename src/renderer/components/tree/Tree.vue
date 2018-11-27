@@ -52,7 +52,7 @@
     </div>
   </div>
   <!-- 讨论组 -->
-  <div v-if="showTeam && myDeptlist.length > 0">
+  <div v-if="showTeam && grouplist.length > 0">
     <a class="t-list" @click="groupopen = !groupopen">
       <div class="t-center t-title">
         <span :class="groupopen ? 't-up' : 't-down'"/>
@@ -148,7 +148,7 @@ export default {
       orgSelectId: '', // 选中组织成员id
       orgSelectLevel: -1, // 选中组织成员所属组织
       teamAddAllId: -1,
-      myDeptAddAllId: -1,
+      groupAddAllId: -1,
       myDept: this.$store.state.personInfos.companyName, // 获取我的组织
       myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
     }
