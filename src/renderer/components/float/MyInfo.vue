@@ -280,7 +280,6 @@ export default {
     left: 30%;
     top: 20%;
 		width: 336px;
-    height: 419px;
     opacity: 1;
     background-color: #fff;
     padding: 40px 40px 20px;
