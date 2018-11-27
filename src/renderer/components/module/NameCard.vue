@@ -149,13 +149,13 @@ export default {
         accid,
         userType
       }
-      if (userType === 2) {
+      if (userType === 2) { // 删除
         if (this.callBack) {
           this.callBack()
         }
         this.$store.commit('updateContactsToplist', {type: 'delete', accid})
-      } else {
-        let userContactList = this.contactslist.push(this.userInfos)
+      } else { // 添加
+        let userContactList = this.contactslist.concat([this.userInfos])
         this.$store.commit('updateContactsToplist', {type: 'update', data: {userContactList}})
       }
       Request.AddOrDelContactUser(params, this)
