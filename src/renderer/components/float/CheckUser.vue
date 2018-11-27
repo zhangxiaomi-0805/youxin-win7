@@ -1,5 +1,5 @@
 <template>
-<!-- 个人资料Modal -->
+<!-- 查看验证消息-他人资料 -->
 <transition name="fade">
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
     <div class="m-modify">
@@ -88,7 +88,7 @@ export default {
       showCheckUser: false,
       left: '38%',
       top: '20%',
-      height: '419px',
+      height: '459px',
       aliasCopy: '',
       userInfos: {},
       isSelf: false,
@@ -194,10 +194,7 @@ export default {
 	.m-checkuser-con {
     box-sizing: border-box;
     position: absolute;
-    left: 30%;
-    top: 20%;
 		width: 336px;
-    height: 419px;
     opacity: 1;
     background-color: #fff;
     padding: 40px 40px 20px;
