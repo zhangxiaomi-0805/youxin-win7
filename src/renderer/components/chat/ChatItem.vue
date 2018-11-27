@@ -725,7 +725,6 @@
         return false
       },
       showListOptions (e, type) {
-        console.log(type)
         if (type === 'file' && this.msg.flow === 'out' && this.curProgress < 100) {
           return
         }
@@ -752,6 +751,9 @@
           }
           if (this.msg.flow === 'in' && this.isDownloaded) {
             key += '-isDownloaded'
+          }
+          if (this.msg.status === 'fail') {
+            key += '-fail'
           }
           this.$store.dispatch('showListOptions', {
             key,
@@ -971,8 +973,12 @@
           return ''
         }
       },
+      // 消息重发
       resendMsg (msg) {
-        // 消息重发
+        // 在断网情况下不进行重发
+        if (this.$store.state.networkStatus !== 200) {
+          return
+        }
         if (msg.type !== 'file') {
           this.$store.dispatch('resendMsg', msg)
         } else {

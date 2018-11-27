@@ -1294,5 +1294,8 @@ export default {
       newArr[index].status = 2
     }
     state.downloadFileList = newArr
+  },
+  updateMobileOnline (state, type) {
+    state.mobileOnline = type
   }
 }

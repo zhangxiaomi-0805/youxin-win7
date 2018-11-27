@@ -6,10 +6,11 @@
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
-  <div class="u-neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
+  <div class="u-tips" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
+  <div class="u-tips mobile-online" v-else-if="mobileOnline"><i></i><span>手机端已登录</span></div>
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
   <search v-if="showSearch" type="all" :value="searchValue" :clearStatus="clearStatus"/>
-  <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : '56px'}" ref="sessionList" @scroll="scrollTop = $event.target.scrollTop">
+  <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : mobileOnline ? '92px' : '56px'}" ref="sessionList" @scroll="scrollTop = $event.target.scrollTop">
     <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">
@@ -134,6 +135,10 @@ export default {
     },
     networkStatus () {
       return this.$store.state.networkStatus
+    },
+    // 判断手机在线
+    mobileOnline () {
+      return this.$store.state.mobileOnline
     },
     hasBorder () {
       if (this.$store.state.showListOptions) {
@@ -540,6 +545,47 @@ export default {
     color: #fff;
     text-align: center;
     border-radius: 8px;
+}
+.u-tips {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 36px;
+}
+
+.u-tips span{
+  font-size: 11px;
+  color: #626369;
+}
+
+.u-tips.neterr {
+  justify-content: center;
+  background: #FFDFE0;
+}
+
+.u-tips.neterr i{
+  margin-right: 5px;
+  width: 16px;
+  height: 16px;
+  background-image: url(../../../../static/img/nav/main-tab-neterr.png);
+  background-size: 100%;
+}
+
+.u-tips.mobile-online {
+  justify-content: flex-start;
+  background: #f7f7f7;
+}
+
+.u-tips.mobile-online i{
+  margin-left: 12px;
+  width: 14px;
+  height: 20px;
+  background-image: url(../../../../static/img/nav/mobile-online.png);
+  background-size: 100%;
+}
+
+.u-tips.mobile-online span {
+  margin-left: 13px;
 }
 .g-window .nomsg {
   display: inline-block;
