@@ -281,7 +281,13 @@ export default {
       let failAccount = []
       for (let i = 0; i < this.chooselist.length; i++) {
         try {
-          await this.forwordMsg(this.chooselist[i])
+          if (this.msg.length > 1) {
+            for (let j = 0; j < this.msg.length; j++) {
+              await this.forwordMsg(this.chooselist[i], this.msg[j])
+            }
+          } else {
+            await this.forwordMsg(this.chooselist[i], this.msg)
+          }
         } catch (err) {
           failAccount.push(this.chooselist[i].name)
         }
@@ -307,10 +313,10 @@ export default {
       }
       this.closeModal()
     },
-    forwordMsg (item) {
+    forwordMsg (item, msg) {
       return new Promise((resolve, reject) => {
         this.$store.dispatch('onForwordMsg', {
-          msg: this.msg,
+          msg,
           scene: item.scene,
           to: item.to
         }).then(() => {

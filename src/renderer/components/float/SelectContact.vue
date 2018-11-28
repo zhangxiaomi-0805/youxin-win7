@@ -10,7 +10,7 @@
       </div>
       <div class="side-list-contain">
         <div class="side-list left">
-          <div class="new-chat" @click="forwardNewChat" v-if="type === 7">+ 转发到新聊天</div>
+          <div class="new-chat" @click="forwardNewChat" v-if="type === 7 || type === 8">+ 转发到新聊天</div>
           <!-- 搜索 -->
           <div class="u-search searchevent">
             <div class="u-cont">
@@ -21,7 +21,7 @@
           <div class="title" style="paddingTop: 0;paddingBottom: 0;">{{tipTitle}}</div>
           <ul 
             class="u-list"
-            :style="type === 7 ? {top: '100px'} : {}"
+            :style="type === 7 || type === 8 ? {top: '100px'} : {}"
             v-if="sidelist.length > 0"
           >
             <li class="u-list-item" v-for="(friend, $index) in sidelist" :key="$index" :id="friend.id" @click="add($index)">
@@ -500,9 +500,9 @@ export default {
       let failAccount = []
       for (let i = 0; i < this.chooselist.length; i++) {
         try {
-          if (type === 7) {
+          if (type === 7) { // 单条消息转发
             await this.forwordMsg(this.chooselist[i], this.msg)
-          } else if (type === 8) {
+          } else if (type === 8) { // 多条消息逐条转发
             for (let j = 0; j < this.msg.length; j++) {
               await this.forwordMsg(this.chooselist[i], this.msg[j])
             }
