@@ -589,7 +589,7 @@ export async function showListOptions ({state, commit}, obj) {
     }
     const members = await getTeamMembers(obj.id)
     let userType = ''
-    for (let i = 1; i < members.length; i++) {
+    for (let i = 0; i < members.length; i++) {
       let item = members[i]
       if (item.account === state.personInfos.accid) {
         userType = item.type
