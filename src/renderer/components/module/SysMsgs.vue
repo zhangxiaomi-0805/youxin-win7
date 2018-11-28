@@ -27,12 +27,18 @@ import config from '../../configs'
 export default {
   name: 'sysmsgs',
   mounted () {
+    this.$store.state.nim.getLocalSysMsgs({
+      done: (err, obj) => {
+        if (!err) console.log(obj)
+      }
+    })
     this.$store.dispatch('markSysMsgRead')
     this.$store.dispatch('markCustomSysMsgRead')
   },
   updated () {
-    this.$store.dispatch('markSysMsgRead')
-    this.$store.dispatch('markCustomSysMsgRead')
+    // console.log('updated===============')
+    // this.$store.dispatch('markSysMsgRead')
+    // this.$store.dispatch('markCustomSysMsgRead')
   },
   data () {
     return {
@@ -60,6 +66,7 @@ export default {
         // 最新的排在前
         return msg2.time - msg1.time
       })
+      console.log(sysMsgs)
       return sysMsgs
     },
     customSysMsgs () {

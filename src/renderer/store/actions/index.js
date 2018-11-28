@@ -13,7 +13,7 @@ import {updateFriend, addFriend, deleteFriend} from './friends'
 import {resetSearchResult, searchUsers, searchTeam} from './search'
 import {deleteSession, setCurrSession, resetCurrSession, insertLocalSession, setTopSession, deleteLocalMsgsBySession, updateLocalCustomSession, deleteLocalMsgs} from './session'
 import {sendMsg, sendFileMsg, sendImgMsg, sendMsgReceipt, sendRobotMsg, revocateMsg, getHistoryMsgs, getLocalMsgs, resetNoMoreHistoryMsgs, continueRobotMsg, deleteMsg, downloadImg, convertVoice, previewFile, resendMsg, onForwordMsg} from './msgs'
-import {markSysMsgRead, resetSysMsgs, deleteSysMsgs, markCustomSysMsgRead, getLocalSysMsgs} from './sysMsgs'
+import {markSysMsgRead, resetSysMsgs, deleteSysMsgs, markCustomSysMsgRead, getLocalSysMsgs, deleteLocalSysMsg} from './sysMsgs'
 // import {sendChatroomMsg, sendChatroomRobotMsg, sendChatroomFileMsg, getChatroomHistoryMsgs} from './chatroomMsgs'
 // import {initChatroomInfos, getChatroomInfo, getChatroomMembers, clearChatroomMembers} from './chatroomInfos'
 import {delegateTeamFunction, onTeamNotificationMsg, enterSettingPage, getTeamMembers, checkTeamMsgReceipt, getTeamMsgReads, updateTeam, updateInfoInTeam, addTeamManagers, removeTeamManagers, transferTeam, dismissTeam, leaveTeam, addTeamMembers, removeTeamMembers, setSelectMsg, getUnreadList} from './team'
@@ -149,6 +149,7 @@ export default {
   resetSysMsgs,
   deleteSysMsgs,
   getLocalSysMsgs,
+  deleteLocalSysMsg,
   // 下载图片
   downloadImg,
   // 预览文件

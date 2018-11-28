@@ -349,11 +349,13 @@ export default {
   methods: {
     // 获取群成员
     getMembers () {
-      if (this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-        // 获取群成员
-        var teamMembers = this.$store.state.teamMembers[this.to]
-        if (!teamMembers || teamMembers.length < this.teamInfo.memberNum) {
-          this.$store.dispatch('getTeamMembers', this.to)
+      if (this.teamInfo) {
+        if (this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+          // 获取群成员
+          var teamMembers = this.$store.state.teamMembers[this.to]
+          if (!teamMembers || teamMembers.length < this.teamInfo.memberNum) {
+            this.$store.dispatch('getTeamMembers', this.to)
+          }
         }
       }
     },

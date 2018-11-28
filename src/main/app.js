@@ -5,7 +5,7 @@ import MainWindow from './module/MainWindow.js'
 import DockMenu from './module/DockMenu.js'
 import SysTray from './module/SysTray.js'
 import AppMenu from './module/AppMenu.js'
-import { execFile } from 'child_process'
+import { exec } from 'child_process'
 
 function APP () {
   this.logined = false
@@ -231,9 +231,9 @@ APP.prototype.initIPC = function () {
   ipcMain.on('screenShot', () => {
     var ssFile = process.platform === 'darwin' ? '/Screenshot.app/Contents/MacOS/Screenshot' : '/Screenshot'
     var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
-    execFile(testFile, {}, (error, stdout, stderr) => {
+    exec(testFile, {}, (error, stdout, stderr) => {
       if (error) throw error
-      console.log(stdout)
+      else _this.mainWindow.screenShot()
     })
   })
 

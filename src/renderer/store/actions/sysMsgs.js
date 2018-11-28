@@ -7,6 +7,8 @@ export function onSysMsgs (sysMsgs) {
 }
 
 export async function onSysMsg (sysMsg) {
+  console.log(Object.assign({}, sysMsg))
+  if (!sysMsg) return
   switch (sysMsg.type) {
     // 在其他端添加或删除好友
     case 'addFriend':
@@ -153,5 +155,15 @@ function getUserInfo (account) {
         else reject(error)
       }
     })
+  })
+}
+
+// 删除本地消息
+export function deleteLocalSysMsg ({state}, idServer) {
+  const nim = state.nim
+  nim.deleteLocalSysMsg({
+    idServer,
+    done: (_err, _obj) => {
+    }
   })
 }

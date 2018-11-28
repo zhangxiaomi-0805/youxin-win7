@@ -24,9 +24,8 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
   if (state.nim) {
     state.nim.disconnect()
   }
-  // dispatch('showLoading')
   // 初始化SDK
-  window.nim = state.nim = SDK.NIM.getInstance({
+  let Params = {
     debug: false,
     appKey: config.appkey,
     account: loginInfo.uid,
@@ -147,5 +146,10 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
         if (team.custom) return true
       }
     }
-  })
+  }
+  if (config.env === 'self') {
+    // 私有化
+    Params = Object.assign(Params, {privateConf: config.privateConf})
+  }
+  window.nim = state.nim = SDK.NIM.getInstance(Params)
 }

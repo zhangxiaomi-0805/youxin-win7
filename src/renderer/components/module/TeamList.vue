@@ -214,7 +214,6 @@ export default {
                       let teamName = info.name
                       if (info.memberNum <= 3) {
                         Request.DelTeam({tid: info.teamId, owner: info.owner}, this).then(res => {
-                          console.log(res)
                           this.$store.commit('toastConfig', {
                             show: true,
                             type: 'success',

@@ -156,12 +156,13 @@ export default {
         let httpUrls = MsgRecordFn.httpSpring(item.text)
         if (httpUrls.length > 0) {
           httpUrls.map(url => {
-            item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="[${url}]">${url}</a>`)
+            let urlShowText = url
+            // urlShowText = urlShowText.replace(new RegExp(this.searchValue, 'g'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+            item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="[${url}]">${urlShowText}</a>`)
           })
-          // item.showText = item.showText.replace(new RegExp(this.searchValue + '(?![^<>]*>)', 'gmi'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-        } else {
-          // item.showText = item.showText.replace(new RegExp(this.searchValue + '(?![^\\[]*\\])', 'gmi'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
         }
+        // 处理高亮文本
+        // item.showText = item.showText.replace(new RegExp(this.searchValue + '(?![^<>]*>)', 'gmi'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
         // 表情处理
         if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
           let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)

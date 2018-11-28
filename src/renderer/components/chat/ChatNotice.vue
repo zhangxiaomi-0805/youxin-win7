@@ -22,7 +22,7 @@
     :userInfos="userInfos"
     :myInfo="myInfo"
     :clearStatus="clearStatus"/>
-  <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px'}">
+  <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px', bottom: '31px'}">
     <li 
       class="m-u-list-item" 
       v-for="member in memberList"

@@ -199,4 +199,8 @@ MainWindow.prototype.flashFrame = function (boolean) {
   this.mainWindow && this.mainWindow.flashFrame(boolean)
 }
 
+MainWindow.prototype.screenShot = function (arg) {
+  this.mainWindow && this.mainWindow.webContents.send('screenShotCb', arg)
+}
+
 export default MainWindow

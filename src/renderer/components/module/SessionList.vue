@@ -84,7 +84,7 @@ export default {
       setTimeout(() => {
         let session = this.sessionlist[0]
         session && this.$refs[session.id][0].click()
-      }, 150)
+      }, 200)
     })
   },
   watch: {
@@ -97,7 +97,7 @@ export default {
             if (this.$refs[newData[0].id]) {
               this.$refs[newData[0].id][0].click()
             }
-          }, 150)
+          }, 200)
         })
       }
     }

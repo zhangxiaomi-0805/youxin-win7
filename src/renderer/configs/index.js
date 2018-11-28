@@ -23,10 +23,21 @@ var config = {
   // 我的手机图标
   myPhoneIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/my-phone.png',
   // 本地消息显示数量，会影响性能
-  localMsglimit: 36
+  localMsglimit: 36,
+  // 私有化配置文件
+  privateConf: {
+    lbs_web: 'http://132.252.136.55:10081/lbs/conf.jsp',
+    link_ssl_web: false,
+    nos_uploader_web: 'http://132.252.136.55:10080',
+    https_enabled: false,
+    nos_downloader: '132.252.136.55:10080/{bucket}/{object}',
+    nos_accelerate: '',
+    nos_accelerate_host: '',
+    nt_server: ''
+  }
 }
 
-const env = 'test'
+const env = 'self'
 
 let appConfig = {
   // 用户的appkey
@@ -43,8 +54,8 @@ let appConfig = {
     postUrl: 'https://nice.yunxin.163.com/'
   },
   self: {
-    appkey: '8d7e0c79e15ede7eff6bb41631a1f986',
-    postUrl: 'http://59.111.110.176:8181/'
+    appkey: 'fd786db12662c1c6aa2d9fa13a02d830',
+    postUrl: 'http://132.252.136.47:10581/'
   }
 }
 
