@@ -78,7 +78,7 @@ export async function showListOptions ({state, commit}, obj) {
     commit('updateTeamAc', {
       id: ''
     })
-  } else if (obj.key === 'group') {
+  } else if (obj.key === 'group' || obj.key === 'team') {
     commit('updateTeamAc', {
       id: obj.id
     })
