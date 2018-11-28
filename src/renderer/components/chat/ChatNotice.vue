@@ -25,7 +25,7 @@
   <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px'}">
     <li 
       class="m-u-list-item" 
-      v-for="member in memberList" 
+      v-for="member in memberList"
       :key="member.id" 
       :id="member.id"
       @click="checkUserInfo($event, member)" 
