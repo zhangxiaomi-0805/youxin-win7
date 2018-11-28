@@ -947,7 +947,7 @@
               if (dataKey) {
                 text += '[' + dataKey + ']'
               }
-            } else if (item.tagName === 'SPAN') {
+            } else if (item.tagName === 'SPAN' || item.tagName === 'A') {
               text += item.innerText
             }
           }

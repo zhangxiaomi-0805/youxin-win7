@@ -15,10 +15,11 @@
           <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
           <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
           <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-          <div 
+          <div
             v-if="msg.type==='text'"
             style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
+            @click="openAplWindow($event, msg.sessionId)"
             v-html="msg.showText"
             :ref="`copy_${msg.idClient}`"
           ></div>
@@ -175,7 +176,6 @@ export default {
                 this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
                 break
               case 3: // 复制
-                console.log(this.$refs.clipboard)
                 this.$refs.clipboard.innerText = MsgRecordFn.getCopyText(e)
                 this.$refs.clipboard.select()
                 document.execCommand('Copy')
@@ -224,6 +224,9 @@ export default {
         this.checkedMsgList.splice(index, 1)
       }
       this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
+    },
+    openAplWindow (evt, sessionId) {
+      MsgRecordFn.openAplWindow(evt, sessionId)
     }
   }
 }

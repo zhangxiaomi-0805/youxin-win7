@@ -1,5 +1,6 @@
 <template>
   <div class="s-cont" :style="{overflowY: showTeam ? 'auto' : 'inherit'}" >
+    <div style="fontSize: 13px;color: #C4C4C4;padding: 20px;textAlign: center;" v-if="contactlist.length <= 0 && teamlist.length <= 0">暂无搜索结果~</div>
     <!-- 搜索联系人 -->
     <div v-if="contactlist.length > 0" class="title n-padding">联系人</div>
     <ul

@@ -16,29 +16,30 @@
             <span v-show="isSearchCheckMore" :class="className(msg)"></span>
             <img :src="msg.avatar" alt="" class="avatar">
             <div style="padding:0 8px; width:85%">
-                <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
-                <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
-                <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;" :ref="`clipboard_${msg.idClient}`"></textarea>
-                <div 
-                  v-if="msg.type==='text'"
-                  @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
-                  :ref="`copy_${msg.idClient}`" 
-                  class="searchValue"
-                  style="-webkit-user-select: text"
-                  v-html="msg.showText"
-                />
-                <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
-                <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
-                  <img :src="msg.imgUrl" style="width: 100%; height: 100%"/>
-                </div>
-                <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
-                  <img :src="msg.imgUrl" style="width: 230px; height: 230px"/>
-                </div>
-                <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg">
-                  <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
-                </div>
-                <div v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="isSearchCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
-                <div v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
+              <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
+              <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
+              <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;" :ref="`clipboard_${msg.idClient}`"></textarea>
+              <div 
+                v-if="msg.type==='text'"
+                @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
+                :ref="`copy_${msg.idClient}`" 
+                class="searchValue"
+                style="-webkit-user-select: text"
+                v-html="msg.showText"
+                @click.stop="openAplWindow($event, msg.sessionId)"
+              />
+              <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
+              <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
+                <img :src="msg.imgUrl" style="width: 100%; height: 100%"/>
+              </div>
+              <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
+                <img :src="msg.imgUrl" style="width: 230px; height: 230px"/>
+              </div>
+              <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg">
+                <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
+              </div>
+              <div v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="isSearchCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
+              <div v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
             </div>
           </div>
           <!-- 时间 -->
@@ -151,13 +152,24 @@ export default {
             item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
           }
         }
+        // 处理url
+        let httpUrls = MsgRecordFn.httpSpring(item.text)
+        if (httpUrls.length > 0) {
+          httpUrls.map(url => {
+            item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="[${url}]">${url}</a>`)
+          })
+          // item.showText = item.showText.replace(new RegExp(this.searchValue + '(?![^<>]*>)', 'gmi'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+        } else {
+          // item.showText = item.showText.replace(new RegExp(this.searchValue + '(?![^\\[]*\\])', 'gmi'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+        }
+        // 表情处理
         if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
           let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
           emojiItems.forEach(text => {
             let emojiCnt = emojiObj.emojiList.emoji
             if (emojiCnt[text]) {
               let dataKey = text.slice(1, -1)
-              item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+              item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
             }
           })
         }
@@ -345,6 +357,9 @@ export default {
     reset () {
       this.beforeValue = ''
       this.searchlist = []
+    },
+    openAplWindow (evt, sessionId) {
+      MsgRecordFn.openAplWindow(evt, sessionId)
     }
   }
 }

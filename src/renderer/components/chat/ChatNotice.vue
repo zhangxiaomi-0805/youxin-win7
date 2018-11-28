@@ -11,7 +11,7 @@
   </div>
   <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a></div>
   <div v-else class="search-bar">
-    <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+    <input ref="searchInput" :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
     <span v-if="showSearch" class="clear" @click="clearStatus"/>
   </div>
   <search-member
@@ -242,6 +242,9 @@ export default {
         callBack: (type) => {
           if (type === 3) { // 搜索成员
             this.showSearch = true
+            setTimeout(() => {
+              this.$refs.searchInput.focus()
+            }, 0)
           } else if (type === 4) { // 添加成员
             this.addTeamMember()
           } else if (type === 2) { // 移出成员
