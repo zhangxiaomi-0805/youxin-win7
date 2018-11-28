@@ -90,7 +90,7 @@ export default {
     onLineNum () {
       let num = 0
       for (let i in this.contactslist) {
-        if (this.contactslist[i].userStatus === 2) {
+        if (this.contactslist[i].status === 0) {
           ++num
         }
       }

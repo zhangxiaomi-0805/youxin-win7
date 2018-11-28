@@ -91,6 +91,7 @@ export default {
         this.showPositionBtn = false
       }
     })
+    this.getMembers()
   },
   updated () {
     if (this.$route.query.firstFlag && this.$store.state.currSessionId !== this.sessionId) {
@@ -175,11 +176,6 @@ export default {
         }
       } else if (/^team-/.test(sessionId)) {
         if (this.teamInfo) {
-          if (this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-            // 获取群成员
-            var teamMembers = this.$store.state.teamMembers[this.to]
-            if (!teamMembers) this.$store.dispatch('getTeamMembers', this.to)
-          }
           return this.teamInfo.name
         } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
           return this.lastMsg.attach.team.name
@@ -347,9 +343,20 @@ export default {
       if (document.querySelector('#newMsgTip')) {
         document.querySelector('#chat-list').removeChild(document.querySelector('#newMsgTip'))
       }
+      this.getMembers()
     }
   },
   methods: {
+    // 获取群成员
+    getMembers () {
+      if (this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+        // 获取群成员
+        var teamMembers = this.$store.state.teamMembers[this.to]
+        if (!teamMembers || teamMembers.length < this.teamInfo.memberNum) {
+          this.$store.dispatch('getTeamMembers', this.to)
+        }
+      }
+    },
     sessionInit () {
       this.$store.dispatch('resetCurrSession')
       this.$store.dispatch('setCurrSession', this.sessionId)

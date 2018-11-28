@@ -6,7 +6,7 @@
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
-  <div class="u-tips" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
+  <div class="u-tips neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-tips mobile-online" v-else-if="mobileOnline"><i></i><span>手机端已登录</span></div>
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
   <search v-if="showSearch" type="all" :value="searchValue" :clearStatus="clearStatus"/>
@@ -15,7 +15,7 @@
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">
           <div style="display: flex; align-items: center;width:70%;">
-            <div 
+            <div
               class="icon"
               style="position: relative;"
             >

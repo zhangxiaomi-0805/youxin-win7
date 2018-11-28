@@ -454,6 +454,7 @@ export default {
         e.preventDefault()
         this.sendBlendMsg()
       } else if (this.quickIndex === 0 && e.ctrlKey && e.keyCode === 13) {
+        // ctrl + enter换行
         document.execCommand('insertHTML', false, '<div><br /></div>')
       }
     },
