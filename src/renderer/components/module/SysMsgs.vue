@@ -2,7 +2,7 @@
 <div class="g-hbf-container m-sysmsg bg" style="top: 31px;">
   <ul class="u-list s-msg-list">
     <li class="u-list-item s-msg-list-item" v-for="msg in msgList" :key="msg.idServer">
-      <div class="s-msg-list-item-container s-msg-center" :key="msg.idServer" v-if="msg.type ==='applyTeam' || msg.type ==='teamInvite'" @contextmenu="showMenu" :id="msg.idServer">
+      <div class="s-msg-list-item-container s-msg-center" :key="msg.idServer" v-if="msg.type ==='applyTeam' || msg.type ==='teamInvite'" :id="msg.idServer">
         <div class="s-msg-center" style="width: 75%">
           <img class="icon" style="marginRight: 10px;" :src="msg.avatar || defaultAvatar"/>
           <div class="s-msg-content"><span style="color: rgba(4,154,255,1);">{{msg.nick || msg.from}}</span><span>申请加入</span><span style="color: rgba(4,154,255,1);">{{getTeamName(msg.to)}}</span></div>

@@ -212,23 +212,25 @@
         this.showModal = false
       },
       deleteAccount (index) {
-        this.rememberAccount.map((obj, i) => {
-          if (index === i) {
-            if (obj.account === this.account) {
-              this.account = ''
-              this.password = ''
-              this.isRember = false
-              this.autoLogin = false
-              this.showModal = false
-            }
-            let currentAccount = localStorage.CurrentAccount ? localStorage.CurrentAccount : ''
-            if (currentAccount && obj.account === currentAccount.account) {
-              localStorage.removeItem('CurrentAccount')
-              this.showModal = false
-            }
-            this.rememberAccount.splice(index, 1)
-          }
-        })
+        // 删除账户
+        let obj = this.rememberAccount[index]
+        if (obj.account === this.account) {
+          this.account = ''
+          this.password = ''
+          this.isRember = false
+          this.autoLogin = false
+          this.showModal = false
+        }
+        // 清除本地缓存
+        let HistoryAccount = localStorage.HistoryAccount ? JSON.parse(localStorage.HistoryAccount) : ''
+        if (HistoryAccount) {
+          HistoryAccount = HistoryAccount.filter(item => {
+            return item.id !== obj.id
+          })
+          localStorage.setItem('HistoryAccount', JSON.stringify(HistoryAccount))
+        }
+        this.rememberAccount.splice(index, 1)
+        this.showModal = false
       },
       selectAccount (item) {
         this.account = item.account
