@@ -1,4 +1,5 @@
 var config = {
+  env: 'self',
   sdk: 'NIM_Web_SDK_v5.7.0',
   // 用户自定义的登录注册地址
   loginUrl: '#/',
@@ -26,7 +27,7 @@ var config = {
   localMsglimit: 36,
   // 私有化配置文件
   privateConf: {
-    lbs_web: 'http://132.252.136.55:10081/lbs/conf.jsp',
+    lbs_web: 'http://132.252.136.55:10081/lbs/webconf.jsp',
     link_ssl_web: false,
     nos_uploader_web: 'http://132.252.136.55:10080',
     https_enabled: false,
@@ -36,8 +37,6 @@ var config = {
     nt_server: ''
   }
 }
-
-const env = 'test'
 
 let appConfig = {
   // 用户的appkey
@@ -59,6 +58,6 @@ let appConfig = {
   }
 }
 
-config = Object.assign(config, appConfig[env])
+config = Object.assign(config, appConfig[config.env])
 
 export default config
