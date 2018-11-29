@@ -164,6 +164,13 @@ export default {
       }
     }
   },
+  mounted () {
+    ipcRenderer.on('screenShotCb', (evt, arg) => {
+      if (arg.isChange === 2) {
+        this.onPaste()
+      }
+    })
+  },
   watch: {
     continueRobotAccid (curVal, oldVal) {
       if (curVal && this.robotInfos[curVal]) {
@@ -334,14 +341,14 @@ export default {
         // 创建range
         var range = window.getSelection()
         // range 选择obj下所有子内容
-        range.selectAllChildren(this.$refs.editDiv)
+        range && range.selectAllChildren(this.$refs.editDiv)
         // 光标移至最后
-        range.collapseToEnd()
+        range && range.collapseToEnd()
       }
     },
     // 粘贴事件
     async onPaste (e) {
-      e.preventDefault()
+      e && e.preventDefault()
       let text = null
       let file = null
       if (clipboard.readText() && !clipboard.read('public.file-url')) {
@@ -377,7 +384,7 @@ export default {
           file.h = image.height
         }
         image.src = base64Str
-      } else if (e.clipboardData && e.clipboardData.items) {
+      } else if (e && e.clipboardData && e.clipboardData.items) {
         for (let i = 0, len = e.clipboardData.items.length; i < len; i++) {
           let item = e.clipboardData.items[i]
           if (item.kind === 'file') {

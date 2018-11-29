@@ -1,4 +1,4 @@
-import { app, ipcMain, protocol, dialog, BrowserWindow } from 'electron'
+import { app, ipcMain, protocol, dialog, BrowserWindow, clipboard } from 'electron'
 import path from 'path'
 import log from '../renderer/utils/log.js'
 import MainWindow from './module/MainWindow.js'
@@ -229,11 +229,27 @@ APP.prototype.initIPC = function () {
   })
 
   ipcMain.on('screenShot', () => {
+    let getStrFn = () => {
+      // 获取截屏图片
+      let nativeImage = clipboard.readImage()
+      if (nativeImage) {
+        return nativeImage.toDataURL()
+      }
+      return ''
+    }
+    let bakBase64Str = getStrFn()
     var ssFile = process.platform === 'darwin' ? '/Screenshot.app/Contents/MacOS/Screenshot' : '/Screenshot'
     var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
     exec(testFile, {}, (error, stdout, stderr) => {
       if (error) throw error
-      else _this.mainWindow.screenShot()
+      else {
+        let isChange = 1
+        let base64Str = getStrFn()
+        if (bakBase64Str !== base64Str) {
+          isChange = 2
+        }
+        _this.mainWindow.screenShot({isChange})
+      }
     })
   })
 
