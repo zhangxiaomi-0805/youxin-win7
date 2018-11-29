@@ -517,9 +517,48 @@ export default {
       msg.showTime = util.formatDate(msg.time, false)
       return msg
     })
-    // state.sysMsgs = nim.mergeSysMsgs(state.sysMsgs, sysMsgs)
-    state.sysMsgs = [].concat(nim.mergeSysMsgs(state.sysMsgs, sysMsgs))
-    Vue.set(state, sysMsgs, state.sysMsgs)
+    // 合并idServer
+    let mergeMsgs = nim.mergeSysMsgs(sysMsgs, state.sysMsgs)
+    // 排序
+    mergeMsgs.sort((msg1, msg2) => {
+      // 最新的排后面
+      return msg1.time - msg2.time
+    })
+    // 替换重复消息
+    let objectMsgs = {}
+    let markMsgArr = []
+    let deleteMsgIdServer = []
+    mergeMsgs.forEach(msg => {
+      let key = msg.from + '|' + msg.to
+      if (msg.state === 'init') {
+        key += '|' + msg.state
+      } else {
+        // 非“init”不做去重
+        key += '|' + msg.idServer
+      }
+      let bakMsg = objectMsgs[key]
+      if (bakMsg) {
+        if (!bakMsg.read) {
+          markMsgArr.push(bakMsg)
+        }
+        deleteMsgIdServer.push(bakMsg.idServer)
+      }
+      objectMsgs[key] = msg
+    })
+    if (markMsgArr.length > 0) {
+      // 进行数据替换，标记为已读并删除本地消息
+      store.dispatch('markSysMsgRead', {sysMsgs: markMsgArr})
+    }
+    if (deleteMsgIdServer.length > 0) {
+      setTimeout(() => store.dispatch('deleteLocalSysMsg', deleteMsgIdServer), 500)
+    }
+    let resultMsgs = []
+    for (let key in objectMsgs) {
+      resultMsgs.push(objectMsgs[key])
+    }
+    resultMsgs.reverse()
+    // store.state.nim.deleteAllLocalSysMsgs({done: () => {}})
+    Vue.set(state, 'sysMsgs', resultMsgs)
   },
   // 更新消息的状态，如管理员批准或拒绝入群后，会收到新消息，更新入群申请的状态
   updateSysMsgState (state, sysMsg) {
@@ -531,6 +570,8 @@ export default {
     }
   },
   updateSysMsgUnread (state, obj) {
+    console.log('updateSysMsgUnread=================')
+    console.log(obj)
     state.sysMsgUnread = Object.assign({}, obj)
   },
   updateCustomSysMsgs (state, sysMsgs) {

@@ -3,11 +3,10 @@ import {onUpdateFriend, onDeleteFriend} from './friends'
 import {onRevocateMsg} from './msgs'
 
 export function onSysMsgs (sysMsgs) {
-  store.commit('updateSysMsgs', sysMsgs)
+  // store.commit('updateSysMsgs', sysMsgs)
 }
 
 export async function onSysMsg (sysMsg) {
-  console.log(Object.assign({}, sysMsg))
   if (!sysMsg) return
   switch (sysMsg.type) {
     // 在其他端添加或删除好友

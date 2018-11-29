@@ -37,7 +37,7 @@ var config = {
   }
 }
 
-const env = 'self'
+const env = 'test'
 
 let appConfig = {
   // 用户的appkey

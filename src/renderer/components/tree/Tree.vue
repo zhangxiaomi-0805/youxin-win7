@@ -25,7 +25,7 @@
     </div>
   </div>
   <!-- 交流群 -->
-  <!-- <div v-if="showTeam && teamlist.length > 0">
+  <div v-if="showTeam && teamlist.length > 0">
     <a class="t-list" @click="teamopen = !teamopen">
       <div class="t-center t-title">
         <span :class="teamopen ? 't-up' : 't-down'"/>
@@ -50,9 +50,9 @@
         </li>
       </ul>
     </div>
-  </div> -->
+  </div>
   <!-- 讨论组 -->
-  <!-- <div v-if="showTeam && grouplist.length > 0">
+  <div v-if="showTeam && grouplist.length > 0">
     <a class="t-list" @click="groupopen = !groupopen">
       <div class="t-center t-title">
         <span :class="groupopen ? 't-up' : 't-down'"/>
@@ -77,7 +77,7 @@
         </li>
       </ul>
     </div>
-  </div> -->
+  </div>
   <!-- 组织树 -->
   <div>
     <a v-if="showTitle" class="t-list" @click="toggleOrg">
