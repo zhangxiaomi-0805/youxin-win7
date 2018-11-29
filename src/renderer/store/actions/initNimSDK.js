@@ -46,16 +46,19 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
         ipcRenderer.send('logined', null)
       }
     },
-    onerror: function onError (event) {
+    onerror: function onError (evt) {
       // let str = JSON.stringify(event)
       // if (str.indexOf('msg::handleMsg') !== 0) return
-      commit('toastConfig', {
-        show: true,
-        type: 'fail',
-        toastText: '网络连接状态异常，请检查网络连接'
-      })
-      commit('connectStatus', { networkStatus: 500 })
-      // location.href = config.loginUrl
+      switch (evt.event) {
+        case 'HEARTBEAT_ERROR':
+          commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '网络连接状态异常，请检查网络连接'
+          })
+          commit('connectStatus', { networkStatus: 500 })
+          break
+      }
     },
     onwillreconnect: function onWillReconnect () {
       // console.log(event)
