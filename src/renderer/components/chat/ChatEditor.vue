@@ -687,7 +687,7 @@ export default {
             msgToSent[i].text = item.data
           }
         } else if (item.nodeType === 1) {
-          if (item.outerHTML === '<div><br></div>') {
+          if (item.outerHTML === '<div><br></div>' || item.tagName === 'BR') {
             if (!msgToSent[i]) {
               msgToSent[i] = {}
               msgToSent[i].text = '\r\n'
