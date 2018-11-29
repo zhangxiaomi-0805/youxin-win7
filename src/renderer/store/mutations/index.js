@@ -570,8 +570,6 @@ export default {
     }
   },
   updateSysMsgUnread (state, obj) {
-    console.log('updateSysMsgUnread=================')
-    console.log(obj)
     state.sysMsgUnread = Object.assign({}, obj)
   },
   updateCustomSysMsgs (state, sysMsgs) {
