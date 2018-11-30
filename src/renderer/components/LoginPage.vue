@@ -212,33 +212,23 @@
       },
       deleteAccount (index) {
         // 删除账户
-        for (let i in this.rememberAccount) {
-          if (index === i) {
-            let obj = this.rememberAccount[i]
-            this.rememberAccount.splice(index, 1)
-            localStorage.removeItem('HistoryAccount')
-            localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
-            if (this.rememberAccount.length < 1) {
-              localStorage.removeItem('LOGININFO')
-            }
-            if (obj.account === this.account) {
-              this.account = ''
-              this.password = ''
-              this.isRember = false
-              this.autoLogin = false
-            }
-            if (localStorage.LOGININFO) {
-              if (obj.account === JSON.parse(localStorage.LOGININFO).account) { // 如果当前选中账号为上次登录账号
-                localStorage.removeItem('LOGININFO')
-                if (this.rememberAccount.length > 0) {
-                  localStorage.setItem('LOGININFO', JSON.stringify((this.rememberAccount)[0]))
-                }
-              }
-            }
-            this.showModal = false
-            break
-          }
+        let obj = this.rememberAccount[index]
+        if (obj.account === this.account) {
+          this.account = ''
+          this.password = ''
+          this.isRember = false
+          this.autoLogin = false
         }
+        // 清除本地缓存
+        let HistoryAccount = localStorage.HistoryAccount ? JSON.parse(localStorage.HistoryAccount) : ''
+        if (HistoryAccount) {
+          HistoryAccount = HistoryAccount.filter(item => {
+            return item.id !== obj.id
+          })
+          localStorage.setItem('HistoryAccount', JSON.stringify(HistoryAccount))
+        }
+        this.rememberAccount.splice(index, 1)
+        this.showModal = false
       },
       selectAccount (item) {
         this.account = item.account
@@ -379,6 +369,14 @@
                   this.isRember = true
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
+                // 记住账户
+                let loginInfo = {
+                  account: this.account,
+                  password: DES.encryptByDES(this.password),
+                  isRember: this.isRember,
+                  autoLogin: this.autoLogin
+                }
+                localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
                 // 记住密码
                 if (this.isRember) {
                   let accountInfo = {
@@ -397,17 +395,8 @@
                     }
                   })
                   this.rememberAccount.unshift(accountInfo)
-                  console.log(this.rememberAccount)
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
-                let loginInfo = {
-                  account: this.account,
-                  password: DES.encryptByDES(this.password),
-                  isRember: this.isRember,
-                  autoLogin: this.autoLogin
-                }
-                console.log(loginInfo)
-                localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
                 this.$store.commit('updateLoginInfo', loginInfo)
                 ipcRenderer.send('onReset')
                 location.href = config.homeUrl
