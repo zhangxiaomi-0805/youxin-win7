@@ -32,7 +32,7 @@
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')"><span>{{msg.showText.split(' ')[0]}}</span></span>
-      <span v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg.type)" @click="openFile" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
         <!-- <img :src="" alt=""> -->
         <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
         <span class="file-content">
@@ -431,6 +431,13 @@
           }
         }
         return false
+      },
+      hasFileUrl () {
+        if (this.msg.localCustom && this.msg.localCustom.downloadUrl) {
+          return this.msg.localCustom.downloadUrl
+        } else {
+          return false
+        }
       }
     },
     mounted () {
@@ -566,6 +573,11 @@
       }) // end this.nextTick
     },
     methods: {
+      openFile () {
+        if (this.msg.localCustom && this.msg.localCustom.downloadUrl) {
+          shell.openItem(this.msg.localCustom.downloadUrl)
+        }
+      },
       // 点击取消当前下载或上传
       handleCancelLoad () {
         // 上传取消

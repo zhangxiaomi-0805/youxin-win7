@@ -462,7 +462,38 @@ export default {
         this.sendBlendMsg()
       } else if (this.quickIndex === 0 && e.ctrlKey && e.keyCode === 13) {
         // ctrl + enter换行
-        document.execCommand('insertHTML', false, '<div><br /></div>')
+        const newlineType = this.manageNewLine()
+        if (newlineType === 1) {
+          document.execCommand('insertHTML', false, '<br /><br />')
+        } else {
+          document.execCommand('insertHTML', false, '<br />')
+        }
+        this.changeEditRange()
+      }
+    },
+    // 换行处理
+    manageNewLine () {
+      const containerNode = this.lastEditRange.commonAncestorContainer
+      const brNodes = [...containerNode.childNodes].filter(item => {
+        return item.tagName === 'BR'
+      })
+      const nodeLength = brNodes.length === 0 ? containerNode.childNodes.length : containerNode.childNodes.length - 1
+      if (containerNode.nodeType === 3) {
+        const curIndex = [...this.$refs.editDiv.childNodes].findIndex(item => {
+          return item === containerNode
+        })
+        const hasBr = this.$refs.editDiv.childNodes[curIndex + 1] && this.$refs.editDiv.childNodes[curIndex + 1].tagName === 'BR'
+        if (this.lastEditRange.endOffset === containerNode.length && !hasBr) {
+          return 1
+        } else {
+          return 2
+        }
+      } else if (containerNode === this.$refs.editDiv) {
+        if (this.lastEditRange.endOffset === nodeLength) {
+          return 1
+        } else {
+          return 2
+        }
       }
     },
     selectAtItem () {
@@ -656,7 +687,7 @@ export default {
             msgToSent[i].text = item.data
           }
         } else if (item.nodeType === 1) {
-          if (item.outerHTML === '<div><br></div>') {
+          if (item.outerHTML === '<div><br></div>' || item.tagName === 'BR') {
             if (!msgToSent[i]) {
               msgToSent[i] = {}
               msgToSent[i].text = '\r\n'

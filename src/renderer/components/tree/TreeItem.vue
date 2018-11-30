@@ -118,7 +118,7 @@ export default {
         this.activeId = -1
         return false
       }
-      if (id === this.myDeptId) {
+      if (this.listType === 'myDept' && id === this.myDeptId) {
         this.activeId = id
         return
       }

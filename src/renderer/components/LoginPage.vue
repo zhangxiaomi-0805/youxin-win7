@@ -237,6 +237,25 @@
             this.showModal = false
           }
         })
+        // // 删除账户
+        // let obj = this.rememberAccount[index]
+        // if (obj.account === this.account) {
+        //   this.account = ''
+        //   this.password = ''
+        //   this.isRember = false
+        //   this.autoLogin = false
+        //   this.showModal = false
+        // }
+        // // 清除本地缓存
+        // let HistoryAccount = localStorage.HistoryAccount ? JSON.parse(localStorage.HistoryAccount) : ''
+        // if (HistoryAccount) {
+        //   HistoryAccount = HistoryAccount.filter(item => {
+        //     return item.id !== obj.id
+        //   })
+        //   localStorage.setItem('HistoryAccount', JSON.stringify(HistoryAccount))
+        // }
+        // this.rememberAccount.splice(index, 1)
+        // this.showModal = false
       },
       selectAccount (item) {
         this.account = item.account
@@ -271,8 +290,7 @@
         Request.ResetPassword(params, this).then(ret => {
           if (ret) {
             localStorage.setItem('sessionToken', ret.token)
-            ipcRenderer.send('onReset')
-            location.href = config.homeUrl
+            this.loginPC(ret.userInfo)
           } else {
             this.loading = false
           }
@@ -319,11 +337,11 @@
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
-          // if (localStorage.AUTOLOGIN) {
-          //   this.password = ''
-          //   this.isRember = false
-          //   localStorage.removeItem('AUTOLOGIN')
-          // }
+          if (localStorage.AUTOLOGIN) {
+            this.password = ''
+            this.isRember = false
+            localStorage.removeItem('AUTOLOGIN')
+          }
         })
       },
       loginPC (userInfo) {

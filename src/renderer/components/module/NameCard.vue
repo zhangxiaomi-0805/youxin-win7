@@ -74,7 +74,6 @@ export default {
       const index = this.contactslist.findIndex(item => {
         return item.accid === this.accid
       })
-      console.log(index)
       if (index === -1) {
         return false
       } else {
