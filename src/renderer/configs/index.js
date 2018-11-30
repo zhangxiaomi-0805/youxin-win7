@@ -29,9 +29,9 @@ var config = {
   privateConf: {
     lbs_web: 'http://132.252.136.55:10081/lbs/webconf.jsp',
     link_ssl_web: false,
-    nos_uploader_web: 'http://132.252.136.55:10080',
+    nos_uploader_web: 'http://132.252.136.54:10080',
     https_enabled: false,
-    nos_downloader: '132.252.136.55:10080/{bucket}/{object}',
+    nos_downloader: '132.252.136.54:10080/{bucket}/{object}',
     nos_accelerate: '',
     nos_accelerate_host: '',
     nt_server: ''

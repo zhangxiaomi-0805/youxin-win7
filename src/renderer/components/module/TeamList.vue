@@ -42,7 +42,7 @@
           <img :src="team.avatar || defaultGroupIcon"/>
           <span class="teamname" :title="team.name">{{team.name}}</span>
         </div>
-        <span class="t-num">{{team.memberNum}}</span>
+        <span class="t-num">{{memberCount(team.teamId) || team.memberNum}}</span>
       </li>
     </ul>
     <ul class="u-list t-u-list" v-show="grouplist.length > 0 && listType === 'group'">
@@ -59,7 +59,7 @@
           <img :src="group.avatar || defaultDiscussGroupIcon"/>
           <span class="teamname" :title="group.name">{{group.name}}</span>
         </div>
-        <span class="t-num">{{group.memberNum}}</span>
+        <span class="t-num">{{memberCount(group.teamId) || group.memberNum}}</span>
       </li>
     </ul>
   </div>
@@ -147,6 +147,11 @@ export default {
     })
   },
   methods: {
+    memberCount (teamId) {
+      let members = this.$store.state.teamMembers && this.$store.state.teamMembers[teamId]
+      let memberCount = members && members.length
+      return memberCount || 0
+    },
     checkCard (group) {
       if (this.activeId === group.teamId) return
       this.activeId = group.teamId
