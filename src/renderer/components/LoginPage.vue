@@ -33,7 +33,7 @@
               v-model="account"
               placeholder="请输入账号"/>
               <!-- 下拉箭头 -->
-              <div @click.stop= "showAccountModal" :class="showModal ? 'm-click-up' : 'm-click-down'">
+              <div @click.stop="showAccountModal" :class="showModal ? 'm-click-up noevent' : 'm-click-down noevent'">
               </div>
           </div>
 
@@ -196,11 +196,8 @@
         }
       },
       showAccountModal () {
-        if (this.rememberAccount.length > 0) {
-          this.showModal = !this.showModal
-        } else {
-          return null
-        }
+        if (this.rememberAccount.length === 0) return false
+        this.showModal = !this.showModal
       },
       onMouseenter (id) {
         this.selectedId = id
@@ -208,7 +205,9 @@
       onMouseleave (id) {
         this.selectedId = id
       },
-      closeModal () {
+      closeModal (el, e) {
+        let className = e.target.className
+        if (className.indexOf('noevent') > -1) return
         this.showModal = false
       },
       deleteAccount (index) {
