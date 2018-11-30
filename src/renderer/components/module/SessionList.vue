@@ -80,6 +80,12 @@ export default {
       _this.activeId = data.sessionId
       _this.scrollToSession()
     })
+    this.eventBus.$on('toggleSession', () => {
+      let ul = document.getElementById('nsession-list')
+      if (ul) {
+        ul.scrollTop = 68 * this.newSessionlistTopLength
+      }
+    })
     // 默认加载第一个会话
     this.$nextTick(() => {
       setTimeout(() => {
@@ -127,7 +133,8 @@ export default {
       myPhoneIcon: config.myPhoneIcon,
       myGroupIcon: config.defaultGroupIcon,
       myAdvancedIcon: config.defaultAdvancedIcon,
-      menuId: ''
+      menuId: '',
+      newSessionlistTopLength: 0
     }
   },
   computed: {

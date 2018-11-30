@@ -666,6 +666,7 @@ export default {
         } catch (err) {}
       }
       this.isMsg = false
+      this.eventBus.$emit('toggleSession')
     },
     // 获取编辑器信息
     getEditText (dom, msgToSent = []) {
