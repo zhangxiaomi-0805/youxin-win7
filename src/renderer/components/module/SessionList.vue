@@ -78,6 +78,7 @@ export default {
     })
     this.eventBus.$on('toggleSelect', function (data) {
       _this.activeId = data.sessionId
+      _this.scrollToSession()
     })
     // 默认加载第一个会话
     this.$nextTick(() => {
@@ -253,6 +254,22 @@ export default {
         }
       }
       return len - isTip
+    },
+    scrollToSession () {
+      // 定位到当前会话
+      let key = 0
+      for (let i in this.sessionlist) {
+        if (this.sessionlist[i].id === this.activeId) {
+          key = i
+          break
+        }
+      }
+      this.$nextTick(() => {
+        let ul = document.getElementById('nsession-list')
+        if (ul) {
+          ul.scrollTop = 68 * key
+        }
+      })
     },
     isMute (account) {
       if (account.scene === 'p2p') {
