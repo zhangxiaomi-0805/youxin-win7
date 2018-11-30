@@ -9,11 +9,13 @@
         </div>
         <div class="s-msg-rt" v-if='deleteIdServer !== msg.idServer'>
           <div class="s-msg-time">{{msg.showTime}}</div>
-          <a v-if='msg.state === "init"' class="s-msg-check" @click="checkUser($event, msg)">查看</a>
-          <div style="height:30px;lineHeight: 30px;" v-else>
-            <span v-if="msg.state === 'error'">已被其他管理员处理</span>
-            <span class="s-msg-rejected" v-else-if="msg.state === 'rejected'">已拒绝</span>
-            <span v-else>已同意</span>
+          <div class="s-msg-btn-con">
+            <a v-if='msg.state === "init"' class="s-msg-check" @click="checkUser($event, msg)">查看</a>
+            <div style="height:30px;lineHeight: 30px;" v-else>
+              <span v-if="msg.state === 'error'">已被其他管理员处理</span>
+              <span class="s-msg-rejected" v-else-if="msg.state === 'rejected'">已拒绝</span>
+              <span v-else>已同意</span>
+            </div>
           </div>
         </div>
       </div>
@@ -223,6 +225,12 @@ export default {
   font-size:14px;
   color:rgba(153,153,153,1);
   text-align: right;
+}
+
+.s-msg-btn-con {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
 }
 
 .s-msg-check {
