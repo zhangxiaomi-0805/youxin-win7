@@ -316,7 +316,7 @@ export default {
       let lastMsgIndex = tempMsgs.length - 1
       for (let i = lastMsgIndex; i >= 0; i--) {
         let currMsg = tempMsgs[i]
-        if ((msg.idClient && msg.idClient === currMsg.idClient) || msg.idClientFake === currMsg.idClientFake) {
+        if ((msg.idClient && msg.idClient === currMsg.idClient) || (msg.idClientFake && msg.idClientFake === currMsg.idClientFake)) {
           state.msgs[sessionId].splice(i, 1)
           break
         }
@@ -327,7 +327,7 @@ export default {
       let lastMsgIndex = msgLen - 1
       if (msgLen > 0) {
         for (let i = lastMsgIndex; i >= 0; i--) {
-          if ((msg.idClient && state.currSessionMsgs[i].idClient === msg.idClient) || state.currSessionMsgs[i].idClientFake === msg.idClientFake) {
+          if ((msg.idClient && state.currSessionMsgs[i].idClient === msg.idClient) || (msg.idClientFake && state.currSessionMsgs[i].idClientFake === msg.idClientFake)) {
             state.currSessionMsgs.splice(i, 1)
             break
           }
