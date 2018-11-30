@@ -265,8 +265,7 @@
         Request.ResetPassword(params, this).then(ret => {
           if (ret) {
             localStorage.setItem('sessionToken', ret.token)
-            ipcRenderer.send('onReset')
-            location.href = config.homeUrl
+            this.loginPC(ret.userInfo)
           } else {
             this.loading = false
           }
@@ -313,11 +312,11 @@
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
-          // if (localStorage.AUTOLOGIN) {
-          //   this.password = ''
-          //   this.isRember = false
-          //   localStorage.removeItem('AUTOLOGIN')
-          // }
+          if (localStorage.AUTOLOGIN) {
+            this.password = ''
+            this.isRember = false
+            localStorage.removeItem('AUTOLOGIN')
+          }
         })
       },
       loginPC (userInfo) {

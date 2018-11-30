@@ -37,7 +37,6 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
     onconnect: function onConnect (event) {
       if (loginInfo) {
         // 连接上以后更新uid
-        // alert('200')
         commit('updateUserUID', loginInfo)
         if (loginInfo.done instanceof Function) {
           loginInfo.done(200)
