@@ -211,25 +211,50 @@
         this.showModal = false
       },
       deleteAccount (index) {
-        // 删除账户
-        let obj = this.rememberAccount[index]
-        if (obj.account === this.account) {
-          this.account = ''
-          this.password = ''
-          this.isRember = false
-          this.autoLogin = false
-          this.showModal = false
-        }
-        // 清除本地缓存
-        let HistoryAccount = localStorage.HistoryAccount ? JSON.parse(localStorage.HistoryAccount) : ''
-        if (HistoryAccount) {
-          HistoryAccount = HistoryAccount.filter(item => {
-            return item.id !== obj.id
-          })
-          localStorage.setItem('HistoryAccount', JSON.stringify(HistoryAccount))
-        }
-        this.rememberAccount.splice(index, 1)
-        this.showModal = false
+        this.rememberAccount.map((obj, i) => {
+          if (index === i) {
+            this.rememberAccount.splice(index, 1)
+            localStorage.removeItem('HistoryAccount')
+            localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
+            if (this.rememberAccount.length < 1) {
+              localStorage.removeItem('LOGININFO')
+            }
+            if (obj.account === this.account) {
+              this.account = ''
+              this.password = ''
+              this.isRember = false
+              this.autoLogin = false
+            }
+            if (localStorage.LOGININFO) {
+              if (obj.account === JSON.parse(localStorage.LOGININFO).account) { // 如果当前选中账号为上次登录账号
+                localStorage.removeItem('LOGININFO')
+                if (this.rememberAccount.length > 0) {
+                  localStorage.setItem('LOGININFO', JSON.stringify((this.rememberAccount)[0]))
+                }
+              }
+            }
+            this.showModal = false
+          }
+        })
+        // // 删除账户
+        // let obj = this.rememberAccount[index]
+        // if (obj.account === this.account) {
+        //   this.account = ''
+        //   this.password = ''
+        //   this.isRember = false
+        //   this.autoLogin = false
+        //   this.showModal = false
+        // }
+        // // 清除本地缓存
+        // let HistoryAccount = localStorage.HistoryAccount ? JSON.parse(localStorage.HistoryAccount) : ''
+        // if (HistoryAccount) {
+        //   HistoryAccount = HistoryAccount.filter(item => {
+        //     return item.id !== obj.id
+        //   })
+        //   localStorage.setItem('HistoryAccount', JSON.stringify(HistoryAccount))
+        // }
+        // this.rememberAccount.splice(index, 1)
+        // this.showModal = false
       },
       selectAccount (item) {
         this.account = item.account
@@ -388,15 +413,18 @@
                     }
                   })
                   this.rememberAccount.unshift(accountInfo)
+                  console.log(this.rememberAccount)
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
-
-                this.$store.commit('updateLoginInfo', {
+                let loginInfo = {
                   account: this.account,
                   password: DES.encryptByDES(this.password),
                   isRember: this.isRember,
                   autoLogin: this.autoLogin
-                })
+                }
+                console.log(loginInfo)
+                localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
+                this.$store.commit('updateLoginInfo', loginInfo)
                 ipcRenderer.send('onReset')
                 location.href = config.homeUrl
               }

@@ -49,8 +49,8 @@ export default {
     closeModal () {
       Request.Logout({}, this)
         .then(res => {
-          let loginInfo = this.$store.state.loginInfo
-          localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
+          // let loginInfo = this.$store.state.loginInfo
+          // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
           this.$store.commit('updateDownlineModal', {status: false})
           ipcRenderer.send('relaunch-app')
