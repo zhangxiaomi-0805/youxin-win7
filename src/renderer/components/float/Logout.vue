@@ -62,8 +62,8 @@ export default {
       this.loading = true
       Request.Logout({}, this)
         .then(res => {
-          let loginInfo = this.$store.state.loginInfo
-          localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
+          // let loginInfo = this.$store.state.loginInfo
+          // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
           ipcRenderer.send('relaunch-app')
         }).catch(() => {

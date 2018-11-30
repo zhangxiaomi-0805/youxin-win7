@@ -214,19 +214,27 @@
       deleteAccount (index) {
         this.rememberAccount.map((obj, i) => {
           if (index === i) {
+            this.rememberAccount.splice(index, 1)
+            localStorage.removeItem('HistoryAccount')
+            localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
+            if (this.rememberAccount.length < 1) {
+              localStorage.removeItem('LOGININFO')
+            }
             if (obj.account === this.account) {
               this.account = ''
               this.password = ''
               this.isRember = false
               this.autoLogin = false
-              this.showModal = false
             }
-            let currentAccount = localStorage.CurrentAccount ? localStorage.CurrentAccount : ''
-            if (currentAccount && obj.account === currentAccount.account) {
-              localStorage.removeItem('CurrentAccount')
-              this.showModal = false
+            if (localStorage.LOGININFO) {
+              if (obj.account === JSON.parse(localStorage.LOGININFO).account) { // 如果当前选中账号为上次登录账号
+                localStorage.removeItem('LOGININFO')
+                if (this.rememberAccount.length > 0) {
+                  localStorage.setItem('LOGININFO', JSON.stringify((this.rememberAccount)[0]))
+                }
+              }
             }
-            this.rememberAccount.splice(index, 1)
+            this.showModal = false
           }
         })
       },
@@ -388,15 +396,18 @@
                     }
                   })
                   this.rememberAccount.unshift(accountInfo)
+                  console.log(this.rememberAccount)
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
-
-                this.$store.commit('updateLoginInfo', {
+                let loginInfo = {
                   account: this.account,
                   password: DES.encryptByDES(this.password),
                   isRember: this.isRember,
                   autoLogin: this.autoLogin
-                })
+                }
+                console.log(loginInfo)
+                localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
+                this.$store.commit('updateLoginInfo', loginInfo)
                 ipcRenderer.send('onReset')
                 location.href = config.homeUrl
               }
