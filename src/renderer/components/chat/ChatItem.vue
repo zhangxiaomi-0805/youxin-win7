@@ -974,7 +974,11 @@
           } else return
         }
         // 查看个人资料
-        this.eventBus.$emit('checkUser', {event, userInfos})
+        if (userInfos === 1) {
+          this.eventBus.$emit('showMyInfo', {event, userInfos})
+        } else {
+          this.eventBus.$emit('checkUser', {event, userInfos})
+        }
       },
       getSelectedText () {
         let sel = window.getSelection && window.getSelection()

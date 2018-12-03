@@ -85,13 +85,10 @@ export default {
   directives: {clickoutside},
   mounted () {
     this.eventBus.$on('showMyInfo', (data) => {
-      if (data.userInfos === 1) {
-        // 打开本人名片
-        this.userInfos = Object.assign(this.myInfo, this.personInfos)
-        this.isSelf = true
-        this.showCheckUser = true
-        this.managePosition(data.event)
-      }
+      this.updateUserInfo()
+      this.isSelf = true
+      this.showCheckUser = true
+      this.managePosition(data.event)
     })
   },
   data () {

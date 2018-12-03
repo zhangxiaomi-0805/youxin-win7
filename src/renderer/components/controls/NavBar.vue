@@ -27,8 +27,6 @@
 
 <script>
 import platform from '../../utils/platform'
-import Request from '../../utils/request'
-import LocalStorage from 'localStorage'
 import config from '../../configs'
 export default {
   name: 'nav-bar',
@@ -46,18 +44,7 @@ export default {
   },
   methods: {
     getUserInfo ($event) {
-      let accid = LocalStorage.getItem('uid')
-      Request.GetUserInfo({accid}, this).then(ret => {
-        if (ret) {
-          this.$store.commit('updatePersonInfos', ret)
-          this.showUserCard($event)
-        } else {
-          this.showUserCard($event)
-        }
-      }).catch((err) => {
-        this.loading = false
-        if (err) this.errMsg = err.msg
-      })
+      this.eventBus.$emit('showMyInfo', {userInfos: 1, event})
     },
     createTeam () {
       let data = {teamId: '', selectMode: 'createTeam'}
@@ -67,9 +54,6 @@ export default {
       if (this.selectedItem === to) return
       this.selectedItem = to
       this.$router.push({name: to})
-    },
-    showUserCard (event) {
-      this.eventBus.$emit('showMyInfo', {userInfos: 1, event})
     },
     launchChat (e) {
       // 发起群聊

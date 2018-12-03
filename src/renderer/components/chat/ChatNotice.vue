@@ -218,7 +218,11 @@ export default {
       if (member.account === this.myInfo.account) {
         userInfos = 1
       }
-      this.eventBus.$emit('checkUser', {event, userInfos})
+      if (userInfos === 1) {
+        this.eventBus.$emit('showMyInfo', {event, userInfos})
+      } else {
+        this.eventBus.$emit('checkUser', {event, userInfos})
+      }
     },
     showListOptions (event) {
       /**
