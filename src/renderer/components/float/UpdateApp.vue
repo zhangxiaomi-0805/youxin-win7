@@ -8,9 +8,7 @@
       <div class="content">
         <img class="logo" :src="logo">
         <div class="version">{{`优信${content.versionNum}`}}</div>
-        <div class="update-content">
-          {{content.updateContent}}
-        </div>
+        <div class="update-content" v-html="content.updateContent"></div>
       </div>
       <div class="update-footer">
         <div class="btn confirm" @click="goUpdate"><span>立即升级</span></div>
