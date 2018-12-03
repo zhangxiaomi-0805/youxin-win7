@@ -383,10 +383,10 @@
         const iconList = ['word', 'zip', 'excel', 'git', 'html', 'jpg', 'mp3', 'mp4', 'pdf', 'png', 'ppt', 'rar', 'txt']
         if (this.msg.type === 'file') {
           let ext = this.msg.file.ext
-          if (ext === 'docx' || ext === 'dotx' || ext === 'dotm' || ext === 'docm') {
+          if (ext === 'docx' || ext === 'dotx' || ext === 'dotm' || ext === 'docm' || ext === 'doc') {
             ext = 'word'
           }
-          if (ext === 'xlsx' || ext === 'xlsm' || ext === 'xltx') {
+          if (ext === 'xlsx' || ext === 'xlsm' || ext === 'xltx' || ext === 'xls') {
             ext = 'excel'
           }
           if (ext === 'pptx' || ext === 'pptm' || ext === 'ppsx') {

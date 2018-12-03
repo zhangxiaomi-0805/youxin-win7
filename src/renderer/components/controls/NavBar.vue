@@ -42,6 +42,31 @@ export default {
       this.selectedItem = data.navTo
     })
   },
+  watch: {
+    $route () {
+      let rotueName = this.$route.name
+      switch (rotueName) {
+        case 'session':
+          this.selectedItem = 'session'
+          break
+        case 'chat':
+          this.selectedItem = 'session'
+          break
+        case 'contacts':
+          this.selectedItem = rotueName
+          break
+        case 'team':
+          this.selectedItem = rotueName
+          break
+        case 'orgnize':
+          this.selectedItem = rotueName
+          break
+        case 'workbench':
+          this.selectedItem = rotueName
+          break
+      }
+    }
+  },
   methods: {
     getUserInfo ($event) {
       this.eventBus.$emit('showMyInfo', {userInfos: 1, event})
