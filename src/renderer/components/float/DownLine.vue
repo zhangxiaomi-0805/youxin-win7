@@ -12,7 +12,7 @@
       <div class="content">
         <span class="warning"></span>
         <div style="width: 86%">
-          <div style="fontSize: 16px; color: #000; marginBottom: 5px;">您的账号在另一地点登录，您被迫下线。</div>
+          <div style="fontSize: 16px; color: #000; marginBottom: 5px;">{{reason}}</div>
           <div style="fontSize: 16px; color: #999;">如果这不是您本人的操作，您的密码很可能已经泄露，建议您修改密码。</div>
         </div>
       </div>
@@ -39,7 +39,23 @@ export default {
   },
   computed: {
     downlineStatus () {
-      return this.$store.state.downlineStatus
+      return this.$store.state.downlineStatus.status
+    },
+    reason () {
+      let reason = this.$store.state.downlineStatus.reason
+      let content = ''
+      switch (reason) {
+        case 'samePlatformKick':
+          content = '您的账号在另一地点登录，您被迫下线。'
+          break
+        case 'serverKick':
+          content = '您的账号被服务端下线。'
+          break
+        case 'otherPlatformKick':
+          content = '您已通过手机优信退出电脑优信。'
+          break
+      }
+      return content
     }
   },
   updated () {
@@ -52,7 +68,7 @@ export default {
           // let loginInfo = this.$store.state.loginInfo
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
-          this.$store.commit('updateDownlineModal', {status: false})
+          this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
           ipcRenderer.send('relaunch-app')
         }).catch(() => {})
     },
@@ -63,7 +79,7 @@ export default {
           if (error !== 200) {
             return
           }
-          this.$store.commit('updateDownlineModal', {status: false})
+          this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
         }
       })
     }

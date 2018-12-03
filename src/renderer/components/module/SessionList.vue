@@ -247,6 +247,7 @@ export default {
           return item
         }
       })
+      this.newSessionlistTopLength = newSessionlistTop.length
       return [...newSessionlistTop, ...sessionlistBot]
     }
   },

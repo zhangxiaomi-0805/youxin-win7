@@ -1087,7 +1087,7 @@ export default {
   },
   updateDownlineModal (state, obj) {
     // 更新下线通知modal状态
-    state.downlineStatus = obj.status
+    state.downlineStatus = obj
   },
   updateContactsToplist (state, obj) {
     let { type, data, accid } = obj

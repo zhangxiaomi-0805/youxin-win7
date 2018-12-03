@@ -74,7 +74,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           break
         // 被踢, 请提示错误后跳转到登录页面
         case 'kicked':
-          commit('updateDownlineModal', {status: true})
+          commit('updateDownlineModal', {status: true, reason: error.reason})
           break
         case 'logout':
           ipcRenderer.send('logout', null)

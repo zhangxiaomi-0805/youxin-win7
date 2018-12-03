@@ -190,21 +190,14 @@ export default {
             }, 350)
           } else {
             this.closeModal()
-            if (error.code === 801) {
-              // 群人数达到上限
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'fail',
-                toastText: '无法操作，群人数已达上限200人，最多可提高至500人'
-              })
-            } else if (error.code === 806) {
+            if (error.code === 806) {
               // 创建群数量达到限制
               this.eventBus.$emit('forwordFail', {type: 2})
             } else if (error.message) {
               this.$store.commit('toastConfig', {
                 show: true,
                 type: 'fail',
-                toastText: '创建失败！'
+                toastText: '您创建的群人数超过最大限制。'
               })
             }
           }
