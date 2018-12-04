@@ -737,3 +737,16 @@ export function resendMsg ({ state, commit }, msg) {
     }
   })
 }
+
+// 更新本地消息
+export function updateLocalMsg ({ state }, obj) {
+  state.nim.updateLocalMsg({
+    idClient: obj.idClient,
+    localCustom: obj.localCustom,
+    done: (_err, _obj) => {
+      if (!_err) {
+        store.commit('updateLocalCustomMsg', obj)
+      }
+    }
+  })
+}

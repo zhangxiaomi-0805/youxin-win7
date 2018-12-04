@@ -199,6 +199,10 @@ export default {
                 copyMsg.localCustom = msg.localCustom
                 copyMsg.localCustom.isRemoteRead = true
                 state.currSessionMsgs.splice(index, 1, copyMsg)
+                store.commit('updateLocalCustomMsg', {
+                  idClient: copyMsg.idClient,
+                  localCustom: copyMsg.localCustom
+                })
                 // 更新本地信息
                 nim.updateLocalMsg({
                   idClient: copyMsg.idClient,
@@ -210,6 +214,10 @@ export default {
                 isRemoteRead: true
               }
               state.currSessionMsgs.splice(index, 1, copyMsg)
+              store.commit('updateLocalCustomMsg', {
+                idClient: copyMsg.idClient,
+                localCustom: copyMsg.localCustom
+              })
               // 更新本地信息
               nim.updateLocalMsg({
                 idClient: copyMsg.idClient,
@@ -363,6 +371,16 @@ export default {
         state.msgsMap[msg.idClient] = msg
       }
     })
+  },
+  updateLocalCustomMsg (state, obj) {
+    // 更新idClient对应的msg的自定义字段
+    let currentMsgs = state.msgs[state.currSessionId]
+    for (let i in currentMsgs) {
+      if (currentMsgs[i].idClient === obj.idClient) {
+        currentMsgs[i].localCustom = obj.localCustom
+        break
+      }
+    }
   },
   // 更新当前会话id，用于唯一判定是否在current session状态
   updateCurrSessionId (state, obj) {

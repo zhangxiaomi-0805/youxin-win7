@@ -31,7 +31,10 @@
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
-      <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')"><span>{{msg.showText.split(' ')[0]}}</span></span>
+      <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')">
+        <span v-if="!msg.localCustom || !msg.localCustom.isPlayed" class="nomsg" style="top: 0;right: -22px;width: 8px;height: 8px;"></span>
+        <span>{{msg.showText.split(' ')[0]}}</span>
+      </span>
       <span v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg.type)" @click="openFile" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
         <!-- <img :src="" alt=""> -->
         <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
@@ -715,6 +718,15 @@
           this.currentAudio.onended = () => {
             this.currentAudio = null
             this.isPlay = false
+          }
+          // 更新消息自定义字段
+          if (!msg.localCustom || !msg.localCustom.isPlayed) {
+            if (!msg.localCustom) {
+              msg.localCustom = { isPlayed: true }
+            } else {
+              msg.localCustom.isPlayed = true
+            }
+            this.$store.dispatch('updateLocalMsg', {idClient: msg.idClient, localCustom: msg.localCustom})
           }
         }
       },
