@@ -23,8 +23,8 @@
           </div>
         </div>
         <div v-else-if="type === 2" style="width: 88%">
-          <div>建群数量已达上限100，无法发起新的群聊</div>
-          <div>（最多可扩展至2000）</div>     
+          <div>创建失败！建群数量已达上限</div>
+          <!-- <div>（最多可扩展至2000）</div>      -->
         </div>
         <div v-else style="width: 88%">
           <div>抱歉，您的体验时长到期，无法正常使用，</div>
