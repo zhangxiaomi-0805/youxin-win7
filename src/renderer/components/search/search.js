@@ -120,8 +120,16 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
             records = await this.getRecords(sessionlist[i], value)
           } catch (error) {}
           if (records.length > 0) {
-            // 处理高亮文字
-            records[0].text = records[0].text.replace(new RegExp(value + '(?![^\\[]*\\])', 'gmi'), `<span style="color: rgba(79,141,255,1);">${value}</span>`)
+            let variable = 0
+            let replaceArr = []
+            // 关键词高亮匹配
+            records[0].text = records[0].text.replace(new RegExp(value, 'gmi'), (m, i) => {
+              variable++
+              replaceArr.push(`<span style="color: rgba(79,141,255,1);">${value}</span>`)
+              return `{---===${variable}}`
+            })
+            // 标签解析
+            records[0].text = util.escape(records[0].text)
             // 处理表情
             if (/\[[\u4e00-\u9fa5]+\]/.test(records[0].text)) {
               let emojiItems = records[0].text.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -132,6 +140,18 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
                 }
               })
             }
+            // 变量替换
+            records[0].text = records[0].text.replace(/\{(.+?)\}/g, (m, i) => {
+              m = m.slice(1, m.length - 1)
+              let index = Number(m.slice(6, m.length))
+              if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+                if (replaceArr[index - 1]) {
+                  return replaceArr[index - 1]
+                }
+                return m
+              }
+              return m
+            })
             let recordObj = { recordNum: records.length, text: records[0].text }
             recordObj = Object.assign(recordObj, sessionlist[i])
             recordlistTemp.push(recordObj)
@@ -184,8 +204,16 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
         recordlist[i].name = userInfo.name || recordlist[i].fromNick
         recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
         recordlist[i].searchText = recordlist[i].text
-        // 处理高亮文字
-        recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue + '(?![^\\[]*\\])', 'gmi'), `<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
+        let variable = 0
+        let replaceArr = []
+        // 关键词高亮匹配
+        recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue, 'gmi'), (m, i) => {
+          variable++
+          replaceArr.push(`<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
+          return `{---===${variable}}`
+        })
+        // 标签解析
+        recordlist[i].searchText = util.escape(recordlist[i].searchText)
         // 处理表情
         if (/\[[\u4e00-\u9fa5]+\]/.test(recordlist[i].searchText)) {
           let emojiItems = recordlist[i].searchText.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -196,6 +224,18 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
             }
           })
         }
+        // 变量替换
+        recordlist[i].searchText = recordlist[i].searchText.replace(/\{(.+?)\}/g, (m, i) => {
+          m = m.slice(1, m.length - 1)
+          let index = Number(m.slice(6, m.length))
+          if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+            if (replaceArr[index - 1]) {
+              return replaceArr[index - 1]
+            }
+            return m
+          }
+          return m
+        })
       }
       resolve(recordlist)
     } catch (error) {}

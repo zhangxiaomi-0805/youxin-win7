@@ -622,7 +622,7 @@ export default {
     },
     // 图文混合消息发送拆分
     async sendBlendMsg () {
-      if (this.invalid) return
+      if (this.scene === 'team' && !this.teamInfo.valid) return
       let msgToSent = this.getEditText(this.$refs.editDiv)
       let imgExcess = false
       let imgCount = msgToSent.filter((item) => {

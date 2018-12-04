@@ -59,7 +59,7 @@
         </div>
 
          <!-- 内容列表 -->
-        <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+        <ul v-show ="checkType === 'all'" style="width: 520px;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
@@ -74,7 +74,7 @@
             :userInfos="userInfos"
             :myInfo="myInfo"/>
         </ul>
-        <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+        <ul v-show ="checkType === 'image'" style="width: 520px;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
@@ -89,7 +89,7 @@
             :userInfos="userInfos"
             :myInfo="myInfo"/>
         </ul>
-        <ul v-show ="checkType === 'file'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+        <ul v-show ="checkType === 'file'" style="width: 520px;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
@@ -387,7 +387,7 @@ export default {
             let emojiCnt = emojiObj.emojiList.emoji
             if (emojiCnt[text]) {
               let dataKey = text.slice(1, -1)
-              item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+              item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
             }
           })
         }

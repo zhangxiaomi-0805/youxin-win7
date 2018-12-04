@@ -2,7 +2,7 @@
   <!-- 历史消息记录搜索 -->
   <div class="s-cont">
     <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
-    <ul class="u-list"> 
+    <ul class="u-list" v-if="searchlist.length > 0"> 
       <li
         class="list-item"
         v-for="msg in searchlist"
@@ -142,28 +142,32 @@ export default {
         item.avatar = this.myInfo.avatar
       }
       if (item.type === 'text') {
+        item.showText = item.text
         // 文本消息
-        item.showText = util.escape(item.text)
-        if (item.apns && item.flow === 'in') {
-          if (!item.apns.accounts) {
-            item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
-          } else if (item.apns.accounts.includes(this.myInfo.account)) {
-            let name = util.escape(this.nickInTeam) || util.escape(this.myInfo.nick)
-            item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
-          }
-        }
-        // 处理url
+        let variable = 0
+        let replaceArr = []
+        // url匹配
         let httpUrls = MsgRecordFn.httpSpring(item.text)
         if (httpUrls.length > 0) {
           httpUrls.map(url => {
-            let urlShowText = url
-            // urlShowText = urlShowText.replace(new RegExp(this.searchValue, 'g'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-            item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="[${url}]">${urlShowText}</a>`)
+            item.showText = item.showText.replace(new RegExp(url, 'g'), (m) => {
+              variable++
+              let urlContent = url
+              urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+              replaceArr.push(`<a style="text-decoration: underline;" data-url="[${url}]">${urlContent}</a>`)
+              return `{---===${variable}}`
+            })
           })
         }
-        // 处理高亮文本
-        // item.showText = item.showText.replace(new RegExp(this.searchValue + '(?![^<>]*>)', 'gmi'), `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-        // 表情处理
+        // 关键词高亮匹配
+        item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
+          variable++
+          replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+          return `{---===${variable}}`
+        })
+        // 标签解析
+        item.showText = util.escape(item.showText)
+        // 表情匹配
         if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
           let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
           emojiItems.forEach(text => {
@@ -174,6 +178,18 @@ export default {
             }
           })
         }
+        // 变量替换
+        item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
+          m = m.slice(1, m.length - 1)
+          let index = Number(m.slice(6, m.length))
+          if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+            if (replaceArr[index - 1]) {
+              return replaceArr[index - 1]
+            }
+            return m
+          }
+          return m
+        })
       } else if (item.type === 'custom') {
         let content = JSON.parse(item.content)
         // type 1 为猜拳消息
@@ -223,6 +239,7 @@ export default {
       return item
     },
     async renderItem (searchValue, checkType) {
+      if (!searchValue) return false
       if (checkType === 'all') {
         checkType = ['text', 'image', 'file', 'audio', 'video', 'custom-type3']
       } else if (checkType === 'image') {
@@ -369,8 +386,8 @@ export default {
 <style scoped>
   .s-cont {
     position: absolute;
-    top: 180px;
-    width: 87%;
+    top: 181px;
+    width: 520px;
     height: 300px;
     z-index: 100;
     box-sizing: border-box;

@@ -116,7 +116,7 @@ Utils.stringifyDate = function (datetime, simple = false) {
       withMonth: `${month}-${day}`,
       withDay: `${week}`,
       withLastDay: `昨天`,
-      withHour: hour < 12 ? `上午${hour}:${min}` : `下午${hour}:${min}`,
+      withHour: hour < 12 ? `上午${hour}:${min}` : `下午${hour - 12}:${min}`,
       thatDay
     }
   } else {

@@ -265,16 +265,16 @@ function getMsgNeedToReceipt (state, teamId, msgs) {
 }
 
 export function getTeamMsgReads ({ state }, needQuery) {
-  state.nim.getTeamMsgReads({
-    teamMsgReceipts: needQuery,
-    done: (error, _obj, content) => {
-      if (error) {
-        console.log('获取群组消息已读' + error)
-      } else {
-        store.commit('updateTeamMsgReads', content)
-      }
-    }
-  })
+  // state.nim.getTeamMsgReads({
+  //   teamMsgReceipts: needQuery,
+  //   done: (error, _obj, content) => {
+  //     if (error) {
+  //       console.log('获取群组消息已读' + error)
+  //     } else {
+  //       store.commit('updateTeamMsgReads', content)
+  //     }
+  //   }
+  // })
 }
 
 export function setSelectMsg ({state, commit}, obj) {

@@ -82,8 +82,16 @@ export default {
     })
     this.eventBus.$on('toggleSession', () => {
       let ul = document.getElementById('nsession-list')
-      if (ul) {
-        ul.scrollTop = 68 * this.newSessionlistTopLength
+      if (ul && ul.scrollTop !== 0) {
+        let length = this.newSessionlistTopLength
+        for (let i in this.sessionlist) {
+          let session = this.sessionlist[i]
+          if (session.id === this.activeId && session.localCustom && session.localCustom.topTime) {
+            length = 0
+            break
+          }
+        }
+        ul.scrollTop = 68 * length
       }
     })
     // 默认加载第一个会话
