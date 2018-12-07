@@ -310,8 +310,8 @@ export default {
       return new Promise((resolve, reject) => {
         this.$store.dispatch('onForwordMsg', {
           msg,
-          scene: item.scene,
-          to: item.to
+          scene: item.scene || 'p2p',
+          to: item.to || item.accid
         }).then(() => {
           resolve()
         }).catch((err) => {

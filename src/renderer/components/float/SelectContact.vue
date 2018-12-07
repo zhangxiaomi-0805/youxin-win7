@@ -871,7 +871,7 @@ export default {
     text-overflow:ellipsis;
     white-space:nowrap;
     width: fit-content;
-    max-width: 70%;
+    max-width: 50%;
   }
 
   .side-list-contain .side-list .new-chat {
