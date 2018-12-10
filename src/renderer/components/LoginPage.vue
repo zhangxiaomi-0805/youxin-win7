@@ -340,22 +340,22 @@
                 // 初始化组织架构、我的部门、联系、常用联系人列表
                 IndexedDB.getItem('orgnizeObj')
                   .then(data => {
-                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
+                    data && this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
                   })
                   .catch(() => {})
                 IndexedDB.getItem('myDeptObj')
                   .then(data => {
-                    this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
+                    data && this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
                   })
                   .catch(() => {})
                 IndexedDB.getAll('contactslist')
                   .then(data => {
-                    this.$store.commit('updateContactslist', {data, type: 'replace'})
+                    data && this.$store.commit('updateContactslist', {data, type: 'replace'})
                   })
                   .catch(() => {})
                 IndexedDB.getAll('contactsToplist')
                   .then(data => {
-                    this.$store.commit('updateContactsToplist', {data, type: 'init'})
+                    data && this.$store.commit('updateContactsToplist', {data, type: 'init'})
                   })
                   .catch(() => {})
                 Request.ThirdUrls()

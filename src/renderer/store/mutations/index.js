@@ -892,10 +892,12 @@ export default {
     let pageType = obj.pageType // pageType: orgnize---'我的组织', myDept---'我的部门'
     // 更新组织信息
     if (obj.type === 'replace') {
-      state.orgnizeObj = obj.data || {}
       if (pageType === 'myDept') {
-        state.myDeptObj = obj.data || {}
+        Vue.set(state, 'myDeptObj', obj.data || {})
+      } else {
+        Vue.set(state, 'orgnizeObj', obj.data || {})
       }
+      // console.log(state.myDeptObj)
       return
     }
     let curStateObj = ''

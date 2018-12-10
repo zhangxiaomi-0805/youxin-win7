@@ -206,6 +206,7 @@ export default {
       if (this.type === 2 || this.type === 4) {
         options.custom = JSON.stringify({isDiscussGroup: true})
         options.updateTeamMode = 'all'
+        options.inviteMode = 'all'
         options.joinMode = 'noVerify'
       }
       this.$store.dispatch('delegateTeamFunction', {
