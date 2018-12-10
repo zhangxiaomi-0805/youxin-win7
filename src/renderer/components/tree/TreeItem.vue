@@ -146,6 +146,7 @@ export default {
       if (!orgnizeObj) {
         try {
           orgnizeObj = await this.getNextMember(id, 0)
+          orgnizeObj.userlist = orgnizeObj.userList
         } catch (error) {}
       }
       for (let i in orgnizeObj.userlist) {
