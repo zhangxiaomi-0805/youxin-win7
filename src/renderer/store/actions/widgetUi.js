@@ -132,10 +132,10 @@ export async function showListOptions ({state, commit}, obj) {
     title: '删除',
     callBack: () => obj.callBack(4)
   }
-  let event5 = {
-    title: '转文字',
-    callBack: () => obj.callBack(5)
-  }
+  // let event5 = {
+  //   title: '转文字',
+  //   callBack: () => obj.callBack(5)
+  // }
   let event6 = {
     title: '另存为',
     callBack: () => obj.callBack(6)
@@ -481,18 +481,18 @@ export async function showListOptions ({state, commit}, obj) {
   // 选择自己的audio
   if (obj.key === 'audio-out') {
     items = [
-      event1, event5, event4
+      event1, event4
     ]
   }
   if (obj.key === 'audio-out-fail') {
     items = [
-      event5, event4
+      event4
     ]
   }
   // 选择他人的audio
   if (obj.key === 'audio-in') {
     items = [
-      event5, event4
+      event4
     ]
   }
   // 群设置（搜索、添加、移出成员）
