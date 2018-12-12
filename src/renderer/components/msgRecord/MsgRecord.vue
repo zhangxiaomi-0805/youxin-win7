@@ -373,24 +373,41 @@ export default {
             item.showText = item.showText.replace('@' + name, `<span style="color: #4F8DFF;">@${name} </span>`)
           }
         }
-        // 处理url
-        let httpUrls = MsgRecordFn.httpSpring(item.text)
-        if (httpUrls.length > 0) {
-          httpUrls.map(url => {
-            item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="[${url}]">${url}</a>`)
-          })
-        }
-        // 表情处理
         if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
           let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
           emojiItems.forEach(text => {
             let emojiCnt = emojiObj.emojiList.emoji
             if (emojiCnt[text]) {
               let dataKey = text.slice(1, -1)
-              item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+              item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small' src='${emojiCnt[text].img}'>`)
             }
           })
         }
+        // 处理url
+        let variable = 0
+        let replaceArr = []
+        let httpUrls = MsgRecordFn.httpSpring(item.text)
+        if (httpUrls.length > 0) {
+          httpUrls.map(url => {
+            item.showText = item.showText.replace(url, (m) => {
+              variable++
+              replaceArr.push(`<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
+              return `{---===${variable}}`
+            })
+          })
+        }
+        // 变量替换
+        item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
+          m = m.slice(1, m.length - 1)
+          let index = Number(m.slice(6, m.length))
+          if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+            if (replaceArr[index - 1]) {
+              return replaceArr[index - 1]
+            }
+            return m
+          }
+          return m
+        })
       } else if (item.type === 'custom') {
         let content = JSON.parse(item.content)
         // type 1 为猜拳消息

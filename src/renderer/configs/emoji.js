@@ -2,7 +2,7 @@
 // import config from './index'
 
 // let emojiBaseUrl = `http://yx-web.nosdn.127.net/webdoc/h5/emoji`
-let emojiBaseUrl = '../../../../static/res'
+let emojiBaseUrl = `${__static}/res`
 
 let emojiList = {
   'emoji': {

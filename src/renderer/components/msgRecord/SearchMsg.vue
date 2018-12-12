@@ -150,7 +150,7 @@ export default {
         let httpUrls = MsgRecordFn.httpSpring(item.text)
         if (httpUrls.length > 0) {
           httpUrls.map(url => {
-            item.showText = item.showText.replace(new RegExp(url, 'g'), (m) => {
+            item.showText = item.showText.replace(url, (m) => {
               variable++
               let urlContent = url
               urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)

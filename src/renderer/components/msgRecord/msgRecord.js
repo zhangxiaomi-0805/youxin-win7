@@ -173,7 +173,7 @@ MsgRecordFn.getCopyText = function (e) {
 MsgRecordFn.httpSpring = function (str) {
   // 匹配url
   let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
-  let regHttpAll = /(?:http(s?):\/\/)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/g
+  let regHttpAll = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
   let httpArr = []
   str.split('\r\n').map(lineStr => {
     // 分割空格
@@ -184,9 +184,6 @@ MsgRecordFn.httpSpring = function (str) {
       }
       if (httpResult) httpArr.push(httpResult[0])
     })
-  })
-  httpArr = httpArr.filter((element, index, self) => {
-    return self.indexOf(element) === index
   })
   return httpArr
 }

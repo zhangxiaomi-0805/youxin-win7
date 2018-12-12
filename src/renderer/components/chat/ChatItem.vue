@@ -260,12 +260,30 @@
             })
           }
           // 处理url
+          let variable = 0
+          let replaceArr = []
           let httpUrls = this.httpSpring(item.text)
           if (httpUrls.length > 0) {
             httpUrls.map(url => {
-              item.showText = item.showText.replace(new RegExp(url, 'g'), `<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
+              item.showText = item.showText.replace(url, (m) => {
+                variable++
+                replaceArr.push(`<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
+                return `{---===${variable}}`
+              })
             })
           }
+          // 变量替换
+          item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
+            m = m.slice(1, m.length - 1)
+            let index = Number(m.slice(6, m.length))
+            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+              if (replaceArr[index - 1]) {
+                return replaceArr[index - 1]
+              }
+              return m
+            }
+            return m
+          })
         } else if (item.type === 'custom') {
           let content = JSON.parse(item.content)
           // type 1 为猜拳消息
@@ -1048,7 +1066,7 @@
       httpSpring (str) {
         // 匹配url
         let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
-        let regHttpAll = /(?:http(s?):\/\/)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/g
+        let regHttpAll = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
           // 分割空格
@@ -1059,9 +1077,6 @@
             }
             if (httpResult) httpArr.push(httpResult[0])
           })
-        })
-        httpArr = httpArr.filter((element, index, self) => {
-          return self.indexOf(element) === index
         })
         return httpArr
       }

@@ -626,7 +626,7 @@ export default {
       let msgToSent = this.getEditText(this.$refs.editDiv)
       let imgExcess = false
       let imgCount = msgToSent.filter((item) => {
-        if (item.size) {
+        if (item && item.size) {
           if (item.size > 5 * 1024 * 1024) {
             imgExcess = true
           }
@@ -918,7 +918,9 @@ export default {
           document.execCommand('insertHTML', false, `<img data-obj="[${key}]" src="${base64Str}" style="max-width: 300px;max-height: 300px;margin-right: 10px;"/>`)
           this.changeEditRange()
           setTimeout(() => {
-            this.$refs.editDiv.scrollTop = this.$refs.editDiv.scrollHeight
+            if (this.$refs.editDiv) {
+              this.$refs.editDiv.scrollTop = this.$refs.editDiv.scrollHeight
+            }
           }, 0)
         }
         reader.readAsDataURL(imageFile)
