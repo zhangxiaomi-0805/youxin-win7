@@ -1048,11 +1048,15 @@
       httpSpring (str) {
         // 匹配url
         let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
+        let regHttpAll = /(?:http(s?):\/\/)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
           // 分割空格
           lineStr.split(/\s+/).map(minStr => {
             let httpResult = minStr.match(regHttp)
+            if (!httpResult) {
+              httpResult = minStr.match(regHttpAll)
+            }
             if (httpResult) httpArr.push(httpResult[0])
           })
         })
