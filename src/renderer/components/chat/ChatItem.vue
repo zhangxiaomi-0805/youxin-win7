@@ -1049,7 +1049,7 @@
               break
             }
           }
-          let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,4}))+\.?/
+          let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,6}))+\.?/
           let domain = url.match(regDomain)[0]
           if (url.split('://').length <= 1) url = 'http://' + url
           for (let i in thirdUrls) {
