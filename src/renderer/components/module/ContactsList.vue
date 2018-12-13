@@ -37,10 +37,11 @@
               :src="contacts.avatar"
               style="width: 100%;height: 100%;border-radius: 50%;"
             />
-            <div
+            <!-- 去掉蒙层 -->
+            <!-- <div
               v-if="contacts.status !== 0 && contacts.status !== 1"
               class="u-status-cover"
-            />
+            /> -->
           </div>
           <div class="multi-content">
             <div class="title" style="width: 95%;">{{contacts.name}}</div>

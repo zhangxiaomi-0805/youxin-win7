@@ -35,7 +35,7 @@
       <div class="m-left">
         <div class="t-img">
           <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
-          <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" />
+          <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
         </div>
         <span class="t-style">{{member.alias}}</span>
       </div>

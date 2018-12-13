@@ -17,7 +17,7 @@
           <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
           <div
             v-if="msg.type==='text'"
-            style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text"
+            style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
             @click="openAplWindow($event, msg.sessionId)"
             v-html="msg.showText"
@@ -239,7 +239,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding-bottom: 10px;
+  padding: 0 5px 10px 0;
 }
 .list-item .left{
     display: flex;

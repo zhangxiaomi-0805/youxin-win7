@@ -23,10 +23,11 @@
                 :src="session.avatar"
                 style="width: 100%;height: 100%;border-radius: 50%;"
               />
-              <div
+              <!-- 去掉蒙层 -->
+              <!-- <div
                 v-if="session.status !== 0 && session.status !== 1 && session.scene === 'p2p' && session.to !== myPhoneId"
                 class="u-status-cover"
-              />
+              /> -->
             </div>
             <div class="multi-content">
               <div class="title" style="width: 95%;">{{session.name}}</div>
