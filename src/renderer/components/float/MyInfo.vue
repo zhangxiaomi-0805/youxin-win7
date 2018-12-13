@@ -88,7 +88,7 @@ export default {
       this.updateUserInfo()
       this.isSelf = true
       this.showCheckUser = true
-      this.managePosition(data.event)
+      this.managePosition(data.event, data.pageType)
     })
   },
   data () {
@@ -154,7 +154,7 @@ export default {
     keyToUpdate (event) {
       event.keyCode === 13 && this.updateSignature()
     },
-    managePosition (event) {
+    managePosition (event, pageType) {
       let left = event.clientX
       let top = event.clientY
       let clientWidth = document.body.clientWidth
@@ -172,7 +172,10 @@ export default {
       if (clientWidth - left < 336) {
         left = left - 336
       }
-      this.left = left + 2 + 'px'
+      this.left = left - 2 + 'px'
+      if (pageType === 2) { // 群成员处打开名片
+        this.left = left - 20 + 'px'
+      }
       this.top = top + 2 + 'px'
     },
     closeModal (el, e) {

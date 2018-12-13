@@ -234,9 +234,9 @@ export default {
         userInfos = 1
       }
       if (userInfos === 1) {
-        this.eventBus.$emit('showMyInfo', {event, userInfos})
+        this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
       } else {
-        this.eventBus.$emit('checkUser', {event, userInfos})
+        this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
       }
     },
     showListOptions (event) {
