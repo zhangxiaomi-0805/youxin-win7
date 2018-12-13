@@ -387,7 +387,7 @@ export default {
   .s-cont {
     position: absolute;
     top: 181px;
-    width: 520px;
+    width: 558px;
     height: 300px;
     z-index: 100;
     box-sizing: border-box;
@@ -408,11 +408,12 @@ export default {
   }
   .list-item {
     width:100%;
+    box-sizing: border-box;
     overflow-x: hidden;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 5px 10px 0;
+    padding: 0 16px 10px 0;
   }
   .list-item .left{
     display: flex;

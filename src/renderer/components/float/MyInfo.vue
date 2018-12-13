@@ -361,10 +361,10 @@ export default {
     font-size: 12px;
     color: #666;
     line-height: 17px;
-    border: 1px solid rgba(4,154,155,0.3);
-    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
-    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
-    box-shadow: 0 4px 12px rgba(0,101,170,0.22);
+    border: 1px solid rgba(4,154,155,0.2);
+    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    box-shadow: 0 4px 12px rgba(0,101,170,0.1);
     border-radius: 2px;
     width: 180px;
     word-break:break-all;

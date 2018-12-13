@@ -59,7 +59,7 @@
         </div>
 
          <!-- 内容列表 -->
-        <ul v-show ="checkType === 'all'" style="width: 520px;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+        <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
@@ -74,7 +74,7 @@
             :userInfos="userInfos"
             :myInfo="myInfo"/>
         </ul>
-        <ul v-show ="checkType === 'image'" style="width: 520px;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+        <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
@@ -89,7 +89,7 @@
             :userInfos="userInfos"
             :myInfo="myInfo"/>
         </ul>
-        <ul v-show ="checkType === 'file'" style="width: 520px;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+        <ul v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
           <msg-item
             @checkMore="checkMoreFn"
             :isCheckMore="isCheckMore"
@@ -569,7 +569,8 @@ export default {
     top: 0;
   }
   .m-historymsg-content {
-    padding: 0 40px 0 0;
+    /* padding: 0 40px 0 0; */
+    padding: 0;
     height: 420px;
     overflow: hidden;
     box-sizing: border-box;
@@ -640,7 +641,8 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    width: 100%;
+    /* width: 100%; */
+    width: 520px;
     padding: 10px 0;
     border-bottom: 1px solid rgba(0,0,0,0.15)
   }
@@ -666,7 +668,7 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    width: 100%;
+    width:520px;
     padding: 10px 0;
     border-bottom: 1px solid rgba(0,0,0,0.15)
   }
@@ -695,7 +697,8 @@ export default {
   }
   /* 短信选择 */
   .m-info-box .message-box{
-    width: 100%;
+    width: 520px;
+    /* width: 100%; */
     display: flex;
     justify-content: flex-end;
     align-items: center;

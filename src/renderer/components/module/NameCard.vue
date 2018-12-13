@@ -5,9 +5,22 @@
       <div class="nc-p2p"
         v-if="pageType === 'p2p'"
       >
+        <!-- 签名鼠标悬停时，显示的提示框 -->
+        <transition name="fade">
+          <div v-if="userInfos.signature && showPrompt"
+            class="prompt">{{userInfos.signature}}</div>
+        </transition>
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
-          <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
+          <div>
+            <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
+            <div class="line" style="margin: 10px 0 0 0; width: 200px; color: #999; font-size: 13px" 
+              @mouseover="showPrompt = true"
+              @mouseout="showPrompt = false"
+            >
+              {{userInfos.signature || '-'}}
+            </div>
+          </div>
         </div>
         <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.name ? '#333' : '#999'}" :title="userInfos.name">{{userInfos.name || '未设置'}}</span></div>
         <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
@@ -17,7 +30,7 @@
         <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : '女'}}</span></div>
         <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || '-'}}</span></div>
         <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.companyName">{{userInfos.companyName || '-'}}</span></div>
-        <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || '-'}}</span></div>
+        <!-- <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || '-'}}</span></div> -->
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
         <a :class="isInContactslist ? 'delete-contact' : 'add-contact'" @click.stop="isInContactslist ? contactsTopManage(userInfos.accid, 2) : contactsTopManage(userInfos.accid, 1)">
@@ -55,7 +68,8 @@ export default {
       userInfos: {},
       defaultIcon: './static/img/orgnize/team-head.png',
       defaultUserIcon: configs.defaultUserIcon,
-      isActive: false
+      isActive: false,
+      showPrompt: false
     }
   },
   mounted () {
@@ -230,8 +244,29 @@ export default {
 
   .nc-p2p {
     width: 276px;
+    position: relative;
   }
 
+  .nc-p2p .prompt {
+    position: absolute;
+    top: 60px; 
+    left: 70px;
+    z-index: 1002;
+    background-color: #fff;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: #999;
+    line-height: 17px;
+    border: 1px solid rgba(4,154,155,0.2);
+    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    border-radius: 2px;
+    width: 200px;
+    word-break:break-all;
+    cursor: default;
+  }
   .nc-p2p .m-modify {
     display: flex;
     flex-direction: row;

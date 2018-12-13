@@ -3,8 +3,20 @@
 <transition name="fade">
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
     <div class="m-modify">
+      <!-- 签名鼠标悬停时，显示的提示框 -->
+      <transition name="fade">
+        <div v-if="userInfos.signature && showPrompt" class="prompt">{{userInfos.signature}}</div>
+      </transition>
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
-      <div class="nick" :title="userInfos.nick || userInfos.name">{{userInfos.nick || userInfos.name}}</div>
+      <div>
+        <div class="nick" :title="userInfos.nick || userInfos.name">{{userInfos.nick || userInfos.name}}</div>
+        <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" 
+          @mouseover="showPrompt = true"
+          @mouseout="showPrompt = false"
+        >
+          {{userInfos.signature || '-'}}
+        </div>
+      </div>
     </div>
     <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.name ? '#333' : '#999'}" :title="userInfos.name">{{userInfos.name || '未设置'}}</span></div>
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
@@ -14,7 +26,7 @@
     <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span></div>
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || "-"}}</span></div>
     <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.companyName">{{userInfos.companyName || "-"}}</span></div>
-    <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || "-"}}</span></div>
+    <!-- <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || "-"}}</span></div> -->
 
     <div v-if="callBack" style="marginTop: 15px;">
       <a class="user-btn user-confirm" @click="userBtnFn(1)">通过验证</a><a class="user-btn" @click="userBtnFn(2)">拒绝</a>
@@ -37,7 +49,7 @@ export default {
         Request.GetUserInfo({}, this)
           .then(ret => {
             if (ret) {
-              this.height = '459px'
+              this.height = '439px'
               this.userInfos = ret
               this.isSelf = true
               this.showCheckUser = true
@@ -64,10 +76,10 @@ export default {
               }
               if (data.callBack) {
                 this.callBack = data.callBack
-                this.height = '550px'
+                this.height = '530px'
               } else {
                 this.callBack = ''
-                this.height = '459px'
+                this.height = '439px'
               }
               this.aliasCopy = data.userInfos.alias
               this.isSelf = false
@@ -77,7 +89,7 @@ export default {
           }).catch(() => {
           })
       } else {
-        this.height = '459px'
+        this.height = '439px'
         this.showCheckUser = false
       }
     })
@@ -88,12 +100,13 @@ export default {
       showCheckUser: false,
       left: '38%',
       top: '20%',
-      height: '459px',
+      height: '439px',
       aliasCopy: '',
       userInfos: {},
       isSelf: false,
       isActive: false,
-      callBack: ''
+      callBack: '',
+      showPrompt: false
     }
   },
   computed: {
@@ -204,6 +217,27 @@ export default {
     z-index: 10001;
   }
 
+  .m-checkuser-con .m-modify .prompt {
+    position: absolute;
+    top: 60px; 
+    left: 70px;
+    z-index: 10002;
+    background-color: #fff;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 12px;
+    color: #999;
+    line-height: 17px;
+    border: 1px solid rgba(4,154,155,0.2);
+    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    border-radius: 2px;
+    width: 180px;
+    word-break:break-all;
+    cursor: default;
+  }
+
   .fade-enter-active, .fade-leave-active {
     transition: opacity .3s;
   }
@@ -212,6 +246,7 @@ export default {
   }
 
   .m-checkuser-con .m-modify {
+    position: relative;
     display: flex;
     flex-direction: row;
     align-items: center;

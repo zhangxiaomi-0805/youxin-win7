@@ -9,7 +9,14 @@
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
-  <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a></div>
+  <div v-if="!showSearch" class="m-title team-control">
+    <div>
+      <span style="color: #323232; font-size: 14px">{{'成员'}}</span>
+      <span v-if="memberCount">{{'(' + memberCount + '人)'}}</span>
+    </div>
+    
+    <a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a>
+  </div>
   <div v-else class="search-bar">
     <input ref="searchInput" :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
     <span v-if="showSearch" class="clear" @click="clearStatus"/>
@@ -101,14 +108,22 @@ export default {
     sessionlist () {
       return this.$store.state.sessionlist
     },
-    sessionName () {
+    // sessionName () {
+    //   if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+    //     // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
+    //     var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
+    //     var memberCount = members && members.length
+    //     return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
+    //   }
+    //   return '成员'
+    // },
+    memberCount () {
       if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
         // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
         var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
         var memberCount = members && members.length
-        return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
+        return memberCount
       }
-      return '成员'
     },
     memberList () {
       if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {

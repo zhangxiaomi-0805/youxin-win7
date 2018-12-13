@@ -13,8 +13,9 @@
   <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>
 
    <div v-if="contactslist.length > 0" class="contacts-title">
-    <span>常用联系人</span>
-    <span>{{onLineNum + '/' + contactslist.length}}</span>
+    <span style="color: #333">常用联系人</span>
+    <span >{{contactslist.length + '人'}}</span>
+    <!-- <span>{{onLineNum + '/' + contactslist.length}}</span> -->
   </div>
 
   <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}">
