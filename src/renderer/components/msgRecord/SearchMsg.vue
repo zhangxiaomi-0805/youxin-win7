@@ -154,7 +154,7 @@ export default {
               variable++
               let urlContent = url
               urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-              replaceArr.push(`<a style="text-decoration: underline;" data-url="[${url}]">${urlContent}</a>`)
+              replaceArr.push(`<a style="display: inherit; text-decoration: underline;" data-url="[${url}]">${urlContent}</a>`)
               return `{---===${variable}}`
             })
           })
@@ -387,7 +387,7 @@ export default {
   .s-cont {
     position: absolute;
     top: 181px;
-    width: 520px;
+    width: 558px;
     height: 300px;
     z-index: 100;
     box-sizing: border-box;
@@ -408,11 +408,12 @@ export default {
   }
   .list-item {
     width:100%;
+    box-sizing: border-box;
     overflow-x: hidden;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding-bottom: 10px;
+    padding: 0 16px 10px 0;
   }
   .list-item .left{
     display: flex;
@@ -423,7 +424,8 @@ export default {
     font-size:13px;
     color:#333;
     line-height:18px;
-    padding-top:2px
+    padding-top:2px;
+    word-wrap: break-word;
   }
   .list-item .left .searchValue.active{
     color: rgba(79,141,255,1);

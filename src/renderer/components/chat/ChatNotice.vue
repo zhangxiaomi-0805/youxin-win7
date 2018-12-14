@@ -9,7 +9,14 @@
     <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
     <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
   </div>
-  <div v-if="!showSearch" class="m-title team-control"><span>{{sessionName}}</span><a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a></div>
+  <div v-if="!showSearch" class="m-title team-control">
+    <div>
+      <span style="color: #323232; font-size: 14px">{{'成员'}}</span>
+      <span v-if="memberCount">{{'(' + memberCount + '人)'}}</span>
+    </div>
+    
+    <a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a>
+  </div>
   <div v-else class="search-bar">
     <input ref="searchInput" :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
     <span v-if="showSearch" class="clear" @click="clearStatus"/>
@@ -28,14 +35,15 @@
       v-for="member in memberList"
       :key="member.id" 
       :id="member.id"
-      @click="checkUserInfo($event, member)" 
+      @click.stop="checkUserInfo($event, member)" 
+      @dblclick.stop="sendMsg(member)"
       @mouseup.stop="showMemberOptions($event, member)"
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
       <div class="m-left">
         <div class="t-img">
           <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
-          <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" />
+          <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
         </div>
         <span class="t-style">{{member.alias}}</span>
       </div>
@@ -50,6 +58,7 @@ import Request from '../../utils/request.js'
 import util from '../../utils'
 import SearchMember from '../search/SearchMember'
 import clickoutside from '../../utils/clickoutside.js'
+// import { setTimeout, clearTimeout } from 'timers';
 export default {
   name: 'chat-notice',
   directives: {clickoutside},
@@ -82,7 +91,8 @@ export default {
       settingIcon: './static/img/nav/icon-plus.png',
       showSearch: false,
       searchValue: '',
-      onlineMembers: 0
+      onlineMembers: 0,
+      timer: ''
     }
   },
   computed: {
@@ -101,14 +111,22 @@ export default {
     sessionlist () {
       return this.$store.state.sessionlist
     },
-    sessionName () {
+    // sessionName () {
+    //   if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+    //     // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
+    //     var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
+    //     var memberCount = members && members.length
+    //     return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
+    //   }
+    //   return '成员'
+    // },
+    memberCount () {
       if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
         // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
         var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
         var memberCount = members && members.length
-        return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
+        return memberCount
       }
-      return '成员'
     },
     memberList () {
       if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
@@ -213,16 +231,19 @@ export default {
       })
     },
     checkUserInfo (event, member) {
+      this.timer && clearTimeout(this.timer)
       let userInfos = this.userInfos[member.account]
       // 查看名片
       if (member.account === this.myInfo.account) {
         userInfos = 1
       }
-      if (userInfos === 1) {
-        this.eventBus.$emit('showMyInfo', {event, userInfos})
-      } else {
-        this.eventBus.$emit('checkUser', {event, userInfos})
-      }
+      this.timer = setTimeout(() => {
+        if (userInfos === 1) {
+          this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
+        } else {
+          this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
+        }
+      }, 500)
     },
     showListOptions (event) {
       /**
@@ -334,6 +355,7 @@ export default {
       Request.AddOrDelContactUser({accid: member.account, userType: 1}, this)
     },
     sendMsg (userInfos) {
+      this.timer && clearTimeout(this.timer)
       // 发消息
       let sessionId = ''
       for (let i in this.sessionlist) {

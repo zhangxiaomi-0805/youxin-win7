@@ -551,7 +551,7 @@ export default {
 .m-chat .m-header .session-name {
   height: 14px;
   line-height: 14px;
-  font-size: 14px;
+  font-size: 17px;
   color: rgba(11,13,12,1);
 }
 

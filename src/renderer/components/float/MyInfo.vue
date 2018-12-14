@@ -88,7 +88,7 @@ export default {
       this.updateUserInfo()
       this.isSelf = true
       this.showCheckUser = true
-      this.managePosition(data.event)
+      this.managePosition(data.event, data.pageType)
     })
   },
   data () {
@@ -154,7 +154,7 @@ export default {
     keyToUpdate (event) {
       event.keyCode === 13 && this.updateSignature()
     },
-    managePosition (event) {
+    managePosition (event, pageType) {
       let left = event.clientX
       let top = event.clientY
       let clientWidth = document.body.clientWidth
@@ -172,7 +172,10 @@ export default {
       if (clientWidth - left < 336) {
         left = left - 336
       }
-      this.left = left + 2 + 'px'
+      this.left = left - 2 + 'px'
+      if (pageType === 2) { // 群成员处打开名片
+        this.left = left - 20 + 'px'
+      }
       this.top = top + 2 + 'px'
     },
     closeModal (el, e) {
@@ -361,10 +364,10 @@ export default {
     font-size: 12px;
     color: #666;
     line-height: 17px;
-    border: 1px solid rgba(4,154,155,0.3);
-    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
-    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.22);
-    box-shadow: 0 4px 12px rgba(0,101,170,0.22);
+    border: 1px solid rgba(4,154,155,0.2);
+    -webkit-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    -moz-box-shadow: 0 4px 12px rgba(0,101,170,0.1);
+    box-shadow: 0 4px 12px rgba(0,101,170,0.1);
     border-radius: 2px;
     width: 180px;
     word-break:break-all;

@@ -668,6 +668,13 @@ export async function showListOptions ({state, commit}, obj) {
     ]
   }
 
+  // 他人名片文本支持复制
+  if (obj.key === 'check-user') {
+    items = [
+      event3
+    ]
+  }
+
   commit('updateListOptions', {
     items,
     show: true,

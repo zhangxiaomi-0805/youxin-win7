@@ -11,13 +11,13 @@
         <span v-show="isCheckMore" :class="className(msg)"></span>
         
         <img :src="msg.avatar" alt="" class="avatar">
-        <div style="padding:0 8px; width:90%">
+        <div style="padding:0 8px; width:85%">
           <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
           <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
           <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
           <div
             v-if="msg.type==='text'"
-            style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text"
+            style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
             @click="openAplWindow($event, msg.sessionId)"
             v-html="msg.showText"
@@ -235,11 +235,12 @@ export default {
 <style scoped>
 .list-item {
   width:100%;
+  box-sizing: border-box;
   overflow-x: hidden;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding-bottom: 10px;
+  padding: 0 16px 10px 0;
 }
 .list-item .left{
     display: flex;

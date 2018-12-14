@@ -13,8 +13,9 @@
   <div class="u-nomsg" v-if="contactslist.length <= 0">暂无常用联系人~~</div>
 
    <div v-if="contactslist.length > 0" class="contacts-title">
-    <span>常用联系人</span>
-    <span>{{onLineNum + '/' + contactslist.length}}</span>
+    <span style="color: #333">常用联系人</span>
+    <span >{{contactslist.length + '人'}}</span>
+    <!-- <span>{{onLineNum + '/' + contactslist.length}}</span> -->
   </div>
 
   <ul class="u-list" id="contacts-list" :style="{top: networkStatus !== 200 ? '132px' : '96px'}">
@@ -37,10 +38,11 @@
               :src="contacts.avatar"
               style="width: 100%;height: 100%;border-radius: 50%;"
             />
-            <div
+            <!-- 去掉蒙层 -->
+            <!-- <div
               v-if="contacts.status !== 0 && contacts.status !== 1"
               class="u-status-cover"
-            />
+            /> -->
           </div>
           <div class="multi-content">
             <div class="title" style="width: 95%;">{{contacts.name}}</div>
