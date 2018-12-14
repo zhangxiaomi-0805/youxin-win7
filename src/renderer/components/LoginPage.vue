@@ -398,7 +398,7 @@
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
                 this.$store.commit('updateLoginInfo', loginInfo)
-                ipcRenderer.send('onReset')
+                ipcRenderer.send('onReset', {userInfo})
                 location.href = config.homeUrl
               }
             })

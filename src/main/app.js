@@ -253,8 +253,9 @@ APP.prototype.initIPC = function () {
     })
   })
 
-  ipcMain.on('onReset', () => {
+  ipcMain.on('onReset', (evt, arg) => {
     _this.mainWindow.reset()
+    setTimeout(() => _this.sysTray.setToolTip(`江苏优信(${arg.userInfo.name})`), 0)
   })
 
   ipcMain.on('relaunch-app', () => {

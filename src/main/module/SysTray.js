@@ -65,6 +65,9 @@ SysTray.prototype = {
   },
   setImage: function (icon) {
     this.tray && this.tray.setImage(icon)
+  },
+  setToolTip: function (text) {
+    this.tray && this.tray.setToolTip(text)
   }
 }
 

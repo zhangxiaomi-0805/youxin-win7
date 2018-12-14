@@ -7,7 +7,7 @@
       <div class="drag"><div class="u-sysbtn close"><a class="btn-close" @click="closeModal" v-if="content && content.forceUpdate !== 1"/></div></div>
       <div class="content">
         <img class="logo" :src="logo">
-        <div class="version">{{`优信${content.versionNum}`}}</div>
+        <div class="version">{{`优信${content && content.versionNum}`}}</div>
         <div class="update-content" v-html="content.updateContent"></div>
       </div>
       <div class="update-footer">
