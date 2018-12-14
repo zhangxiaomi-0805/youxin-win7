@@ -373,7 +373,7 @@ export default {
           httpUrls.map(url => {
             item.showText = item.showText.replace(url, (m) => {
               variable++
-              replaceArr.push(`<a style="text-decoration: underline;width: 100%;" data-url="${url}">${url}</a>`)
+              replaceArr.push(`<a style="text-decoration: underline;width: 100%;" data-url="[${url}]">${url}</a>`)
               return `{---===${variable}}`
             })
           })

@@ -5,6 +5,7 @@ import store from '../../store'
 import util from '../../utils'
 import Request from '../../utils/request.js'
 import emojiObj from '../../configs/emoji'
+import MsgRecordFn from '../msgRecord/msgRecord.js'
 var SearchData = {}
 
 SearchData.getContactlists = function (keyParam, pageSize, lastId, $this) {
@@ -206,6 +207,17 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
         recordlist[i].searchText = recordlist[i].text
         let variable = 0
         let replaceArr = []
+        // 处理url
+        let httpUrls = MsgRecordFn.httpSpring(recordlist[i].text)
+        if (httpUrls.length > 0) {
+          httpUrls.map(url => {
+            recordlist[i].searchText = recordlist[i].searchText.replace(url, (m) => {
+              variable++
+              replaceArr.push(`<a style="text-decoration: underline;width: 100%;display: defalut;" data-url="${url}">${url}</a>`)
+              return `{---===${variable}}`
+            })
+          })
+        }
         // 关键词高亮匹配
         recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue, 'gmi'), (m, i) => {
           variable++
