@@ -35,7 +35,8 @@
       v-for="member in memberList"
       :key="member.id" 
       :id="member.id"
-      @click="checkUserInfo($event, member)" 
+      @click.stop="checkUserInfo($event, member)" 
+      @dblclick.stop="sendMsg(member)"
       @mouseup.stop="showMemberOptions($event, member)"
       :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
     >
@@ -57,6 +58,7 @@ import Request from '../../utils/request.js'
 import util from '../../utils'
 import SearchMember from '../search/SearchMember'
 import clickoutside from '../../utils/clickoutside.js'
+// import { setTimeout, clearTimeout } from 'timers';
 export default {
   name: 'chat-notice',
   directives: {clickoutside},
@@ -89,7 +91,8 @@ export default {
       settingIcon: './static/img/nav/icon-plus.png',
       showSearch: false,
       searchValue: '',
-      onlineMembers: 0
+      onlineMembers: 0,
+      timer: ''
     }
   },
   computed: {
@@ -228,16 +231,19 @@ export default {
       })
     },
     checkUserInfo (event, member) {
+      this.timer && clearTimeout(this.timer)
       let userInfos = this.userInfos[member.account]
       // 查看名片
       if (member.account === this.myInfo.account) {
         userInfos = 1
       }
-      if (userInfos === 1) {
-        this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
-      } else {
-        this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
-      }
+      this.timer = setTimeout(() => {
+        if (userInfos === 1) {
+          this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
+        } else {
+          this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
+        }
+      }, 500)
     },
     showListOptions (event) {
       /**
@@ -349,6 +355,7 @@ export default {
       Request.AddOrDelContactUser({accid: member.account, userType: 1}, this)
     },
     sendMsg (userInfos) {
+      this.timer && clearTimeout(this.timer)
       // 发消息
       let sessionId = ''
       for (let i in this.sessionlist) {
