@@ -172,16 +172,16 @@ MsgRecordFn.getCopyText = function (e) {
 }
 MsgRecordFn.httpSpring = function (str) {
   // 匹配url
-  let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
-  let regHttpAll = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
+  // let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
+  let regHttpAll = /(?:http(s?):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
   let httpArr = []
   str.split('\r\n').map(lineStr => {
     // 分割空格
     lineStr.split(/\s+/).map(minStr => {
-      let httpResult = minStr.match(regHttp)
-      if (!httpResult) {
-        httpResult = minStr.match(regHttpAll)
-      }
+      let httpResult = minStr.match(regHttpAll)
+      // if (!httpResult) {
+      //   httpResult = minStr.match(regHttpAll)
+      // }
       if (httpResult) httpArr.push(httpResult[0])
     })
   })
@@ -206,7 +206,7 @@ MsgRecordFn.openAplWindow = function (evt, sessionId) {
     if (url.split('://').length <= 1) url = 'http://' + url
     for (let i in thirdUrls) {
       if (thirdUrls[i].url === domain) {
-        Request.ThirdConnection({url: url, appCode: thirdUrls[i].appCode}).then(res => {
+        Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
           ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId})
         }).catch(() => {})
         return false

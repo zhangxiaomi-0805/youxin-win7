@@ -363,8 +363,23 @@ export default {
         item.avatar = this.myInfo.avatar
       }
       if (item.type === 'text') {
+        item.showText = item.text
         // 文本消息
-        item.showText = util.escape(item.text)
+        let variable = 0
+        let replaceArr = []
+        // 处理url
+        let httpUrls = MsgRecordFn.httpSpring(item.text)
+        if (httpUrls.length > 0) {
+          httpUrls.map(url => {
+            item.showText = item.showText.replace(url, (m) => {
+              variable++
+              replaceArr.push(`<a style="text-decoration: underline;width: 100%;" data-url="${url}">${url}</a>`)
+              return `{---===${variable}}`
+            })
+          })
+        }
+        // 标签解析
+        item.showText = util.escape(item.showText)
         if (item.apns && item.flow === 'in') {
           if (!item.apns.accounts) {
             item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
@@ -381,19 +396,6 @@ export default {
               let dataKey = text.slice(1, -1)
               item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small' src='${emojiCnt[text].img}'>`)
             }
-          })
-        }
-        // 处理url
-        let variable = 0
-        let replaceArr = []
-        let httpUrls = MsgRecordFn.httpSpring(item.text)
-        if (httpUrls.length > 0) {
-          httpUrls.map(url => {
-            item.showText = item.showText.replace(url, (m) => {
-              variable++
-              replaceArr.push(`<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
-              return `{---===${variable}}`
-            })
           })
         }
         // 变量替换

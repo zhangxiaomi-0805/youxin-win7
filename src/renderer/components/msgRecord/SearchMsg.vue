@@ -154,7 +154,7 @@ export default {
               variable++
               let urlContent = url
               urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-              replaceArr.push(`<a style="display: inherit; text-decoration: underline;" data-url="[${url}]">${urlContent}</a>`)
+              replaceArr.push(`<a style="display: inherit; text-decoration: underline;width: 100%;" data-url="[${url}]">${urlContent}</a>`)
               return `{---===${variable}}`
             })
           })

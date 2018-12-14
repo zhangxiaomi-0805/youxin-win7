@@ -239,8 +239,23 @@
           // 标记发送的时间
           item.showText = item.text
         } else if (item.type === 'text') {
+          item.showText = item.text
           // 文本消息
-          item.showText = util.escape(item.text)
+          let variable = 0
+          let replaceArr = []
+          // 处理url
+          let httpUrls = this.httpSpring(item.text)
+          if (httpUrls.length > 0) {
+            httpUrls.map(url => {
+              item.showText = item.showText.replace(url, (m) => {
+                variable++
+                replaceArr.push(`<a style="text-decoration: underline;width: 100%;" data-url="${url}">${url}</a>`)
+                return `{---===${variable}}`
+              })
+            })
+          }
+          // 标签解析
+          item.showText = util.escape(item.showText)
           if (item.apns && item.flow === 'in') {
             if (!item.apns.accounts) {
               item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
@@ -257,19 +272,6 @@
                 let dataKey = text.slice(1, -1)
                 item.showText = item.showText.replace(text, `<img data-key='${dataKey}' style="width: 23px;height: 23px;vertical-align: middle;" class='emoji-small' src='${emojiCnt[text].img}'>`)
               }
-            })
-          }
-          // 处理url
-          let variable = 0
-          let replaceArr = []
-          let httpUrls = this.httpSpring(item.text)
-          if (httpUrls.length > 0) {
-            httpUrls.map(url => {
-              item.showText = item.showText.replace(url, (m) => {
-                variable++
-                replaceArr.push(`<a style="text-decoration: underline;" data-url="${url}">${url}</a>`)
-                return `{---===${variable}}`
-              })
             })
           }
           // 变量替换
@@ -1054,7 +1056,7 @@
           if (url.split('://').length <= 1) url = 'http://' + url
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
-              Request.ThirdConnection({url: url, appCode: thirdUrls[i].appCode}).then(res => {
+              Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
                 ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
               }).catch(() => {})
               return false
@@ -1065,16 +1067,16 @@
       },
       httpSpring (str) {
         // 匹配url
-        let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
-        let regHttpAll = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
+        // let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
+        let regHttpAll = /(?:http(s?):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
           // 分割空格
           lineStr.split(/\s+/).map(minStr => {
-            let httpResult = minStr.match(regHttp)
-            if (!httpResult) {
-              httpResult = minStr.match(regHttpAll)
-            }
+            let httpResult = minStr.match(regHttpAll)
+            // if (!httpResult) {
+            //   httpResult = minStr.match(regHttpAll)
+            // }
             if (httpResult) httpArr.push(httpResult[0])
           })
         })
