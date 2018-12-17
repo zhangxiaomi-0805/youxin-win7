@@ -8,7 +8,8 @@
         v-for="item in searchlist"
         :key="item.id"
         :id="item.id"
-        @click="checkUserInfo($event, item)"
+        @click.stop="checkUserInfo($event, item)"
+        @dblclick.stop="sendMsg(item)"
       >
         <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
         <div class="text-con"><span :class="nameClass(text)" v-for="text in (item.alias || item.nick)" :key="text.id" :id="text.id">{{text}}</span></div>
@@ -55,6 +56,11 @@
         }, 500)
       }
     },
+    computed: {
+      sessionlist () {
+        return this.$store.state.sessionlist
+      }
+    },
     methods: {
       renderItem (value) {
         if (!value) {
@@ -81,14 +87,45 @@
         return 's-name searchevent'
       },
       checkUserInfo (event, member) {
-        this.reset()
-        this.clearStatus()
+        this.timer && clearTimeout(this.timer)
         let userInfos = this.userInfos[member.account]
         // 查看名片
         if (member.account === this.myInfo.account) {
           userInfos = 1
         }
-        this.eventBus.$emit('checkUser', {event, userInfos})
+        this.timer = setTimeout(() => {
+          if (userInfos === 1) {
+            this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
+          } else {
+            this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
+          }
+        }, 500)
+      },
+      sendMsg (userInfos) {
+        this.timer && clearTimeout(this.timer)
+        // 发消息
+        let sessionId = ''
+        for (let i in this.sessionlist) {
+          if (this.sessionlist[i].to === userInfos.account) {
+            sessionId = this.sessionlist[i].id
+            break
+          }
+        }
+        if (sessionId) {
+          this.eventBus.$emit('toggleSelect', {sessionId})
+          this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+        } else {
+          this.$store.dispatch('insertLocalSession', {
+            scene: 'p2p',
+            account: userInfos.account,
+            callback: (sessionId) => {
+              this.eventBus.$emit('toggleSelect', {sessionId})
+              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+            }
+          })
+        }
+        this.reset()
+        this.clearStatus()
       },
       reset () {
         this.beforeValue = ''

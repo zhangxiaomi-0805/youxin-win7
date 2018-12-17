@@ -2,7 +2,8 @@
 <!-- 查看验证消息-他人资料 -->
 <transition name="fade">
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
-    <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
+    <textarea style="width: 1px;height: 1px;position: absolute;left: 0px" id="clipboard">aaa</textarea>
+
     <div class="m-modify">
       <!-- 签名鼠标悬停时，显示的提示框 -->
       <transition name="fade">
@@ -10,15 +11,15 @@
       </transition>
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div>
-        <div class="nick" :title="userInfos.nick || userInfos.name">{{userInfos.nick || userInfos.name}}</div>
+        <div class="nick" :title="userInfos.nick || userInfos.name" 
+          @mouseup.stop="userInfos.nick || userInfos.name ? showListOptions($event, userInfos.nick || userInfos.name, 'copy_0') : null"
+        >{{userInfos.nick || userInfos.name}}</div>
         <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" 
           @mouseover="showPrompt = true"
           @mouseout="showPrompt = false"
           @mouseup.stop="userInfos.signature ? showListOptions($event, userInfos.signature, 'copy_1') : null"
           ref="copy_1"
-        >
-          {{userInfos.signature || '-'}}
-        </div>
+        >{{userInfos.signature || '-'}}</div>
       </div>
     </div>
     <div class="user-tel">
@@ -28,62 +29,46 @@
         :title="userInfos.name"
         @mouseup.stop="userInfos.name ? showListOptions($event, userInfos.name, 'copy_2') : null"
         ref="copy_2"
-      >
-        {{userInfos.name || '未设置'}}
-      </span>
+      >{{userInfos.name || '未设置'}}</span>
     </div>
     <div class="user-tel"><span>手机</span>
       <span
         class="line" :title="userInfos.phone"
         @mouseup.stop="userInfos.phone ? showListOptions($event, userInfos.phone, 'copy_3') : null"
         ref="copy_3"
-      >
-        {{userInfos.phone}}
-      </span>
+      >{{userInfos.phone}}</span>
     </div>
     <div class="user-tel"><span>电话</span>
       <span class="line" :title="userInfos.tel"
         @mouseup.stop="userInfos.tel ? showListOptions($event, userInfos.tel, 'copy_4') : null"
         ref="copy_4"
-      >
-        {{userInfos.tel}}
-      </span>
+      >{{userInfos.tel}}</span>
     </div>
     <div class="user-tel"><span>邮箱</span>
       <span class="line" :title="userInfos.email"
         @mouseup.stop="userInfos.email ? showListOptions($event, userInfos.email, 'copy_5') : null"
         ref="copy_5"
-      >
-        {{userInfos.email}}
-      </span>
+      >{{userInfos.email}}</span>
     </div>
    
     <div class="user-tel" style="margin-top: 24px"><span>性别</span>
       <span class="line"
         @mouseup.stop="userInfos.sex ? showListOptions($event, userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密', 'copy_6') : null"
         ref="copy_6"
-      >
-        {{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}
-      </span>
+      >{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span>
     </div>
     <div class="user-tel"><span>职务</span>
       <span class="line" :title="userInfos.position"
         @mouseup.stop="userInfos.position ? showListOptions($event, userInfos.position, 'copy_7') : null"
         ref="copy_7"
-      >
-        {{userInfos.position || "-"}}
-      </span>
+      >{{userInfos.position || "-"}}</span>
     </div>
     <div class="user-tel"><span>部门</span>
       <span class="line" :title="userInfos.companyName"
         @mouseup.stop="userInfos.companyName ? showListOptions($event, userInfos.companyName, 'copy_8') : null"
         ref="copy_8"
-      >
-        {{userInfos.companyName || "-"}}
-      </span>
+      >{{userInfos.companyName || "-"}}</span>
     </div>
-    <!-- <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || "-"}}</span></div> -->
-
     <div v-if="callBack" style="marginTop: 15px;">
       <a class="user-btn user-confirm" @click="userBtnFn(1)">通过验证</a><a class="user-btn" @click="userBtnFn(2)">拒绝</a>
     </div>
@@ -261,10 +246,8 @@ export default {
     },
     showListOptions (e, msg, ref) {
       let target = this.$refs[ref]
-      console.log('hahah')
       MsgRecordFn.copyAll(target)
       if (e.button === 2) {
-        console.log('hahah')
         let key = 'check-user'
         this.$store.dispatch('showListOptions', {
           key,
@@ -279,8 +262,9 @@ export default {
           callBack: (type) => {
             switch (type) {
               case 3: // 复制
-                this.$refs.clipboard.innerText = MsgRecordFn.getCopyText(e)
-                this.$refs.clipboard.select()
+                let resTarget = document.getElementById('clipboard')
+                resTarget.innerText = MsgRecordFn.getCopyText(e)
+                resTarget.select()
                 document.execCommand('Copy')
                 break
             }
