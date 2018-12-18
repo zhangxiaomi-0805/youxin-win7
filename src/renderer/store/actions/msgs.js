@@ -89,6 +89,10 @@ function notifyForNewTeamMsg (teamId) {
 
 // 转发消息
 export function onForwordMsg ({state, commit}, obj) {
+  let path = ''
+  if (obj.msg.type === 'file' && obj.msg.flow === 'out') {
+    path = obj.msg.localCustom.downloadUrl
+  }
   return new Promise((resolve, reject) => {
     state.nim.forwardMsg({
       msg: obj.msg,
@@ -96,8 +100,22 @@ export function onForwordMsg ({state, commit}, obj) {
       to: obj.to,
       done: function (err, msg) {
         if (!err) {
-          onSendMsgDone(err, msg)
-          resolve()
+          if (!path) {
+            onSendMsgDone(err, msg)
+            resolve()
+          } else {
+            msg.localCustom = {
+              downloadUrl: path
+            }
+            state.nim.updateLocalMsg({
+              idClient: msg.idClient,
+              localCustom: { downloadUrl: path },
+              done: () => {
+                onSendMsgDone(err, msg)
+                resolve(msg)
+              }
+            })
+          }
         } else {
           reject(err)
         }
