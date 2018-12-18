@@ -1,7 +1,9 @@
 <template>
 <div class="g-hbf-container m-chat">
   <div class="g-hbf-header m-header">
-    <span class="session-name">{{sessionName}}</span>
+    <div style="width: 75%;  overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+      <span class="session-name">{{sessionName}}</span>
+    </div>
     <div class="m-setting" v-if="funKey >= 2 && teamInvalid && valid">
       <a class="b-check" @click="showHistoryMsgModal"/>
       <a class="b-add" v-if="funKey <= 2" @click="createTeam()"/>
