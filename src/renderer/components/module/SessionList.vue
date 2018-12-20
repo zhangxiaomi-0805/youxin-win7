@@ -105,6 +105,10 @@ export default {
   },
   watch: {
     sessionlist (newData, oldData) {
+      if (newData.length === 0) {
+        this.$router.push({name: 'session-default'})
+        return false
+      }
       if (this.activeId) return
       // 默认加载第一个会话
       if (newData[0]) {

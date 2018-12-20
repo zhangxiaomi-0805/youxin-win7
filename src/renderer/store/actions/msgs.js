@@ -93,6 +93,9 @@ export function onForwordMsg ({state, commit}, obj) {
   if (obj.msg.type === 'file' && obj.msg.flow === 'out') {
     path = obj.msg.localCustom.downloadUrl
   }
+  if (obj.msg.type === 'custom-type1' || obj.msg.type === 'custom-type3') {
+    obj.msg.type = 'custom'
+  }
   return new Promise((resolve, reject) => {
     state.nim.forwardMsg({
       msg: obj.msg,

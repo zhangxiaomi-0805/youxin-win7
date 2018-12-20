@@ -106,9 +106,9 @@
                 />
                 <div style="display: flex;align-items: center;margin-left: 10px;height: 100%;">
                   <img alt="" :src="item.avatar" class="icon" style="width: 32px;height: 32px;border-radius: 50%;">
-                  <div style="display: flex;flex-direction: column;justify-content: space-between;margin-left: 10px;height: 100%;">
+                  <div style="display: flex;flex-direction: column;justify-content: space-between;margin-left: 10px;">
                     <span style="color: #333;font-size: 13px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;max-width: 215px;">{{item.name}}</span>
-                    <span style="color: #999;font-size: 12px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;max-width: 215px;">{{item.lastMsgShow}}</span>
+                    <span v-if="item.lastMsgShow" style="color: #999;font-size: 12px;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;max-width: 215px;">{{item.lastMsgShow}}</span>
                   </div>
                 </div>
               </div>

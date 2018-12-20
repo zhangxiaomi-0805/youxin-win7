@@ -49,7 +49,7 @@
           :class="isActive1 ? 'team-input active' : 'team-input'"
           type="text"
           :placeholder="`请输入${isDiscussGroup ? '讨论组' : '群'}名称`"
-          maxlength="16"
+          maxlength="32"
           v-model="teamNick"
           :disabled="!(teamInfo.updateTeamMode === 'all' || power !== 'normal')"
           @focus="setStyle(1)"
