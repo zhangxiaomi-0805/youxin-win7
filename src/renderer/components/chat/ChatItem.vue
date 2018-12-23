@@ -29,6 +29,9 @@
       <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
+      <span v-else-if="msg.type==='custom-type7'" class="msg-text">
+        <webview width="100%" ref="webview" autosize nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
+      </span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')">
@@ -305,6 +308,10 @@
               item.type = 'custom-type3'
               item.imgUrl = `${emojiCnt.img}`
             }
+          } else if (content.type === 7) {
+            // 自定义富文本消息
+            item.type = 'custom-type7'
+            item.showText = content.body
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {
@@ -587,6 +594,20 @@
                 this.downloadUrl = obj.url
               }
             })
+          })
+        }
+        // 自定义消息（7）
+        let webview = this.$refs.webview
+        if (item.type === 'custom-type7' && webview) {
+          webview.addEventListener('did-finish-load', () => {
+            webview.send('executeJavaScript', item.showText)
+          })
+          webview.addEventListener('new-window', (e) => {
+            let openType = 1
+            if (e.url.indexOf('#browserWindow') > -1) {
+              openType = 2
+            }
+            this.openAplWindow(e, openType)
           })
         }
         setTimeout(() => {
@@ -1038,8 +1059,13 @@
           this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
         }
       },
-      openAplWindow (evt) {
-        let url = evt.target.getAttribute('data-url')
+      openAplWindow (evt, openType) {
+        let url = ''
+        if (!openType) {
+          url = evt.target.getAttribute('data-url')
+        } else {
+          url = evt.url
+        }
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls
@@ -1057,12 +1083,20 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-                ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                if (openType && openType === 2) {
+                  shell.openExternal(res)
+                } else {
+                  ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                }
               }).catch(() => {})
               return false
             }
           }
-          shell.openExternal(url)
+          if (openType && openType === 1) {
+            ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+          } else {
+            shell.openExternal(url)
+          }
         }
       },
       httpSpring (str) {
