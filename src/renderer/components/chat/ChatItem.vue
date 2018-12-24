@@ -30,7 +30,7 @@
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='custom-type7'" class="msg-text">
-        <webview width="100%" ref="webview" autosize nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
+        <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
       </span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
@@ -599,8 +599,22 @@
         // 自定义消息（7）
         let webview = this.$refs.webview
         if (item.type === 'custom-type7' && webview) {
+          webview.addEventListener('dom-ready', e => {
+            // Inject CSS
+            webview.insertCSS(`
+              img {
+                width:100% !important;
+              }
+            `)
+          })
           webview.addEventListener('did-finish-load', () => {
             webview.send('executeJavaScript', item.showText)
+            // webview.openDevTools()  // 打开webview控制台
+          })
+          // 获取html页面内容实际高度
+          webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
+            console.log(event.channel) // 最终收到消息输出子页面信息
+            webview.style.height = (event.channel + 30) + 'px'
           })
           webview.addEventListener('new-window', (e) => {
             let openType = 1
@@ -808,9 +822,16 @@
         }
         this.eventBus.$emit('checkUser', {})
         if (e.button === 2) {
+          console.log(type)
+          console.log(this.msg)
           let key = ''
           if (this.msg.flow === 'out' && (this.to !== this.myInfo.account)) {
             key = type + '-out'
+            let nowTimestamp = new Date().getTime() // 当前时间戳
+            let msgTime = this.msg.time // 消息发送时间戳
+            if ((Number(nowTimestamp) - Number(msgTime)) > 5 * 60 * 1000) {
+              key = type + '-out-timeout'
+            }
           } else {
             key = type + '-in'
           }
@@ -1124,7 +1145,14 @@
   .u-msg {
     list-style: none;
   }
-
+  .u-msg .webview-box {
+    display:inline-flex;
+    width:100%;
+    height:100%;
+  }
+   .u-msg .webview.hide {
+    visibility: hidden;
+  }
   .u-msg .u-msg-time{
     position: relative;
     font-size: 12px;

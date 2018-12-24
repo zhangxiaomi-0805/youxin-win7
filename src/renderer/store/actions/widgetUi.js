@@ -450,6 +450,11 @@ export async function showListOptions ({state, commit}, obj) {
       event1, event3, event2, event4
     ]
   }
+  if (obj.key === 'text-out-timeout') { // 时间超过五分钟，不能撤回
+    items = [
+      event3, event2, event4
+    ]
+  }
   if (obj.key === 'text-out-fail') {
     items = [
       event3, event2, event4

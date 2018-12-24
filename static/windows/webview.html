@@ -13,6 +13,11 @@
       var electron = require('electron')
       electron.ipcRenderer.on('executeJavaScript', (evt, arg) => {
         document.getElementById('webview').innerHTML = arg
+        setTimeout(()=>{
+          let contentHeight = document.getElementById('webview').scrollHeight 
+          electron.ipcRenderer.sendToHost(contentHeight) //向webview所在页面发送消息
+        },100)
+
       })
   </script>
 </body>
