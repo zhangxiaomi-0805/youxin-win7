@@ -111,8 +111,7 @@ export default {
   methods: {
     getData () {
       // 获取常用联系人列表
-      let tag = this.contactslist[0] ? this.contactslist[0].tag : 0
-      Request.getContactUserList({tag}, this).then(ret => {
+      Request.getContactUserList({tag: 0}, this).then(ret => {
         this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
       }).catch(() => {})
     },
