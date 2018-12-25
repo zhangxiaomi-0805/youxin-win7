@@ -289,6 +289,33 @@ export default {
                     muteNotiType: 0
                   })
                   break
+                case 4:
+                  // 群设置
+                  let sessionId = ''
+                  for (let i in this.$store.state.sessionlist) {
+                    if (this.$store.state.sessionlist[i].to === info.teamId) {
+                      sessionId = this.$store.state.sessionlist[i].id
+                      break
+                    }
+                  }
+                  if (sessionId) {
+                    this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+                    this.eventBus.$emit('toggleSelect', {sessionId})
+                    this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+                    setTimeout(() => this.$store.commit('toggleSlideMenuStatus', 2), 0)
+                  } else {
+                    this.$store.dispatch('insertLocalSession', {
+                      scene: 'team',
+                      account: info.teamId,
+                      callback: (sessionId) => {
+                        this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+                        this.eventBus.$emit('toggleSelect', {sessionId})
+                        this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+                        setTimeout(() => this.$store.commit('toggleSlideMenuStatus', 2), 0)
+                      }
+                    })
+                  }
+                  break
                 default:
                   break
               }

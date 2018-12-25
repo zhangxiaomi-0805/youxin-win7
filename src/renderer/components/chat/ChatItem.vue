@@ -613,7 +613,6 @@
           })
           // 获取html页面内容实际高度
           webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
-            console.log(event.channel) // 最终收到消息输出子页面信息
             webview.style.height = (event.channel + 30) + 'px'
           })
           webview.addEventListener('new-window', (e) => {

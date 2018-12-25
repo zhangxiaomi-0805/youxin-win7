@@ -159,6 +159,7 @@ export default {
     } else if (this.listType === 'myDept') {
       this.myDeptDataInit()
     }
+    this.getData()
   },
   computed: {
     orgnizeObj () {
@@ -187,6 +188,12 @@ export default {
     }
   },
   methods: {
+    getData () {
+      // 获取常用联系人列表
+      Request.getContactUserList({tag: 0}, this).then(ret => {
+        this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
+      }).catch(() => {})
+    },
     className (contact) {
       if (this.isDisabled(contact.accid)) {
         return 'disabled common'
