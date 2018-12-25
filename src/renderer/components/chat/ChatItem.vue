@@ -29,7 +29,7 @@
       <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
-      <span v-else-if="msg.type==='custom-type7'" class="msg-text">
+      <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
         <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
       </span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
@@ -822,9 +822,10 @@
         }
         this.eventBus.$emit('checkUser', {})
         if (e.button === 2) {
-          console.log(type)
-          console.log(this.msg)
           let key = ''
+          if (type.indexOf('custom') > -1) {
+            type = 'custom'
+          }
           if (this.msg.flow === 'out' && (this.to !== this.myInfo.account)) {
             key = type + '-out'
             let nowTimestamp = new Date().getTime() // 当前时间戳
@@ -835,6 +836,7 @@
           } else {
             key = type + '-in'
           }
+          console.log(key)
           if (this.msg.flow === 'in' && this.isDownloaded) {
             key += '-isDownloaded'
           }

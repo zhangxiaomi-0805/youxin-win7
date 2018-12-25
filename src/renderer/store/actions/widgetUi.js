@@ -268,13 +268,13 @@ export async function showListOptions ({state, commit}, obj) {
   //     event2, event6, event0, event4, event37
   //   ]
   // }
-  // 贴图表情
-  if (obj.key === 'custom-type3-out') {
+  // 自定义消息 --- 贴图表情 && 富文本
+  if (obj.key === 'custom-out') {
     items = [
       event1, event2, event4
     ]
   }
-  if (obj.key === 'custom-type3-in') {
+  if (obj.key === 'custom-in' || obj.key === 'custom-out-timeout') {
     items = [
       event2, event4
     ]
@@ -450,12 +450,7 @@ export async function showListOptions ({state, commit}, obj) {
       event1, event3, event2, event4
     ]
   }
-  if (obj.key === 'text-out-timeout') { // 时间超过五分钟，不能撤回
-    items = [
-      event3, event2, event4
-    ]
-  }
-  if (obj.key === 'text-out-fail') {
+  if (obj.key === 'text-out-fail' || obj.key === 'text-out-timeout') { // 时间超过五分钟，不能撤回
     items = [
       event3, event2, event4
     ]
@@ -472,7 +467,7 @@ export async function showListOptions ({state, commit}, obj) {
       event1, event2, event6, event4
     ]
   }
-  if (obj.key === 'image-out-fail') {
+  if (obj.key === 'image-out-fail' || obj.key === 'image-out-timeout') {
     items = [
       event2, event6, event4
     ]
@@ -489,7 +484,7 @@ export async function showListOptions ({state, commit}, obj) {
       event1, event4
     ]
   }
-  if (obj.key === 'audio-out-fail') {
+  if (obj.key === 'audio-out-fail' || obj.key === 'audio-out-timeout') {
     items = [
       event4
     ]
