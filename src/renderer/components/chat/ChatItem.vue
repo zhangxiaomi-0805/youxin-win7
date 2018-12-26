@@ -205,6 +205,7 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
+        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -318,6 +319,10 @@
               item.showText += ',请到手机或电脑客户端查看'
             }
           }
+        } else if (item.type === 'custom-type7') {
+          let content = JSON.parse(item.content)
+          // 自定义富文本消息
+          item.showText = content.body
         } else if (item.type === 'image') {
           // 原始图片全屏显示
           item.originLink = item.file.url
