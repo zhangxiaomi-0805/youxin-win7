@@ -43,8 +43,7 @@
           <span class="teamname" :title="team.name">{{team.name}}</span>
         </div>
         <span class="t-num">
-          <!-- {{memberCount(team.teamId) || team.memberNum}} -->
-          {{team.memberNum}}
+          {{team.memberNum || memberCount(team.teamId)}}
         </span>
       </li>
     </ul>
@@ -63,8 +62,7 @@
           <span class="teamname" :title="group.name">{{group.name}}</span>
         </div>
         <span class="t-num">
-          <!-- {{memberCount(group.teamId) || group.memberNum}} -->
-          {{group.memberNum}}
+          {{group.memberNum || memberCount(group.teamId)}}
         </span>
       </li>
     </ul>
@@ -153,11 +151,11 @@ export default {
     })
   },
   methods: {
-    // memberCount (teamId) {
-    //   let members = this.$store.state.teamMembers && this.$store.state.teamMembers[teamId]
-    //   let memberCount = members && members.length
-    //   return memberCount || 0
-    // },
+    memberCount (teamId) {
+      let members = this.$store.state.teamMembers && this.$store.state.teamMembers[teamId]
+      let memberCount = members && members.length
+      return memberCount || 0
+    },
     checkCard (group) {
       if (this.activeId === group.teamId) return
       this.activeId = group.teamId
