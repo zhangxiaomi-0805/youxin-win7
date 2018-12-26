@@ -429,10 +429,9 @@ export default {
             item.imgUrl = `${emojiCnt.img}`
           }
         } else if (content.type === 7) {
-          console.log('自定义富文本消息')
           // 自定义富文本消息
           item.type = 'custom-type7'
-          item.showText = content.body
+          item.showText = content.data.value
           console.log(item)
         } else {
           item.showText = util.parseCustomMsg(item)
@@ -443,7 +442,7 @@ export default {
       } else if (item.type === 'custom-type7') {
         // 自定义富文本消息
         let content = JSON.parse(item.content)
-        item.showText = content.body
+        item.showText = content.data.value
       } else if (item.type === 'image') {
         // 原始图片全屏显示
         item.originLink = item.file.url

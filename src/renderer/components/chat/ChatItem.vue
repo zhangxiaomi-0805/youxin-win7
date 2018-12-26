@@ -312,7 +312,7 @@
           } else if (content.type === 7) {
             // 自定义富文本消息
             item.type = 'custom-type7'
-            item.showText = content.body
+            item.showText = content.data.value
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {
@@ -322,7 +322,7 @@
         } else if (item.type === 'custom-type7') {
           let content = JSON.parse(item.content)
           // 自定义富文本消息
-          item.showText = content.body
+          item.showText = content.data.value
         } else if (item.type === 'image') {
           // 原始图片全屏显示
           item.originLink = item.file.url

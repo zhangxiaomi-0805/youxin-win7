@@ -42,7 +42,10 @@
       <div class="nc-team" v-else-if="pageType === 'team'">
         <img :src="cardInfo.avatar ? cardInfo.avatar : defaultIcon">
         <div>{{cardInfo.name}}</div>
-        <div class="num">{{memberCount || cardInfo.memberNum + '人'}}</div>
+        <div class="num">
+          <!-- {{memberCount || cardInfo.memberNum + '人'}} -->
+          {{cardInfo.memberNum + '人'}}
+        </div>
         <a class="button" @click="sendMsg(cardInfo.teamId)">{{isDiscussGroup ? '进入讨论组' : '进入群聊'}}</a>
       </div>
     </div>
@@ -106,12 +109,12 @@ export default {
     },
     isDiscussGroup () {
       return util.isDiscussGroup(this.cardInfo)
-    },
-    memberCount () {
-      let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]
-      let memberCount = members && members.length
-      return memberCount || 0
     }
+    // memberCount () {
+    //   let members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.cardInfo.teamId]
+    //   let memberCount = members && members.length
+    //   return memberCount || 0
+    // }
   },
   methods: {
     sendMsg (account) {
