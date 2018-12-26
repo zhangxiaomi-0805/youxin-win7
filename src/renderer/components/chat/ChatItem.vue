@@ -603,7 +603,7 @@
             // Inject CSS
             webview.insertCSS(`
               img {
-                width:100% !important;
+                max-width:100% !important;
               }
             `)
           })
@@ -613,7 +613,7 @@
           })
           // 获取html页面内容实际高度
           webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
-            webview.style.height = (event.channel + 30) + 'px'
+            webview.style.height = (event.channel + 40) + 'px'
           })
           webview.addEventListener('new-window', (e) => {
             let openType = 1

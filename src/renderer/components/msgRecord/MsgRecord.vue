@@ -249,6 +249,7 @@ export default {
       let allList = []
       let allMsgList = []
       this.$store.state.currSessionMsgs.map((item, index) => {
+        console.log(item)
         item = this.manageItem(item)
         if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
           allList.unshift(item)
@@ -427,12 +428,22 @@ export default {
             item.type = 'custom-type3'
             item.imgUrl = `${emojiCnt.img}`
           }
+        } else if (content.type === 7) {
+          console.log('自定义富文本消息')
+          // 自定义富文本消息
+          item.type = 'custom-type7'
+          item.showText = content.body
+          console.log(item)
         } else {
           item.showText = util.parseCustomMsg(item)
           if (item.showText !== '[自定义消息]') {
             item.showText += ',请到手机或电脑客户端查看'
           }
         }
+      } else if (item.type === 'custom-type7') {
+        // 自定义富文本消息
+        let content = JSON.parse(item.content)
+        item.showText = content.body
       } else if (item.type === 'image') {
         // 原始图片全屏显示
         item.originLink = item.file.url

@@ -29,6 +29,9 @@
           <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
             <img :src="msg.imgUrl" style="width: 230px; height: 230px"/> 
           </div>
+          <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
+            <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
+          </div>
           <div v-else-if="msg.type==='image'"  ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
             <img :src="msg.originLink" style="width: 100%; height: 100%"/> 
           </div>
@@ -49,6 +52,7 @@
 <script type="text/javascript">
 import util from '../../utils'
 import config from '../../configs'
+import {ipcRenderer, shell} from 'electron'
 import MsgRecordFn from './msgRecord.js'
 export default {
   name: 'msg-item',
@@ -116,7 +120,55 @@ export default {
       }
     }
   },
+  mounted () {
+    let item = this.msg
+    // 自定义消息（7）
+    let webview = this.$refs.webview
+    if (item.type === 'custom-type7' && webview) {
+      webview.addEventListener('dom-ready', e => {
+        // Inject CSS
+        webview.insertCSS(`
+          img {
+            max-width:100% !important;
+          }
+        `)
+      })
+      webview.addEventListener('did-finish-load', () => {
+        webview.send('executeJavaScript', item.showText)
+        // webview.openDevTools()  // 打开webview控制台
+      })
+      // 获取html页面内容实际高度
+      webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
+        webview.style.height = (event.channel + 40) + 'px'
+      })
+      webview.addEventListener('new-window', (e) => {
+        let openType = 1
+        if (e.url.indexOf('#browserWindow') > -1) {
+          openType = 2
+        }
+        this.openNewWindow(e, openType)
+      })
+    }
+  },
   methods: {
+    openNewWindow (evt, openType) {
+      let url = evt.url
+      if (url) {
+        let sessionlist = this.$store.state.sessionlist
+        let sessionInfo = {}
+        for (let i in sessionlist) {
+          if (sessionlist[i].id === this.msg.sessionId) {
+            sessionInfo = sessionlist[i]
+            break
+          }
+        }
+        if (openType && openType === 1) {
+          ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+        } else {
+          shell.openExternal(url)
+        }
+      }
+    },
     className (msg) {
       // 选择框样式
       let className = 'check common'

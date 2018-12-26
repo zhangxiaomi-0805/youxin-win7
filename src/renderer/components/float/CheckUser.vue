@@ -25,11 +25,11 @@
     <div class="user-tel">
       <span>账号</span>
       <span class="line"
-        :style="{color: userInfos.name ? '#333' : '#999'}"
-        :title="userInfos.name"
-        @mouseup.stop="userInfos.name ? showListOptions($event, userInfos.name, 'copy_2') : null"
+        :style="{color: userInfos.account ? '#333' : '#999'}"
+        :title="userInfos.account"
+        @mouseup.stop="userInfos.account ? showListOptions($event, userInfos.account, 'copy_2') : null"
         ref="copy_2"
-      >{{userInfos.name || '未设置'}}</span>
+      >{{userInfos.account || '未设置'}}</span>
     </div>
     <div class="user-tel"><span>手机</span>
       <span
