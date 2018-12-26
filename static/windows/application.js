@@ -37,6 +37,13 @@ TabManage.prototype.init = function () {
     if (webview) {
       webview.addEventListener('new-window', (e) => {
         if (e.url) {
+          if (e.url.indexOf('yximcreatesession.telecomjs.com') > -1) {
+            // 发起会话处理
+            let account = e.url.split('?account=')[1]
+            if (account) {
+              return false
+            }
+          }
           webview.loadURL(e.url)
           this.canGoBack()
         }

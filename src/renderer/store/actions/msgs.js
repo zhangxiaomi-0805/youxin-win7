@@ -256,19 +256,19 @@ export function onRevocateMsg (error, obj) {
   const nim = store.state.nim
   const accid = store.state.personInfos.accid
   const isFirstWithdraw = localStorage.getItem(`WITHDRAW-${accid}`)
+  if (error) {
+    if (error.code === 508) {
+      store.commit('toastConfig', {type: 'fail', toastText: '你可在5分钟内撤回发送的消息', show: true})
+    }
+    return
+  }
   if (!isFirstWithdraw && obj.msg.from === store.state.userUID) {
     store.commit('toastConfig', {
-      toastText: '你可在24小时内撤回发送的消息',
+      toastText: '你可在5分钟内撤回发送的消息',
       show: true,
       type: 'success'
     })
     localStorage.setItem(`WITHDRAW-${accid}`, 'true')
-  }
-  if (error) {
-    if (error.code === 508) {
-      store.commit('toastConfig', {type: 'fail', toastText: '你可在24小时内撤回发送的消息', show: true})
-    }
-    return
   }
   if (obj.msg.from !== store.state.userUID) {
     // 被撤回的消息是否存在
@@ -327,11 +327,7 @@ export function revocateMsg ({state, commit}, obj) {
   nim.deleteMsg({
     msg,
     done: function deleteMsgDone (error) {
-      if (error) {
-        store.commit('toastConfig', {type: 'fail', toastText: error.message, show: true})
-      } else {
-        onRevocateMsg(error, {msg, that: obj.that})
-      }
+      onRevocateMsg(error, {msg, that: obj.that})
     }
   })
 }
