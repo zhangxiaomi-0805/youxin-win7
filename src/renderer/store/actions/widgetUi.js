@@ -503,7 +503,7 @@ export async function showListOptions ({state, commit}, obj) {
   }
   if (obj.key === 'team-member-normal') {
     items = [
-      event00
+      event00, event10
     ]
   }
   // 讨论组设置（搜索、添加成员）

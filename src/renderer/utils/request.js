@@ -27,6 +27,17 @@ function GetUserInfo (params, $this) {
   })
 }
 
+function GetAccid (params, $this) {
+  /*
+   * 获取用户accid
+   * @param(header) platformType: 平台类型,可选值:1,2 1-移动端 , 2-PC端
+   * @param(header) token: 初次设置密码&登录成功,返回token,携带获取用户登录信息
+   */
+  return new Promise((resolve, reject) => {
+    Fetch.post('api/appPc/getAccid', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
+  })
+}
+
 function ResetPassword (params, $this) {
   /*
    * 设置新密码
@@ -229,6 +240,7 @@ function AppVersions () {
 export default {
   LoginAuth,
   GetUserInfo,
+  GetAccid,
   ResetPassword,
   PullUserInfo,
   Logout,

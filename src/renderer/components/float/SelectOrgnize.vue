@@ -67,6 +67,9 @@ export default {
       this.showSelectOrgnize = true
       this.type = data.type
       this.teamId = data.teamId || -1
+      this.teamName = data.teamName || ''
+      this.teamAvatarUrl = data.teamAvatarUrl || configs.defaultGroupIcon
+      this.memberNum = data.memberNum || 0
       this.msg = data.msg || ''
       if (data.isDiscussGroup) this.isDiscussGroup = true
       else this.isDiscussGroup = false
@@ -79,6 +82,7 @@ export default {
       loading: false,
       showBorder: false,
       teamId: -1,
+      teamAvatarUrl: configs.defaultGroupIcon, // 群头像
       type: 1, // 1-创建群，2-添加成员（创建讨论组），3-添加群成员，4-创建讨论组，5-转发到新聊天
       searchValue: '',
       msg: '',
@@ -242,6 +246,8 @@ export default {
           })
           return false
         }
+      } else { // 普通成员邀请人入群
+        this.sendCustomMsg()
       }
       this.loading = true
       // 拉人入群、讨论组
@@ -268,6 +274,39 @@ export default {
       } else {
         this.errToast()
       }
+    },
+    async sendCustomMsg (coustomMsg) {
+      console.log(this.chooselist)
+      for (let i = 0; i < this.chooselist.length; i++) {
+        await this.sendMsg(this.chooselist[i])
+      }
+    },
+    sendMsg (item) {
+      let myInfo = this.$store.state.myInfo
+      let teamAvatarUrl = this.teamAvatarUrl
+      if (teamAvatarUrl && teamAvatarUrl.indexOf('/img/team/group-default.png') > -1) { // 如果是默认头像，则置为空，不然本地路径与移动端不一致
+        teamAvatarUrl = ''
+      }
+      let content = {
+        type: 8,
+        data: {
+          value: {
+            teamId: this.teamId,
+            teamAvatarUrl,
+            description: `"${myInfo.nick || myInfo.name}"邀请你加入群聊${this.teamName}群，进入可查看详情`
+          }
+        }
+      }
+      return new Promise((resolve, reject) => {
+        this.$store.dispatch('sendMsg', {
+          type: 'custom',
+          scene: 'p2p',
+          to: item.accid,
+          content
+        }).then(() => {
+          resolve()
+        }).catch(() => {})
+      })
     },
     async forwordNewChat () {
       // 转发到新聊天

@@ -32,6 +32,13 @@
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
         <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
       </span>
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow === 'in' ? showGroupInvite(msg.showText) : null">
+        <span class="custom-type8-title">邀请你加入群聊</span>
+        <span class="custom-type8-content-box">
+          <span class="custom-type8-content">{{msg.showText.description}}</span>
+          <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
+        </span>
+      </span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')">
@@ -313,6 +320,14 @@
             // 自定义富文本消息
             item.type = 'custom-type7'
             item.showText = content.data.value
+          } else if (content.type === 8) {
+            // 自定义邀请入群消息
+            item.type = 'custom-type8'
+            if (!content.data.value.teamAvatarUrl) {
+              content.data.value.teamAvatarUrl = config.defaultGroupIcon
+            }
+            item.showText = content.data.value
+            console.log(item.showText)
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {
@@ -621,11 +636,31 @@
             webview.style.height = (event.channel + 40) + 'px'
           })
           webview.addEventListener('new-window', (e) => {
+            if (e.url) {
+              if (e.url.indexOf('yximcreatesession.telecomjs.com') > -1) {
+                // 发起会话处理
+                let account = e.url.split('?account=')[1]
+                if (account) {
+                  ipcRenderer.send('sendAccount', {account})
+                }
+              }
+              // webview.loadURL(e.url)
+            }
             let openType = 1
             if (e.url.indexOf('#browserWindow') > -1) {
               openType = 2
             }
             this.openAplWindow(e, openType)
+          })
+          webview.addEventListener('did-fail-load', (e) => {
+            if (e.validatedURL.indexOf('yximcreatesession.telecomjs.com') > -1) {
+              // 发起会话处理
+              let account = e.validatedURL.split('?account=')[1]
+              if (account) {
+                ipcRenderer.send('sendAccount', {account})
+              }
+            }
+            // webview.goBack()
           })
         }
         setTimeout(() => {
@@ -635,6 +670,10 @@
       }) // end this.nextTick
     },
     methods: {
+      showGroupInvite (teamInfo) {
+        console.log('群聊邀请')
+        this.eventBus.$emit('showGroupInvite', {teamId: teamInfo.teamId})
+      },
       openFile () {
         if (this.msg.localCustom && this.msg.localCustom.downloadUrl) {
           shell.openItem(this.msg.localCustom.downloadUrl)
@@ -1632,10 +1671,47 @@
   background: #4F8DFF url(../../../../static/img/edit/voice-m-p.gif) 94px center no-repeat;
   background-size: 14px 20px;
 }
+.g-window .u-msg.session-chat .custom-type8-box {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: space-between;
+  padding: 0 15px;
+  width: 235px;
+  height: 100px;
+  background: #fff !important;
+  border: 1px solid #529EFF;
+}
+.g-window .u-msg.session-chat .custom-type8-box .custom-type8-content-box {
+  display: flex;
+  flex-direction: row;
+  /* align-items: center; */
+  justify-content: space-between;
+  background: #fff !important;
+  margin-top: 10px
+}
+.g-window .u-msg.session-chat .custom-type8-box .custom-type8-content {
+  margin-right: 10px;
+  width: 150px;
+  height: 68px;
+  font-size: 12px;
+  color: #999;
+  overflow : hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+.g-window .u-msg.session-chat .custom-type8-box .custom-type8-title {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+}
 
 .g-window .u-msg.session-chat .msg-file {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   padding: 0 15px;
   width: 253px;
