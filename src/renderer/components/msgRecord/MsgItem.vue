@@ -32,6 +32,13 @@
           <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
             <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
           </div>
+          <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)">
+            <span class="custom-type8-title">邀请你加入群聊</span>
+            <span class="custom-type8-content-box">
+              <span class="custom-type8-content">{{msg.showText.description}}</span>
+              <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
+            </span>
+          </span>
           <div v-else-if="msg.type==='image'"  ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
             <img :src="msg.originLink" style="width: 100%; height: 100%"/> 
           </div>
@@ -196,6 +203,7 @@ export default {
       }
     },
     showListOptions (e, msg) {
+      console.log(msg.type)
       if (msg.type === 'text' && e.button === 2) {
         let target = this.$refs[`copy_${this.idClient}`]
         MsgRecordFn.copyAll(target)
@@ -204,6 +212,9 @@ export default {
         let key = ''
         if (msg.type === 'text') {
           key = 'msg-record'
+        } else if (msg.type === 'custom-type8') {
+          key = 'custom-type8-msg-record'
+          console.log(msg.type)
         } else {
           key = 'image-msg-record'
         }
@@ -354,5 +365,45 @@ export default {
 .list-item .checked {
   background-image: url('../../../../static/img/setting/checkbox-c.png');
   background-size: 15px 15px;
+}
+.custom-type8-box {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: space-between;
+  padding: 0 15px;
+  width: 235px;
+  height: 100px;
+  background: #fff !important;
+  border: 1px solid #529EFF;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.custom-type8-box .custom-type8-content-box {
+  display: flex;
+  flex-direction: row;
+  /* align-items: center; */
+  justify-content: space-between;
+  background: #fff !important;
+  margin-top: 10px
+}
+.custom-type8-box .custom-type8-title {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+}
+.custom-type8-box .custom-type8-content {
+  margin-right: 10px;
+  width: 150px;
+  height: 68px;
+  font-size: 12px;
+  color: #999;
+  overflow : hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 </style>

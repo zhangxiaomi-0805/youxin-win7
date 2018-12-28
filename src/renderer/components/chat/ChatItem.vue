@@ -32,7 +32,7 @@
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
         <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow === 'in' ? showGroupInvite(msg.showText) : null">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow === 'in' ? showGroupInvite(msg.showText) : null" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -212,7 +212,6 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
-        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -327,7 +326,6 @@
               content.data.value.teamAvatarUrl = config.defaultGroupIcon
             }
             item.showText = content.data.value
-            console.log(item.showText)
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {
@@ -337,6 +335,13 @@
         } else if (item.type === 'custom-type7') {
           let content = JSON.parse(item.content)
           // 自定义富文本消息
+          item.showText = content.data.value
+        } else if (item.type === 'custom-type8') {
+          // 自定义邀请入群消息
+          let content = JSON.parse(item.content)
+          if (!content.data.value.teamAvatarUrl) {
+            content.data.value.teamAvatarUrl = config.defaultGroupIcon
+          }
           item.showText = content.data.value
         } else if (item.type === 'image') {
           // 原始图片全屏显示
@@ -672,7 +677,7 @@
     methods: {
       showGroupInvite (teamInfo) {
         console.log('群聊邀请')
-        this.eventBus.$emit('showGroupInvite', {teamId: teamInfo.teamId})
+        this.eventBus.$emit('showGroupInvite', {teamInfo: teamInfo})
       },
       openFile () {
         if (this.msg.localCustom && this.msg.localCustom.downloadUrl) {
@@ -866,8 +871,11 @@
         this.eventBus.$emit('checkUser', {})
         if (e.button === 2) {
           let key = ''
-          if (type.indexOf('custom') > -1) {
+          if (type.indexOf('custom-type1') > -1 || type.indexOf('custom-type3') > -1 || type.indexOf('custom-type7') > -1) {
             type = 'custom'
+          }
+          if (type === 'custom-type8') {
+            type = 'custom-type8'
           }
           if (this.msg.flow === 'out' && (this.to !== this.myInfo.account)) {
             key = type + '-out'

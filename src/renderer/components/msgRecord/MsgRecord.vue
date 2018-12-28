@@ -249,7 +249,6 @@ export default {
       let allList = []
       let allMsgList = []
       this.$store.state.currSessionMsgs.map((item, index) => {
-        console.log(item)
         item = this.manageItem(item)
         if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
           allList.unshift(item)
@@ -345,6 +344,7 @@ export default {
       })
     },
     manageItem (item) {
+      console.log(item)
       if (item.flow === 'in') {
         if (item.type === 'robot' && item.content && item.content.msgOut) {
           // 机器人下行消息
@@ -432,7 +432,14 @@ export default {
           // 自定义富文本消息
           item.type = 'custom-type7'
           item.showText = content.data.value
-          console.log(item)
+        } else if (content.type === 8) {
+          // 自定义邀请入群消息
+          item.type = 'custom-type8'
+          if (!content.data.value.teamAvatarUrl) {
+            content.data.value.teamAvatarUrl = config.defaultGroupIcon
+          }
+          item.showText = content.data.value
+          console.log(item.showText)
         } else {
           item.showText = util.parseCustomMsg(item)
           if (item.showText !== '[自定义消息]') {
@@ -442,6 +449,13 @@ export default {
       } else if (item.type === 'custom-type7') {
         // 自定义富文本消息
         let content = JSON.parse(item.content)
+        item.showText = content.data.value
+      } else if (item.type === 'custom-type8') {
+        // 自定义邀请入群消息
+        let content = JSON.parse(item.content)
+        if (!content.data.value.teamAvatarUrl) {
+          content.data.value.teamAvatarUrl = config.defaultGroupIcon
+        }
         item.showText = content.data.value
       } else if (item.type === 'image') {
         // 原始图片全屏显示

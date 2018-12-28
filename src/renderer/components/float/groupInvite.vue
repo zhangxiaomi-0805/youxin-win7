@@ -13,16 +13,16 @@
 
         <div style="padding:15px 30px">
             <div class="m-modal-header">
-                <div class="user-info"><img :src="teamInfo ? teamInfo.teamAvatarUrl : ''"></div>
+                <div class="user-info"><img :src="teamInfo.avatar"></div>
                 <div style="padding-left: 20px">
-                    <div class="nick">{{teamInfo ? teamInfo.teamName : '群'}}</div>
-                    <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo ? teamInfo.memberNum : 0+ '人'}}</div>
+                    <div class="nick">{{teamInfo.name}}</div>
+                    <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum + '人'}}</div>
                 </div>
             </div>
 
             <!-- 内容 -->
             <div style="width: 100%; height:90px;display: flex;flex-direction: column; align-items:center;padding: 30px 0;justify-content: space-between">
-                <div style="color: #666; font-size: 14px;text-overflow:ellipsis;white-space:nowrap;">{{teamInfo ? teamInfo.description.split('聊')[0]+'聊' : ''}}</div>
+                <div style="color: #666; font-size: 14px;text-overflow:ellipsis;white-space:nowrap;">{{description.split('聊')[0] + '聊'}}</div>
                 <a class="button" @mouseup.stop="applyJoinTeam()">{{'加入群聊'}}</a>
             </div>
         </div>  
@@ -42,6 +42,7 @@ export default {
     return {
       showModal: false,
       teamId: '',
+      description: '',
       teamInfo: {}
     }
   },
@@ -49,29 +50,30 @@ export default {
     // 群邀请弹框
     this.eventBus.$on('showGroupInvite', (data) => {
       this.showModal = true
-      this.teamId = data.teamId
+      this.teamId = data.teamInfo.teamId
+      this.description = data.teamInfo.description
+      this.getTeamInfoFn(this.teamId)
     })
-    this.getTeamInfoFn()
   },
   updated () {
     drag.dragPosition('historyMsgDrag', 1)
   },
   methods: {
     closeCover () {
-    //   this.showModal = false
+      console.log('false')
+      // this.showModal = false
     },
     closeModal () {
       this.showModal = false
     },
-    async getTeamInfoFn () {
-      this.teamInfo = await this.getTeamInfo()
-      console.log(this.teamInfo)
+    async getTeamInfoFn (teamId) {
+      this.teamInfo = await this.getTeamInfo(teamId)
     },
-    getTeamInfo () {
+    getTeamInfo (teamId) {
       // 获取群信息
       return new Promise((resolve, reject) => {
         this.$store.state.nim.getTeam({
-          teamId: this.teamId,
+          teamId,
           done: (error, teams) => {
             if (!error) resolve(teams)
             else reject(error)
@@ -87,7 +89,6 @@ export default {
           ps: 'ps',
           done: (error, obj) => {
             if (error) {
-              console.log(error)
               this.$toast(error)
               return
             }
