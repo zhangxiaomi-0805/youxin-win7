@@ -29,6 +29,7 @@
             <team-code/>
             <msg-record/>
             <update-app/>
+            <group-invite/>
         </div>
     </div>
 </template>
@@ -60,14 +61,22 @@
   import Request from '../utils/request.js'
   import MsgRecord from './msgRecord/MsgRecord.vue'
   import UpdateApp from './float/UpdateApp.vue'
+  import GroupInvite from './float/groupInvite.vue'
   const electron = require('electron')
   const ipcRenderer = electron.ipcRenderer
   export default {
     name: 'main-page',
-    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp},
+    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
+      ipcRenderer.on('getAccid', (evt, arg) => {
+        Request.GetAccid({userName: arg.account}, this).then(ret => {
+          let accid = ret.accid
+          // 根据account 获取 accid 发起会话
+          this.createSession(accid)
+        })
+      })
       // 检查更新
       if (localStorage.APPVERSIONS) {
         let APPVERSIONS = JSON.parse(localStorage.APPVERSIONS)
@@ -104,6 +113,9 @@
       },
       path () {
         return this.$route.path === '/'
+      },
+      sessionlist () {
+        return this.$store.state.sessionlist
       }
     },
     methods: {
@@ -111,6 +123,30 @@
         if (this.$store.state.showListOptions) {
           this.$store.dispatch('showListOptions', {
             show: false
+          })
+        }
+      },
+      createSession (accid) {
+        let sessionId = ''
+        for (let i in this.sessionlist) {
+          if (this.sessionlist[i].to === accid) {
+            sessionId = this.sessionlist[i].id
+            break
+          }
+        }
+        if (sessionId) {
+          this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+          this.eventBus.$emit('toggleSelect', {sessionId})
+          this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+        } else {
+          this.$store.dispatch('insertLocalSession', {
+            scene: 'p2p',
+            account: accid,
+            callback: (sessionId) => {
+              this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+              this.eventBus.$emit('toggleSelect', {sessionId})
+              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+            }
           })
         }
       }

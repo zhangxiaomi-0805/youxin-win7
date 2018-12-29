@@ -263,6 +263,11 @@ export async function showListOptions ({state, commit}, obj) {
       event2, event0, event4
     ]
   }
+  if (obj.key === 'custom-type8-msg-record') {
+    items = [
+      event4
+    ]
+  }
   // if (obj.key === 'file-msg-record') {
   //   items = [
   //     event2, event6, event0, event4, event37
@@ -277,6 +282,17 @@ export async function showListOptions ({state, commit}, obj) {
   if (obj.key === 'custom-in' || obj.key === 'custom-out-timeout') {
     items = [
       event2, event4
+    ]
+  }
+  // 自定义消息 --- 邀请入群消息
+  if (obj.key === 'custom-type8-out') {
+    items = [
+      event1, event4
+    ]
+  }
+  if (obj.key === 'custom-type8-in' || obj.key === 'custom-type8-out-timeout') {
+    items = [
+      event4
     ]
   }
   // 选择会话
@@ -503,7 +519,7 @@ export async function showListOptions ({state, commit}, obj) {
   }
   if (obj.key === 'team-member-normal') {
     items = [
-      event00
+      event00, event10
     ]
   }
   // 讨论组设置（搜索、添加成员）

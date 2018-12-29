@@ -316,6 +316,10 @@ APP.prototype.initIPC = function () {
   ipcMain.on('toggleSession', function (evt, arg) {
     if (_this.aplWindow) _this.aplWindow.webContents.send('renderSession', arg)
   })
+
+  ipcMain.on('sendAccount', function (evt, arg) {
+    if (_this.mainWindow) _this.mainWindow.getAccid(arg)
+  })
 }
 
 APP.prototype.login = function () {

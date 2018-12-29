@@ -203,4 +203,8 @@ MainWindow.prototype.screenShot = function (arg) {
   this.mainWindow && this.mainWindow.webContents.send('screenShotCb', arg)
 }
 
+MainWindow.prototype.getAccid = function (arg) {
+  this.mainWindow && this.mainWindow.webContents.send('getAccid', arg)
+}
+
 export default MainWindow

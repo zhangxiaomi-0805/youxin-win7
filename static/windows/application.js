@@ -41,7 +41,7 @@ TabManage.prototype.init = function () {
             // 发起会话处理
             let account = e.url.split('?account=')[1]
             if (account) {
-              return false
+              ipcRenderer.send('sendAccount',{account})
             }
           }
           webview.loadURL(e.url)
@@ -50,6 +50,16 @@ TabManage.prototype.init = function () {
       })
       webview.addEventListener('load-commit', (e) => {
         this.canGoBack()
+      })
+      webview.addEventListener('did-fail-load', (e) => {
+        if (e.validatedURL.indexOf('yximcreatesession.telecomjs.com') > -1) {
+          // 发起会话处理
+          let account = e.validatedURL.split('?account=')[1]
+          if (account) {
+            ipcRenderer.send('sendAccount',{account})
+          }
+        }
+        webview.goBack()
       })
     }
   })
