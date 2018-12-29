@@ -249,7 +249,6 @@ export default {
       let allList = []
       let allMsgList = []
       this.$store.state.currSessionMsgs.map((item, index) => {
-        console.log(item)
         item = this.manageItem(item)
         if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
           allList.unshift(item)
@@ -432,7 +431,6 @@ export default {
           // 自定义富文本消息
           item.type = 'custom-type7'
           item.showText = content.data.value
-          console.log(item)
         } else {
           item.showText = util.parseCustomMsg(item)
           if (item.showText !== '[自定义消息]') {

@@ -123,14 +123,14 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
           if (records.length > 0) {
             let variable = 0
             let replaceArr = []
+            // 标签解析
+            records[0].text = util.escape(records[0].text)
             // 关键词高亮匹配
             records[0].text = records[0].text.replace(new RegExp(value, 'gmi'), (m, i) => {
               variable++
               replaceArr.push(`<span style="color: rgba(79,141,255,1);">${value}</span>`)
               return `{---===${variable}}`
             })
-            // 标签解析
-            records[0].text = util.escape(records[0].text)
             // 处理表情
             if (/\[[\u4e00-\u9fa5]+\]/.test(records[0].text)) {
               let emojiItems = records[0].text.match(/\[[\u4e00-\u9fa5]+\]/g)

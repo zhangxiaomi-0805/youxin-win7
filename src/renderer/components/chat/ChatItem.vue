@@ -205,7 +205,6 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
-        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -840,7 +839,6 @@
           } else {
             key = type + '-in'
           }
-          console.log(key)
           if (this.msg.flow === 'in' && this.isDownloaded) {
             key += '-isDownloaded'
           }

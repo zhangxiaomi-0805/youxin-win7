@@ -73,14 +73,21 @@ export default {
         }).catch(() => {})
     },
     confirmManage () {
-      this.$store.dispatch('connect', {
-        force: true,
-        done: (error) => {
-          if (error !== 200) {
-            return
+      let loginInfo = JSON.parse(localStorage.getItem('LOGININFO'))
+      Request.LoginAuth({
+        account: loginInfo.account,
+        password: loginInfo.password
+      }, this).then(ret => {
+        localStorage.setItem('sessionToken', ret.token)
+        this.$store.dispatch('connect', {
+          force: true,
+          done: (error) => {
+            if (error !== 200) {
+              return
+            }
+            this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
           }
-          this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
-        }
+        })
       })
     }
   }
