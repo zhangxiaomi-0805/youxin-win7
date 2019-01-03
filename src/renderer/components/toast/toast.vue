@@ -32,7 +32,7 @@ export default {
   height: 40px;
   padding: 0 40px;
   background: #FFF2CE;
-  border: 1 solid #E0CAAE;
+  border: 1px solid #E0CAAE;
   box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
   border-radius: 4px;
 }

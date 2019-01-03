@@ -398,7 +398,7 @@
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
                 this.$store.commit('updateLoginInfo', loginInfo)
-                ipcRenderer.send('onReset', {userInfo})
+                ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
                 location.href = config.homeUrl
               }
             })

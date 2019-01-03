@@ -133,6 +133,10 @@ export default {
   color: #333;
   font-size: 17px;
   line-height: 24px;
+  width: 90%;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 .third-box .list-item .item-content {
   width: 90%;

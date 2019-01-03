@@ -11,12 +11,12 @@
         </div>
       </div>
 
-        <div style="padding:15px 30px">
+        <div style="width: 100%; box-sizing:border-box; padding:15px 30px">
             <div class="m-modal-header">
                 <div class="user-info"><img :src="teamInfo.avatar"></div>
-                <div style="padding-left: 20px">
+                <div style="width:76%; padding-left: 18px">
                     <div class="nick">{{teamInfo.name}}</div>
-                    <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum + '人'}}</div>
+                    <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum ? teamInfo.memberNum : 0 + '人'}}</div>
                 </div>
             </div>
 
@@ -34,6 +34,7 @@
 
 <script>
 import drag from '../../utils/drag.js'
+import config from '../../configs'
 import clickoutside from '../../utils/clickoutside.js'
 export default {
   name: 'group-invite',
@@ -68,6 +69,9 @@ export default {
     },
     async getTeamInfoFn (teamId) {
       this.teamInfo = await this.getTeamInfo(teamId)
+      if (this.teamInfo && !this.teamInfo.avatar) {
+        this.teamInfo.avatar = config.defaultGroupIcon
+      }
     },
     getTeamInfo (teamId) {
       // 获取群信息
