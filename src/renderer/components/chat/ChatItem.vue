@@ -908,7 +908,6 @@
           } else {
             key = type + '-in'
           }
-          console.log(key)
           if (this.msg.flow === 'in' && this.isDownloaded) {
             key += '-isDownloaded'
           }

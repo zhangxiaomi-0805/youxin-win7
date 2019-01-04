@@ -90,7 +90,7 @@
             @blur="blurFn($refs.loginIptNew)"/>
             <span v-if="newPwd.length > 0" class="clear" @click="newPwd = ''"/>
         </div>
-        <div class="toast-text" style="marginBottom: 20px;">密码长度8-20位数字、字母组合</div>
+        <div class="toast-text" style="marginBottom: 20px;">密码长度8-20位</div>
         <div class="mdy-title">确认密码</div>
         <div class="m-set-ipt" ref="loginIptConfirm">
           <input
@@ -105,7 +105,7 @@
             @keyup="keyToNext($event, 3)"/>
             <span v-if="confirmNewPwd.length > 0" class="clear" @click="confirmNewPwd = ''"/>
         </div>
-        <div class="toast-text" style="marginBottom: 30px;">密码长度8-20位数字、字母组合</div>
+        <div class="toast-text" style="marginBottom: 30px;">密码长度8-20位</div>
         <login-button text="确定" :disabled="!(password && newPwd && confirmNewPwd)" :loading="loading" :callBack="modifyPwd"/>
       </div>
     </div>
@@ -324,8 +324,10 @@ export default {
       // 修改密码
       if (!(this.password && this.newPwd && this.confirmNewPwd)) return
       let errMsg = ''
-      if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 6) {
+      if (this.password.length < 8 || this.newPwd.length < 8) {
         errMsg = '密码格式不正确'
+      } else if (this.newPwd !== this.confirmNewPwd) {
+        errMsg = '两次输入的密码不一致'
       }
       if (errMsg) {
         this.$store.commit('toastConfig', {

@@ -275,13 +275,17 @@ export default {
         this.errToast()
       }
     },
-    async sendCustomMsg (coustomMsg) {
-      console.log(this.chooselist)
-      for (let i = 0; i < this.chooselist.length; i++) {
-        await this.sendMsg(this.chooselist[i])
+    sendCustomMsg (coustomMsg) {
+      let chooselist = Object.assign([], this.chooselist)
+      this.sendMsg(chooselist[0], Callback.bind(this))
+      function Callback () {
+        chooselist.splice(0, 1)
+        if (chooselist[0]) {
+          this.sendMsg(chooselist[0], Callback.bind(this))
+        }
       }
     },
-    sendMsg (item) {
+    async sendMsg (item, callback) {
       let myInfo = this.$store.state.myInfo
       let teamAvatarUrl = this.teamAvatarUrl
       if (teamAvatarUrl && teamAvatarUrl.indexOf('/img/team/group-default.png') > -1) { // 如果是默认头像，则置为空，不然本地路径与移动端不一致
@@ -297,16 +301,15 @@ export default {
           }
         }
       }
-      return new Promise((resolve, reject) => {
-        this.$store.dispatch('sendMsg', {
+      try {
+        await this.$store.dispatch('sendMsg', {
           type: 'custom',
           scene: 'p2p',
           to: item.accid,
           content
-        }).then(() => {
-          resolve()
-        }).catch(() => {})
-      })
+        })
+      } catch (error) {}
+      callback()
     },
     async forwordNewChat () {
       // 转发到新聊天

@@ -159,14 +159,14 @@ export default {
             })
           })
         }
+        // 标签解析
+        item.showText = util.escape(item.showText)
         // 关键词高亮匹配
         item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
           variable++
           replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
           return `{---===${variable}}`
         })
-        // 标签解析
-        item.showText = util.escape(item.showText)
         // 表情匹配
         if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
           let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
