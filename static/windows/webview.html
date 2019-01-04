@@ -5,20 +5,58 @@
   <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>自定义消息</title>
+  <style>
+    img {
+      max-width: 100% !important;
+    }
+  </style>
 </head>
 <body>
-  <div id="webview" style="height: 100%;width: 100%;"></div>
+  <div id="iframe" style="height: 100%;width: 100%;"></div>
 
   <script type="text/javascript">
-      var electron = require('electron')
-      electron.ipcRenderer.on('executeJavaScript', (evt, arg) => {
-        document.getElementById('webview').innerHTML = arg
-        setTimeout(()=>{
-          let contentHeight = document.getElementById('webview').scrollHeight 
-          electron.ipcRenderer.sendToHost(contentHeight) //向webview所在页面发送消息
-        },100)
+    // window.onload = (function () {  
+    //   var iframe = document.getElementById('iframe')
+    // })
 
-      })
+    // addEventListener support for IE8
+    function bindEvent(element, eventName, eventHandler) {
+      if (element.addEventListener) {
+        element.addEventListener(eventName, eventHandler, false);
+      } else if (element.attachEvent) {
+        element.attachEvent('on' + eventName, eventHandler);
+      }
+    }
+
+     // 接收父页面传递来的数据
+     bindEvent(window, 'message', function (e) {
+      console.log('iframe接收消息...')
+      var iframe = document.getElementById('iframe')
+      console.log(e)
+      iframe.innerHTML = e.data.params.showText
+    });
+    
+    // 向父vue页面发送信息
+    setTimeout(() => {
+      var iframe = document.getElementById('iframe')
+      let contentHeight = iframe.scrollHeight
+      console.log('iframe发送消息...')
+      console.log(contentHeight)
+      window.parent.postMessage({contentHeight},'*');
+    },20)
+
+   
+
+   
+      // var electron = require('electron')
+      // electron.ipcRenderer.on('executeJavaScript', (evt, arg) => {
+      //   document.getElementById('iframe').innerHTML = arg
+      //   setTimeout(()=>{
+      //     let contentHeight = document.getElementById('iframe').scrollHeight 
+      //     electron.ipcRenderer.sendToHost(contentHeight) //向webview所在页面发送消息
+      //   },100)
+
+      // })
   </script>
 </body>
 </html>

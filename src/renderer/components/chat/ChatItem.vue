@@ -30,9 +30,10 @@
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
-        <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
+        <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
+        <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="../../../../static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow === 'in' ? showGroupInvite(msg.showText) : null" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -98,6 +99,7 @@
   import emojiObj from '../../configs/emoji'
   import {ipcRenderer, shell} from 'electron'
   import Request from '../../utils/request.js'
+  import { setTimeout } from 'timers'
   export default {
     props: {
       type: String, // 类型，chatroom, session
@@ -212,6 +214,7 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
+        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -496,6 +499,7 @@
       }
     },
     mounted () {
+      this.iframe = this.$refs.iframe
       let item = this.msg
       // 有时序问题的操作
       this.$nextTick(() => {
@@ -622,51 +626,56 @@
           })
         }
         // 自定义消息（7）
-        let webview = this.$refs.webview
-        if (item.type === 'custom-type7' && webview) {
-          webview.addEventListener('dom-ready', e => {
-            // Inject CSS
-            webview.insertCSS(`
-              img {
-                max-width:100% !important;
-              }
-            `)
+        if (item.type === 'custom-type7' && this.iframe) {
+          this.bindEvent(window, 'message', (e) => {
+            console.log(e.data)
+            this.iframe.style.height = (e.data.contentHeight + 40) + 'px'
           })
-          webview.addEventListener('did-finish-load', () => {
-            webview.send('executeJavaScript', item.showText)
-            // webview.openDevTools()  // 打开webview控制台
-          })
-          // 获取html页面内容实际高度
-          webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
-            webview.style.height = (event.channel + 40) + 'px'
-          })
-          webview.addEventListener('new-window', (e) => {
-            if (e.url) {
-              if (e.url.indexOf('yximcreatesession.telecomjs.com') > -1) {
-                // 发起会话处理
-                let account = e.url.split('?account=')[1]
-                if (account) {
-                  ipcRenderer.send('sendAccount', {account})
-                }
-              }
-              // webview.loadURL(e.url)
-            }
-            let openType = 1
-            if (e.url.indexOf('#browserWindow') > -1) {
-              openType = 2
-            }
-            this.openAplWindow(e, openType)
-          })
-          webview.addEventListener('did-fail-load', (e) => {
-            if (e.validatedURL.indexOf('yximcreatesession.telecomjs.com') > -1) {
-              // 发起会话处理
-              let account = e.validatedURL.split('?account=')[1]
-              if (account) {
-                ipcRenderer.send('sendAccount', {account})
-              }
-            }
-            // webview.goBack()
-          })
+          // webview
+          // let webview = this.$refs.webview
+          // webview.addEventListener('dom-ready', e => {
+          //   // Inject CSS
+          //   webview.insertCSS(`
+          //     img {
+          //       max-width:100% !important;
+          //     }
+          //   `)
+          // })
+          // webview.addEventListener('did-finish-load', () => {
+          //   webview.send('executeJavaScript', item.showText)
+          //   webview.openDevTools() // 打开webview控制台
+          // })
+          // // 获取html页面内容实际高度
+          // webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
+          //   webview.style.height = (event.channel + 40) + 'px'
+          // })
+          // webview.addEventListener('new-window', (e) => {
+          //   if (e.url) {
+          //     if (e.url.indexOf('yximcreatesession.telecomjs.com') > -1) {
+          //       // 发起会话处理
+          //       let account = e.url.split('?account=')[1]
+          //       if (account) {
+          //         ipcRenderer.send('sendAccount', {account})
+          //       }
+          //     }
+          //     // webview.loadURL(e.url)
+          //   }
+          //   let openType = 1
+          //   if (e.url.indexOf('#browserWindow') > -1) {
+          //     openType = 2
+          //   }
+          //   this.openAplWindow(e, openType)
+          // })
+          // webview.addEventListener('did-fail-load', (e) => {
+          //   if (e.validatedURL.indexOf('yximcreatesession.telecomjs.com') > -1) {
+          //     // 发起会话处理
+          //     let account = e.validatedURL.split('?account=')[1]
+          //     if (account) {
+          //       ipcRenderer.send('sendAccount', {account})
+          //     }
+          //   }
+          //   // webview.goBack()
+          // })
         }
         setTimeout(() => {
           // 停止高亮聊天记录闪烁
@@ -675,6 +684,18 @@
       }) // end this.nextTick
     },
     methods: {
+      bindEvent (element, eventName, eventHandler) {
+        if (element.addEventListener) {
+          element.addEventListener(eventName, eventHandler, false)
+        } else if (element.attachEvent) {
+          element.attachEvent('on' + eventName, eventHandler)
+        }
+      },
+      sendMsgToIframe (showText) {
+        this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
+          params: {showText}
+        }, '*')
+      },
       showGroupInvite (teamInfo) {
         console.log('群聊邀请')
         this.eventBus.$emit('showGroupInvite', {teamInfo: teamInfo})
