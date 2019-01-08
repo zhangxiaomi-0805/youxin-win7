@@ -28,7 +28,7 @@
         </div>
         <div v-else style="width: 88%">
           <div>抱歉，您的体验时长到期，无法正常使用，</div>
-          <div>请联系相应的商务经理</div>     
+          <div>请联系相应的商务经理</div>
         </div>
       </div>
       <div class="footer">
@@ -41,6 +41,8 @@
 
 <script>
 import drag from '../../utils/drag.js'
+import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'dismiss-team',
   mounted () {
@@ -72,10 +74,15 @@ export default {
       this.showForwordFail = false
       this.loading = false
       if (this.type === 3) {
-        const electron = require('electron')
-        const ipcRenderer = electron.ipcRenderer
+        if (config.environment === 'web') { // web分支
+          // 先关闭所有子窗口，再重启主窗口
+          NativeLogic.native.setWinStatus('aplWindow', 3) // 类型（1-最小化，2-最大化，3-关闭，4-重启，5-隐藏，6-显示）
+          NativeLogic.native.setWinStatus('main', 4)
+        } else { // electron分支
+          let { ipcRenderer } = require('electron')
+          ipcRenderer.send('relaunch-app')
+        }
         localStorage.removeItem('AUTOLOGIN')
-        ipcRenderer.send('relaunch-app')
       }
     }
   }

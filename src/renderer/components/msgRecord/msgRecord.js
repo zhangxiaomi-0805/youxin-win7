@@ -3,7 +3,8 @@
  */
 import store from '../../store'
 import util from '../../utils'
-import {ipcRenderer, shell} from 'electron'
+import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 import Request from '../../utils/request.js'
 var MsgRecordFn = {}
 MsgRecordFn.getSearchRecords = function (searchValue, checkType) {
@@ -207,12 +208,22 @@ MsgRecordFn.openAplWindow = function (evt, sessionId) {
     for (let i in thirdUrls) {
       if (thirdUrls[i].url === domain) {
         Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-          ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId})
+          if (config.environment === 'web') { // web分支
+            NativeLogic.native.createWindows('aplWindow', url, config.aplWinHeight, config.aplWinWidth)
+          } else { // electron分支
+            let { ipcRenderer } = require('electron')
+            ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId})
+          }
         }).catch(() => {})
         return false
       }
     }
-    shell.openExternal(url)
+    if (config.environment === 'web') { // web分支
+      NativeLogic.native.openShell(3, url) // 打开类型（1-文件，2-文件所在目录，3-外部浏览器）
+    } else { // electron分支
+      let { shell } = require('electron')
+      shell.openExternal(url)
+    }
   }
 }
 export default MsgRecordFn

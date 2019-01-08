@@ -152,7 +152,7 @@ export default {
     -webkit-app-region: no-drag;
     background: url(../../../../static/img/nav/main-tab-session-normal.png) no-repeat center center;
     background-size: 22px 22px;
-    
+
   }
   .u-nav-session a{
     display: block;
@@ -226,7 +226,7 @@ export default {
     background-size: 22px 22px;
   }
 
-  .u-nav-setting, 
+  .u-nav-setting,
   .u-nav-add {
     position: absolute;
     bottom: 18px;
@@ -235,7 +235,7 @@ export default {
     width: 25px;
     height: 25px;
     -webkit-app-region: no-drag;
-    background: url(../../../../static/img/nav/main-tab-setting-normal.png) no-repeat center center; 
+    background: url(../../../../static/img/nav/main-tab-setting-normal.png) no-repeat center center;
     background-size: 22px 22px;
   }
 
@@ -244,5 +244,5 @@ export default {
     background: url(../../../../static/img/nav/main-tab-add-normal.png) no-repeat center center;
     background-size: 21px 21px;
   }
-</style>
 
+</style>

@@ -174,7 +174,7 @@ export default {
 </script>
 
 <style>
-.m-editnotice-contain {
+  .m-editnotice-contain {
     position: absolute;
     top: 0;
     left: 0;
@@ -192,14 +192,14 @@ export default {
     z-index: 50;
   }
 
-	.m-editnotice-contain .m-editnotice {
+  .m-editnotice-contain .m-editnotice {
     box-sizing: border-box;
-		position: absolute;
-		top: 1px;
+    position: absolute;
+    top: 1px;
     left: 50%;
     transform: translateX(-50%);
-		width: 600px;
-		height: 502px;
+    width: 600px;
+    height: 502px;
     background: #fff;
     border: 0.5px solid #ccc;
     box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
@@ -215,13 +215,13 @@ export default {
     font-size: 14px;
     color: #999;
   }
-  
+
   .m-editnotice .close {
     position: absolute;
     right: 0;
     top: 0;
   }
-  
+
   .m-editnotice .loading {
     display: inline-block;
     width: 15px;
@@ -368,3 +368,4 @@ export default {
     margin-right: 20px;
   }
 </style>
+

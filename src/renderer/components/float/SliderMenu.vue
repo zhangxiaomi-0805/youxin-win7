@@ -1,50 +1,50 @@
 <template>
-<!-- 侧滑菜单 -->
-<div id="sliderMenu" :class="className" v-clickoutside="closeMenu">
-  <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
-    <h4>{{scene === 'p2p' ? '聊天设置' : isDiscussGroup ? '讨论组设置' : '群设置'}}</h4>
-    <a style="width: 24px; height: 24px" v-if="scene !== 'p2p' && !isDiscussGroup" @click="eventBus.$emit('teamCode', {teamId, event: $event})">
-      <img :src="teamCode" alt="" style="width: 100%">
-    </a>
-  </div> 
+  <!-- 侧滑菜单 -->
+  <div id="sliderMenu" :class="className" v-clickoutside="closeMenu">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: center">
+      <h4>{{scene === 'p2p' ? '聊天设置' : isDiscussGroup ? '讨论组设置' : '群设置'}}</h4>
+      <a style="width: 24px; height: 24px" v-if="scene !== 'p2p' && !isDiscussGroup" @click="eventBus.$emit('teamCode', {teamId, event: $event})">
+        <img :src="teamCode" alt="" style="width: 100%">
+      </a>
+    </div>
 
-  <div v-if='scene === "p2p"'>
-    <ul class="m-u-list">
-      <li class="m-u-list-item"><a class="add-parentNode" @click="createTeam()"><div class="b-add"/><div class="t-style t-add">添加</div></a></li>
-      <li 
-        class="m-u-list-item" 
-        v-for="member in memberList" 
-        :key="member.id" 
-        :id="member.id"
-      >
-        <a class="add-parentNode" @click="showCheckUser($event)"><img class="t-img" :src="member.avatar"><div class="t-style">{{member.alias}}</div></a> 
-      </li>
-    </ul>
-    <div>
-      <div class="m-setting-u">
-        <div class="t-style title">置顶聊天</div>
-        <a class="t-btn" style="margin-bottom: 10px;" @click="openUpChat()"><a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span></a>
-        <div class="t-style title">消息免打扰</div>
-        <a class="t-btn" @click="openNoMsg"><a :class="isMute ? 'toggle-active' : 'toggle'"></a><span>{{isMute ? '关闭' : '开启'}}</span></a>
-      </div>
-      <div class="m-setting-u" style="border-bottom:none;"><div class="t-style title" style="margin-bottom: 10px;">聊天记录</div><a class="empty" @click="clearRecord">清 空</a></div>
-    </div>
-  </div>
-  <div v-else>
-    <div class="team-avatar">
-      <div style="display:none;">{{teamAvatar}}</div>
-      <img :src="avatar">
-      <div 
-        style="position: relative;overflow: hidden;"
-        v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'">
-        <a class="b-edit">编辑</a>
-        <input @change="previewFile($event.target)" class="b-input" type="file" ref="imgToSent" accept="image/gif, image/jpeg, image/png, image/bmp, image/jpg" title=" " />
+    <div v-if='scene === "p2p"'>
+      <ul class="m-u-list">
+        <li class="m-u-list-item"><a class="add-parentNode" @click="createTeam()"><div class="b-add"/><div class="t-style t-add">添加</div></a></li>
+        <li
+          class="m-u-list-item"
+          v-for="member in memberList"
+          :key="member.id"
+          :id="member.id"
+        >
+          <a class="add-parentNode" @click="showCheckUser($event)"><img class="t-img" :src="member.avatar"><div class="t-style">{{member.alias}}</div></a>
+        </li>
+      </ul>
+      <div>
+        <div class="m-setting-u">
+          <div class="t-style title">置顶聊天</div>
+          <a class="t-btn" style="margin-bottom: 10px;" @click="openUpChat()"><a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span></a>
+          <div class="t-style title">消息免打扰</div>
+          <a class="t-btn" @click="openNoMsg"><a :class="isMute ? 'toggle-active' : 'toggle'"></a><span>{{isMute ? '关闭' : '开启'}}</span></a>
+        </div>
+        <div class="m-setting-u" style="border-bottom:none;"><div class="t-style title" style="margin-bottom: 10px;">聊天记录</div><a class="empty" @click="clearRecord">清 空</a></div>
       </div>
     </div>
-    <div class="team-block">
-      <div style="display:none;">{{teamName}}</div>
-      <div class="team-title" style="margin-bottom:0;">{{isDiscussGroup ? '讨论组名称' : '群名称'}}</div>
-      <input
+    <div v-else>
+      <div class="team-avatar">
+        <div style="display:none;">{{teamAvatar}}</div>
+        <img :src="avatar">
+        <div
+          style="position: relative;overflow: hidden;"
+          v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'">
+          <a class="b-edit">编辑</a>
+          <input @change="previewFile($event.target)" class="b-input" type="file" ref="imgToSent" accept="image/gif, image/jpeg, image/png, image/bmp, image/jpg" title=" " />
+        </div>
+      </div>
+      <div class="team-block">
+        <div style="display:none;">{{teamName}}</div>
+        <div class="team-title" style="margin-bottom:0;">{{isDiscussGroup ? '讨论组名称' : '群名称'}}</div>
+        <input
           ref="teamNick"
           :class="isActive1 ? 'team-input active' : 'team-input'"
           type="text"
@@ -55,523 +55,523 @@
           @focus="setStyle(1)"
           @blur="modifyTeamNick"
           @keyup="keyupModifyTeamNick($event)">
-    </div>
-    <div class="team-block">
-      <div style="display:none;">{{muteNotiType}}</div>
-      <div class="team-title">消息提醒</div>
-      <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
-        <a :class="remindMsgType === 0 ? 'radio-active' : 'radio'"></a><span>提醒所有消息</span>
-      </a>
-      <a v-if="!isDiscussGroup" class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(2)">
-        <a :class="remindMsgType === 2 ? 'radio-active' : 'radio'"></a><span>只提醒管理员消息</span>
-      </a>
-      <a class="t-btn" @click="toggleRemindType(1)">
-        <a :class="remindMsgType === 1 ? 'radio-active' : 'radio'"></a><span>不提醒任何消息</span>
-      </a>
-    </div>
-    <div class="team-block">
-      <div class="team-title">置顶聊天</div>
-      <a 
-        class="t-btn" 
-        style="margin-bottom: 10px;" 
-        @click="openUpChat()"
-      >
-        <a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span>
-      </a>
-    </div>
-    <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
-      <div class="team-title">
-        <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span>
       </div>
-      <div class="set-manager">
-        <a class="b-add-manager" @click="addManager"><i></i><span>添加管理员</span></a>
-        <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a>
+      <div class="team-block">
+        <div style="display:none;">{{muteNotiType}}</div>
+        <div class="team-title">消息提醒</div>
+        <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
+          <a :class="remindMsgType === 0 ? 'radio-active' : 'radio'"></a><span>提醒所有消息</span>
+        </a>
+        <a v-if="!isDiscussGroup" class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(2)">
+          <a :class="remindMsgType === 2 ? 'radio-active' : 'radio'"></a><span>只提醒管理员消息</span>
+        </a>
+        <a class="t-btn" @click="toggleRemindType(1)">
+          <a :class="remindMsgType === 1 ? 'radio-active' : 'radio'"></a><span>不提醒任何消息</span>
+        </a>
       </div>
-    </div>
-    <div class="team-block" v-if="isDiscussGroup">
-      <div class="team-title">退出讨论组：</div><a class="b-edit" style="color: rgba(244,53,48,1);width: 75px;" @click="leaveDiscussGroup">退出讨论组</a>
-    </div>
-    <div class="team-block" v-if="power !== 'owner' && !isDiscussGroup">
-      <div class="team-title">退出群：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="leaveTeam">退出群</a>
-    </div>
-    <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
-      <div class="team-title">群转让：</div><a class="b-edit" @click="transferTeam">群转让</a>
-    </div>
-    <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
-      <div class="team-title">群解散：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="dismissTeam">解散群</a>
+      <div class="team-block">
+        <div class="team-title">置顶聊天</div>
+        <a
+          class="t-btn"
+          style="margin-bottom: 10px;"
+          @click="openUpChat()"
+        >
+          <a :class="isTop ? 'toggle-active' : 'toggle'"></a><span>{{isTop ? '关闭' : '开启'}}</span>
+        </a>
+      </div>
+      <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
+        <div class="team-title">
+          <span>设置管理员</span><span>(已设置</span><span style="color: #F5A623;font-size: 13px;">{{managerlist.length + '/5'}}</span><span>名管理员)</span>
+        </div>
+        <div class="set-manager">
+          <a class="b-add-manager" @click="addManager"><i></i><span>添加管理员</span></a>
+          <a :class="managerlist.length > 0 ? 'b-remove-manager' : 'b-remove-manager disabled'" @click="removeManager"><i></i><span>移出管理员</span></a>
+        </div>
+      </div>
+      <div class="team-block" v-if="isDiscussGroup">
+        <div class="team-title">退出讨论组：</div><a class="b-edit" style="color: rgba(244,53,48,1);width: 75px;" @click="leaveDiscussGroup">退出讨论组</a>
+      </div>
+      <div class="team-block" v-if="power !== 'owner' && !isDiscussGroup">
+        <div class="team-title">退出群：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="leaveTeam">退出群</a>
+      </div>
+      <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
+        <div class="team-title">群转让：</div><a class="b-edit" @click="transferTeam">群转让</a>
+      </div>
+      <div class="team-block" v-if="power === 'owner' && !isDiscussGroup">
+        <div class="team-title">群解散：</div><a class="b-edit" style="color: rgba(244,53,48,1);" @click="dismissTeam">解散群</a>
+      </div>
     </div>
   </div>
-</div>
 </template>
 
 <script>
-import clickoutside from '../../utils/clickoutside.js'
-import util from '../../utils'
-import Request from '../../utils/request'
-export default {
-  name: 'slider-menu',
-  props: {
-    scene: String,
-    to: String,
-    teamId: String,
-    sessionId: String,
-    teamInfo: { type: Object, default () { return {} } },
-    myInfo: { type: Object, default () { return {} } }
-  },
-  directives: {clickoutside},
-  data () {
-    return {
-      settingIcon: './static/img/nav/icon-plus.png',
-      teamCode: './static/img/setting/er-wei-ma.png',
-      teamNick: '',
-      teamNickCopy: '',
-      myNick: '',
-      myNickCopy: '',
-      avatar: '',
-      isActive1: false,
-      isActive2: false,
-      remindMsgType: 1,
-      showEditIcon: false
-    }
-  },
-  computed: {
-    isDiscussGroup () {
-      return util.isDiscussGroup(this.teamInfo)
+  import clickoutside from '../../utils/clickoutside.js'
+  import util from '../../utils'
+  import Request from '../../utils/request'
+  export default {
+    name: 'slider-menu',
+    props: {
+      scene: String,
+      to: String,
+      teamId: String,
+      sessionId: String,
+      teamInfo: { type: Object, default () { return {} } },
+      myInfo: { type: Object, default () { return {} } }
     },
-    muteTeamIds () {
-      return this.$store.state.muteTeamIds
+    directives: {clickoutside},
+    data () {
+      return {
+        settingIcon: './static/img/nav/icon-plus.png',
+        teamCode: './static/img/setting/er-wei-ma.png',
+        teamNick: '',
+        teamNickCopy: '',
+        myNick: '',
+        myNickCopy: '',
+        avatar: '',
+        isActive1: false,
+        isActive2: false,
+        remindMsgType: 1,
+        showEditIcon: false
+      }
     },
-    userInfos () {
-      return this.$store.state.userInfos
-    },
-    teamMembers () {
-      let teamMembers = this.$store.state.teamMembers
-      let members = teamMembers && teamMembers[this.teamId]
-      return members
-    },
-    moveStatus () {
-      let slideMenuStatus = this.$store.state.slideMenuStatus
-      if (slideMenuStatus === 2 || slideMenuStatus === 4) {
-        let dom = document.getElementById('sliderMenu')
-        if (dom) dom.scrollTop = 0
-      }
-      return slideMenuStatus
-    },
-    className () {
-      if (this.moveStatus === 1 && this.scene === 'p2p') {
-        return 'm-slidermenu'
-      }
-      if (this.moveStatus === 1 && this.scene !== 'p2p') {
-        return 'm-slidermenu team'
-      }
-      if (this.moveStatus === 2 && this.scene === 'p2p') {
-        return 'm-slidermenu k-moveleft'
-      }
-      if (this.moveStatus === 2 && this.scene !== 'p2p') {
-        return 'm-slidermenu k-moveleft team'
-      }
-      if (this.moveStatus === 3 && this.scene === 'p2p') {
-        return 'm-slidermenu k-moveright'
-      }
-      if (this.moveStatus === 3 && this.scene !== 'p2p') {
-        return 'm-slidermenu k-moveright team'
-      }
-      if (this.scene === 'p2p') return 'm-slidermenu k-display'
-      else return 'm-slidermenu k-display team'
-    },
-    isMute () {
-      let mute = this.$store.state.mutelist.find(item => {
-        return item.account === this.to
-      })
-      if (mute) return mute.isMute
-      else return null
-    },
-    isTop () {
-      let session = this.$store.state.sessionlist.find(item => {
-        return item.id === this.$store.state.currSessionId
-      })
-      if (session && session.localCustom && session.localCustom.topTime) {
-        return true
-      }
-      return false
-    },
-    memberList () {
-      if (this.scene === 'p2p') {
-        let members = []
-        if (this.to === this.$store.state.userUID) {
-          // 自己同自己发消息
-          members.push({
-            alias: this.$store.state.myInfo.nick,
-            avatar: this.$store.state.myInfo.avatar
-          })
-        } else {
-          let userInfo = this.userInfos[this.to]
-          if (userInfo) {
+    computed: {
+      isDiscussGroup () {
+        return util.isDiscussGroup(this.teamInfo)
+      },
+      muteTeamIds () {
+        return this.$store.state.muteTeamIds
+      },
+      userInfos () {
+        return this.$store.state.userInfos
+      },
+      teamMembers () {
+        let teamMembers = this.$store.state.teamMembers
+        let members = teamMembers && teamMembers[this.teamId]
+        return members
+      },
+      moveStatus () {
+        let slideMenuStatus = this.$store.state.slideMenuStatus
+        if (slideMenuStatus === 2 || slideMenuStatus === 4) {
+          let dom = document.getElementById('sliderMenu')
+          if (dom) dom.scrollTop = 0
+        }
+        return slideMenuStatus
+      },
+      className () {
+        if (this.moveStatus === 1 && this.scene === 'p2p') {
+          return 'm-slidermenu'
+        }
+        if (this.moveStatus === 1 && this.scene !== 'p2p') {
+          return 'm-slidermenu team'
+        }
+        if (this.moveStatus === 2 && this.scene === 'p2p') {
+          return 'm-slidermenu k-moveleft'
+        }
+        if (this.moveStatus === 2 && this.scene !== 'p2p') {
+          return 'm-slidermenu k-moveleft team'
+        }
+        if (this.moveStatus === 3 && this.scene === 'p2p') {
+          return 'm-slidermenu k-moveright'
+        }
+        if (this.moveStatus === 3 && this.scene !== 'p2p') {
+          return 'm-slidermenu k-moveright team'
+        }
+        if (this.scene === 'p2p') return 'm-slidermenu k-display'
+        else return 'm-slidermenu k-display team'
+      },
+      isMute () {
+        let mute = this.$store.state.mutelist.find(item => {
+          return item.account === this.to
+        })
+        if (mute) return mute.isMute
+        else return null
+      },
+      isTop () {
+        let session = this.$store.state.sessionlist.find(item => {
+          return item.id === this.$store.state.currSessionId
+        })
+        if (session && session.localCustom && session.localCustom.topTime) {
+          return true
+        }
+        return false
+      },
+      memberList () {
+        if (this.scene === 'p2p') {
+          let members = []
+          if (this.to === this.$store.state.userUID) {
+            // 自己同自己发消息
             members.push({
-              alias: util.getFriendAlias(userInfo),
-              avatar: userInfo.avatar
-            })
-          }
-        }
-        return members
-      }
-      let teamMembers = this.$store.state.teamMembers
-      let members = teamMembers && teamMembers[this.teamId]
-      let needSearchAccounts = []
-      if (members) {
-        members = members.map(item => {
-          var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
-          member.valid = true // 被管理员移除后，标记为false
-          if (member.account === this.$store.state.userUID) {
-            member.alias = '我'
-            member.avatar = this.$store.state.myInfo.avatar
-          } else if (this.userInfos[member.account] === undefined) {
-            needSearchAccounts.push(member.account)
-            member.avatar = member.avatar || this.avatar
-            member.alias = member.nickInTeam || member.account
-          } else {
-            member.avatar = this.userInfos[member.account].avatar
-            member.alias = this.userInfos[member.account].alias || member.nickInTeam || this.userInfos[member.account].nick
-          }
-          return member
-        })
-        if (needSearchAccounts.length > 0) {
-          while (needSearchAccounts.length > 0) {
-            this.searchUsers(needSearchAccounts.splice(0, 150))
-          }
-        }
-        return members
-      }
-    },
-    teamAvatar () {
-      this.avatar = this.teamInfo.avatar
-      return this.teamInfo.avatar
-    },
-    nickInTeam () {
-      let nickInTeam = ''
-      let teamMembers = this.$store.state.teamMembers
-      let members = teamMembers && teamMembers[this.teamId]
-      for (let key in members) {
-        if (members[key].account === this.myInfo.account) {
-          nickInTeam = members[key].nickInTeam || this.myInfo.nick
-          this.myNick = nickInTeam
-          this.myNickCopy = nickInTeam
-          return nickInTeam
-        }
-      }
-      return nickInTeam
-    },
-    teamName () {
-      this.teamNick = this.teamInfo.name
-      this.teamNickCopy = this.teamInfo.name
-      return this.teamInfo.name
-    },
-    power () {
-      let type = 'normal'
-      if (this.teamMembers) {
-        for (let i = 0; i < this.teamMembers.length; i++) {
-          if (this.teamMembers[i].account === this.myInfo.account) {
-            type = this.teamMembers[i].type
-            break
-          }
-        }
-      }
-      return type
-    },
-    teamMode () {
-      return this.teamInfo.updateTeamMode
-    },
-    managerlist () {
-      let managerlist = []
-      if (this.teamMembers) {
-        for (let i = 0; i < this.teamMembers.length; i++) {
-          if (this.teamMembers[i].type === 'manager') {
-            managerlist.push(this.teamMembers[i])
-          }
-        }
-      }
-      return managerlist
-    },
-    muteNotiType () {
-      this.remindMsgType = this.teamInfo.muteNotiType
-      return this.teamInfo.muteNotiType
-    }
-  },
-  methods: {
-    searchUsers (Accounts) {
-      this.$store.dispatch('searchUsers',
-        {
-          accounts: Accounts,
-          done: (users) => {
-            this.updateTeamMember(users)
-          }
-        })
-    },
-    updateTeamMember (users) {
-      users.forEach(user => {
-        var member = this.memberList && this.memberList.find(member => {
-          return member.account === user.account
-        })
-        if (member) {
-          member.avatar = user.avatar
-          member.alias = member.nickInTeam || user.nick
-        }
-      })
-    },
-    closeMenu (el, e) {
-      if (e.target.className.indexOf('b-more') > -1) return
-      if (this.moveStatus === 1) return
-      if (this.moveStatus === 2) {
-        this.$store.commit('toggleSlideMenuStatus', 3)
-      }
-    },
-    previewFile (target) {
-      let ipt = target
-      if (ipt.value) {
-        if (!/\.(png|jpg|bmp|jpeg|gif)$/i.test(ipt.value)) {
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: '图片格式不正确'
-          })
-          return
-        }
-        if (target.files[0].size > 10 * 1024 * 1024) {
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: '图片不能大于10M'
-          })
-          return
-        }
-        this.$store.dispatch('previewFile', {
-          type: 'image',
-          fileInput: ipt,
-          callback: (file) => {
-            this.teamInfo.avatar = file.url
-            this.$store.dispatch('updateTeam', {
-              teamInfo: {
-                teamId: this.teamInfo.teamId,
-                avatar: this.teamInfo.avatar
-              },
-              callback: () => {
-                this.avatar = ipt.files[0].path
-              }
-            })
-          }
-        })
-      }
-    },
-    modifyTeamNick () {
-      this.isActive1 = false
-      if (this.teamNick === '') {
-        this.teamNick = this.teamNickCopy
-      }
-      if (this.teamNick === this.teamNickCopy) return
-      // 修改群名称
-      this.teamInfo.name = this.teamNick
-      this.$store.dispatch('updateTeam', {
-        teamInfo: {
-          teamId: this.teamInfo.teamId,
-          name: this.teamInfo.name
-        }
-      })
-    },
-    keyupModifyTeamNick (event) {
-      if (event.keyCode === 13) {
-        this.$refs.teamNick.blur()
-      }
-    },
-    modifyNickInTeam () {
-      this.isActive2 = false
-      if (this.myNick === '') {
-        this.myNick = this.myNickCopy
-      }
-      if (this.myNick === this.myNickCopy) return
-      // 修改群昵称
-      this.$store.dispatch('updateInfoInTeam', {
-        teamInfo: this.teamInfo,
-        nickInTeam: this.myNick
-      })
-    },
-    keyupModifyNickInTeam (event) {
-      if (event.keyCode === 13) {
-        this.$refs.myNick.blur()
-      }
-    },
-    modifyTeamMode (type) {
-      if (this.teamMode === type) return
-      // 群资料修改权限
-      this.$store.dispatch('updateTeam', {
-        teamInfo: {
-          teamId: this.teamInfo.teamId,
-          updateTeamMode: type
-        }
-      })
-    },
-    createTeam () {
-      this.$store.commit('toggleSlideMenuStatus', 3)
-      this.$store.commit('updateOrgDisabledlist', {type: 'put', accid: this.to})
-      this.eventBus.$emit('selectOrgnize', {type: 2})
-    },
-    openUpChat () {
-      // 消息置顶
-      this.$store.dispatch('setTopSession', {
-        id: this.$store.state.currSessionId,
-        key: !this.isTop
-      })
-    },
-    openNoMsg () {
-      this.$store.dispatch('updateMute', {account: this.to, isMute: !this.isMute})
-      this.$store.commit('toggleSlideMenuStatus', 3)
-    },
-    clearRecord () {
-      this.eventBus.$emit('clearRecord', {account: this.to, sessionId: this.sessionId})
-      this.$store.commit('toggleSlideMenuStatus', 3)
-    },
-    showCheckUser (event) {
-      let userInfos = this.userInfos[this.to]
-      if (this.to === this.$store.state.userUID) {
-        userInfos = 1
-      }
-      // 查看个人资料
-      this.$store.commit('toggleSlideMenuStatus', 3)
-      this.eventBus.$emit('checkUser', {event, userInfos})
-    },
-    setStyle (type) {
-      // 设置选中样式
-      if (type === 1) {
-        this.isActive1 = true
-      } else {
-        this.isActive2 = true
-      }
-    },
-    removeStyle (type) {
-      // 移除选中样式
-      if (type === 1) {
-        this.isActive1 = false
-      } else {
-        this.isActive2 = false
-      }
-    },
-    addManager () {
-      // 添加管理员
-      let sidelist = []
-      if (this.memberList) {
-        this.memberList.map(item => {
-          if (item.type !== 'owner') {
-            sidelist.push(item)
-          }
-        })
-        this.$store.commit('toggleSlideMenuStatus', 3)
-        this.eventBus.$emit('selectContact', {type: 2, sidelist, teamId: this.teamId})
-      }
-    },
-    removeManager () {
-      if (this.managerlist.length <= 0) return
-      // 移除管理员
-      let sidelist = []
-      if (this.memberList) {
-        this.memberList.map(item => {
-          if (item.type === 'manager') {
-            sidelist.push(item)
-          }
-        })
-        this.$store.commit('toggleSlideMenuStatus', 3)
-        this.eventBus.$emit('selectContact', {type: 3, sidelist, teamId: this.teamId})
-      }
-    },
-    transferTeam () {
-      // 转让群
-      let sidelist = []
-      if (this.memberList) {
-        this.memberList.map(item => {
-          if (item.type !== 'owner') {
-            sidelist.push(item)
-          }
-        })
-        this.$store.commit('toggleSlideMenuStatus', 3)
-        this.eventBus.$emit('selectContact', {type: 4, sidelist, teamId: this.teamId})
-      }
-    },
-    dismissTeam () {
-      // 解散群
-      this.$store.commit('toggleSlideMenuStatus', 3)
-      this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 1})
-    },
-    leaveTeam () {
-      // 退出群
-      this.$store.commit('toggleSlideMenuStatus', 3)
-      this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 2, teamInfo: this.teamInfo})
-    },
-    toggleRemindType (type) {
-      if (this.remindMsgType === type) return
-      // 消息提醒
-      this.remindMsgType = type
-      this.$store.dispatch('updateInfoInTeam', {
-        teamInfo: this.teamInfo,
-        nickInTeam: this.myNick,
-        muteNotiType: type
-      })
-    },
-    leaveDiscussGroup () {
-      // 退出讨论组
-      this.$store.commit('toggleSlideMenuStatus', 3)
-      this.eventBus.$emit('dismissTeam', {
-        type: 3,
-        callBack: () => {
-          let deleteSeeionFn = () => {
-            let sessionIdArr = this.$store.state.sessionlist.map(item => {
-              return item.id
-            })
-            let currSessionId = this.$store.state.currSessionId
-            this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
-          }
-          let leaveTeamFn = () => {
-            this.$store.dispatch('leaveTeam', {
-              teamId: this.teamId,
-              teamName: this.teamName,
-              that: this,
-              callback: () => setTimeout(() => deleteSeeionFn(), 200)
-            })
-          }
-          let teamName = this.teamInfo.name
-          if (this.teamInfo.memberNum <= 3) {
-            Request.DelTeam({tid: this.teamId, owner: this.teamInfo.owner}, this).then(res => {
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'success',
-                toastText: '已退出' + teamName
-              })
-              deleteSeeionFn()
-            }).catch(() => {
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'fail',
-                toastText: '退出讨论组失败！'
-              })
+              alias: this.$store.state.myInfo.nick,
+              avatar: this.$store.state.myInfo.avatar
             })
           } else {
-            if (this.power === 'owner') {
-              let account = ''
-              for (let i in this.teamMembers) {
-                if (this.teamMembers[i].account !== this.$store.state.userUID) {
-                  account = this.teamMembers[i].account
-                  break
+            let userInfo = this.userInfos[this.to]
+            if (userInfo) {
+              members.push({
+                alias: util.getFriendAlias(userInfo),
+                avatar: userInfo.avatar
+              })
+            }
+          }
+          return members
+        }
+        let teamMembers = this.$store.state.teamMembers
+        let members = teamMembers && teamMembers[this.teamId]
+        let needSearchAccounts = []
+        if (members) {
+          members = members.map(item => {
+            var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
+            member.valid = true // 被管理员移除后，标记为false
+            if (member.account === this.$store.state.userUID) {
+              member.alias = '我'
+              member.avatar = this.$store.state.myInfo.avatar
+            } else if (this.userInfos[member.account] === undefined) {
+              needSearchAccounts.push(member.account)
+              member.avatar = member.avatar || this.avatar
+              member.alias = member.nickInTeam || member.account
+            } else {
+              member.avatar = this.userInfos[member.account].avatar
+              member.alias = this.userInfos[member.account].alias || member.nickInTeam || this.userInfos[member.account].nick
+            }
+            return member
+          })
+          if (needSearchAccounts.length > 0) {
+            while (needSearchAccounts.length > 0) {
+              this.searchUsers(needSearchAccounts.splice(0, 150))
+            }
+          }
+          return members
+        }
+      },
+      teamAvatar () {
+        this.avatar = this.teamInfo.avatar
+        return this.teamInfo.avatar
+      },
+      nickInTeam () {
+        let nickInTeam = ''
+        let teamMembers = this.$store.state.teamMembers
+        let members = teamMembers && teamMembers[this.teamId]
+        for (let key in members) {
+          if (members[key].account === this.myInfo.account) {
+            nickInTeam = members[key].nickInTeam || this.myInfo.nick
+            this.myNick = nickInTeam
+            this.myNickCopy = nickInTeam
+            return nickInTeam
+          }
+        }
+        return nickInTeam
+      },
+      teamName () {
+        this.teamNick = this.teamInfo.name
+        this.teamNickCopy = this.teamInfo.name
+        return this.teamInfo.name
+      },
+      power () {
+        let type = 'normal'
+        if (this.teamMembers) {
+          for (let i = 0; i < this.teamMembers.length; i++) {
+            if (this.teamMembers[i].account === this.myInfo.account) {
+              type = this.teamMembers[i].type
+              break
+            }
+          }
+        }
+        return type
+      },
+      teamMode () {
+        return this.teamInfo.updateTeamMode
+      },
+      managerlist () {
+        let managerlist = []
+        if (this.teamMembers) {
+          for (let i = 0; i < this.teamMembers.length; i++) {
+            if (this.teamMembers[i].type === 'manager') {
+              managerlist.push(this.teamMembers[i])
+            }
+          }
+        }
+        return managerlist
+      },
+      muteNotiType () {
+        this.remindMsgType = this.teamInfo.muteNotiType
+        return this.teamInfo.muteNotiType
+      }
+    },
+    methods: {
+      searchUsers (Accounts) {
+        this.$store.dispatch('searchUsers',
+          {
+            accounts: Accounts,
+            done: (users) => {
+              this.updateTeamMember(users)
+            }
+          })
+      },
+      updateTeamMember (users) {
+        users.forEach(user => {
+          var member = this.memberList && this.memberList.find(member => {
+            return member.account === user.account
+          })
+          if (member) {
+            member.avatar = user.avatar
+            member.alias = member.nickInTeam || user.nick
+          }
+        })
+      },
+      closeMenu (el, e) {
+        if (e.target.className.indexOf('b-more') > -1) return
+        if (this.moveStatus === 1) return
+        if (this.moveStatus === 2) {
+          this.$store.commit('toggleSlideMenuStatus', 3)
+        }
+      },
+      previewFile (target) {
+        let ipt = target
+        if (ipt.value) {
+          if (!/\.(png|jpg|bmp|jpeg|gif)$/i.test(ipt.value)) {
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '图片格式不正确'
+            })
+            return
+          }
+          if (target.files[0].size > 10 * 1024 * 1024) {
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '图片不能大于10M'
+            })
+            return
+          }
+          this.$store.dispatch('previewFile', {
+            type: 'image',
+            fileInput: ipt,
+            callback: (file) => {
+              this.teamInfo.avatar = file.url
+              this.$store.dispatch('updateTeam', {
+                teamInfo: {
+                  teamId: this.teamInfo.teamId,
+                  avatar: this.teamInfo.avatar
+                },
+                callback: () => {
+                  this.avatar = ipt.files[0].path
                 }
-              }
-              this.$store.dispatch('transferTeam', {
-                account,
-                teamId: this.teamId,
-                callback: () => leaveTeamFn()
               })
-            } else leaveTeamFn()
-          }
+            }
+          })
         }
-      })
+      },
+      modifyTeamNick () {
+        this.isActive1 = false
+        if (this.teamNick === '') {
+          this.teamNick = this.teamNickCopy
+        }
+        if (this.teamNick === this.teamNickCopy) return
+        // 修改群名称
+        this.teamInfo.name = this.teamNick
+        this.$store.dispatch('updateTeam', {
+          teamInfo: {
+            teamId: this.teamInfo.teamId,
+            name: this.teamInfo.name
+          }
+        })
+      },
+      keyupModifyTeamNick (event) {
+        if (event.keyCode === 13) {
+          this.$refs.teamNick.blur()
+        }
+      },
+      modifyNickInTeam () {
+        this.isActive2 = false
+        if (this.myNick === '') {
+          this.myNick = this.myNickCopy
+        }
+        if (this.myNick === this.myNickCopy) return
+        // 修改群昵称
+        this.$store.dispatch('updateInfoInTeam', {
+          teamInfo: this.teamInfo,
+          nickInTeam: this.myNick
+        })
+      },
+      keyupModifyNickInTeam (event) {
+        if (event.keyCode === 13) {
+          this.$refs.myNick.blur()
+        }
+      },
+      modifyTeamMode (type) {
+        if (this.teamMode === type) return
+        // 群资料修改权限
+        this.$store.dispatch('updateTeam', {
+          teamInfo: {
+            teamId: this.teamInfo.teamId,
+            updateTeamMode: type
+          }
+        })
+      },
+      createTeam () {
+        this.$store.commit('toggleSlideMenuStatus', 3)
+        this.$store.commit('updateOrgDisabledlist', {type: 'put', accid: this.to})
+        this.eventBus.$emit('selectOrgnize', {type: 2})
+      },
+      openUpChat () {
+        // 消息置顶
+        this.$store.dispatch('setTopSession', {
+          id: this.$store.state.currSessionId,
+          key: !this.isTop
+        })
+      },
+      openNoMsg () {
+        this.$store.dispatch('updateMute', {account: this.to, isMute: !this.isMute})
+        this.$store.commit('toggleSlideMenuStatus', 3)
+      },
+      clearRecord () {
+        this.eventBus.$emit('clearRecord', {account: this.to, sessionId: this.sessionId})
+        this.$store.commit('toggleSlideMenuStatus', 3)
+      },
+      showCheckUser (event) {
+        let userInfos = this.userInfos[this.to]
+        if (this.to === this.$store.state.userUID) {
+          userInfos = 1
+        }
+        // 查看个人资料
+        this.$store.commit('toggleSlideMenuStatus', 3)
+        this.eventBus.$emit('checkUser', {event, userInfos})
+      },
+      setStyle (type) {
+        // 设置选中样式
+        if (type === 1) {
+          this.isActive1 = true
+        } else {
+          this.isActive2 = true
+        }
+      },
+      removeStyle (type) {
+        // 移除选中样式
+        if (type === 1) {
+          this.isActive1 = false
+        } else {
+          this.isActive2 = false
+        }
+      },
+      addManager () {
+        // 添加管理员
+        let sidelist = []
+        if (this.memberList) {
+          this.memberList.map(item => {
+            if (item.type !== 'owner') {
+              sidelist.push(item)
+            }
+          })
+          this.$store.commit('toggleSlideMenuStatus', 3)
+          this.eventBus.$emit('selectContact', {type: 2, sidelist, teamId: this.teamId})
+        }
+      },
+      removeManager () {
+        if (this.managerlist.length <= 0) return
+        // 移除管理员
+        let sidelist = []
+        if (this.memberList) {
+          this.memberList.map(item => {
+            if (item.type === 'manager') {
+              sidelist.push(item)
+            }
+          })
+          this.$store.commit('toggleSlideMenuStatus', 3)
+          this.eventBus.$emit('selectContact', {type: 3, sidelist, teamId: this.teamId})
+        }
+      },
+      transferTeam () {
+        // 转让群
+        let sidelist = []
+        if (this.memberList) {
+          this.memberList.map(item => {
+            if (item.type !== 'owner') {
+              sidelist.push(item)
+            }
+          })
+          this.$store.commit('toggleSlideMenuStatus', 3)
+          this.eventBus.$emit('selectContact', {type: 4, sidelist, teamId: this.teamId})
+        }
+      },
+      dismissTeam () {
+        // 解散群
+        this.$store.commit('toggleSlideMenuStatus', 3)
+        this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 1})
+      },
+      leaveTeam () {
+        // 退出群
+        this.$store.commit('toggleSlideMenuStatus', 3)
+        this.eventBus.$emit('dismissTeam', {teamId: this.teamId, type: 2, teamInfo: this.teamInfo})
+      },
+      toggleRemindType (type) {
+        if (this.remindMsgType === type) return
+        // 消息提醒
+        this.remindMsgType = type
+        this.$store.dispatch('updateInfoInTeam', {
+          teamInfo: this.teamInfo,
+          nickInTeam: this.myNick,
+          muteNotiType: type
+        })
+      },
+      leaveDiscussGroup () {
+        // 退出讨论组
+        this.$store.commit('toggleSlideMenuStatus', 3)
+        this.eventBus.$emit('dismissTeam', {
+          type: 3,
+          callBack: () => {
+            let deleteSeeionFn = () => {
+              let sessionIdArr = this.$store.state.sessionlist.map(item => {
+                return item.id
+              })
+              let currSessionId = this.$store.state.currSessionId
+              this.$store.dispatch('deleteSession', {curSessionId: currSessionId, id: currSessionId, sessionIdArr, that: this})
+            }
+            let leaveTeamFn = () => {
+              this.$store.dispatch('leaveTeam', {
+                teamId: this.teamId,
+                teamName: this.teamName,
+                that: this,
+                callback: () => setTimeout(() => deleteSeeionFn(), 200)
+              })
+            }
+            let teamName = this.teamInfo.name
+            if (this.teamInfo.memberNum <= 3) {
+              Request.DelTeam({tid: this.teamId, owner: this.teamInfo.owner}, this).then(res => {
+                this.$store.commit('toastConfig', {
+                  show: true,
+                  type: 'success',
+                  toastText: '已退出' + teamName
+                })
+                deleteSeeionFn()
+              }).catch(() => {
+                this.$store.commit('toastConfig', {
+                  show: true,
+                  type: 'fail',
+                  toastText: '退出讨论组失败！'
+                })
+              })
+            } else {
+              if (this.power === 'owner') {
+                let account = ''
+                for (let i in this.teamMembers) {
+                  if (this.teamMembers[i].account !== this.$store.state.userUID) {
+                    account = this.teamMembers[i].account
+                    break
+                  }
+                }
+                this.$store.dispatch('transferTeam', {
+                  account,
+                  teamId: this.teamId,
+                  callback: () => leaveTeamFn()
+                })
+              } else leaveTeamFn()
+            }
+          }
+        })
+      }
     }
   }
-}
 </script>
 
 <style>
@@ -761,7 +761,7 @@ export default {
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center center;
-    transition: all .2s linear; 
+    transition: all .2s linear;
   }
   .m-slidermenu .radio:hover, .radio:focus {
     background-image: url('../../../../static/img/setting/radio-p.png');
@@ -818,7 +818,7 @@ export default {
     align-items: center;
     padding: 10px 0 20px;
   }
-  
+
   .m-slidermenu .team-avatar > img {
     width: 42px;
     height: 42px;
@@ -841,7 +841,7 @@ export default {
   .m-slidermenu .b-edit:hover {
     background-color: rgb(223, 219, 219);
   }
-  
+
   .m-slidermenu .b-input {
     position: absolute;
     width: 55px;
@@ -940,5 +940,5 @@ export default {
     background: url('../../../../static/img/team/remove.png') no-repeat center center;
     background-size: 100% 100%;
   }
-  
+
 </style>

@@ -3,7 +3,8 @@
  */
 
 import store from '../'
-
+// import NativeLogic from '../../utils/nativeLogic.js'
+import config from '../../configs'
 // 如果会话对象不是好友，需要更新好友名片
 function updateSessionAccount (sessions) {
   sessions.forEach(session => {
@@ -135,9 +136,15 @@ export function onUpdateSession (session, callback) {
     store.commit('updateSessions', sessions)
   }
   // 通知主进程
-  const ipcRenderer = require('electron').ipcRenderer
   let unreads = document.getElementsByClassName('u-unread')
-  ipcRenderer.send('sessionUnreadNums', {unreadNums: unreads.length})
+  if (config.environment === 'web') { // web分支
+    // NativeLogic.native.sendEvent({ unreadNums: unreads.length }, 'sessionUnreadNums', () =>{
+    //   console.log('111')
+    // })
+  } else { // electron分支
+    let { ipcRenderer } = require('electron')
+    ipcRenderer.send('sessionUnreadNums', {unreadNums: unreads.length})
+  }
 }
 
 // 置顶聊天

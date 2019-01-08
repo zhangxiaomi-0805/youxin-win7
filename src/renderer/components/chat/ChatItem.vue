@@ -31,7 +31,7 @@
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-        <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="../../../../static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+        <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
       <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
@@ -97,9 +97,9 @@
   import util from '../../utils'
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
-  import {ipcRenderer, shell} from 'electron'
   import Request from '../../utils/request.js'
   import { setTimeout } from 'timers'
+  import NativeLogic from '../../utils/nativeLogic.js'
   export default {
     props: {
       type: String, // 类型，chatroom, session
@@ -554,6 +554,7 @@
           this.$emit('msg-loaded')
         }
         if (item.type === 'file' && item.flow === 'in') {
+          let {ipcRenderer} = require('electron')
           // 下载中
           ipcRenderer.on(`downloading`, (evt, obj) => {
             if (obj.type !== 'fail') {
@@ -627,9 +628,10 @@
         }
         // 自定义消息（7）
         if (item.type === 'custom-type7' && this.iframe) {
-          this.bindEvent(window, 'message', (e) => {
-            console.log(e.data)
-            this.iframe.style.height = (e.data.contentHeight + 40) + 'px'
+          this.bindEvent(window, 'message', (e) => { // 获取iframe页面内容高度
+            if (e.data.cmd === 'returnHeight') {
+              this.iframe.style.height = (e.data.params.contentHeight + 40) + 'px'
+            }
           })
           // webview
           // let webview = this.$refs.webview
@@ -695,6 +697,42 @@
         this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
           params: {showText}
         }, '*')
+        setTimeout(() => {
+          this.iframe.contentWindow.document.body.onmouseup = (e) => {
+            this.showListOptions(e, 'custom-type7', 'iframe')
+          }
+          var a = [...(this.iframe.contentWindow.document.getElementsByTagName('a'))]
+          for (let i = 0; i < a.length; i++) {
+            a[i].addEventListener('click', (e) => {
+              e.preventDefault()
+              let url = a[i].getAttribute('href')
+              if (url) {
+                if (url.indexOf('yximcreatesession.telecomjs.com') > -1) {
+                  // 发起会话处理
+                  let account = e.url.split('?account=')[1]
+                  if (account) {
+                    if (config.environment === 'web') { // web分支
+                      console.log(NativeLogic.native)
+                      Request.GetAccid({userName: account}, this).then(ret => {
+                        let accid = ret.accid
+                        // 根据account 获取 accid 发起会话
+                        this.createSession(accid)
+                      })
+                    } else { // electron分支
+                      let { ipcRenderer } = require('electron')
+                      ipcRenderer.send('sendAccount', {account})
+                    }
+                  }
+                }
+              }
+              let openType = 1
+              if (url.indexOf('#browserWindow') > -1) {
+                openType = 2
+              }
+              this.openAplWindow(url, openType)
+            })
+          }
+        }, 1000)
       },
       showGroupInvite (teamInfo) {
         console.log('群聊邀请')
@@ -702,6 +740,7 @@
       },
       openFile () {
         if (this.msg.localCustom && this.msg.localCustom.downloadUrl) {
+          let { shell } = require('electron')
           shell.openItem(this.msg.localCustom.downloadUrl)
         }
       },
@@ -739,10 +778,12 @@
               sessionId: `${this.scene}-${this.to}`
             })
             // type
+            let {ipcRenderer} = require('electron')
             ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 1})
             return false
           } else {
             // 恢复下载
+            let {ipcRenderer} = require('electron')
             ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 2})
             return false
           }
@@ -872,7 +913,39 @@
         }
         return false
       },
-      showListOptions (e, type) {
+      getOffSet (curEle) {
+        var totalLeft = null
+        var totalTop = null
+        var par = curEle.offsetParent
+        // 首先把自己本身的相加
+        totalLeft += curEle.offsetLeft
+        totalTop += curEle.offsetTop
+        // 现在开始一级一级往上查找，只要没有遇到body，我们就把父级参照物的边框和偏移相加
+        while (par) {
+          // if (navigator.userAgent.indexOf("MSIE 8.0") === -1){
+          //   // 不是IE8我们才进行累加父级参照物的边框
+          //   console.log(111)
+          //   totalTop += par.clientTop;
+          //   totalLeft += par.clientLeft;
+          // }
+          // 把父级参照物的偏移相加
+          totalTop += par.offsetTop
+          totalLeft += par.offsetLeft
+          par = par.offsetParent
+        }
+        const list = document.querySelector('#chat-list')
+        return {left: totalLeft, top: totalTop - list.scrollTop}
+      },
+      showListOptions (e, type, isIframe) {
+        let offset = {
+          x: e.clientX,
+          y: e.clientY
+        }
+        if (isIframe === 'iframe') {
+          const obj = this.getOffSet(this.iframe)
+          offset.x = obj.left + e.clientX
+          offset.y = obj.top + e.clientY
+        }
         if (type === 'file' && this.msg.flow === 'out' && this.curProgress < 100) {
           return
         }
@@ -919,8 +992,8 @@
             show: true,
             id: this.msg,
             pos: {
-              x: e.clientX,
-              y: e.clientY
+              x: offset.x,
+              y: offset.y
             },
             that: this,
             msg: this.msg,
@@ -956,6 +1029,7 @@
                   }
                   break
                 case 7:
+                  let { shell } = require('electron')
                   shell.showItemInFolder(this.msg.localCustom.downloadUrl)
                   break
               }
@@ -1153,13 +1227,9 @@
           this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
         }
       },
-      openAplWindow (evt, openType) {
-        let url = ''
-        if (!openType) {
-          url = evt.target.getAttribute('data-url')
-        } else {
-          url = evt.url
-        }
+      openAplWindow (url, openType) {
+        console.log(url)
+        console.log(openType)
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls
@@ -1178,8 +1248,10 @@
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
                 if (openType && openType === 2) {
+                  let { shell } = require('electron')
                   shell.openExternal(res)
                 } else {
+                  let { ipcRenderer } = require('electron')
                   ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
                 }
               }).catch(() => {})
@@ -1187,8 +1259,10 @@
             }
           }
           if (openType && openType === 1) {
+            let { ipcRenderer } = require('electron')
             ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
           } else {
+            let { shell } = require('electron')
             shell.openExternal(url)
           }
         }

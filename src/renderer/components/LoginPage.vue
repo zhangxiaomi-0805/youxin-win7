@@ -5,7 +5,7 @@
         <div v-if="loading" class="m-cover"/>
         <!-- 账号登录 -->
         <div v-if="type === 'accountNumber'" class="m-login-con">
-         
+
           <!-- logo -->
           <div class="m-login-logo"><img class="logo" :src="logo"></div>
 
@@ -14,7 +14,7 @@
             <div class='account-title'>使用以下账号登录:</div>
             <ul class='account-content'>
               <li class='account-item' v-for="(item, index) in rememberAccount" :key="item.id"
-                @mouseenter="onMouseenter(item.id)" 
+                @mouseenter="onMouseenter(item.id)"
                 @mouseleave="onMouseleave(item.id)"
                 @click.stop="selectAccount(item)"
                 >
@@ -26,7 +26,7 @@
 
           <!-- 账号 -->
           <div :class="account ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
-            <input 
+            <input
               class="ipt"
               maxlength="32"
               autofocus
@@ -40,7 +40,7 @@
           <!-- 密码 -->
           <div  :class="password ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input
-              type="password" 
+              type="password"
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="32"
@@ -51,8 +51,8 @@
 
           <div class="m-login-ctl">
             <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
-            <a 
-              @click="autoLogin = !autoLogin, isRember = true" 
+            <a
+              @click="autoLogin = !autoLogin, isRember = true"
               @mouseover="showPrompt = true"
               @mouseout="showPrompt = false"
             >
@@ -65,15 +65,15 @@
 
           <login-button :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password"  :callBack="login"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
-          
+
         </div>
-       
+
         <!-- 设置新密码 -->
         <div v-if="type === 'setPassword'" class="m-login-con">
           <h3>{{'设置新密码'}}</h3>
           <div :class="newPassword ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input
-              type="password" 
+              type="password"
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="20"
@@ -86,7 +86,7 @@
           <div class="m-login-errmsg" style="height: 18px;"><span>{{errMsgOth}}</span></div>
           <div :class="confirmPassword ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIptAgain">
             <input
-              type="password" 
+              type="password"
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="20"
@@ -118,8 +118,7 @@
   import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
   import clickoutside from '../utils/clickoutside.js'
-  const electron = require('electron')
-  const ipcRenderer = electron.ipcRenderer
+  import NativeLogic from '../utils/nativeLogic.js'
   export default {
     name: 'login-page',
     directives: {clickoutside},
@@ -299,6 +298,7 @@
           account: this.account,
           password: DES.encryptByDES(this.password)
         }, this).then(ret => {
+          console.log(ret)
           if (ret.type === 'setPassword') {
             this.type = 'setPassword'
             this.loading = false
@@ -307,6 +307,7 @@
             this.loginPC(ret.userInfo)
           }
         }).catch(err => {
+          console.log(err)
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
@@ -398,7 +399,19 @@
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
                 this.$store.commit('updateLoginInfo', loginInfo)
-                ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
+                if (config.environment === 'web') { // web分支
+                  NativeLogic.native.setBounds(922, 645) // 設置窗口大小
+                  let AppDirectory = window.location.pathname // 應用所在目錄
+                  if (AppDirectory.indexOf('dist') > -1) {
+                    let urlArr = AppDirectory.split('dist')
+                    AppDirectory = urlArr[0]
+                  }
+                  console.log(AppDirectory + '/static/img/systry-logo.png')
+                  // 設置系統托盤應用圖標
+                  NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
+                } else { // electron分支
+                  NativeLogic.electron.setBounds(userInfo)
+                }
                 location.href = config.homeUrl
               }
             })
@@ -585,10 +598,10 @@
     background-size: 100% 100%;
   }
   .m-login-con .check:hover, .check:focus {
-    background-image: url('../../../static/img/setting/checkboxborder-p.png');
+     background-image: url('../../../static/img/setting/checkboxborder-p.png');
   }
   .m-login-con .checked {
-    background-image: url('../../../static/img/setting/checkbox-c.png');
+     background-image: url('../../../static/img/setting/checkbox-c.png');
     background-size: 100% 100%;
   }
 
@@ -611,7 +624,7 @@
     display: block;
     width: 26px;
     height: 40px;
-    background-image: url('../../../static/img/click-down.png');
+     background-image: url('../../../static/img/click-down.png');
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -624,7 +637,7 @@
     display: block;
     width: 26px;
     height: 40px;
-    background-image: url('../../../static/img/click-down.png');
+     background-image: url('../../../static/img/click-down.png');
     background-repeat: no-repeat;
     background-position-x: center;
     background-position-y: center;
@@ -633,7 +646,7 @@
     -ms-transform: rotate(180deg); 	/* IE 9 */
     -moz-transform: rotate(180deg); 	/* Firefox */
     -webkit-transform: rotate(180deg); /* Safari 和 Chrome */
-    -o-transform: rotate(180deg); 
+    -o-transform: rotate(180deg);
   }
   /* 记住登录账号弹框 */
   .account-box {
@@ -682,7 +695,7 @@
     width: 14px;
     height: 14px;
     transition: all .2s;
-    background-image: url('../../../static/img/setting/delete.png');
+     background-image: url('../../../static/img/setting/delete.png');
     background-size: 100% 100%;
     cursor: pointer;
     opacity: 0;

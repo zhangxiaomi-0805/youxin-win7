@@ -3,7 +3,7 @@
     <div class='account-title'>使用以下账号登录:</div>
     <ul class='account-content'>
       <li :class="selectedId == item.id ? 'item item-select' : 'item'" v-for="(item) in accountList" :key="item.id"
-        @mouseenter="onMouseenter(item.id)" 
+        @mouseenter="onMouseenter(item.id)"
         @mouseleave="onMouseleave(item.id)"
         @click="callBack(item)"
         >

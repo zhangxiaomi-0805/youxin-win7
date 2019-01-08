@@ -2,7 +2,7 @@ import store from '../'
 import config from '../../configs'
 import util from '../../utils'
 import Fetch from '../../utils/fetch'
-
+// import NativeLogic from '../../utils/nativeLogic.js'
 export function formatMsg (msg) {
   const nim = store.state.nim
   if (msg.type === 'robot') {
@@ -53,9 +53,15 @@ export function onNewMsg (msg) {
 async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   // 通知主进程
-  const ipcRenderer = require('electron').ipcRenderer
   let unreads = document.getElementsByClassName('u-unread')
-  ipcRenderer.send('receiveNewMsgs', {unreadNums: unreads.length})
+  if (config.environment === 'web') { // web分支
+    // NativeLogic.native.sendEvent({ unreadNums: unreads.length }, 'receiveNewMsgs', () =>{
+    //   console.log('111')
+    // })
+  } else { // electron分支
+    let { ipcRenderer } = require('electron')
+    ipcRenderer.send('receiveNewMsgs', {unreadNums: unreads.length})
+  }
   // 发送音频
   let isMute = false
   if (msg.scene === 'p2p') {
@@ -397,10 +403,7 @@ export function sendMsg ({state, commit}, obj) {
           to: obj.to,
           pushContent: obj.pushContent,
           content: JSON.stringify(obj.content),
-          done: (error, msg) => {
-            if (error) reject(error)
-            else resolve(msg)
-          }
+          done: onSendMsgDone
         })
     }
   })

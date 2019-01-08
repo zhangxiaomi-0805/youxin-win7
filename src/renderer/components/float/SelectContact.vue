@@ -19,7 +19,7 @@
             </div>
           </div>
           <div class="title" style="paddingTop: 0;paddingBottom: 0;">{{tipTitle}}</div>
-          <ul 
+          <ul
             class="u-list"
             :style="type === 7 || type === 8 ? {top: '100px'} : {}"
             v-if="sidelist.length > 0"
@@ -595,14 +595,14 @@ export default {
     z-index: 50;
   }
 
-	.m-selectcontact-contain .m-selectcontact {
+  .m-selectcontact-contain .m-selectcontact {
     box-sizing: border-box;
-		position: absolute;
-		top: 1px;
+    position: absolute;
+    top: 1px;
     left: 50%;
     transform: translateX(-50%);
-		width: 600px;
-		height: 502px;
+    width: 600px;
+    height: 502px;
     background: #fff;
     border: 0.5px solid #CCCCCC;
     box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
@@ -618,7 +618,7 @@ export default {
     font-size: 14px;
     color: #999;
   }
-  
+
   .m-selectcontact .side-list-contain {
     position: absolute;
     top: 39px;
@@ -643,7 +643,7 @@ export default {
     text-align: right;
     font-size: 14px;
   }
-  
+
   .m-selectcontact .close {
     position: absolute;
     right: 0;
@@ -664,7 +664,7 @@ export default {
 
   .m-selectcontact .side-list {
     position: relative;
-    float: left; 
+    float: left;
     width: 50%;
     height: 100%;
     box-sizing: border-box;
@@ -734,7 +734,7 @@ export default {
     background-image: url('../../../../static/img/setting/checkboxborder-p.png');
   }
 
- .m-selectcontact .u-list .u-list-item .disabled {
+  .m-selectcontact .u-list .u-list-item .disabled {
     background-image: url('../../../../static/img/setting/checkbox-d.png');
     background-size: 100% 100%;
   }

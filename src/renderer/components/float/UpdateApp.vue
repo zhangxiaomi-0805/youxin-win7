@@ -20,7 +20,8 @@
 </template>
 
 <script>
-import { shell } from 'electron'
+import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'update-app',
   mounted () {
@@ -33,7 +34,7 @@ export default {
   data () {
     return {
       showUpdateApp: false,
-      logo: './static/img/logo.png',
+      logo: '../../../static/img/logo.png',
       content: {}
     }
   },
@@ -42,7 +43,12 @@ export default {
       this.showUpdateApp = false
     },
     goUpdate () {
-      this.content && shell.openExternal(this.content.downloadUrl)
+      if (config.environment === 'web') { // web分支
+        NativeLogic.native.openShell(3, this.content.downloadUrl) // 1.打开类型（1-文件，2-文件所在目录，3-外部浏览器） 2.路径
+      } else { // electron分支
+        let { shell } = require('electron')
+        this.content && shell.openExternal(this.content.downloadUrl)
+      }
     },
     Ignore () {
       // 忽略更新

@@ -11,10 +11,10 @@
       </transition>
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div>
-        <div class="nick" :title="userInfos.nick || userInfos.name" 
+        <div class="nick" :title="userInfos.nick || userInfos.name"
           @mouseup.stop="userInfos.nick || userInfos.name ? showListOptions($event, userInfos.nick || userInfos.name, 'copy_0') : null"
         >{{userInfos.nick || userInfos.name}}</div>
-        <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" 
+        <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px"
           @mouseover="showPrompt = true"
           @mouseout="showPrompt = false"
           @mouseup.stop="userInfos.signature ? showListOptions($event, userInfos.signature, 'copy_1') : null"
@@ -50,7 +50,7 @@
         ref="copy_5"
       >{{userInfos.email}}</span>
     </div>
-   
+
     <div class="user-tel" style="margin-top: 24px"><span>性别</span>
       <span class="line"
         @mouseup.stop="userInfos.sex ? showListOptions($event, userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密', 'copy_6') : null"
@@ -248,6 +248,7 @@ export default {
       let target = this.$refs[ref]
       MsgRecordFn.copyAll(target)
       if (e.button === 2) {
+        e.preventDefault()
         let key = 'check-user'
         this.$store.dispatch('showListOptions', {
           key,
@@ -285,10 +286,10 @@ export default {
 </script>
 
 <style>
-	.m-checkuser-con {
+  .m-checkuser-con {
     box-sizing: border-box;
     position: absolute;
-		width: 336px;
+    width: 336px;
     opacity: 1;
     background-color: #fff;
     padding: 40px 40px 20px;
@@ -300,7 +301,7 @@ export default {
 
   .m-checkuser-con .m-modify .prompt {
     position: absolute;
-    top: 60px; 
+    top: 60px;
     left: 70px;
     z-index: 10002;
     background-color: #fff;
@@ -364,7 +365,7 @@ export default {
     height: 62px;
     border-radius: 50%;
     margin-right: 10px;
-  } 
+  }
 
   .m-checkuser-con .user-tel, .m-checkuser-con .user-email {
     display: flex;
@@ -427,7 +428,7 @@ export default {
     width: 50%;
     font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
     overflow:hidden;
-    text-overflow:ellipsis; 
+    text-overflow:ellipsis;
     text-align:left;
     white-space:nowrap
   }

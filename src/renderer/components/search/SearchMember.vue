@@ -2,7 +2,7 @@
   <!-- 群成员搜索 -->
   <div class="s-cont" :style="{top: isDiscussGroup ? '35px' : '185px'}">
     <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
-    <ul class="u-list"> 
+    <ul class="u-list">
       <li
         class="u-list-item s-list-item searchevent"
         v-for="item in searchlist"

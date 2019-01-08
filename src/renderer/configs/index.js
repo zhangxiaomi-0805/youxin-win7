@@ -1,4 +1,9 @@
 var config = {
+  environment: 'electron', // 运行环境：web/electron
+  mainWinWidth: 936, // 主窗口初始宽
+  mainWinHeight: 645, // 主窗口初始高
+  aplWinWidth: 899, // 内部子窗口初始宽
+  aplWinHeight: 767, // 内部子窗口初始宽
   env: 'test',
   sdk: 'NIM_Web_SDK_v5.7.0',
   // 用户自定义的登录注册地址
@@ -6,17 +11,18 @@ var config = {
   registUrl: '/webdemo/h5/regist.html',
   homeUrl: '#/mainpage/session/session-default',
   // default icon
-  defaultIcon: `${__static}/default.png`,
-  // 资源路径根目录，为了方便用户部署在二级以上URL路径上
+  defaultIcon: '',
+  // defaultIcon: `${__static}/default.png`,
+  // 资源路径根目录，为了方便用户部署在二级以上URL路径上yy
   resourceUrl: 'http://yx-web.nos.netease.com/webdoc/h5',
   // 用户logo地址
   logo: 'http://yx-web.nos.netease.com/webdoc/h5/im/logo.png',
   // 默认用户头像
   defaultUserIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-icon.png',
   // 默认普通群头像
-  defaultGroupIcon: `${__static}/img/team/group-default.png`,
+  defaultGroupIcon: `./static/img/team/group-default.png`,
   // 默认讨论组头像
-  defaultDiscussGroupIcon: `${__static}/img/team/discuss-group-default.png`,
+  defaultDiscussGroupIcon: `./static/img/team/discuss-group-default.png`,
   // 默认高级群头像
   defaultAdvancedIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-advanced.png',
   // 系统通知图标

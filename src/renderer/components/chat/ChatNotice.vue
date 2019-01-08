@@ -1,404 +1,404 @@
 <template>
-<!-- 公告、群成员管理 -->
-<div class="m-chat-nt" v-if="scene === 'team'">
-  <div v-if="!teamInfo.valid || !teamInfo.validToCurrentUser" class="invalid"/>
-  <div v-if="!isDiscussGroup" class="m-content">
-    <div class="m-title notice">
-      <span class="notice">公告</span>
-    </div>
-    <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
-    <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
-  </div>
-  <div v-if="!showSearch" class="m-title team-control">
-    <div>
-      <span style="color: #323232; font-size: 14px">{{'成员'}}</span>
-      <span v-if="memberCount">{{'(' + memberCount + '人)'}}</span>
-    </div>
-    
-    <a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a>
-  </div>
-  <div v-else class="search-bar">
-    <input ref="searchInput" :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
-    <span v-if="showSearch" class="clear" @click="clearStatus"/>
-  </div>
-  <search-member
-    v-if="showSearch"
-    :isDiscussGroup="isDiscussGroup"
-    :value="searchValue"
-    :memberList="memberList"
-    :userInfos="userInfos"
-    :myInfo="myInfo"
-    :clearStatus="clearStatus"/>
-  <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px', bottom: '31px'}">
-    <li 
-      class="m-u-list-item" 
-      v-for="member in memberList"
-      :key="member.id" 
-      :id="member.id"
-      @click.stop="checkUserInfo($event, member)" 
-      @dblclick.stop="sendMsg(member)"
-      @mouseup.stop="showMemberOptions($event, member)"
-      :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
-    >
-      <div class="m-left">
-        <div class="t-img">
-          <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
-          <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
-        </div>
-        <span class="t-style">{{member.alias}}</span>
+  <!-- 公告、群成员管理 -->
+  <div class="m-chat-nt" v-if="scene === 'team'">
+    <div v-if="!teamInfo.valid || !teamInfo.validToCurrentUser" class="invalid"/>
+    <div v-if="!isDiscussGroup" class="m-content">
+      <div class="m-title notice">
+        <span class="notice">公告</span>
       </div>
-      <span :class="member.type" v-show="member.type !== 'normal' && !isDiscussGroup"/>
-    </li>
-  </ul>
-</div>
+      <div class="m-edit" @click="showEditNotice('check')"><span>{{teamInfo.announcement ? teamInfo.announcement : '暂无公告'}}</span></div>
+      <a v-if="power !== 'normal'" class="b-edit" @click="showEditNotice('edit')"/>
+    </div>
+    <div v-if="!showSearch" class="m-title team-control">
+      <div>
+        <span style="color: #323232; font-size: 14px">{{'成员'}}</span>
+        <span v-if="memberCount">{{'(' + memberCount + '人)'}}</span>
+      </div>
+
+      <a v-if="teamInfo.valid && teamInfo.validToCurrentUser" class="point" @click.stop="showListOptions($event)" ></a>
+    </div>
+    <div v-else class="search-bar">
+      <input ref="searchInput" :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+      <span v-if="showSearch" class="clear" @click="clearStatus"/>
+    </div>
+    <search-member
+      v-if="showSearch"
+      :isDiscussGroup="isDiscussGroup"
+      :value="searchValue"
+      :memberList="memberList"
+      :userInfos="userInfos"
+      :myInfo="myInfo"
+      :clearStatus="clearStatus"/>
+    <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px', bottom: '31px'}">
+      <li
+        class="m-u-list-item"
+        v-for="member in memberList"
+        :key="member.id"
+        :id="member.id"
+        @click.stop="checkUserInfo($event, member)"
+        @dblclick.stop="sendMsg(member)"
+        @mouseup.stop="showMemberOptions($event, member)"
+        :style="hasBorder && member.id === acNoticeId ? {border: '1px solid #4F8DFF'} : {border: '1px solid transparent'}"
+      >
+        <div class="m-left">
+          <div class="t-img">
+            <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
+            <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
+          </div>
+          <span class="t-style">{{member.alias}}</span>
+        </div>
+        <span :class="member.type" v-show="member.type !== 'normal' && !isDiscussGroup"/>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
-import Request from '../../utils/request.js'
-import util from '../../utils'
-import SearchMember from '../search/SearchMember'
-import clickoutside from '../../utils/clickoutside.js'
-// import { setTimeout, clearTimeout } from 'timers';
-export default {
-  name: 'chat-notice',
-  directives: {clickoutside},
-  components: {SearchMember},
-  props: {
-    scene: String,
-    to: String,
-    teamId: String,
-    userInfos: {
-      type: Object,
-      default () {
-        return {}
-      }
-    },
-    myInfo: {
-      type: Object,
-      default () {
-        return {}
-      }
-    },
-    teamInfo: {
-      type: Object,
-      default () {
-        return {}
-      }
-    }
-  },
-  data () {
-    return {
-      settingIcon: './static/img/nav/icon-plus.png',
-      showSearch: false,
-      searchValue: '',
-      onlineMembers: 0,
-      timer: ''
-    }
-  },
-  computed: {
-    hasBorder () {
-      if (this.$store.state.showListOptions) {
-        return true
-      }
-      return false
-    },
-    isDiscussGroup () {
-      return util.isDiscussGroup(this.teamInfo)
-    },
-    acNoticeId () {
-      return this.$store.state.noticeAc
-    },
-    sessionlist () {
-      return this.$store.state.sessionlist
-    },
-    // sessionName () {
-    //   if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-    //     // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
-    //     var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
-    //     var memberCount = members && members.length
-    //     return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
-    //   }
-    //   return '成员'
-    // },
-    memberCount () {
-      if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-        // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
-        var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
-        var memberCount = members && members.length
-        return memberCount
-      }
-    },
-    memberList () {
-      if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-        let teamMembers = this.$store.state.teamMembers
-        let members = teamMembers && teamMembers[this.teamId]
-        let needSearchAccounts = []
-        if (members) {
-          members = members.map(item => {
-            var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
-            member.valid = true // 被管理员移除后，标记为false
-            if (member.account === this.$store.state.userUID) {
-              member.alias = '我'
-              member.avatar = this.$store.state.myInfo.avatar
-              member.isSelf = true
-            } else if (this.userInfos[member.account] === undefined) {
-              needSearchAccounts.push(member.account)
-              member.avatar = member.avatar || this.avatar
-              member.alias = member.nickInTeam || member.account
-            } else {
-              member.avatar = this.userInfos[member.account].avatar
-              member.alias = this.userInfos[member.account].alias || member.nickInTeam || this.userInfos[member.account].nick
-            }
-            return member
-          })
-          if (needSearchAccounts.length > 0) {
-            while (needSearchAccounts.length > 0) {
-              this.searchUsers(needSearchAccounts.splice(0, 150))
-            }
-          }
-          members.forEach(item => {
-            if (this.$store.state.friendsStatusList[item.account] > -1) {
-              item.status = this.$store.state.friendsStatusList[item.account]
-            }
-          })
-          // 统计在线人数
-          let onlineMembers = members.filter(item => {
-            return item.status === 0
-          })
-          // 加上自己
-          this.onlineMembers = onlineMembers.length + 1
-          return members
+  import Request from '../../utils/request.js'
+  import util from '../../utils'
+  import SearchMember from '../search/SearchMember'
+  import clickoutside from '../../utils/clickoutside.js'
+  // import { setTimeout, clearTimeout } from 'timers';
+  export default {
+    name: 'chat-notice',
+    directives: {clickoutside},
+    components: {SearchMember},
+    props: {
+      scene: String,
+      to: String,
+      teamId: String,
+      userInfos: {
+        type: Object,
+        default () {
+          return {}
         }
-      } else return []
-    },
-    power () {
-      let type = 'normal'
-      if (this.memberList) {
-        for (let i = 0; i < this.memberList.length; i++) {
-          if (this.memberList[i].account === this.myInfo.account) {
-            type = this.memberList[i].type
-            break
-          }
+      },
+      myInfo: {
+        type: Object,
+        default () {
+          return {}
+        }
+      },
+      teamInfo: {
+        type: Object,
+        default () {
+          return {}
         }
       }
-      return type
     },
-    jurisdiction () {
-      let disabled = true
-      if (this.power !== 'normal' || this.teamInfo.updateTeamMode === 'all') {
-        disabled = false
+    data () {
+      return {
+        settingIcon: './static/img/nav/icon-plus.png',
+        showSearch: false,
+        searchValue: '',
+        onlineMembers: 0,
+        timer: ''
       }
-      return disabled
     },
-    teamMembers () {
-      return this.$store.state.teamMembers
-    }
-  },
-  watch: {
-    jurisdiction (newPromiss, oldPromiss) {
-      if (newPromiss === oldPromiss) return
-      this.eventBus.$emit('editNoticePromiss', {jurisdiction: !newPromiss})
-    }
-  },
-  methods: {
-    searchUsers (Accounts) {
-      this.$store.dispatch('searchUsers',
-        {
-          accounts: Accounts,
-          done: (users) => {
-            this.updateTeamMember(users)
+    computed: {
+      hasBorder () {
+        if (this.$store.state.showListOptions) {
+          return true
+        }
+        return false
+      },
+      isDiscussGroup () {
+        return util.isDiscussGroup(this.teamInfo)
+      },
+      acNoticeId () {
+        return this.$store.state.noticeAc
+      },
+      sessionlist () {
+        return this.$store.state.sessionlist
+      },
+      // sessionName () {
+      //   if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+      //     // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
+      //     var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
+      //     var memberCount = members && members.length
+      //     return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
+      //   }
+      //   return '成员'
+      // },
+      memberCount () {
+        if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+          // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
+          var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
+          var memberCount = members && members.length
+          return memberCount
+        }
+      },
+      memberList () {
+        if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
+          let teamMembers = this.$store.state.teamMembers
+          let members = teamMembers && teamMembers[this.teamId]
+          let needSearchAccounts = []
+          if (members) {
+            members = members.map(item => {
+              var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
+              member.valid = true // 被管理员移除后，标记为false
+              if (member.account === this.$store.state.userUID) {
+                member.alias = '我'
+                member.avatar = this.$store.state.myInfo.avatar
+                member.isSelf = true
+              } else if (this.userInfos[member.account] === undefined) {
+                needSearchAccounts.push(member.account)
+                member.avatar = member.avatar || this.avatar
+                member.alias = member.nickInTeam || member.account
+              } else {
+                member.avatar = this.userInfos[member.account].avatar
+                member.alias = this.userInfos[member.account].alias || member.nickInTeam || this.userInfos[member.account].nick
+              }
+              return member
+            })
+            if (needSearchAccounts.length > 0) {
+              while (needSearchAccounts.length > 0) {
+                this.searchUsers(needSearchAccounts.splice(0, 150))
+              }
+            }
+            members.forEach(item => {
+              if (this.$store.state.friendsStatusList[item.account] > -1) {
+                item.status = this.$store.state.friendsStatusList[item.account]
+              }
+            })
+            // 统计在线人数
+            let onlineMembers = members.filter(item => {
+              return item.status === 0
+            })
+            // 加上自己
+            this.onlineMembers = onlineMembers.length + 1
+            return members
+          }
+        } else return []
+      },
+      power () {
+        let type = 'normal'
+        if (this.memberList) {
+          for (let i = 0; i < this.memberList.length; i++) {
+            if (this.memberList[i].account === this.myInfo.account) {
+              type = this.memberList[i].type
+              break
+            }
+          }
+        }
+        return type
+      },
+      jurisdiction () {
+        let disabled = true
+        if (this.power !== 'normal' || this.teamInfo.updateTeamMode === 'all') {
+          disabled = false
+        }
+        return disabled
+      },
+      teamMembers () {
+        return this.$store.state.teamMembers
+      }
+    },
+    watch: {
+      jurisdiction (newPromiss, oldPromiss) {
+        if (newPromiss === oldPromiss) return
+        this.eventBus.$emit('editNoticePromiss', {jurisdiction: !newPromiss})
+      }
+    },
+    methods: {
+      searchUsers (Accounts) {
+        this.$store.dispatch('searchUsers',
+          {
+            accounts: Accounts,
+            done: (users) => {
+              this.updateTeamMember(users)
+            }
+          })
+      },
+      updateTeamMember (users) {
+        users.forEach(user => {
+          var member = this.memberList && this.memberList.find(member => {
+            return member.account === user.account
+          })
+          if (member) {
+            member.avatar = user.avatar
+            member.alias = member.nickInTeam || user.nick
           }
         })
-    },
-    updateTeamMember (users) {
-      users.forEach(user => {
-        var member = this.memberList && this.memberList.find(member => {
-          return member.account === user.account
+      },
+      showEditNotice (type) {
+        this.eventBus.$emit('editNotice', {
+          teamInfo: this.teamInfo,
+          disabled: this.jurisdiction,
+          type,
+          scene: this.scene,
+          to: this.to
         })
-        if (member) {
-          member.avatar = user.avatar
-          member.alias = member.nickInTeam || user.nick
+      },
+      checkUserInfo (event, member) {
+        this.timer && clearTimeout(this.timer)
+        let userInfos = this.userInfos[member.account]
+        // 查看名片
+        if (member.account === this.myInfo.account) {
+          userInfos = 1
         }
-      })
-    },
-    showEditNotice (type) {
-      this.eventBus.$emit('editNotice', {
-        teamInfo: this.teamInfo,
-        disabled: this.jurisdiction,
-        type,
-        scene: this.scene,
-        to: this.to
-      })
-    },
-    checkUserInfo (event, member) {
-      this.timer && clearTimeout(this.timer)
-      let userInfos = this.userInfos[member.account]
-      // 查看名片
-      if (member.account === this.myInfo.account) {
-        userInfos = 1
-      }
-      this.timer = setTimeout(() => {
-        if (userInfos === 1) {
-          this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
+        this.timer = setTimeout(() => {
+          if (userInfos === 1) {
+            this.eventBus.$emit('showMyInfo', {event, userInfos, pageType: 2})
+          } else {
+            this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
+          }
+        }, 500)
+      },
+      showListOptions (event) {
+        /**
+         * 群设置
+         * * */
+        let key = 'team-member'
+        if (this.isDiscussGroup) {
+          key = 'discuss-group-member'
         } else {
-          this.eventBus.$emit('checkUser', {event, userInfos, pageType: 2})
-        }
-      }, 500)
-    },
-    showListOptions (event) {
-      /**
-       * 群设置
-       * * */
-      let key = 'team-member'
-      if (this.isDiscussGroup) {
-        key = 'discuss-group-member'
-      } else {
-        if (this.power === 'normal') {
-          key = 'team-member-normal'
-        }
-      }
-      this.$store.dispatch('showListOptions', {
-        key,
-        show: true,
-        pos: {
-          x: event.clientX - 30,
-          y: event.clientY + 5
-        },
-        callBack: (type) => {
-          if (type === 3) { // 搜索成员
-            this.showSearch = true
-            setTimeout(() => {
-              this.$refs.searchInput.focus()
-            }, 0)
-          } else if (type === 4) { // 添加成员
-            this.addTeamMember()
-          } else if (type === 2) { // 移出成员
-            this.removeTeamMember()
+          if (this.power === 'normal') {
+            key = 'team-member-normal'
           }
-        }
-      })
-    },
-    showMemberOptions (event, member) {
-      /**
-       * 群成员管理
-       * @params  this.power---当前登录用户的身份：normal---普通群成员；owner---管理员
-       * * */
-      if (member.account === this.myInfo.account) return // 我自己
-      let key = ''
-      if (event.button === 2) {
-        if (this.power === 'owner') { // 管理员
-          key = 'owner-member-manager'
-        } else if (this.power === 'normal' || this.power === 'manager') { // 普通群成员
-          key = 'normal-member-manager'
         }
         this.$store.dispatch('showListOptions', {
-          id: member.id,
           key,
           show: true,
-          isDiscussGroup: this.isDiscussGroup,
           pos: {
-            x: event.clientX - 150,
-            y: event.clientY - 20
+            x: event.clientX - 30,
+            y: event.clientY + 5
           },
           callBack: (type) => {
-            switch (type) {
-              case 1:
-                // 发消息
-                this.sendMsg(this.userInfos[member.account])
-                break
-              case 5:
-                // 查看资料
-                this.checkUserInfo(event, member)
-                break
-              case 6:
-                // 添加常用联系人
-                this.addContact(member)
-                break
-              case 7:
-                // 移出本群
-                if (this.memberList.length === 1) return
-                this.$store.dispatch('removeTeamMembers', {accounts: [member.account], teamId: this.teamId})
-                break
-              default:
-                break
+            if (type === 3) { // 搜索成员
+              this.showSearch = true
+              setTimeout(() => {
+                this.$refs.searchInput.focus()
+              }, 0)
+            } else if (type === 4) { // 添加成员
+              this.addTeamMember()
+            } else if (type === 2) { // 移出成员
+              this.removeTeamMember()
             }
           }
         })
-      }
-    },
-    addTeamMember () {
-      console.log(this.teamInfo)
-      // 添加成员
-      this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-      this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId, teamAvatarUrl: this.teamInfo.teamAvatar, teamName: this.teamInfo.name, isDiscussGroup: this.isDiscussGroup})
-    },
-    removeTeamMember () {
-      // 移出成员
-      let sidelist = Object.assign([], this.memberList)
-      if (this.power === 'owner') {
-        for (let key in sidelist) {
-          if (sidelist[key].account === this.myInfo.account) {
-            sidelist[key].hasExit = true
+      },
+      showMemberOptions (event, member) {
+        /**
+         * 群成员管理
+         * @params  this.power---当前登录用户的身份：normal---普通群成员；owner---管理员
+         * * */
+        if (member.account === this.myInfo.account) return // 我自己
+        let key = ''
+        if (event.button === 2) {
+          if (this.power === 'owner') { // 管理员
+            key = 'owner-member-manager'
+          } else if (this.power === 'normal' || this.power === 'manager') { // 普通群成员
+            key = 'normal-member-manager'
+          }
+          this.$store.dispatch('showListOptions', {
+            id: member.id,
+            key,
+            show: true,
+            isDiscussGroup: this.isDiscussGroup,
+            pos: {
+              x: event.clientX - 150,
+              y: event.clientY - 20
+            },
+            callBack: (type) => {
+              switch (type) {
+                case 1:
+                  // 发消息
+                  this.sendMsg(this.userInfos[member.account])
+                  break
+                case 5:
+                  // 查看资料
+                  this.checkUserInfo(event, member)
+                  break
+                case 6:
+                  // 添加常用联系人
+                  this.addContact(member)
+                  break
+                case 7:
+                  // 移出本群
+                  if (this.memberList.length === 1) return
+                  this.$store.dispatch('removeTeamMembers', {accounts: [member.account], teamId: this.teamId})
+                  break
+                default:
+                  break
+              }
+            }
+          })
+        }
+      },
+      addTeamMember () {
+        console.log(this.teamInfo)
+        // 添加成员
+        this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
+        this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId, teamAvatarUrl: this.teamInfo.teamAvatar, teamName: this.teamInfo.name, isDiscussGroup: this.isDiscussGroup})
+      },
+      removeTeamMember () {
+        // 移出成员
+        let sidelist = Object.assign([], this.memberList)
+        if (this.power === 'owner') {
+          for (let key in sidelist) {
+            if (sidelist[key].account === this.myInfo.account) {
+              sidelist[key].hasExit = true
+              break
+            }
+          }
+        } else if (this.power === 'manager') {
+          sidelist.map(item => {
+            if (item.type !== 'normal') {
+              item.hasExit = true
+            }
+          })
+        }
+        this.eventBus.$emit('selectContact', {type: 6, sidelist, teamId: this.teamId})
+      },
+      addContact (member) {
+        // 添加常用联系人
+        Request.AddOrDelContactUser({accid: member.account, userType: 1}, this)
+      },
+      sendMsg (userInfos) {
+        this.timer && clearTimeout(this.timer)
+        // 发消息
+        let sessionId = ''
+        for (let i in this.sessionlist) {
+          if (this.sessionlist[i].to === userInfos.account) {
+            sessionId = this.sessionlist[i].id
             break
           }
         }
-      } else if (this.power === 'manager') {
-        sidelist.map(item => {
-          if (item.type !== 'normal') {
-            item.hasExit = true
-          }
-        })
-      }
-      this.eventBus.$emit('selectContact', {type: 6, sidelist, teamId: this.teamId})
-    },
-    addContact (member) {
-      // 添加常用联系人
-      Request.AddOrDelContactUser({accid: member.account, userType: 1}, this)
-    },
-    sendMsg (userInfos) {
-      this.timer && clearTimeout(this.timer)
-      // 发消息
-      let sessionId = ''
-      for (let i in this.sessionlist) {
-        if (this.sessionlist[i].to === userInfos.account) {
-          sessionId = this.sessionlist[i].id
-          break
+        if (sessionId) {
+          this.eventBus.$emit('toggleSelect', {sessionId})
+          this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+        } else {
+          this.$store.dispatch('insertLocalSession', {
+            scene: 'p2p',
+            account: userInfos.account,
+            callback: (sessionId) => {
+              this.eventBus.$emit('toggleSelect', {sessionId})
+              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+            }
+          })
         }
+      },
+      clearStatus (el, e) {
+        if (e) {
+          let className = e.target.className
+          if (className.indexOf('searchevent') > -1) return
+        }
+        this.showSearch = false
+        this.searchValue = ''
       }
-      if (sessionId) {
-        this.eventBus.$emit('toggleSelect', {sessionId})
-        this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
-      } else {
-        this.$store.dispatch('insertLocalSession', {
-          scene: 'p2p',
-          account: userInfos.account,
-          callback: (sessionId) => {
-            this.eventBus.$emit('toggleSelect', {sessionId})
-            this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
-          }
-        })
-      }
-    },
-    clearStatus (el, e) {
-      if (e) {
-        let className = e.target.className
-        if (className.indexOf('searchevent') > -1) return
-      }
-      this.showSearch = false
-      this.searchValue = ''
     }
   }
-}
 </script>
 
 <style>
-	.m-chat-nt {
-		position: absolute;
-		top: 31px;
-		right: 0;
-		width: 152px;
-		height: 100%;
-		border-left: 1px solid rgb(220, 222, 224);
+  .m-chat-nt {
+    position: absolute;
+    top: 31px;
+    right: 0;
+    width: 152px;
+    height: 100%;
+    border-left: 1px solid rgb(220, 222, 224);
     background-color: #fff;
     box-sizing: border-box;
     z-index: 30;
@@ -445,7 +445,7 @@ export default {
     font-size: 14px;
     color: #333;
   }
-  
+
   .m-chat-nt .m-u-list {
     position: absolute;
     top: 185px;

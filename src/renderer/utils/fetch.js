@@ -2,6 +2,7 @@
  * Encapsulation of the fetch method
  */
 import configs from '../configs/index'
+import NativeLogic from './NativeLogic'
 var Fetch = {
   last_url: null
 }
@@ -31,7 +32,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
       break
     }
   }
-  let headers = { 'Content-Type': ContentType, 'platformType': 2 }
+  let headers = { 'Content-Type': ContentType, 'platformType': 2, 'Access-Control-Allow-Origin': '*' }
   if (needToken) {
     try {
       if (localStorage.sessionToken) {
@@ -53,13 +54,22 @@ Fetch.post = async function (url, params, $this, ContentType) {
   return new Promise((resolve, reject) => {
     let reLoginFn = () => {
       // 鉴权失败处理
-      const electron = require('electron')
-      const ipcRenderer = electron.ipcRenderer
       localStorage.removeItem('AUTOLOGIN')
-      ipcRenderer.send('relaunch-app')
+      if (configs.environment === 'web') { // web分支
+        // 先关闭所有子窗口，再重启主窗口
+        NativeLogic.native.setWinStatus('aplWindow', 3) // 类型（1-最小化，2-最大化，3-关闭，4-重启，5-隐藏，6-显示）
+        NativeLogic.native.setWinStatus('main', 4)
+      } else { // electron分支
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.send('relaunch-app')
+      }
     }
+    console.log(configs.postUrl + url)
+    console.log('http://imapi.eyuntx.com/' + url)
+    console.log(headers)
     fetch(configs.postUrl + url, {
       method: 'POST',
+      mode: 'cors',
       headers,
       body: uriParams
     }).then((response) => {
@@ -73,21 +83,21 @@ Fetch.post = async function (url, params, $this, ContentType) {
           resolve(respResult.ret)
           break
         case 412: // 账号未激活---去设置新密码
-          resolve({type: 'setPassword'})
+          resolve({ type: 'setPassword' })
           break
         case 404: // 请求资源不存在
-          resolve({msg: '请求资源不存在'})
+          resolve({ msg: '请求资源不存在' })
           break
         case 427: // 企业过期
           if (needToken) {
-            $this.eventBus.$emit('forwordFail', {type: 3})
+            $this.eventBus.$emit('forwordFail', { type: 3 })
           } else {
-            let error = {msg: '体验时长到期，请联系相应的商务经理'}
+            let error = { msg: '体验时长到期，请联系相应的商务经理' }
             reject(error)
           }
           break
         case 500: // 服务器异常
-          resolve({msg: '服务器异常'})
+          resolve({ msg: '服务器异常' })
           break
         case 2001: // 鉴权失败
           reLoginFn()
@@ -95,7 +105,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
         case 3001: // 平台鉴权失败
           reLoginFn()
           break
-        default :
+        default:
           reject(respResult)
           break
       }
@@ -108,7 +118,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
           toastText: '当前网络异常，请检查网络设置'
         })
       }
-      let errMsg = {msg: '当前网络异常，请检查您的网络设置'}
+      let errMsg = { msg: '当前网络异常，请检查您的网络设置' }
       reject(errMsg)
     })
   })

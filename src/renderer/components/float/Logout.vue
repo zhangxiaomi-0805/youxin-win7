@@ -32,8 +32,8 @@
 <script>
 import platform from '../../utils/platform'
 import Request from '../../utils/request'
-const electron = require('electron')
-const ipcRenderer = electron.ipcRenderer
+import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'logout',
   mounted () {
@@ -65,7 +65,14 @@ export default {
           // let loginInfo = this.$store.state.loginInfo
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
-          ipcRenderer.send('relaunch-app')
+          if (config.environment === 'web') { // web分支
+            // 先关闭所有子窗口，再重启主窗口
+            NativeLogic.native.setWinStatus('aplWindow', 3) // 类型（1-最小化，2-最大化，3-关闭，4-重启，5-隐藏，6-显示）
+            NativeLogic.native.setWinStatus('main', 4)
+          } else { // electron分支
+            let { ipcRenderer } = require('electron')
+            ipcRenderer.send('relaunch-app')
+          }
         }).catch(() => {
           this.loading = false
         })

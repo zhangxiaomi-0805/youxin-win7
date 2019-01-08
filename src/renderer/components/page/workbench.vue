@@ -6,9 +6,9 @@
       <div class="title webkit-drag" style="borderBottom: 0;">外部接入系统</div>
 
       <ul class="list-box">
-        <li 
-          :class="selectedIndex === $index ? 'list-item active' : 'list-item'" 
-          v-for="(item, $index) of dataList" 
+        <li
+          :class="selectedIndex === $index ? 'list-item active' : 'list-item'"
+          v-for="(item, $index) of dataList"
           :key="$index"
           @mouseover.stop="selectedIndex = $index"
           @mouseout.stop="selectedIndex = -1"
@@ -16,7 +16,7 @@
           <div class="list-content-box">
             <div style="width: 55px; height: 55px;display: flex; align-items: center; margin-right: 10px">
               <img :src="item.appIconUrl" alt="" style="width: 100%">
-            </div> 
+            </div>
 
             <div style="width: 75%">
               <div class="item-title">{{item.appName}}</div>
@@ -36,14 +36,15 @@
 <script>
 import SystemCaption from '../controls/SystemCaption.vue'
 import Request from '../../utils/request'
-import { shell } from 'electron'
+import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'workbench',
   components: {SystemCaption},
   data () {
     return {
       selectedIndex: -1,
-      logo: './static/img/no-msg.png',
+      logo: '../../../../static/img/no-msg.png',
       dataList: []
     }
   },
@@ -65,11 +66,24 @@ export default {
         } catch (error) {}
       }
       if (url) {
-        if (item.openType === 1) {
-          const ipcRenderer = require('electron').ipcRenderer
-          ipcRenderer.send('openAplWindow', {url: url, title: item.appName, appCode: item.appCode})
-        } else {
-          shell.openExternal(url)
+        if (item.openType === 1) { // 1-客户端内部浏览器打开 2-外部web浏览器打开
+          if (config.environment === 'web') { // web分支
+            // 打开窗口，与窗口通信
+            NativeLogic.native.createWindows('aplWindow', url, config.aplWinHeight, config.aplWinWidth) // params:windowName, path, height, width
+            // let data = {title: item.appName, appCode: item.appCode} // 携带参数
+            // NativeLogic.native.sendEvent(data, 'asyncMessage', () => {
+            // })
+          } else { // electron分支
+            let { ipcRenderer } = require('electron')
+            ipcRenderer.send('openAplWindow', {url: url, title: item.appName, appCode: item.appCode})
+          }
+        } else { // 1-客户端内部浏览器打开 2-外部web浏览器打开
+          if (config.environment === 'web') { // web分支
+            NativeLogic.native.openShell(3, url) // 打开类型（1-文件，2-文件所在目录，3-外部浏览器）
+          } else { // electron分支
+            let { shell } = require('electron')
+            shell.openExternal(url)
+          }
         }
       }
     }
@@ -141,7 +155,7 @@ export default {
 .third-box .list-item .item-content {
   width: 90%;
   overflow:hidden;
-  text-overflow:ellipsis; 
+  text-overflow:ellipsis;
   text-align:left;
   white-space:nowrap;
   color: #999;

@@ -4,7 +4,7 @@
   <div class="m-checkuser-con" ref="checkUser" v-if="showCheckUser" :style="{left, top, height}" v-clickoutside="closeModal">
     <div class="user-info-box">
       <div class="user-info">
-        <img 
+        <img
           :src="userInfos.avatar || defaultUserIcon"
           style="cursor: pointer"
           @click="handleClickInput()"
@@ -48,13 +48,13 @@
     <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
     <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
     <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
-   
+
     <div class="user-sex">
         <span style="margin-right: 28px;">性别</span>
         <div class="select-sex-box" @click="showSexModal =! showSexModal">
             <span>{{userInfos.sex === 1 ? '男' : '女'}}</span>
             <!-- 下拉箭头 -->
-            <div class="select-sex"></div> 
+            <div class="select-sex"></div>
 
              <!-- 性别选择弹框 -->
             <div v-if="showSexModal" class="sexModal-box">
@@ -67,11 +67,11 @@
                 </ul>
             </div>
         </div>
-       
+
     </div>
     <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || '-'}}</span></div>
     <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.orgName">{{userInfos.companyName || '-'}}</span></div>
- 
+
   </div>
 </transition>
 </template>
@@ -274,12 +274,12 @@ export default {
 </script>
 
 <style>
-	.m-checkuser-con {
+  .m-checkuser-con {
     box-sizing: border-box;
     position: absolute;
     left: 30%;
     top: 20%;
-		width: 336px;
+    width: 336px;
     opacity: 1;
     background-color: #fff;
     padding: 40px 40px 20px;
@@ -352,10 +352,10 @@ export default {
     height: 62px;
     border-radius: 50%;
     margin-right: 10px;
-  } 
+  }
   .m-checkuser-con .user-info-box .prompt {
     position: absolute;
-    top: 98px; 
+    top: 98px;
     left: 112px;
     z-index: 1002;
     background-color: #fff;

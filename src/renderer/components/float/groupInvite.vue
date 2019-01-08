@@ -1,111 +1,107 @@
 <template>
-<!-- 群邀请弹框 -->
-<transition name="fade">
-  <div class="m-modal-contain" v-if="showModal">
-    <div class="m-modal-cover" @click="closeCover"></div>
-    <div class="m-modal-box">
-      <!-- 关闭标签 -->
-      <div class="drag" id="modal">
-        <div class="u-sysbtn close">
-          <a class="btn-close" @click="closeModal"/>
+  <!-- 群邀请弹框 -->
+  <transition name="fade">
+    <div class="m-modal-contain" v-if="showModal">
+      <div class="m-modal-cover" @click="closeCover"></div>
+      <div class="m-modal-box">
+        <!-- 关闭标签 -->
+        <div class="drag" id="modal">
+          <div class="u-sysbtn close">
+            <a class="btn-close" @click="closeModal"/>
+          </div>
+        </div>
+
+        <div style="padding:15px 30px">
+          <div class="m-modal-header">
+            <div class="user-info"><img :src="teamInfo.avatar"></div>
+            <div style="padding-left: 20px">
+              <div class="nick">{{teamInfo.name}}</div>
+              <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum + '人'}}</div>
+            </div>
+          </div>
+
+          <!-- 内容 -->
+          <div style="width: 100%; height:90px;display: flex;flex-direction: column; align-items:center;padding: 30px 0;justify-content: space-between">
+            <div style="color: #666; font-size: 14px;text-overflow:ellipsis;white-space:nowrap;">{{description.split('聊')[0] + '聊'}}</div>
+            <a class="button" @mouseup.stop="applyJoinTeam()">{{'加入群聊'}}</a>
+          </div>
         </div>
       </div>
 
-        <div style="width: 100%; box-sizing:border-box; padding:15px 30px">
-            <div class="m-modal-header">
-                <div class="user-info"><img :src="teamInfo.avatar"></div>
-                <div style="width:76%; padding-left: 18px">
-                    <div class="nick">{{teamInfo.name}}</div>
-                    <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum ? teamInfo.memberNum : 0 + '人'}}</div>
-                </div>
-            </div>
-
-            <!-- 内容 -->
-            <div style="width: 100%; height:90px;display: flex;flex-direction: column; align-items:center;padding: 30px 0;justify-content: space-between">
-                <div style="color: #666; font-size: 14px;text-overflow:ellipsis;white-space:nowrap;">{{description.split('聊')[0] + '聊'}}</div>
-                <a class="button" @mouseup.stop="applyJoinTeam()">{{'加入群聊'}}</a>
-            </div>
-        </div>  
     </div>
-        
-  </div>
-</transition>
+  </transition>
 </template>
 
 <script>
-import drag from '../../utils/drag.js'
-import config from '../../configs'
-import clickoutside from '../../utils/clickoutside.js'
-export default {
-  name: 'group-invite',
-  directives: {clickoutside},
-  data () {
-    return {
-      showModal: false,
-      teamId: '',
-      description: '',
-      teamInfo: {}
-    }
-  },
-  mounted () {
-    // 群邀请弹框
-    this.eventBus.$on('showGroupInvite', (data) => {
-      this.showModal = true
-      this.teamId = data.teamInfo.teamId
-      this.description = data.teamInfo.description
-      this.getTeamInfoFn(this.teamId)
-    })
-  },
-  updated () {
-    drag.dragPosition('historyMsgDrag', 1)
-  },
-  methods: {
-    closeCover () {
-      console.log('false')
-      // this.showModal = false
-    },
-    closeModal () {
-      this.showModal = false
-    },
-    async getTeamInfoFn (teamId) {
-      this.teamInfo = await this.getTeamInfo(teamId)
-      if (this.teamInfo && !this.teamInfo.avatar) {
-        this.teamInfo.avatar = config.defaultGroupIcon
+  import drag from '../../utils/drag.js'
+  import clickoutside from '../../utils/clickoutside.js'
+  export default {
+    name: 'group-invite',
+    directives: {clickoutside},
+    data () {
+      return {
+        showModal: false,
+        teamId: '',
+        description: '',
+        teamInfo: {}
       }
     },
-    getTeamInfo (teamId) {
-      // 获取群信息
-      return new Promise((resolve, reject) => {
-        this.$store.state.nim.getTeam({
-          teamId,
-          done: (error, teams) => {
-            if (!error) resolve(teams)
-            else reject(error)
-          }
-        })
+    mounted () {
+      // 群邀请弹框
+      this.eventBus.$on('showGroupInvite', (data) => {
+        this.showModal = true
+        this.teamId = data.teamInfo.teamId
+        this.description = data.teamInfo.description
+        this.getTeamInfoFn(this.teamId)
       })
     },
-    applyJoinTeam () {
-      this.$store.dispatch('delegateTeamFunction', {
-        functionName: 'applyTeam',
-        options: {
-          teamId: this.teamInfo.teamId,
-          ps: 'ps',
-          done: (error, obj) => {
-            if (error) {
-              this.$toast(error)
-              return
+    updated () {
+      drag.dragPosition('historyMsgDrag', 1)
+    },
+    methods: {
+      closeCover () {
+        console.log('false')
+        // this.showModal = false
+      },
+      closeModal () {
+        this.showModal = false
+      },
+      async getTeamInfoFn (teamId) {
+        this.teamInfo = await this.getTeamInfo(teamId)
+      },
+      getTeamInfo (teamId) {
+        // 获取群信息
+        return new Promise((resolve, reject) => {
+          this.$store.state.nim.getTeam({
+            teamId,
+            done: (error, teams) => {
+              if (!error) resolve(teams)
+              else reject(error)
             }
-            this.$toast('申请成功')
-            setTimeout(() => {
-              this.closeModal()
-            }, 1000)
+          })
+        })
+      },
+      applyJoinTeam () {
+        this.$store.dispatch('delegateTeamFunction', {
+          functionName: 'applyTeam',
+          options: {
+            teamId: this.teamInfo.teamId,
+            ps: 'ps',
+            done: (error, obj) => {
+              if (error) {
+                this.$toast(error)
+                return
+              }
+              this.$toast('申请成功')
+              setTimeout(() => {
+                this.closeModal()
+              }, 1000)
+            }
           }
-        }
-      })
+        })
+      }
     }
   }
-}
 </script>
 
 <style scoped>
@@ -148,7 +144,7 @@ export default {
     font-size: 14px;
     color: #999;
   }
-  
+
   .m-info-box .close {
     position: absolute;
     right: 0;
@@ -190,6 +186,6 @@ export default {
     color: #fff;
     transition: background .2s linear;
   }
- 
+
 </style>
 

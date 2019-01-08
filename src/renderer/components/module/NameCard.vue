@@ -10,26 +10,62 @@
           <div v-if="userInfos.signature && showPrompt"
             class="prompt">{{userInfos.signature}}</div>
         </transition>
+        <textarea style="width: 1px;height: 1px;position: absolute;left: 0px" id="clipboard"></textarea>
         <div class="m-modify">
           <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
           <div>
-            <div class="nick" :title="userInfos.name">{{userInfos.name}}</div>
+            <div class="nick" :title="userInfos.name" @mouseup.stop="userInfos.nick || userInfos.name ? showListOptions($event, userInfos.nick || userInfos.name, 'copy_0') : null">{{userInfos.name}}</div>
             <div class="line" style="margin: 10px 0 0 0; width: 200px; color: #999; font-size: 13px" 
               @mouseover="showPrompt = true"
               @mouseout="showPrompt = false"
+              @mouseup.stop="userInfos.signature ? showListOptions($event, userInfos.signature, 'copy_1') : null"
+              ref="copy_1"
             >
               {{userInfos.signature || '-'}}
             </div>
           </div>
         </div>
-        <div class="user-tel"><span>账号</span><span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account">{{userInfos.account || '未设置'}}</span></div>
-        <div class="user-tel"><span>手机</span><span class="line" :title="userInfos.phone">{{userInfos.phone}}</span></div>
-        <div class="user-tel"><span>电话</span><span class="line" :title="userInfos.telephone">{{userInfos.telephone}}</span></div>
-        <div class="user-tel"><span>邮箱</span><span class="line" :title="userInfos.email">{{userInfos.email}}</span></div>
-      
-        <div class="user-tel" style="margin-top: 24px"><span>性别</span><span class="line">{{userInfos.sex === 1 ? '男' : '女'}}</span></div>
-        <div class="user-tel"><span>职务</span><span class="line" :title="userInfos.position">{{userInfos.position || '-'}}</span></div>
-        <div class="user-tel"><span>部门</span><span class="line" :title="userInfos.companyName">{{userInfos.companyName || '-'}}</span></div>
+        <div class="user-tel"><span>账号</span>
+          <span class="line" :style="{color: userInfos.account ? '#333' : '#999'}" :title="userInfos.account"
+            ref="copy_2"
+            @mouseup.stop="userInfos.account ? showListOptions($event, userInfos.account, 'copy_2') : null"
+            >{{userInfos.account || '未设置'}}</span>
+          </div>
+        <div class="user-tel"><span>手机</span>
+          <span class="line" :title="userInfos.phone"
+            ref="copy_3"
+            @mouseup.stop="userInfos.phone ? showListOptions($event, userInfos.phone, 'copy_3') : null"
+          >{{userInfos.phone}}</span>
+        </div>
+        <div class="user-tel"><span>电话</span>
+          <span class="line" :title="userInfos.telephone"
+            ref="copy_4"
+            @mouseup.stop="userInfos.telephone ? showListOptions($event, userInfos.telephone, 'copy_4') : null"
+          >{{userInfos.telephone}}</span>
+          </div>
+        <div class="user-tel"><span>邮箱</span>
+          <span class="line" :title="userInfos.email"
+            ref="copy_5"
+            @mouseup.stop="userInfos.email ? showListOptions($event, userInfos.email, 'copy_5') : null"
+          >{{userInfos.email}}</span>
+        </div>
+        <div class="user-tel" style="margin-top: 24px"><span>性别</span>
+          <span class="line" 
+            @mouseup.stop="userInfos.sex ? showListOptions($event, userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密', 'copy_6') : null"
+            ref="copy_6"
+          >{{userInfos.sex === 1 ? '男' : '女'}}</span>
+        </div>
+        <div class="user-tel"><span>职务</span>
+          <span class="line" :title="userInfos.position"
+            @mouseup.stop="userInfos.position ? showListOptions($event, userInfos.position, 'copy_7') : null"
+            ref="copy_7">{{userInfos.position || '-'}}</span>
+        </div>
+        <div class="user-tel"><span>部门</span>
+          <span class="line" :title="userInfos.companyName"
+          @mouseup.stop="userInfos.companyName ? showListOptions($event, userInfos.companyName, 'copy_8') : null"
+          ref="copy_8"
+          >{{userInfos.companyName || '-'}}</span>
+        </div>
         <!-- <div class="user-tel"><span>签名</span><span class="line" :title="userInfos.signature">{{userInfos.signature || '-'}}</span></div> -->
         
         <a class="sendmsg" @click="sendMsg(userInfos.accid)">发消息</a>
@@ -55,6 +91,7 @@
 import configs from '../../configs/index.js'
 import Request from '../../utils/request.js'
 import util from '../../utils'
+import MsgRecordFn from '../msgRecord/msgRecord.js'
 export default {
   name: 'namecard',
   props: {
@@ -187,6 +224,43 @@ export default {
         this.$store.commit('updateContactsToplist', {type: 'update', data: {tag: new Date().getTime(), userContactList}})
       }
       Request.AddOrDelContactUser(params, this)
+    },
+    showListOptions (e, msg, ref) {
+      let target = this.$refs[ref]
+      MsgRecordFn.copyAll(target)
+      if (e.button === 2) {
+        e.preventDefault()
+        let key = 'check-user'
+        this.$store.dispatch('showListOptions', {
+          key,
+          show: true,
+          id: msg,
+          pos: {
+            x: e.clientX,
+            y: e.clientY
+          },
+          that: this,
+          msg,
+          callBack: (type) => {
+            switch (type) {
+              case 3: // 复制
+                let resTarget = document.getElementById('clipboard')
+                resTarget.innerText = MsgRecordFn.getCopyText(e)
+                resTarget.select()
+                document.execCommand('Copy')
+                break
+            }
+          }
+        })
+      } else {
+        this.$store.dispatch('showListOptions', {
+          show: false
+        })
+      }
+      // 处理拖拽窗口事件移除
+      document.onmousemove = null
+      document.onmouseup = null
+      document.body.style.cursor = 'default'
     }
   }
 }
@@ -368,6 +442,7 @@ export default {
     text-overflow:ellipsis;
     white-space:nowrap;
     cursor: default;
+    -webkit-user-select: text;
   }
 
   .nc-p2p .memo-input {

@@ -15,8 +15,7 @@ import {onSessions, onUpdateSession} from './session'
 import {onRoamingMsgs, onOfflineMsgs, onNewMsg} from './msgs'
 import {onSysMsgs, onSysMsg, onSysMsgUnread, onCustomSysMsgs} from './sysMsgs'
 import {onTeams, onSynCreateTeam, onCreateTeam, onUpdateTeam, onTeamMembers, onUpdateTeamMember, onAddTeamMembers, onRemoveTeamMembers, onUpdateTeamManagers, onDismissTeam, onUpdateTeamMembersMute, onTeamMsgReceipt} from './team'
-const electron = require('electron')
-const ipcRenderer = electron.ipcRenderer
+import NativeLogic from '../../utils/nativeLogic.js'
 const SDK = require('../../nim_sdk/NIM_Web_SDK_v5.7.0')
 
 // 重新初始化 NIM SDK
@@ -42,7 +41,18 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           loginInfo.done(200)
         }
         commit('connectStatus', { networkStatus: 200 })
-        ipcRenderer.send('logined', null)
+        if (config.environment === 'web') { // web分支
+          let AppDirectory = window.location.pathname // 應用所在目錄
+          if (AppDirectory.indexOf('dist') > -1) {
+            let urlArr = AppDirectory.split('dist')
+            AppDirectory = urlArr[0]
+          }
+          // 設置系統托盤應用圖標
+          // NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png')
+        } else { // electron分支
+          let { ipcRenderer } = require('electron')
+          ipcRenderer.send('logined', null)
+        }
       }
     },
     onerror: function onError (evt) {
@@ -77,7 +87,14 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           commit('updateDownlineModal', {status: true, reason: error.reason})
           break
         case 'logout':
-          ipcRenderer.send('logout', null)
+          if (config.environment === 'web') { // web分支
+            NativeLogic.native.sendEvent(null, 'logout', () => {
+              console.log('111')
+            })
+          } else { // electron分支
+            let { ipcRenderer } = require('electron')
+            ipcRenderer.send('logout', null)
+          }
           break
         default:
           break

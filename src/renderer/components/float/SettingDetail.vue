@@ -11,7 +11,7 @@
       <div class="m-set-com" v-if="type === 1" style="paddingTop: 90px;">
         <div class="m-set-ipt" ref="loginIpt" style="marginBottom: 30px;">
           <input
-            type="password" 
+            type="password"
             class="ipt"
             style="fontSize: 19px;letterSpacing: 2px;"
             maxlength="20"
@@ -43,7 +43,7 @@
         </div>
         <div class="m-set-ipt sendcode" ref="loginIptCode" style="marginBottom: 30px;">
           <input
-            type="email" 
+            type="email"
             class="ipt"
             style="width: 50%;text-indent: 3px"
             maxlength="6"
@@ -66,7 +66,7 @@
         <div class="mdy-title">原密码</div>
         <div class="m-set-ipt" ref="loginIpt" style="marginBottom: 20px;">
           <input
-            type="password" 
+            type="password"
             class="ipt"
             style="fontSize: 19px;letterSpacing: 2px;"
             maxlength="20"
@@ -80,7 +80,7 @@
         <div class="mdy-title">新密码</div>
         <div class="m-set-ipt" ref="loginIptNew">
           <input
-            type="password" 
+            type="password"
             class="ipt"
             style="fontSize: 19px;letterSpacing: 2px;"
             maxlength="20"
@@ -90,11 +90,11 @@
             @blur="blurFn($refs.loginIptNew)"/>
             <span v-if="newPwd.length > 0" class="clear" @click="newPwd = ''"/>
         </div>
-        <div class="toast-text" style="marginBottom: 20px;">密码长度8-20位</div>
+        <div class="toast-text" style="marginBottom: 20px;">密码长度8-20位数字、字母组合</div>
         <div class="mdy-title">确认密码</div>
         <div class="m-set-ipt" ref="loginIptConfirm">
           <input
-            type="password" 
+            type="password"
             class="ipt"
             style="fontSize: 19px;letterSpacing: 2px;"
             maxlength="20"
@@ -105,7 +105,7 @@
             @keyup="keyToNext($event, 3)"/>
             <span v-if="confirmNewPwd.length > 0" class="clear" @click="confirmNewPwd = ''"/>
         </div>
-        <div class="toast-text" style="marginBottom: 30px;">密码长度8-20位</div>
+        <div class="toast-text" style="marginBottom: 30px;">密码长度8-20位数字、字母组合</div>
         <login-button text="确定" :disabled="!(password && newPwd && confirmNewPwd)" :loading="loading" :callBack="modifyPwd"/>
       </div>
     </div>
@@ -324,10 +324,8 @@ export default {
       // 修改密码
       if (!(this.password && this.newPwd && this.confirmNewPwd)) return
       let errMsg = ''
-      if (this.password.length < 8 || this.newPwd.length < 8) {
+      if (!/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/.test(this.password) || this.password.length < 6) {
         errMsg = '密码格式不正确'
-      } else if (this.newPwd !== this.confirmNewPwd) {
-        errMsg = '两次输入的密码不一致'
       }
       if (errMsg) {
         this.$store.commit('toastConfig', {
@@ -417,7 +415,7 @@ export default {
     height: 100%;
     z-index: 1010;
   }
-  
+
   .m-set-dtl-con .m-set-dtl-con-cover {
     position: absolute;
     top: 0;

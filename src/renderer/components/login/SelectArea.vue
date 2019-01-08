@@ -25,53 +25,53 @@
 </template>
 
 <script>
-import areaObj from '../../configs/area.js'
-export default {
-  name: 'select-area',
-  props: {
-    modify: Boolean
-  },
-  data () {
-    return {
-      showSelectArea: 1,
-      usualArea: areaObj.Usual,
-      sortArea: areaObj.Region,
-      callback: Function
-    }
-  },
-  mounted () {
-    let $this = this
-    this.eventBus.$on('selectArea', (data) => {
-      $this.showSelectArea = 2
-      $this.callback = data.callback
-    })
-  },
-  methods: {
-    className () {
-      if (this.showSelectArea === 1 && !this.modify) {
-        return 's-area'
-      }
-      if (this.showSelectArea === 1 && this.modify) {
-        return 's-area modify'
-      }
-      if (this.showSelectArea === 2 && !this.modify) {
-        return 's-area k-movetop'
-      }
-      if (this.showSelectArea === 2 && this.modify) {
-        return 's-area k-movetop modify'
-      }
-      if (!this.modify) return 's-area k-movebottom'
-      else return 's-area k-movebottom modify'
+  import areaObj from '../../configs/area.js'
+  export default {
+    name: 'select-area',
+    props: {
+      modify: Boolean
     },
-    closeModal () {
-      this.showSelectArea = 3
+    data () {
+      return {
+        showSelectArea: 1,
+        usualArea: areaObj.Usual,
+        sortArea: areaObj.Region,
+        callback: Function
+      }
     },
-    callBack (area) {
-      this.callback(area)
-      this.showSelectArea = 3
+    mounted () {
+      let $this = this
+      this.eventBus.$on('selectArea', (data) => {
+        $this.showSelectArea = 2
+        $this.callback = data.callback
+      })
+    },
+    methods: {
+      className () {
+        if (this.showSelectArea === 1 && !this.modify) {
+          return 's-area'
+        }
+        if (this.showSelectArea === 1 && this.modify) {
+          return 's-area modify'
+        }
+        if (this.showSelectArea === 2 && !this.modify) {
+          return 's-area k-movetop'
+        }
+        if (this.showSelectArea === 2 && this.modify) {
+          return 's-area k-movetop modify'
+        }
+        if (!this.modify) return 's-area k-movebottom'
+        else return 's-area k-movebottom modify'
+      },
+      closeModal () {
+        this.showSelectArea = 3
+      },
+      callBack (area) {
+        this.callback(area)
+        this.showSelectArea = 3
+      }
     }
   }
-}
 </script>
 
 <style scoped>

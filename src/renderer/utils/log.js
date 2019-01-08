@@ -18,12 +18,8 @@
  *
  * @author zjz
  */
-
-import fs from 'fs'
-import path from 'path'
-import electron from 'electron'
 import _u from './global.js'
-
+import config from '../configs'
 function isRenderer () {
   // running in a web browser
   if (typeof process === 'undefined') return true
@@ -47,7 +43,7 @@ var Logger = {}
  */
 Logger.output = function (opts) {
   // if(Logger.isZiping) return;
-  // if(__WEB__) return;
+  if(config.environment === 'web') return;
   var logMsg = []
   var timeStr = _u._$format(new Date(), 'yyyy_MM_dd HH:mm:ss')
   var date = timeStr.split(' ')[0]
@@ -79,6 +75,10 @@ Logger.output = function (opts) {
  * opts.logMsg
  */
 Logger.write = function (opts) {
+  if(config.environment === 'web') return;
+  let { fs } = require('path')
+  let { path } = require('fs')
+  let { electron } = require('electron')
   var app = isRenderer() ? electron.remote.app : electron.app
   var userPath = app.getPath('userData')
   var position = path.join(userPath, 'log_' + opts.date + '.log')

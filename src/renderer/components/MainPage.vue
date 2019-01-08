@@ -1,37 +1,37 @@
 <template>
-    <div class="g-window" @mouseup="onCloseListOptions">
-        <div class="g-inherit" :style="{borderWidth: !path ? '0' : '1px'}">
-            <nav-bar/>
-            <div class="m-main" :style="{borderWidth: !path ? '1px' : '0'}">
-              <keep-alive :include="['session-page', 'orgnize']">
-                <router-view></router-view>
-              </keep-alive>
-            </div>
-            <select-user/>
-            <find-x/>
-            <img-modal />
-            <list-options />
-            <unread-modal />
-            <check-user/>
-            <my-Info/>
-            <select-contact/>
-            <select-orgnize/>
-            <clear-record/>
-            <edit-notice/>
-            <toast /> 
-            <dismiss-team/>
-            <general-setting/>
-            <setting-detail/>
-            <forword-fail />
-            <logout/>
-            <setting-name/>
-            <down-line/>
-            <team-code/>
-            <msg-record/>
-            <update-app/>
-            <group-invite/>
-        </div>
+  <div class="g-window" @mouseup="onCloseListOptions">
+    <div class="g-inherit" :style="{borderWidth: !path ? '0' : '1px'}">
+      <nav-bar/>
+      <div class="m-main" :style="{borderWidth: !path ? '1px' : '0'}">
+        <keep-alive :include="['session-page', 'orgnize']">
+          <router-view></router-view>
+        </keep-alive>
+      </div>
+      <select-user/>
+      <find-x/>
+      <img-modal />
+      <list-options />
+      <unread-modal />
+      <check-user/>
+      <my-Info/>
+      <select-contact/>
+      <select-orgnize/>
+      <clear-record/>
+      <edit-notice/>
+      <toast />
+      <dismiss-team/>
+      <general-setting/>
+      <setting-detail/>
+      <forword-fail />
+      <logout/>
+      <setting-name/>
+      <down-line/>
+      <team-code/>
+      <msg-record/>
+      <update-app/>
+      <group-invite/>
     </div>
+  </div>
 </template>
 
 <script>
@@ -62,21 +62,26 @@
   import MsgRecord from './msgRecord/MsgRecord.vue'
   import UpdateApp from './float/UpdateApp.vue'
   import GroupInvite from './float/groupInvite.vue'
-  const electron = require('electron')
-  const ipcRenderer = electron.ipcRenderer
+  import config from '../configs'
+  // import NativeLogic from '../utils/nativeLogic.js'
   export default {
     name: 'main-page',
     components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
-      ipcRenderer.on('getAccid', (evt, arg) => {
-        Request.GetAccid({userName: arg.account}, this).then(ret => {
-          let accid = ret.accid
-          // 根据account 获取 accid 发起会话
-          this.createSession(accid)
+      if (config.environment === 'web') { // web分支
+        // NativeLogic.native.sendEvent() // 跨窗口通信
+      } else { // electron分支
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.on('getAccid', (evt, arg) => {
+          Request.GetAccid({userName: arg.account}, this).then(ret => {
+            let accid = ret.accid
+            // 根据account 获取 accid 发起会话
+            this.createSession(accid)
+          })
         })
-      })
+      }
       // 检查更新
       if (localStorage.APPVERSIONS) {
         let APPVERSIONS = JSON.parse(localStorage.APPVERSIONS)
@@ -104,6 +109,7 @@
         let isCurrent = newMsg.sessionId === this.$store.state.currSessionId
         let href = `#/mainpage/session/chat?sessionId=` + newMsg.sessionId
         let data = {body: showMsg, current: isCurrent, href: href}
+        let { ipcRenderer } = require('electron')
         ipcRenderer.send('onReceiveMsg', data)
       }
     },

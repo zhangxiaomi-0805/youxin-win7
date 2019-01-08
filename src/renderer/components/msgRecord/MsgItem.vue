@@ -30,7 +30,8 @@
             <img :src="msg.imgUrl" style="width: 230px; height: 230px"/> 
           </div>
           <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
-            <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview>
+            <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
+            <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
           </div>
           <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)">
             <span class="custom-type8-title">邀请你加入群聊</span>
@@ -59,8 +60,8 @@
 <script type="text/javascript">
 import util from '../../utils'
 import config from '../../configs'
-import {ipcRenderer, shell} from 'electron'
 import MsgRecordFn from './msgRecord.js'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'msg-item',
   props: {
@@ -129,44 +130,118 @@ export default {
   },
   mounted () {
     let item = this.msg
+    this.iframe = this.$refs.iframe
     // 自定义消息（7）
-    let webview = this.$refs.webview
-    if (item.type === 'custom-type7' && webview) {
-      webview.addEventListener('dom-ready', e => {
-        // Inject CSS
-        webview.insertCSS(`
-          img {
-            max-width:100% !important;
-          }
-        `)
-      })
-      webview.addEventListener('did-finish-load', () => {
-        webview.send('executeJavaScript', item.showText)
-        // webview.openDevTools()  // 打开webview控制台
-      })
-      // 获取html页面内容实际高度
-      webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
-        webview.style.height = (event.channel + 40) + 'px'
-      })
-      webview.addEventListener('new-window', (e) => {
-        let openType = 1
-        if (e.url.indexOf('#browserWindow') > -1) {
-          openType = 2
+    // let webview = this.$refs.webview
+    if (item.type === 'custom-type7' && this.iframe) {
+      this.bindEvent(window, 'message', (e) => { // 获取iframe页面内容高度
+        if (e.data.cmd === 'returnHeight') {
+          this.iframe.style.height = (e.data.params.contentHeight + 40) + 'px'
         }
-        this.openNewWindow(e, openType)
       })
+      // webview.addEventListener('dom-ready', e => {
+      //   // Inject CSS
+      //   webview.insertCSS(`
+      //     img {
+      //       max-width:100% !important;
+      //     }
+      //   `)
+      // })
+      // webview.addEventListener('did-finish-load', () => {
+      //   webview.send('executeJavaScript', item.showText)
+      //   // webview.openDevTools()  // 打开webview控制台
+      // })
+      // // 获取html页面内容实际高度
+      // webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
+      //   webview.style.height = (event.channel + 40) + 'px'
+      // })
+      // webview.addEventListener('new-window', (e) => {
+      //   let openType = 1
+      //   if (e.url.indexOf('#browserWindow') > -1) {
+      //     openType = 2
+      //   }
+      //   this.openNewWindow(e, openType)
+      // })
     }
   },
   methods: {
-    openNewWindow (evt, openType) {
-      let url = evt.url
+    bindEvent (element, eventName, eventHandler) {
+      if (element.addEventListener) {
+        element.addEventListener(eventName, eventHandler, false)
+      } else if (element.attachEvent) {
+        element.attachEvent('on' + eventName, eventHandler)
+      }
+    },
+    sendMsgToIframe (showText) {
+      this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
+        params: {showText}
+      }, '*')
+      setTimeout(() => {
+        this.iframe.contentWindow.document.body.onmouseup = (e) => {
+          this.showListOptions(e, 'custom-type7', 'iframe')
+        }
+        var a = [...(this.iframe.contentWindow.document.getElementsByTagName('a'))]
+        for (let i = 0; i < a.length; i++) {
+          a[i].addEventListener('click', (e) => {
+            e.preventDefault()
+            let url = a[i].getAttribute('href')
+            if (url) {
+              if (url.indexOf('yximcreatesession.telecomjs.com') > -1) {
+                // 发起会话处理
+                let account = e.url.split('?account=')[1]
+                if (account) {
+                  if (config.environment === 'web') { // web分支
+                    console.log(NativeLogic.native)
+                    Request.GetAccid({userName: account}, this).then(ret => {
+                      let accid = ret.accid
+                      // 根据account 获取 accid 发起会话
+                      this.createSession(accid)
+                    })
+                  } else { // electron分支
+                    let { ipcRenderer } = require('electron')
+                    ipcRenderer.send('sendAccount', {account})
+                  }
+                }
+              }
+            }
+            let openType = 1
+            if (url.indexOf('#browserWindow') > -1) {
+              openType = 2
+            }
+            this.openAplWindow(url, openType)
+          })
+        }
+      }, 1000)
+    },
+    openAplWindow (url, openType) {
+      console.log(url)
+      console.log(openType)
+      let {ipcRenderer, shell} = require('electron')
+
       if (url) {
+        // 打开营业精灵
+        let thirdUrls = this.$store.state.thirdUrls
         let sessionlist = this.$store.state.sessionlist
         let sessionInfo = {}
         for (let i in sessionlist) {
           if (sessionlist[i].id === this.msg.sessionId) {
             sessionInfo = sessionlist[i]
             break
+          }
+        }
+        let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,6}))+\.?/
+        let domain = url.match(regDomain)[0]
+        if (url.split('://').length <= 1) url = 'http://' + url
+        for (let i in thirdUrls) {
+          if (thirdUrls[i].url === domain) {
+            Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
+              if (openType && openType === 2) {
+                shell.openExternal(res)
+              } else {
+                ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+              }
+            }).catch(() => {})
+            return false
           }
         }
         if (openType && openType === 1) {
@@ -287,9 +362,6 @@ export default {
         this.checkedMsgList.splice(index, 1)
       }
       this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
-    },
-    openAplWindow (evt, sessionId) {
-      MsgRecordFn.openAplWindow(evt, sessionId)
     }
   }
 }

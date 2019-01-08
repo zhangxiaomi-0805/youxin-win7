@@ -2,7 +2,7 @@
   <!-- 历史消息记录搜索 -->
   <div class="s-cont">
     <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
-    <ul class="u-list" v-if="searchlist.length > 0"> 
+    <ul class="u-list" v-if="searchlist.length > 0">
       <li
         class="list-item"
         v-for="msg in searchlist"
@@ -19,10 +19,10 @@
               <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
               <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
               <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;" :ref="`clipboard_${msg.idClient}`"></textarea>
-              <div 
+              <div
                 v-if="msg.type==='text'"
                 @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
-                :ref="`copy_${msg.idClient}`" 
+                :ref="`copy_${msg.idClient}`"
                 class="searchValue"
                 style="-webkit-user-select: text"
                 v-html="msg.showText"
@@ -51,336 +51,337 @@
 </template>
 
 <script>
-import util from '../../utils'
-import config from '../../configs'
-import emojiObj from '../../configs/emoji'
-import MsgRecordFn from './msgRecord.js'
-export default {
-  name: 'search-msg',
-  props: {
-    shortMsgCheck: Boolean,
-    searchValue: String,
-    historyMsgList: Array,
-    clearStatus: Function,
-    isSearchCheckMore: Boolean,
-    sessionId: String,
-    checkType: String, // 'all'---全部; image---图片; file---文件
-    userInfos: {
-      type: Object,
-      default () {
-        return {}
+  import util from '../../utils'
+  import config from '../../configs'
+  import emojiObj from '../../configs/emoji'
+  import MsgRecordFn from './msgRecord.js'
+  export default {
+    name: 'search-msg',
+    props: {
+      shortMsgCheck: Boolean,
+      searchValue: String,
+      historyMsgList: Array,
+      clearStatus: Function,
+      isSearchCheckMore: Boolean,
+      sessionId: String,
+      checkType: String, // 'all'---全部; image---图片; file---文件
+      userInfos: {
+        type: Object,
+        default () {
+          return {}
+        }
+      },
+      myInfo: {
+        type: Object,
+        default () {
+          return {}
+        }
       }
     },
-    myInfo: {
-      type: Object,
-      default () {
-        return {}
+    data () {
+      return {
+        myGroupIcon: config.defaultGroupIcon,
+        beforeValue: '', // 上一次输入的值，做延时搜索
+        searchlist: [],
+        isPlay: false
       }
-    }
-  },
-  data () {
-    return {
-      myGroupIcon: config.defaultGroupIcon,
-      beforeValue: '', // 上一次输入的值，做延时搜索
-      searchlist: [],
-      isPlay: false
-    }
-  },
-  watch: {
-    searchValue (newValue, oldValue) {
-      this.beforeValue = newValue
-      setTimeout(() => {
-        if (newValue !== this.beforeValue) return
-        this.renderItem(newValue, this.checkType)
-      }, 500)
     },
-    shortMsgCheck (newValue, oldValue) {
-      this.beforeValue = newValue
-      setTimeout(() => {
-        if (newValue !== this.beforeValue) return
+    watch: {
+      searchValue (newValue, oldValue) {
+        this.beforeValue = newValue
+        setTimeout(() => {
+          if (newValue !== this.beforeValue) return
+          this.renderItem(newValue, this.checkType)
+        }, 500)
+      },
+      shortMsgCheck (newValue, oldValue) {
+        this.beforeValue = newValue
+        setTimeout(() => {
+          if (newValue !== this.beforeValue) return
+          this.renderItem(this.searchValue, this.checkType)
+        }, 500)
+      },
+      checkType () {
         this.renderItem(this.searchValue, this.checkType)
-      }, 500)
-    },
-    checkType () {
-      this.renderItem(this.searchValue, this.checkType)
-    }
-  },
-  computed: {
-    myPhoneId () {
-      return `${this.$store.state.userUID}`
-    },
-    checkedMsgList () {
-      // 多选时选中的消息
-      if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
-        return this.$store.state.checkedMsgs
-      } else {
-        return []
       }
-    }
-  },
-  methods: {
-    manageTime (time) {
-      return util.formatDate(time, true)
     },
-    manageItem (item) {
-      if (item.flow === 'in') {
-        if (item.type === 'robot' && item.content && item.content.msgOut) {
-          // 机器人下行消息
-          let robotAccid = item.content.robotAccid
-          item.avatar = this.robotInfos[robotAccid].avatar
-          item.isRobot = true
-          item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
-        } else if (item.from !== this.$store.state.userUID) {
-          item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
-          item.link = `#/mainpage/contacts/card?accid=${item.from}`
-          //  todo如果是未加好友的人发了消息，是否能看到名片
+    computed: {
+      myPhoneId () {
+        return `${this.$store.state.userUID}`
+      },
+      checkedMsgList () {
+        // 多选时选中的消息
+        if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
+          return this.$store.state.checkedMsgs
         } else {
-          item.avatar = this.myInfo.avatar
-          // item.avatar = `${config.myPhoneIcon}`
+          return []
         }
-      } else if (item.flow === 'out') {
-        item.avatar = this.myInfo.avatar
       }
-      if (item.type === 'text') {
-        item.showText = item.text
-        // 文本消息
-        let variable = 0
-        let replaceArr = []
-        // url匹配
-        let httpUrls = MsgRecordFn.httpSpring(item.text)
-        if (httpUrls.length > 0) {
-          httpUrls.map(url => {
-            item.showText = item.showText.replace(url, (m) => {
-              variable++
-              let urlContent = url
-              urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-              replaceArr.push(`<a style="display: inherit; text-decoration: underline;width: 100%;" data-url="[${url}]">${urlContent}</a>`)
-              return `{---===${variable}}`
+    },
+    methods: {
+      manageTime (time) {
+        return util.formatDate(time, true)
+      },
+      manageItem (item) {
+        if (item.flow === 'in') {
+          if (item.type === 'robot' && item.content && item.content.msgOut) {
+            // 机器人下行消息
+            let robotAccid = item.content.robotAccid
+            item.avatar = this.robotInfos[robotAccid].avatar
+            item.isRobot = true
+            item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
+          } else if (item.from !== this.$store.state.userUID) {
+            item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
+            item.link = `#/mainpage/contacts/card?accid=${item.from}`
+            //  todo如果是未加好友的人发了消息，是否能看到名片
+          } else {
+            item.avatar = this.myInfo.avatar
+            // item.avatar = `${config.myPhoneIcon}`
+          }
+        } else if (item.flow === 'out') {
+          item.avatar = this.myInfo.avatar
+        }
+        if (item.type === 'text') {
+          item.showText = item.text
+          // 文本消息
+          let variable = 0
+          let replaceArr = []
+          // url匹配
+          let httpUrls = MsgRecordFn.httpSpring(item.text)
+          if (httpUrls.length > 0) {
+            httpUrls.map(url => {
+              item.showText = item.showText.replace(url, (m) => {
+                variable++
+                let urlContent = url
+                urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+                replaceArr.push(`<a style="display: inherit; text-decoration: underline;width: 100%;" data-url="[${url}]">${urlContent}</a>`)
+                return `{---===${variable}}`
+              })
             })
+          }
+          // 关键词高亮匹配
+          item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
+            variable++
+            replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+            return `{---===${variable}}`
           })
-        }
-        // 标签解析
-        item.showText = util.escape(item.showText)
-        // 关键词高亮匹配
-        item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
-          variable++
-          replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-          return `{---===${variable}}`
-        })
-        // 表情匹配
-        if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
-          let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
-          emojiItems.forEach(text => {
-            let emojiCnt = emojiObj.emojiList.emoji
-            if (emojiCnt[text]) {
-              let dataKey = text.slice(1, -1)
-              item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
-            }
-          })
-        }
-        // 变量替换
-        item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-          m = m.slice(1, m.length - 1)
-          let index = Number(m.slice(6, m.length))
-          if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
-            if (replaceArr[index - 1]) {
-              return replaceArr[index - 1]
+          // 标签解析
+          item.showText = util.escape(item.showText)
+          // 表情匹配
+          if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
+            let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
+            emojiItems.forEach(text => {
+              let emojiCnt = emojiObj.emojiList.emoji
+              if (emojiCnt[text]) {
+                let dataKey = text.slice(1, -1)
+                item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
+              }
+            })
+          }
+          // 变量替换
+          item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
+            m = m.slice(1, m.length - 1)
+            let index = Number(m.slice(6, m.length))
+            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+              if (replaceArr[index - 1]) {
+                return replaceArr[index - 1]
+              }
+              return m
             }
             return m
-          }
-          return m
-        })
-      } else if (item.type === 'custom') {
-        let content = JSON.parse(item.content)
-        // type 1 为猜拳消息
-        if (content.type === 1) {
-          let data = content.data
-          let resourceUrl = config.resourceUrl
-          // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
-          item.type = 'custom-type1'
-          item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
-        // type 3 为贴图表情
-        } else if (content.type === 3) {
-          let data = content.data
-          let emojiCnt = ''
-          if (emojiObj.pinupList[data.catalog]) {
-            emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
-            // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
-            item.type = 'custom-type3'
-            item.imgUrl = `${emojiCnt.img}`
-          }
-        } else {
-          item.showText = util.parseCustomMsg(item)
-          if (item.showText !== '[自定义消息]') {
-            item.showText += ',请到手机或电脑客户端查看'
-          }
-        }
-      } else if (item.type === 'image') {
-        // 原始图片全屏显示
-        item.originLink = item.file.url
-        if (item.file.w < 180) {
-          item.w = item.file.w
-          item.h = item.file.h
-        } else {
-          item.w = 180
-          item.h = 180 / (item.file.w / item.file.h)
-        }
-      } else if (item.type === 'video') {
-        // ...
-      } else if (item.type === 'audio') {
-        item.audioSrc = item.file.mp3Url
-        item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'
-      } else if (item.type === 'file') {
-        item.fileLink = item.file.url
-        item.showText = item.file.name
-      } else {
-        item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
-      }
-      return item
-    },
-    async renderItem (searchValue, checkType) {
-      if (!searchValue) return false
-      if (checkType === 'all') {
-        checkType = ['text', 'image', 'file', 'audio', 'video', 'custom-type3']
-      } else if (checkType === 'image') {
-        checkType = ['image']
-      } else if (checkType === 'file') {
-        checkType = ['file']
-      }
-      let msgList = await MsgRecordFn.getSearchRecords(searchValue, checkType)
-      let searchlist = []
-      let searchMsgList = []
-      for (let i in msgList) {
-        if (msgList[i].text && msgList[i].text.indexOf(searchValue) > -1) {
-          this.manageItem(msgList[i])
-          searchlist.push(msgList[i])
-          if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
-            this.manageItem(msgList[i])
-            searchMsgList.push(msgList[i])
-          }
-        }
-      }
-      if (this.shortMsgCheck) {
-        this.searchlist = searchMsgList
-      } else {
-        this.searchlist = searchlist
-      }
-    },
-    className (msg) {
-      // 选择框样式
-      let className = 'check common'
-      for (let i in this.checkedMsgList) {
-        let idClient = this.checkedMsgList[i].idClient
-        if (idClient === msg.idClient) {
-          className = 'checked common'
-          break
-        }
-      }
-      return className
-    },
-    className2 (text, classname) {
-      // 搜索关键字样式匹配
-      classname = classname || ''
-      for (let i in this.value) {
-        if (this.value[i] === text) {
-          return 'active ' + classname
-        }
-      }
-      return classname
-    },
-    playAudio (src, msg) {
-      if (!this.currentAudio) {
-        this.currentAudio = new Audio(src)
-        this.currentAudio.play()
-        this.isPlay = true
-        this.currentAudio.onended = () => {
-          this.currentAudio = null
-          this.isPlay = false
-        }
-      }
-    },
-    showListOptions (e, msg) {
-      if (msg.type === 'text' && e.button === 2) {
-        let target = (this.$refs[`copy_${msg.idClient}`])[0]
-        MsgRecordFn.copyAll(target)
-      }
-      if (e.button === 2) {
-        let key = ''
-        if (msg.type === 'text') {
-          key = 'msg-record'
-        } else {
-          key = 'image-msg-record'
-        }
-        this.$store.dispatch('showListOptions', {
-          key,
-          show: true,
-          id: msg,
-          pos: {
-            x: e.clientX,
-            y: e.clientY
-          },
-          that: this,
-          msg,
-          callBack: (type) => {
-            switch (type) {
-              case 0: // 多选
-                this.searchCheckMoreFn(msg)
-                break
-              case 2: // 转发
-                // 转发消息 ***** type=8---多条转发， type=7---单条转发， msg---要转发的消息
-                let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
-                this.eventBus.$emit('selectContact', {type: 7, sidelist, msg})
-                break
-              case 3: // 复制
-                let clipboard = (this.$refs[`clipboard_${msg.idClient}`])[0]
-                clipboard.innerText = MsgRecordFn.getCopyText(e)
-                clipboard.select()
-                document.execCommand('Copy')
-                break
-              case 4: // 删除
-                this.$store.dispatch('deleteMsg', msg)
-                break
+          })
+        } else if (item.type === 'custom') {
+          let content = JSON.parse(item.content)
+          // type 1 为猜拳消息
+          if (content.type === 1) {
+            let data = content.data
+            let resourceUrl = config.resourceUrl
+            // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
+            item.type = 'custom-type1'
+            item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
+            // type 3 为贴图表情
+          } else if (content.type === 3) {
+            let data = content.data
+            let emojiCnt = ''
+            if (emojiObj.pinupList[data.catalog]) {
+              emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
+              // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
+              item.type = 'custom-type3'
+              item.imgUrl = `${emojiCnt.img}`
+            }
+          } else {
+            item.showText = util.parseCustomMsg(item)
+            if (item.showText !== '[自定义消息]') {
+              item.showText += ',请到手机或电脑客户端查看'
             }
           }
+        } else if (item.type === 'image') {
+          // 原始图片全屏显示
+          item.originLink = item.file.url
+          if (item.file.w < 180) {
+            item.w = item.file.w
+            item.h = item.file.h
+          } else {
+            item.w = 180
+            item.h = 180 / (item.file.w / item.file.h)
+          }
+        } else if (item.type === 'video') {
+          // ...
+        } else if (item.type === 'audio') {
+          item.audioSrc = item.file.mp3Url
+          item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'
+        } else if (item.type === 'file') {
+          item.fileLink = item.file.url
+          item.showText = item.file.name
+        } else {
+          item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
+        }
+        return item
+      },
+      async renderItem (searchValue, checkType) {
+        if (!searchValue) return false
+        if (checkType === 'all') {
+          checkType = ['text', 'image', 'file', 'audio', 'video', 'custom-type3']
+        } else if (checkType === 'image') {
+          checkType = ['image']
+        } else if (checkType === 'file') {
+          checkType = ['file']
+        }
+        let msgList = await MsgRecordFn.getSearchRecords(searchValue, checkType)
+        let searchlist = []
+        let searchMsgList = []
+        for (let i in msgList) {
+          if (msgList[i].text && msgList[i].text.indexOf(searchValue) > -1) {
+            this.manageItem(msgList[i])
+            searchlist.push(msgList[i])
+            if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
+              this.manageItem(msgList[i])
+              searchMsgList.push(msgList[i])
+            }
+          }
+        }
+        if (this.shortMsgCheck) {
+          this.searchlist = searchMsgList
+        } else {
+          this.searchlist = searchlist
+        }
+      },
+      className (msg) {
+        // 选择框样式
+        let className = 'check common'
+        for (let i in this.checkedMsgList) {
+          let idClient = this.checkedMsgList[i].idClient
+          if (idClient === msg.idClient) {
+            className = 'checked common'
+            break
+          }
+        }
+        return className
+      },
+      className2 (text, classname) {
+        // 搜索关键字样式匹配
+        classname = classname || ''
+        for (let i in this.value) {
+          if (this.value[i] === text) {
+            return 'active ' + classname
+          }
+        }
+        return classname
+      },
+      playAudio (src, msg) {
+        if (!this.currentAudio) {
+          this.currentAudio = new Audio(src)
+          this.currentAudio.play()
+          this.isPlay = true
+          this.currentAudio.onended = () => {
+            this.currentAudio = null
+            this.isPlay = false
+          }
+        }
+      },
+      showListOptions (e, msg) {
+        if (msg.type === 'text' && e.button === 2) {
+          let target = (this.$refs[`copy_${msg.idClient}`])[0]
+          MsgRecordFn.copyAll(target)
+        }
+        if (e.button === 2) {
+          e.preventDefault()
+          let key = ''
+          if (msg.type === 'text') {
+            key = 'msg-record'
+          } else {
+            key = 'image-msg-record'
+          }
+          this.$store.dispatch('showListOptions', {
+            key,
+            show: true,
+            id: msg,
+            pos: {
+              x: e.clientX,
+              y: e.clientY
+            },
+            that: this,
+            msg,
+            callBack: (type) => {
+              switch (type) {
+                case 0: // 多选
+                  this.searchCheckMoreFn(msg)
+                  break
+                case 2: // 转发
+                  // 转发消息 ***** type=8---多条转发， type=7---单条转发， msg---要转发的消息
+                  let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+                  this.eventBus.$emit('selectContact', {type: 7, sidelist, msg})
+                  break
+                case 3: // 复制
+                  let clipboard = (this.$refs[`clipboard_${msg.idClient}`])[0]
+                  clipboard.innerText = MsgRecordFn.getCopyText(e)
+                  clipboard.select()
+                  document.execCommand('Copy')
+                  break
+                case 4: // 删除
+                  this.$store.dispatch('deleteMsg', msg)
+                  break
+              }
+            }
+          })
+        } else {
+          this.$store.dispatch('showListOptions', {
+            show: false
+          })
+        }
+        // 处理侧栏窗口状态恢复
+        // if (this.$store.state.slideMenuStatus === 2 && type === 'text') {
+        //   this.$store.commit('toggleSlideMenuStatus', 3)
+        // }
+        // 处理拖拽窗口事件移除
+        document.onmousemove = null
+        document.onmouseup = null
+        document.body.style.cursor = 'default'
+      },
+      searchCheckMoreFn (msg) {
+        this.$emit('searchCheckMore')
+        this.$store.commit('updateCheckedMsgs', [msg])
+      },
+      checkItemFn (msg) {
+        const index = this.checkedMsgList.findIndex(item => {
+          return item.idClient === msg.idClient
         })
-      } else {
-        this.$store.dispatch('showListOptions', {
-          show: false
-        })
+        if (index === -1) {
+          this.checkedMsgList.push(msg)
+        } else {
+          this.checkedMsgList.splice(index, 1)
+        }
+        this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
+      },
+      reset () {
+        this.beforeValue = ''
+        this.searchlist = []
+      },
+      openAplWindow (evt, sessionId) {
+        MsgRecordFn.openAplWindow(evt, sessionId)
       }
-      // 处理侧栏窗口状态恢复
-      // if (this.$store.state.slideMenuStatus === 2 && type === 'text') {
-      //   this.$store.commit('toggleSlideMenuStatus', 3)
-      // }
-      // 处理拖拽窗口事件移除
-      document.onmousemove = null
-      document.onmouseup = null
-      document.body.style.cursor = 'default'
-    },
-    searchCheckMoreFn (msg) {
-      this.$emit('searchCheckMore')
-      this.$store.commit('updateCheckedMsgs', [msg])
-    },
-    checkItemFn (msg) {
-      const index = this.checkedMsgList.findIndex(item => {
-        return item.idClient === msg.idClient
-      })
-      if (index === -1) {
-        this.checkedMsgList.push(msg)
-      } else {
-        this.checkedMsgList.splice(index, 1)
-      }
-      this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
-    },
-    reset () {
-      this.beforeValue = ''
-      this.searchlist = []
-    },
-    openAplWindow (evt, sessionId) {
-      MsgRecordFn.openAplWindow(evt, sessionId)
     }
   }
-}
 </script>
 
 <style scoped>
@@ -470,21 +471,21 @@ export default {
     font-size: 14px;
   }
   .list-item .common {
-  display: inline-block;
-  width: 15px;
-  height: 32px;
-  background-repeat: no-repeat;
-  background-position: center center;
-  transition: all .2s linear;
-  margin: 5px 5px 0 0 ;
-}
-.list-item .check {
-  background-image: url('../../../../static/img/setting/checkboxborder.png');
-  background-size: 15px 15px;
-}
-.list-item .checked {
-  background-image: url('../../../../static/img/setting/checkbox-c.png');
-  background-size: 15px 15px;
-}
+    display: inline-block;
+    width: 15px;
+    height: 32px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: all .2s linear;
+    margin: 5px 5px 0 0 ;
+  }
+  .list-item .check {
+    background-image: url('../../../../static/img/setting/checkboxborder.png');
+    background-size: 15px 15px;
+  }
+  .list-item .checked {
+    background-image: url('../../../../static/img/setting/checkbox-c.png');
+    background-size: 15px 15px;
+  }
 </style>
 

@@ -111,7 +111,7 @@
     bottom: 0;
     right: 0;
   }
-  
+
   .m-chat .m-header {
     box-sizing: border-box;
     display: flex;

@@ -1,136 +1,136 @@
 <template>
-<div>
-  <div class="m-chat-emoji">
-    <div class="emoji-content">
-      <div class="cnt">
-        <a class="cover" v-for="item in currEmoji.list" @click.stop="selectEmoji(item)" :key="item.img">
+  <div>
+    <div class="m-chat-emoji">
+      <div class="emoji-content">
+        <div class="cnt">
+          <a class="cover" v-for="item in currEmoji.list" @click.stop="selectEmoji(item)" :key="item.img">
           <span class="emoji-item" :class="{'pinup-item':item.type==='pinup'}">
             <img :src="item.img">
           </span>
-        </a>
+          </a>
+        </div>
+        <!-- <div class="circle">
+          <a class="dot" v-for="item in currEmoji.list" :key="item.img"></a>
+        </div> -->
       </div>
-      <!-- <div class="circle">
-        <a class="dot" v-for="item in currEmoji.list" :key="item.img"></a>
-      </div> -->
-    </div>
-    <div class="emoji-channel">
-      <div :class="activeId === item.name ? 'emoji-con active' : 'emoji-con'" v-for="item in emoji" @click.stop="selectAlbum(item)" :key="item.album">
+      <div class="emoji-channel">
+        <div :class="activeId === item.name ? 'emoji-con active' : 'emoji-con'" v-for="item in emoji" @click.stop="selectAlbum(item)" :key="item.album">
         <span class="emoji-album" :class="{active: item.name==currAlbum}">
           <img :src="item.album">
         </span>
-      </div>
-      <div :class="activeId === item.name ? 'emoji-con active' : 'emoji-con'" v-for="item in pinup" @click.stop="selectAlbum(item)" :key="item.album">
+        </div>
+        <div :class="activeId === item.name ? 'emoji-con active' : 'emoji-con'" v-for="item in pinup" @click.stop="selectAlbum(item)" :key="item.album">
         <span v-if="type==='session'" class="emoji-album" :class="{active: item.name==currAlbum}">
           <img :src="item.album">
         </span>
+        </div>
       </div>
     </div>
+    <div class="m-chat-arrow"></div>
   </div>
-  <div class="m-chat-arrow"></div>
-</div>
 </template>
 
 <script>
-import emojiObj from '../../configs/emoji'
+  import emojiObj from '../../configs/emoji'
 
-function genEmojiList (type, emojiList) {
-  let result = {}
-  for (let name in emojiList) {
-    let emojiMap = emojiList[name]
-    let list = []
-    for (let key in emojiMap) {
-      list.push({
-        type,
-        name,
-        key,
-        img: emojiMap[key].img
-      })
-    }
-    if (list.length > 0) {
-      result[name] = {
-        type,
-        name,
-        list,
-        album: list[0].img
+  function genEmojiList (type, emojiList) {
+    let result = {}
+    for (let name in emojiList) {
+      let emojiMap = emojiList[name]
+      let list = []
+      for (let key in emojiMap) {
+        list.push({
+          type,
+          name,
+          key,
+          img: emojiMap[key].img
+        })
       }
-    }
-  }
-  return result
-}
-
-export default {
-  name: 'chat-emoji',
-  props: {
-    type: String,
-    scene: String,
-    to: String
-  },
-  data () {
-    return {
-      currType: 'emoji',
-      currAlbum: 'emoji',
-      activeId: 'emoji'
-    }
-  },
-  computed: {
-    emoji () {
-      return genEmojiList('emoji', emojiObj.emojiList)
-    },
-    pinup () {
-      return genEmojiList('pinup', emojiObj.pinupList)
-    },
-    currEmoji () {
-      if (this.currType === 'emoji') {
-        return this.emoji[this.currAlbum]
-      } else if (this.currType === 'pinup') {
-        return this.pinup[this.currAlbum]
-      }
-      return []
-    }
-  },
-  methods: {
-    selectAlbum (album) {
-      this.currType = album.type
-      this.currAlbum = album.name
-      this.activeId = album.name
-    },
-    selectEmoji (emoji) {
-      if (this.currType === 'emoji') {
-        // 由触发父组件事件，增加表情文案
-        this.$emit('add-emoji', emoji)
-      } else if (this.currType === 'pinup') {
-        if (this.type === 'session') {
-          this.$store.dispatch('sendMsg', {
-            type: 'custom',
-            scene: this.scene,
-            to: this.to,
-            pushContent: '[贴图表情]',
-            content: {
-              type: 3,
-              data: {
-                catalog: this.currAlbum,
-                chartlet: emoji.key
-              }
-            }
-          })
-        } else if (this.type === 'chatroom') {
-          this.$store.dispatch('sendChatroomMsg', {
-            type: 'custom',
-            pushContent: '[贴图表情]',
-            content: {
-              type: 3,
-              data: {
-                catalog: this.currAlbum,
-                chartlet: emoji.key
-              }
-            }
-          })
+      if (list.length > 0) {
+        result[name] = {
+          type,
+          name,
+          list,
+          album: list[0].img
         }
-        this.$emit('hide-emoji')
+      }
+    }
+    return result
+  }
+
+  export default {
+    name: 'chat-emoji',
+    props: {
+      type: String,
+      scene: String,
+      to: String
+    },
+    data () {
+      return {
+        currType: 'emoji',
+        currAlbum: 'emoji',
+        activeId: 'emoji'
+      }
+    },
+    computed: {
+      emoji () {
+        return genEmojiList('emoji', emojiObj.emojiList)
+      },
+      pinup () {
+        return genEmojiList('pinup', emojiObj.pinupList)
+      },
+      currEmoji () {
+        if (this.currType === 'emoji') {
+          return this.emoji[this.currAlbum]
+        } else if (this.currType === 'pinup') {
+          return this.pinup[this.currAlbum]
+        }
+        return []
+      }
+    },
+    methods: {
+      selectAlbum (album) {
+        this.currType = album.type
+        this.currAlbum = album.name
+        this.activeId = album.name
+      },
+      selectEmoji (emoji) {
+        if (this.currType === 'emoji') {
+          // 由触发父组件事件，增加表情文案
+          this.$emit('add-emoji', emoji)
+        } else if (this.currType === 'pinup') {
+          if (this.type === 'session') {
+            this.$store.dispatch('sendMsg', {
+              type: 'custom',
+              scene: this.scene,
+              to: this.to,
+              pushContent: '[贴图表情]',
+              content: {
+                type: 3,
+                data: {
+                  catalog: this.currAlbum,
+                  chartlet: emoji.key
+                }
+              }
+            })
+          } else if (this.type === 'chatroom') {
+            this.$store.dispatch('sendChatroomMsg', {
+              type: 'custom',
+              pushContent: '[贴图表情]',
+              content: {
+                type: 3,
+                data: {
+                  catalog: this.currAlbum,
+                  chartlet: emoji.key
+                }
+              }
+            })
+          }
+          this.$emit('hide-emoji')
+        }
       }
     }
   }
-}
 </script>
 
 <style type="text/css">
@@ -198,7 +198,7 @@ export default {
     width: inherit;
     height: inherit;
   }
-  
+
   .m-chat-emoji .emoji-channel .emoji-album img .active {
     background-color: #f0f0f0;
   }
@@ -211,7 +211,7 @@ export default {
     overflow-y: auto;
     border-radius: 10px 10px 0 0;
   }
-  
+
 
   .emoji-content .cnt {
     box-sizing: border-box;

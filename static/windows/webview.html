@@ -11,14 +11,10 @@
     }
   </style>
 </head>
-<body>
+<body  oncontextmenu="return false">
   <div id="iframe" style="height: 100%;width: 100%;"></div>
 
   <script type="text/javascript">
-    // window.onload = (function () {  
-    //   var iframe = document.getElementById('iframe')
-    // })
-
     // addEventListener support for IE8
     function bindEvent(element, eventName, eventHandler) {
       if (element.addEventListener) {
@@ -30,9 +26,7 @@
 
      // 接收父页面传递来的数据
      bindEvent(window, 'message', function (e) {
-      console.log('iframe接收消息...')
       var iframe = document.getElementById('iframe')
-      console.log(e)
       iframe.innerHTML = e.data.params.showText
     });
     
@@ -40,23 +34,19 @@
     setTimeout(() => {
       var iframe = document.getElementById('iframe')
       let contentHeight = iframe.scrollHeight
-      console.log('iframe发送消息...')
-      console.log(contentHeight)
-      window.parent.postMessage({contentHeight},'*');
-    },20)
-
-   
-
-   
-      // var electron = require('electron')
-      // electron.ipcRenderer.on('executeJavaScript', (evt, arg) => {
-      //   document.getElementById('iframe').innerHTML = arg
-      //   setTimeout(()=>{
-      //     let contentHeight = document.getElementById('iframe').scrollHeight 
-      //     electron.ipcRenderer.sendToHost(contentHeight) //向webview所在页面发送消息
-      //   },100)
-
-      // })
+      window.parent.postMessage({
+        cmd: 'returnHeight',
+        params: {contentHeight}
+      }, '*');
+    }, 20)
+    // var electron = require('electron')
+    // electron.ipcRenderer.on('executeJavaScript', (evt, arg) => {
+    //   document.getElementById('iframe').innerHTML = arg
+    //   setTimeout(()=>{
+    //     let contentHeight = document.getElementById('iframe').scrollHeight 
+    //     electron.ipcRenderer.sendToHost(contentHeight) //向webview所在页面发送消息
+    //   },100)
+    // })
   </script>
 </body>
 </html>

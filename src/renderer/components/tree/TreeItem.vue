@@ -1,202 +1,202 @@
 <template>
-<div>
-  <ul class="t-u-list"  
-  style="{height: 'auto',overflow: 'hidden'}">
-    <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
-      <div 
-        class="t-orgname" 
-        :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'myDept' ? 0 : 1)) * 14 + 'px'}" 
-        @click="toggleStatus(orgnize.id, orgnize, $index)" 
-        @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
-        @mouseleave="mouseleave('orgAddAllId')">
-        <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
-        <span v-else class="t-common"/>
-        <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
-        <transition name="fade"><a v-if="orgnize.id === orgAddAllId && showCheck" class="t-addAll" @click.stop="selectAllMember(orgnize, orgnize.id, $index)">+</a></transition>
-      </div>
-      <div    
-        v-if="getNextOrgnizeObj(orgnize.id)"
-        :class="activeId === orgnize.id ? 't-body active' : 't-body'">
-        <tree-item
-          :noAdd="noAdd"
-          :showTitle="showTitle"
-          :showCheck="showCheck"
-          :orgnizeObj="orgnizeObj"
-          :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
-          :orgLevel="listType === 'myDept' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
-          :orgSelectId="orgSelectId"
-          :orgSelectLevel="orgSelectLevel"
-          :orgSelectHandle="orgSelectHandle"
-          :renderOrgData="renderOrgData"/>
-      </div>
-    </li>
-  </ul>
-  <ul 
-    v-if="userlist"
-    class="t-u-list t-body active" 
-    style="{height: 'auto',overflow: 'hidden'}">
-    <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
-      <div 
-        :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
-        :style="{paddingLeft: (orgLevel + (showTitle ? 2 : 1)) * 14 + 'px', height: '31px'}" 
-        @click="orgHandle(user)">
-        <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
-        <span v-if="showCheck" :class="className(user)"></span>
-        <img :src="user.avatar && (user.avatar !== 'undefined') ? user.avatar : defaultUserIcon"/>
-        <span class="orgname" :title="user.name">{{user.name}}</span>
-      </div>
-    </li>
-  </ul>
-</div>
+  <div>
+    <ul class="t-u-list"
+        style="{height: 'auto',overflow: 'hidden'}">
+      <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
+        <div
+          class="t-orgname"
+          :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'myDept' ? 0 : 1)) * 14 + 'px'}"
+          @click="toggleStatus(orgnize.id, orgnize, $index)"
+          @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
+          @mouseleave="mouseleave('orgAddAllId')">
+          <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
+          <span v-else class="t-common"/>
+          <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
+          <transition name="fade"><a v-if="orgnize.id === orgAddAllId && showCheck" class="t-addAll" @click.stop="selectAllMember(orgnize, orgnize.id, $index)">+</a></transition>
+        </div>
+        <div
+          v-if="getNextOrgnizeObj(orgnize.id)"
+          :class="activeId === orgnize.id ? 't-body active' : 't-body'">
+          <tree-item
+            :noAdd="noAdd"
+            :showTitle="showTitle"
+            :showCheck="showCheck"
+            :orgnizeObj="orgnizeObj"
+            :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
+            :orgLevel="listType === 'myDept' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
+            :orgSelectId="orgSelectId"
+            :orgSelectLevel="orgSelectLevel"
+            :orgSelectHandle="orgSelectHandle"
+            :renderOrgData="renderOrgData"/>
+        </div>
+      </li>
+    </ul>
+    <ul
+      v-if="userlist"
+      class="t-u-list t-body active"
+      style="{height: 'auto',overflow: 'hidden'}">
+      <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
+        <div
+          :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
+          :style="{paddingLeft: (orgLevel + (showTitle ? 2 : 1)) * 14 + 'px', height: '31px'}"
+          @click="orgHandle(user)">
+          <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
+          <span v-if="showCheck" :class="className(user)"></span>
+          <img :src="user.avatar && (user.avatar !== 'undefined') ? user.avatar : defaultUserIcon"/>
+          <span class="orgname" :title="user.name">{{user.name}}</span>
+        </div>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
-import configs from '../../configs/index.js'
-import TreeItem from './TreeItem.vue'
-import Request from '../../utils/request.js'
-export default {
-  name: 'tree-item',
-  components: {TreeItem},
-  props: {
-    showTitle: Boolean,
-    showCheck: Boolean,
-    noAdd: Boolean,
-    orgnizeObj: Object,
-    orgnizeLevelObj: Object,
-    orgLevel: Number,
-    orgSelectId: String,
-    orgSelectLevel: Number,
-    orgSelectHandle: Function,
-    renderOrgData: Function,
-    listType: String // lisType='team'---组织架构；lisType='myDept'---我的部门
-  },
-  data () {
-    return {
-      activeId: -1,
-      orgAddAllId: -1,
-      defaultUserIcon: configs.defaultUserIcon,
-      myDept: this.$store.state.personInfos.companyName, // 获取我的组织
-      myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
-    }
-  },
-  computed: {
-    orgnizelist () {
-      return (this.orgnizeLevelObj && this.orgnizeLevelObj.orgnizelist) || []
+  import configs from '../../configs/index.js'
+  import TreeItem from './TreeItem.vue'
+  import Request from '../../utils/request.js'
+  export default {
+    name: 'tree-item',
+    components: {TreeItem},
+    props: {
+      showTitle: Boolean,
+      showCheck: Boolean,
+      noAdd: Boolean,
+      orgnizeObj: Object,
+      orgnizeLevelObj: Object,
+      orgLevel: Number,
+      orgSelectId: String,
+      orgSelectLevel: Number,
+      orgSelectHandle: Function,
+      renderOrgData: Function,
+      listType: String // lisType='team'---组织架构；lisType='myDept'---我的部门
     },
-    userlist () {
-      return (this.orgnizeLevelObj && this.orgnizeLevelObj.userlist) || []
-    },
-    currentId () {
-      return this.orgnizeLevelObj.currentId
-    },
-    createTeamSelect () {
-      return this.$store.state.createTeamSelect
-    },
-    orgDisabledlist () {
-      return this.$store.state.orgDisabledlist
-    },
-    personInfos () {
-      return this.$store.state.personInfos
-    }
-  },
-  methods: {
-    className (user) {
-      if (this.isDisabled(user.accid)) {
-        return 'disabled common'
-      }
-      if (this.isChecked(user.accid)) {
-        return 'checked common'
-      }
-      return 'check common'
-    },
-    getNextOrgnizeObj (id) {
-      // 获取下一个父节点
-      return this.orgnizeObj[id]
-    },
-    toggleStatus (id, orgnize, index) {
-      if (id === this.activeId) {
-        this.activeId = -1
-        return false
-      }
-      if (this.listType === 'myDept' && id === this.myDeptId) {
-        this.activeId = id
-        return
-      }
-      if (orgnize.hasChild) {
-        // 切换展开、收起状态
-        this.activeId = id
-        let tag = (this.getNextOrgnizeObj(id) && this.getNextOrgnizeObj(id).tag) || 0
-        this.renderOrgData({depId: id, tag, parentId: this.currentId})
+    data () {
+      return {
+        activeId: -1,
+        orgAddAllId: -1,
+        defaultUserIcon: configs.defaultUserIcon,
+        myDept: this.$store.state.personInfos.companyName, // 获取我的组织
+        myDeptId: this.$store.state.personInfos.companyId // 获取我的组织id
       }
     },
-    orgHandle (user) {
-      let params = Object.assign({}, user)
-      params.level = this.currentId
-      if (this.showCheck) {
-        if (!this.isDisabled(user.accid)) {
+    computed: {
+      orgnizelist () {
+        return (this.orgnizeLevelObj && this.orgnizeLevelObj.orgnizelist) || []
+      },
+      userlist () {
+        return (this.orgnizeLevelObj && this.orgnizeLevelObj.userlist) || []
+      },
+      currentId () {
+        return this.orgnizeLevelObj.currentId
+      },
+      createTeamSelect () {
+        return this.$store.state.createTeamSelect
+      },
+      orgDisabledlist () {
+        return this.$store.state.orgDisabledlist
+      },
+      personInfos () {
+        return this.$store.state.personInfos
+      }
+    },
+    methods: {
+      className (user) {
+        if (this.isDisabled(user.accid)) {
+          return 'disabled common'
+        }
+        if (this.isChecked(user.accid)) {
+          return 'checked common'
+        }
+        return 'check common'
+      },
+      getNextOrgnizeObj (id) {
+        // 获取下一个父节点
+        return this.orgnizeObj[id]
+      },
+      toggleStatus (id, orgnize, index) {
+        if (id === this.activeId) {
+          this.activeId = -1
+          return false
+        }
+        if (this.listType === 'myDept' && id === this.myDeptId) {
+          this.activeId = id
+          return
+        }
+        if (orgnize.hasChild) {
+          // 切换展开、收起状态
+          this.activeId = id
+          let tag = (this.getNextOrgnizeObj(id) && this.getNextOrgnizeObj(id).tag) || 0
+          this.renderOrgData({depId: id, tag, parentId: this.currentId})
+        }
+      },
+      orgHandle (user) {
+        let params = Object.assign({}, user)
+        params.level = this.currentId
+        if (this.showCheck) {
+          if (!this.isDisabled(user.accid)) {
+            this.orgSelectHandle(params)
+          }
+        } else {
           this.orgSelectHandle(params)
         }
-      } else {
-        this.orgSelectHandle(params)
-      }
-    },
-    async selectAllMember (orgnize, id, index) {
-      // 选取全部成员
-      let orgnizeObj = this.orgnizeObj[id]
-      if (!orgnizeObj) {
-        try {
-          orgnizeObj = await this.getNextMember(id, 0)
-          orgnizeObj.userlist = orgnizeObj.userList
-        } catch (error) {}
-      }
-      for (let i in orgnizeObj.userlist) {
-        let user = Object.assign({}, orgnizeObj.userlist[i])
-        if (!this.isDisabled(user.accid)) {
-          user.type = 'cover'
-          this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
+      },
+      async selectAllMember (orgnize, id, index) {
+        // 选取全部成员
+        let orgnizeObj = this.orgnizeObj[id]
+        if (!orgnizeObj) {
+          try {
+            orgnizeObj = await this.getNextMember(id, 0)
+            orgnizeObj.userlist = orgnizeObj.userList
+          } catch (error) {}
         }
-      }
-    },
-    getNextMember (depId, tag) {
-      return new Promise((resolve, reject) => {
-        Request.PullDepartment({
-          depId, tag
-        }, this).then(ret => {
-          if (ret) resolve(ret)
-        }).catch((err) => reject(err))
-      })
-    },
-    isDisabled (accid) {
-      for (let i in this.orgDisabledlist) {
-        if (this.orgDisabledlist[i] === accid) {
-          return true
+        for (let i in orgnizeObj.userlist) {
+          let user = Object.assign({}, orgnizeObj.userlist[i])
+          if (!this.isDisabled(user.accid)) {
+            user.type = 'cover'
+            this.$store.commit('upadteCreateTeamSelect', {type: 'update', data: user})
+          }
         }
-      }
-      if (this.personInfos.accid === accid) return true
-      return false
-    },
-    isChecked (accid) {
-      for (let i in this.createTeamSelect) {
-        if (this.createTeamSelect[i].accid === accid) {
-          return true
+      },
+      getNextMember (depId, tag) {
+        return new Promise((resolve, reject) => {
+          Request.PullDepartment({
+            depId, tag
+          }, this).then(ret => {
+            if (ret) resolve(ret)
+          }).catch((err) => reject(err))
+        })
+      },
+      isDisabled (accid) {
+        for (let i in this.orgDisabledlist) {
+          if (this.orgDisabledlist[i] === accid) {
+            return true
+          }
         }
+        if (this.personInfos.accid === accid) return true
+        return false
+      },
+      isChecked (accid) {
+        for (let i in this.createTeamSelect) {
+          if (this.createTeamSelect[i].accid === accid) {
+            return true
+          }
+        }
+        return false
+      },
+      mouseenter (type, id) {
+        if (this.noAdd) return
+        this[type] = id
+      },
+      mouseleave (type) {
+        if (this.noAdd) return
+        this[type] = -1
       }
-      return false
-    },
-    mouseenter (type, id) {
-      if (this.noAdd) return
-      this[type] = id
-    },
-    mouseleave (type) {
-      if (this.noAdd) return
-      this[type] = -1
     }
   }
-}
 </script>
 
 <style scoped>
-  
+
   .t-u-list .t-u-list-item .t-orgname {
     position: relative;
     display: flex;
@@ -229,7 +229,7 @@ export default {
 
   .t-orgname .t-takeup {
     width: 15px;
-    height: 15px; 
+    height: 15px;
     background: url('../../../../static/img/orgnize/takeup.png') no-repeat center center;
     background-size: 7px 9px;
     margin-right: 3.5px;

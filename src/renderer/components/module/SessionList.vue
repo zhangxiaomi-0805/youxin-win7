@@ -39,7 +39,7 @@
             </div>
           </div>
           <div style="margin-right:0.75rem;display:list-item;height: 40px;">
-            <div style="color:#AFB2B1;overflow:hidden;white-space:nowrap;font-size: 12px;">{{session.updateTimeShow}}</div> 
+            <div style="color:#AFB2B1;overflow:hidden;white-space:nowrap;font-size: 12px;">{{session.updateTimeShow}}</div>
             <div v-if="isMute(session)" class="mute-contain">
               <span class="mute"></span>
               <span v-if="session.unread > 0" class="nomsg"></span>
@@ -63,6 +63,7 @@ import pageUtil from '../../utils/page'
 import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
 import Request from '../../utils/request'
+// import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'session-list',
   directives: {clickoutside},
@@ -341,8 +342,14 @@ export default {
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
       // 通知主进程
-      const ipcRenderer = require('electron').ipcRenderer
-      ipcRenderer.send('toggleSession', {appCode: session.id})
+      if (config.environment === 'web') { // web分支
+        // NativeLogic.native.sendEvent({ appCode: session.id }, 'toggleSession', () =>{
+        //   console.log('111')
+        // })
+      } else { // electron分支
+        const ipcRenderer = require('electron').ipcRenderer
+        ipcRenderer.send('toggleSession', {appCode: session.id})
+      }
     },
     enterMyChat () {
       // 我的手机页面
@@ -359,6 +366,7 @@ export default {
       let members = []
       let userType = 'normal'
       if (e.button === 2) {
+        e.preventDefault()
         let type = 'p2p-istop'
         if (session.scene === 'team') {
           if (session.localCustom && session.localCustom.topTime) {
@@ -562,15 +570,15 @@ export default {
 </script>
 
 <style>
-/*时间提示*/
-.g-window .u-session-time {
-  display: inline-block;
-  position: relative;
-  right: 1.8rem;
-  top: 1.1rem;
-}
-/* 未读数标签 */
-.g-window .u-unread {
+  /*时间提示*/
+  .g-window .u-session-time {
+    display: inline-block;
+    position: relative;
+    right: 1.8rem;
+    top: 1.1rem;
+  }
+  /* 未读数标签 */
+  .g-window .u-unread {
     display: inline-block;
     float: right;
     margin: 2px auto 0;
@@ -583,194 +591,194 @@ export default {
     color: #fff;
     text-align: center;
     border-radius: 8px;
-}
-.u-tips {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 36px;
-}
+  }
+  .u-tips {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 36px;
+  }
 
-.u-tips span{
-  font-size: 11px;
-  color: #626369;
-}
+  .u-tips span{
+    font-size: 11px;
+    color: #626369;
+  }
 
-.u-tips.neterr {
-  justify-content: center;
-  background: #FFDFE0;
-}
+  .u-tips.neterr {
+    justify-content: center;
+    background: #FFDFE0;
+  }
 
-.u-tips.neterr i{
-  margin-right: 5px;
-  width: 16px;
-  height: 16px;
-  background-image: url(../../../../static/img/nav/main-tab-neterr.png);
-  background-size: 100%;
-}
+  .u-tips.neterr i{
+    margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    background-image: url(../../../../static/img/nav/main-tab-neterr.png);
+    background-size: 100%;
+  }
 
-.u-tips.mobile-online {
-  justify-content: flex-start;
-  background: #f7f7f7;
-}
+  .u-tips.mobile-online {
+    justify-content: flex-start;
+    background: #f7f7f7;
+  }
 
-.u-tips.mobile-online i{
-  margin-left: 12px;
-  width: 14px;
-  height: 20px;
-  background-image: url(../../../../static/img/nav/mobile-online.png);
-  background-size: 100%;
-}
+  .u-tips.mobile-online i{
+    margin-left: 12px;
+    width: 14px;
+    height: 20px;
+    background-image: url(../../../../static/img/nav/mobile-online.png);
+    background-size: 100%;
+  }
 
-.u-tips.mobile-online span {
-  margin-left: 13px;
-}
-.g-window .nomsg {
-  display: inline-block;
-  float: right;
-  margin: 2px auto 0;
-  padding: 0 4px;
-  min-width: 7px;
-  height: 15px;
-  line-height: 15px;
-  font-size: 12px;
-  background-color: #F43530;
-  color: #fff;
-  text-align: center;
-  border-radius: 8px;
-  width: 10px;
-  height: 10px;
-  padding: 0;
-  margin: 0;
-  margin-left: 5px;
-}
+  .u-tips.mobile-online span {
+    margin-left: 13px;
+  }
+  .g-window .nomsg {
+    display: inline-block;
+    float: right;
+    margin: 2px auto 0;
+    padding: 0 4px;
+    min-width: 7px;
+    height: 15px;
+    line-height: 15px;
+    font-size: 12px;
+    background-color: #F43530;
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    margin: 0;
+    margin-left: 5px;
+  }
 
-.g-window .mute-contain {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-top: 5px;
-}
-.g-window .mute-contain .mute {
-  display: inline-block;
-  width: 12.5px;
-  height: 12.5px;
-  background: url('../../../../static/img/setting/mute.png') no-repeat center center;
-  background-size: 100% 100%;
-}
+  .g-window .mute-contain {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: 5px;
+  }
+  .g-window .mute-contain .mute {
+    display: inline-block;
+    width: 12.5px;
+    height: 12.5px;
+    background: url('../../../../static/img/setting/mute.png') no-repeat center center;
+    background-size: 100% 100%;
+  }
 
-.m-main-list > .u-list {
-  position: absolute;
-  top: 56px;
-  bottom: 0;
-}
+  .m-main-list > .u-list {
+    position: absolute;
+    top: 56px;
+    bottom: 0;
+  }
 
-.m-main-list .border {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 2px;
-  height: 100%;
-  cursor: w-resize;
-}
+  .m-main-list .border {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    cursor: w-resize;
+  }
 
-.u-status-cover {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 10;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
-}
+  .u-status-cover {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+  }
 
-.u-list-item-isTop {
-  position: relative;
-}
-.u-list-item-isTop:after {
-  position: absolute;
-  content: '';
-  left: -8px;
-  top: -8px;
-  width: 16px;
-  height: 16px;
-  background: rgba(4,154,255,1);
-  transform: rotate(45deg);
-}
-.u-search{
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 56px;
-}
-.u-search .u-cont {
-  position: relative;
-  width: 90%;
-  height: 28px;
-}
-.u-search input {
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
-  background-size: 12px 12px;
-  border-radius: 2px;
-  border: none;
-  font-size: 12px;
-  color: #333;
-  padding: 0 26px;
-  border: 1px solid transparent;
-  transition: border .1s linear;
-}
-.u-search input.active {
-  border: 1px solid rgba(4,154,255,1);
-}
-.u-search .clear {
-  position: absolute;
-  right: 8px;
-  top: 6.3px;
-  display: block;
-  width: 14px;
-  height: 14px;
-  background-image: url('../../../../static/img/setting/delete.png');
-  background-size: 100% 100%;
-  cursor: pointer;
-}
-input::-webkit-input-placeholder {
-  color: #7D807E;
-}
-.u-neterr {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 36px;
-  background: #FFDFE0;
-}
-.u-neterr i{
-  margin-right: 5px;
-  width: 16px;
-  height: 16px;
-  background-image: url(../../../../static/img/nav/main-tab-neterr.png);
-  background-size: 100%;
-}
-.u-neterr span{
-  font-size: 11px;
-  color: #626369;
-}
+  .u-list-item-isTop {
+    position: relative;
+  }
+  .u-list-item-isTop:after {
+    position: absolute;
+    content: '';
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    background: rgba(4,154,255,1);
+    transform: rotate(45deg);
+  }
+  .u-search{
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 56px;
+  }
+  .u-search .u-cont {
+    position: relative;
+    width: 90%;
+    height: 28px;
+  }
+  .u-search input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: #F0F0F0 url(../../../../static/img/nav/main-tab-search.png) 8px center no-repeat;
+    background-size: 12px 12px;
+    border-radius: 2px;
+    border: none;
+    font-size: 12px;
+    color: #333;
+    padding: 0 26px;
+    border: 1px solid transparent;
+    transition: border .1s linear;
+  }
+  .u-search input.active {
+    border: 1px solid rgba(4,154,255,1);
+  }
+  .u-search .clear {
+    position: absolute;
+    right: 8px;
+    top: 6.3px;
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-image: url('../../../../static/img/setting/delete.png');
+    background-size: 100% 100%;
+    cursor: pointer;
+  }
+  input::-webkit-input-placeholder {
+    color: #7D807E;
+  }
+  .u-neterr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 36px;
+    background: #FFDFE0;
+  }
+  .u-neterr i{
+    margin-right: 5px;
+    width: 16px;
+    height: 16px;
+    background-image: url(../../../../static/img/nav/main-tab-neterr.png);
+    background-size: 100%;
+  }
+  .u-neterr span{
+    font-size: 11px;
+    color: #626369;
+  }
 
-.u-nomsg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 56px;
-  bottom: 0;
-  width: 100%;
-  font-size: 14px;
-  color: #C4C4C4;
-}
+  .u-nomsg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 56px;
+    bottom: 0;
+    width: 100%;
+    font-size: 14px;
+    color: #C4C4C4;
+  }
 </style>

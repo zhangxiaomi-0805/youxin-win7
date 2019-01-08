@@ -125,10 +125,10 @@
   }
 
   .p-chat-list .u-icon {
-      width: 1.4rem;
-      height: 1.6rem;
-      margin-right: 0.2rem;
-      vertical-align: bottom;
+    width: 1.4rem;
+    height: 1.6rem;
+    margin-right: 0.2rem;
+    vertical-align: bottom;
   }
 
   .p-chat-list .msg-attri-tip{

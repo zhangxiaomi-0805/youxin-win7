@@ -1,101 +1,102 @@
 <template>
-<!-- 群二维码 -->
-<transition name="fade">
-  <div class="m-checkuser-con b-more" ref="teamCode" v-if="showTeamCode" :style="{left, top}" v-clickoutside="closeModal">
-    <div class="m-modify b-more">
-      <div class="user-info b-more"><img class="b-more" :src="teamInfo.avatar || defaultUserIcon"></div>
-      <div class="nick b-more" :title="teamInfo.nick || teamInfo.name">{{teamInfo.nick || teamInfo.name}}</div>
+  <!-- 群二维码 -->
+  <transition name="fade">
+    <div class="m-checkuser-con b-more" ref="teamCode" v-if="showTeamCode" :style="{left, top}" v-clickoutside="closeModal">
+      <div class="m-modify b-more">
+        <div class="user-info b-more"><img class="b-more" :src="teamInfo.avatar || defaultUserIcon"></div>
+        <div class="nick b-more" :title="teamInfo.nick || teamInfo.name">{{teamInfo.nick || teamInfo.name}}</div>
+      </div>
+      <div class="t-code b-more" v-if="teamQrUrl">
+        <img class="b-more" @mousedown.stop="showBtn($event)" :src="teamQrUrl"><div class="b-more">优信用户扫描二维码，即可加入群</div>
+        <div class="u-editor-paste-btn b-more" v-if="showPasteBtn" :style="{left: pasteLeft + 'px', top: pasteTop + 'px'}" @click="saveAs">另存为</div>
+      </div>
     </div>
-    <div class="t-code b-more" v-if="teamQrUrl">
-      <img class="b-more" @mousedown.stop="showBtn($event)" :src="teamQrUrl"><div class="b-more">优信用户扫描二维码，即可加入群</div>
-      <div class="u-editor-paste-btn b-more" v-if="showPasteBtn" :style="{left: pasteLeft + 'px', top: pasteTop + 'px'}" @click="saveAs">另存为</div>
-    </div>
-  </div>
-</transition>
+  </transition>
 </template>
 
 <script>
-import clickoutside from '../../utils/clickoutside.js'
-import Request from '../../utils/request.js'
-export default {
-  name: 'team-code',
-  directives: {clickoutside},
-  mounted () {
-    this.eventBus.$on('teamCode', (data) => {
-      let {teamId, event} = data
-      this.teamId = teamId
-      this.left = event.clientX - 320 + 'px'
-      this.top = event.clientY + 'px'
-      this.showTeamCode = true
-    })
-  },
-  updated () {
-    window.document.body.addEventListener('click', () => {
-      this.showPasteBtn = false
-    })
-  },
-  data () {
-    return {
-      showTeamCode: false,
-      teamId: '',
-      left: '38%',
-      top: '20%',
-      showPasteBtn: false,
-      pasteLeft: '',
-      pasteTop: ''
-    }
-  },
-  computed: {
-    teamInfo () {
-      let teamInfo = this.$store.state.teamlist.find(item => {
-        return item.teamId === this.teamId
+  import clickoutside from '../../utils/clickoutside.js'
+  import Request from '../../utils/request.js'
+  export default {
+    name: 'team-code',
+    directives: {clickoutside},
+    mounted () {
+      this.eventBus.$on('teamCode', (data) => {
+        let {teamId, event} = data
+        this.teamId = teamId
+        this.left = event.clientX - 320 + 'px'
+        this.top = event.clientY + 'px'
+        this.showTeamCode = true
       })
-      return teamInfo || {}
     },
-    teamQrUrl () {
-      if (this.teamInfo) {
-        let custom = this.teamInfo.custom
-        if (custom) return JSON.parse(custom).teamQrUrl
+    updated () {
+      window.document.body.addEventListener('click', () => {
+        this.showPasteBtn = false
+      })
+    },
+    data () {
+      return {
+        showTeamCode: false,
+        teamId: '',
+        left: '38%',
+        top: '20%',
+        showPasteBtn: false,
+        pasteLeft: '',
+        pasteTop: ''
       }
-      this.generateQrCode(this.teamId)
-      return ''
-    }
-  },
-  methods: {
-    closeModal (el, e) {
-      let className = e.target.className
-      if (className.indexOf('noevent') > -1) return
-      this.showTeamCode = false
     },
-    generateQrCode (teamId) {
-      // 获取群二维码
-      Request.GenerateQrCode({qrType: 1, teamId}).then(res => {
-        if (res) {
-          this.$store.dispatch('updateTeam', {
-            teamInfo: {
-              teamId,
-              custom: JSON.stringify({ teamQrUrl: res.url })
-            }
-          })
+    computed: {
+      teamInfo () {
+        let teamInfo = this.$store.state.teamlist.find(item => {
+          return item.teamId === this.teamId
+        })
+        return teamInfo || {}
+      },
+      teamQrUrl () {
+        if (this.teamInfo) {
+          let custom = this.teamInfo.custom
+          if (custom) return JSON.parse(custom).teamQrUrl
         }
-      }).catch(() => {})
-    },
-    showBtn (e) {
-      if (e.button === 2) {
-        this.showPasteBtn = true
-        this.pasteLeft = e.offsetX
-        this.pasteTop = e.offsetY
+        this.generateQrCode(this.teamId)
+        return ''
       }
     },
-    saveAs () {
-      this.$store.dispatch('downloadImg', {url: this.teamQrUrl, name: this.teamQrUrl + '.jpg'})
+    methods: {
+      closeModal (el, e) {
+        let className = e.target.className
+        if (className.indexOf('noevent') > -1) return
+        this.showTeamCode = false
+      },
+      generateQrCode (teamId) {
+        // 获取群二维码
+        Request.GenerateQrCode({qrType: 1, teamId}).then(res => {
+          if (res) {
+            this.$store.dispatch('updateTeam', {
+              teamInfo: {
+                teamId,
+                custom: JSON.stringify({ teamQrUrl: res.url })
+              }
+            })
+          }
+        }).catch(() => {})
+      },
+      showBtn (e) {
+        if (e.button === 2) {
+          e.preventDefault()
+          this.showPasteBtn = true
+          this.pasteLeft = e.offsetX
+          this.pasteTop = e.offsetY
+        }
+      },
+      saveAs () {
+        this.$store.dispatch('downloadImg', {url: this.teamQrUrl, name: this.teamQrUrl + '.jpg'})
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-	.m-checkuser-con {
+  .m-checkuser-con {
     box-sizing: border-box;
     position: absolute;
     left: 30%;

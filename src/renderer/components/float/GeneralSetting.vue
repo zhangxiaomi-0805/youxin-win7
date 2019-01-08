@@ -7,7 +7,7 @@
       <div class="title"><span>设置</span><div class="u-sysbtn close"><a class="btn-close" @click="closeModal()"/></div></div>
       <div class="set-act">
         <div class="set-act-lf">
-          <div 
+          <div
             :class="`set-act-task${curPanelKey === item.key ? ' active' : ''}`"
             v-for="item in menuList"
             :key="item.key"
@@ -35,7 +35,7 @@
               <a @click="eventBus.$emit('logout')">退出登录</a>
             </div>
           </div>
-          <div 
+          <div
             v-if="curPanelKey === 2"
             class="set-sys"
           >
@@ -75,7 +75,7 @@
             class="set-update"
             v-if="curPanelKey === 3"
           >
-            <div 
+            <div
               class="update-img"
             >
               <img style="width: 100%;height: 100%;" :src="logo">
@@ -100,7 +100,7 @@
                 :key="index"
                 style="display: flex;align-items: center;margin-bottom: 10px;width: 100%;height: 40px;"
               >
-                <i 
+                <i
                   :class="choseSessionList.indexOf(item.id) > -1 ? 'check z-sel' : 'check'"
                   @click="choseSession(item.id)"
                 />
@@ -155,7 +155,7 @@ export default {
       phone: '',
       email: '',
       version: '',
-      logo: './static/img/logo.png',
+      logo: '../../../static/img/logo.png',
       menuList: [
         {
           title: '账号与安全',

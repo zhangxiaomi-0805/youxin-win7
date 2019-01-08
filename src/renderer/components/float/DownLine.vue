@@ -28,8 +28,8 @@
 <script>
 import Request from '../../utils/request.js'
 import drag from '../../utils/drag.js'
-const electron = require('electron')
-const ipcRenderer = electron.ipcRenderer
+import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'down-line',
   data () {
@@ -69,25 +69,25 @@ export default {
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
           this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
-          ipcRenderer.send('relaunch-app')
+          if (config.environment === 'web') { // web分支
+            // 先关闭所有子窗口，再重启主窗口
+            NativeLogic.native.setWinStatus('aplWindow', 3) // 类型（1-最小化，2-最大化，3-关闭，4-重启，5-隐藏，6-显示）
+            NativeLogic.native.setWinStatus('main', 4)
+          } else { // electron分支
+            let { ipcRenderer } = require('electron')
+            ipcRenderer.send('relaunch-app')
+          }
         }).catch(() => {})
     },
     confirmManage () {
-      let loginInfo = JSON.parse(localStorage.getItem('LOGININFO'))
-      Request.LoginAuth({
-        account: loginInfo.account,
-        password: loginInfo.password
-      }, this).then(ret => {
-        localStorage.setItem('sessionToken', ret.token)
-        this.$store.dispatch('connect', {
-          force: true,
-          done: (error) => {
-            if (error !== 200) {
-              return
-            }
-            this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
+      this.$store.dispatch('connect', {
+        force: true,
+        done: (error) => {
+          if (error !== 200) {
+            return
           }
-        })
+          this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
+        }
       })
     }
   }

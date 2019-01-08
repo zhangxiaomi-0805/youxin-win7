@@ -1,65 +1,65 @@
 <template>
-<!-- 组织架构 -->
-<div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <div class="u-search searchevent">
-    <div class="u-cont">
-      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
-      <span v-if="showSearch" class="clear" @click="clearStatus"/>
+  <!-- 组织架构 -->
+  <div class="m-main-list" id="resize-side-lf" style="width:270px;">
+    <div class="u-search searchevent">
+      <div class="u-cont">
+        <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+        <span v-if="showSearch" class="clear" @click="clearStatus"/>
+      </div>
     </div>
-  </div>
-  <search v-if="showSearch" type="orgnize" :value="searchValue" :clearStatus="clearStatus"/>
-  <div class="t-title-con">
-    <div class="t-title">
-      <a :class="listType === 'team' ? 't-title-item t-title-team active' : 't-title-item t-title-team'" @click="toggleList('team')">组织架构</a>
-      <a :class="listType === 'myDept' ? 't-title-item t-title-myDept active' : 't-title-item t-title-myDept'" @click="toggleList('myDept')">我的部门</a>
+    <search v-if="showSearch" type="orgnize" :value="searchValue" :clearStatus="clearStatus"/>
+    <div class="t-title-con">
+      <div class="t-title">
+        <a :class="listType === 'team' ? 't-title-item t-title-team active' : 't-title-item t-title-team'" @click="toggleList('team')">组织架构</a>
+        <a :class="listType === 'myDept' ? 't-title-item t-title-myDept active' : 't-title-item t-title-myDept'" @click="toggleList('myDept')">我的部门</a>
+      </div>
     </div>
+    <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
+      <tree v-show="listType === 'team'" :callBack="callBack" listType = 'team'/>
+      <tree v-show="listType === 'myDept'" :callBack="callBack" listType = 'myDept'/>
+    </div>
+    <div class="border" id="resize-we"></div>
   </div>
-  <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
-    <tree v-show="listType === 'team'" :callBack="callBack" listType = 'team'/>
-    <tree v-show="listType === 'myDept'" :callBack="callBack" listType = 'myDept'/>
-  </div>
-  <div class="border" id="resize-we"></div>
-</div>
 </template>
 
 <script>
-import Tree from '../tree/Tree.vue'
-import Search from '../search/Search.vue'
-import clickoutside from '../../utils/clickoutside.js'
-export default {
-  name: 'orgnize-list',
-  directives: {clickoutside},
-  components: {Tree, Search},
-  props: {
-    callBack: Function
-  },
-  data () {
-    return {
-      scrollTop: 0,
-      showSearch: false,
-      searchValue: '',
-      listType: 'team'
-    }
-  },
-  activated () {
-    // 重置滚动条位置、重置路由
-    this.$refs.contactCon.scrollTop = this.scrollTop
-  },
-  methods: {
-    toggleList (value) {
-      if (this.listType === value) return
-      this.listType = value
+  import Tree from '../tree/Tree.vue'
+  import Search from '../search/Search.vue'
+  import clickoutside from '../../utils/clickoutside.js'
+  export default {
+    name: 'orgnize-list',
+    directives: {clickoutside},
+    components: {Tree, Search},
+    props: {
+      callBack: Function
     },
-    clearStatus (el, e) {
-      if (e) {
-        let className = e.target.className
-        if (className.indexOf('searchevent') > -1) return
+    data () {
+      return {
+        scrollTop: 0,
+        showSearch: false,
+        searchValue: '',
+        listType: 'team'
       }
-      this.showSearch = false
-      this.searchValue = ''
+    },
+    activated () {
+      // 重置滚动条位置、重置路由
+      this.$refs.contactCon.scrollTop = this.scrollTop
+    },
+    methods: {
+      toggleList (value) {
+        if (this.listType === value) return
+        this.listType = value
+      },
+      clearStatus (el, e) {
+        if (e) {
+          let className = e.target.className
+          if (className.indexOf('searchevent') > -1) return
+        }
+        this.showSearch = false
+        this.searchValue = ''
+      }
     }
   }
-}
 </script>
 
 <style scoped>

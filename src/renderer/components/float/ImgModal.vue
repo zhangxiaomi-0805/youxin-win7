@@ -9,20 +9,20 @@
             <a class="btn-close" @click="onCloseModal"/>
           </div>
       </div>
-      <div 
-        class="g-imgMd-body" 
-        @mousewheel="onChangeImgSize('mw', $event)" 
-        @mousedown="onDragImg('start', $event)" 
-        @mouseup="onDragImg('stop', $event)" 
+      <div
+        class="g-imgMd-body"
+        @mousewheel="onChangeImgSize('mw', $event)"
+        @mousedown="onDragImg('start', $event)"
+        @mouseup="onDragImg('stop', $event)"
         @mousemove="onDragImg('move', $event)"
-        @mouseout="onDragImg('stop', $event)" 
-        ref="imgMdBodyDom" 
+        @mouseout="onDragImg('stop', $event)"
+        ref="imgMdBodyDom"
       >
-        <img 
+        <img
           :src="curImg"
-          alt="" 
-          ref="curImgDom" 
-          :style="{maxWidth: maxWidth + '%', maxHeight:  maxHeight +'%', width, height, top: imgTop + 'px', left: imgLeft + 'px', transform: `translate(-50%, -50%) rotate(${imgRotate}deg)`, cursor: canDrag ? 'pointer' : 'default', transition }" 
+          alt=""
+          ref="curImgDom"
+          :style="{maxWidth: maxWidth + '%', maxHeight:  maxHeight +'%', width, height, top: imgTop + 'px', left: imgLeft + 'px', transform: `translate(-50%, -50%) rotate(${imgRotate}deg)`, cursor: canDrag ? 'pointer' : 'default', transition }"
         />
         <div :class="!isFirstImg ? 'u-imgMd-btn lbtn' : 'u-imgMd-btn lbtn z-fir'" @click="onChangeImg('left')"></div>
         <div :class="!isLastImg ? 'u-imgMd-btn rbtn' : 'u-imgMd-btn rbtn z-lt'" @click="onChangeImg('right')"></div>
@@ -134,7 +134,7 @@ export default {
         if (this.canManage) {
           return this.imgList[this.currentIndex].file.url.split('?')[0]
         } else {
-          return './static/img/setting/loading-b.gif'
+          // return '../../../static/img/setting/loading-b.gif'
         }
       } else {
         return ''
@@ -341,13 +341,13 @@ export default {
 </script>
 
 <style scoped>
-.u-caption{
-  -webkit-app-region: no-drag;
-  height: 29px;
-  overflow: hidden;
-  background: #fff;
-}
-.m-imgMd {
+  .u-caption{
+    -webkit-app-region: no-drag;
+    height: 29px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .m-imgMd {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -361,8 +361,8 @@ export default {
     border-radius: 4px;
     border: 1px solid #ccc;
     border-bottom: none;
-}
-.g-imgMd-body{
+  }
+  .g-imgMd-body{
     position: relative;
     z-index: 110;
     overflow: hidden;
@@ -370,11 +370,11 @@ export default {
     width: 100%;
     background: #fff;
     margin-top: 29px;
-}
-.g-imgMd-body img{
-  position: absolute;
-}
-.g-imgMd-foot{
+  }
+  .g-imgMd-body img{
+    position: absolute;
+  }
+  .g-imgMd-foot{
     position: absolute;
     bottom: 0;
     left: 50%;
@@ -389,117 +389,118 @@ export default {
     background: rgba(0,0,0,0.60);
     border-radius: 4px 4px 0 0;
     opacity: 0;
-}
-.g-imgMd-body:hover .g-imgMd-foot{
-  opacity: 1;
-}
-.g-imgMd-foot .foot-menu{
+  }
+  .g-imgMd-body:hover .g-imgMd-foot{
+    opacity: 1;
+  }
+  .g-imgMd-foot .foot-menu{
     display: flex;
     justify-content: space-between;
     width: 10rem;
     height: 1.5rem;
-}
-.g-imgMd-foot .foot-menu .item{
+  }
+  .g-imgMd-foot .foot-menu .item{
     width: 20px;
     height: 20px;
     cursor: pointer;
     transition: all .2s linear;
-}
-.g-imgMd-foot .foot-menu .item-1{
+  }
+  .g-imgMd-foot .foot-menu .item-1{
     background: url(../../../../static/img/imgModal/imgModal-icon1.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-1:hover{
+  }
+  .g-imgMd-foot .foot-menu .item-1:hover{
     background: url(../../../../static/img/imgModal/imgModal-icon1-h.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-1:active{
+  }
+  .g-imgMd-foot .foot-menu .item-1:active{
     background: url(../../../../static/img/imgModal/imgModal-icon1-p.png) no-repeat center center;
     background-size: 100% 100%;
-}
+  }
 
-.g-imgMd-foot .foot-menu .item-2{
+  .g-imgMd-foot .foot-menu .item-2{
     background: url(../../../../static/img/imgModal/imgModal-icon2.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-2:hover{
+  }
+  .g-imgMd-foot .foot-menu .item-2:hover{
     background: url(../../../../static/img/imgModal/imgModal-icon2-h.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-2:active{
+  }
+  .g-imgMd-foot .foot-menu .item-2:active{
     background: url(../../../../static/img/imgModal/imgModal-icon2-p.png) no-repeat center center;
     background-size: 100% 100%;
-}
+  }
 
-.g-imgMd-foot .foot-menu .item-3{
+  .g-imgMd-foot .foot-menu .item-3{
     background: url(../../../../static/img/imgModal/imgModal-icon3.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-3:hover{
+  }
+  .g-imgMd-foot .foot-menu .item-3:hover{
     background: url(../../../../static/img/imgModal/imgModal-icon3-h.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-3:active{
+  }
+  .g-imgMd-foot .foot-menu .item-3:active{
     background: url(../../../../static/img/imgModal/imgModal-icon3-p.png) no-repeat center center;
     background-size: 100% 100%;
-}
+  }
 
-.g-imgMd-foot .foot-menu .item-4{
+  .g-imgMd-foot .foot-menu .item-4{
     background: url(../../../../static/img/imgModal/imgModal-icon4.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-4:hover{
+  }
+  .g-imgMd-foot .foot-menu .item-4:hover{
     background: url(../../../../static/img/imgModal/imgModal-icon4-h.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.g-imgMd-foot .foot-menu .item-4:active{
+  }
+  .g-imgMd-foot .foot-menu .item-4:active{
     background: url(../../../../static/img/imgModal/imgModal-icon4-p.png) no-repeat center center;
     background-size: 100% 100%;
-}
-.u-imgMd-btn{
-  position: absolute;
-  top: 50%;
-  margin-top: -25px;
-  z-index: 80;
-  transition: all .3s;
-  cursor: pointer;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-size: 100%;
-  opacity: 0;
-  transition: all .2s linear;
-}
-.g-imgMd-body:hover .u-imgMd-btn{
-  opacity: 1;
-}
+  }
+  .u-imgMd-btn{
+    position: absolute;
+    top: 50%;
+    margin-top: -25px;
+    z-index: 80;
+    transition: all .3s;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-size: 100%;
+    opacity: 0;
+    transition: all .2s linear;
+  }
+  .g-imgMd-body:hover .u-imgMd-btn{
+    opacity: 1;
+  }
 
-.u-imgMd-btn.lbtn{
-  left: 20px;
-  background-image: url(../../../../static/img/imgModal/imgModal-lbtn.png)
-}
-.u-imgMd-btn.lbtn:hover{
-  background-image: url(../../../../static/img/imgModal/imgModal-lbtn-h.png)
-}
-.u-imgMd-btn.lbtn:active{
-  background-image: url(../../../../static/img/imgModal/imgModal-lbtn-p.png)
-}
+  .u-imgMd-btn.lbtn{
+    left: 20px;
+    background-image: url(../../../../static/img/imgModal/imgModal-lbtn.png)
+  }
+  .u-imgMd-btn.lbtn:hover{
+    background-image: url(../../../../static/img/imgModal/imgModal-lbtn-h.png)
+  }
+  .u-imgMd-btn.lbtn:active{
+    background-image: url(../../../../static/img/imgModal/imgModal-lbtn-p.png)
+  }
 
-.u-imgMd-btn.rbtn{
-  right: 20px;
-  background-image: url(../../../../static/img/imgModal/imgModal-rbtn.png)
-}
-.u-imgMd-btn.rbtn:hover{
-  background-image: url(../../../../static/img/imgModal/imgModal-rbtn-h.png)
-}
-.u-imgMd-btn.rbtn:active{
-  background-image: url(../../../../static/img/imgModal/imgModal-rbtn-p.png)
-}
-.u-imgMd-btn.lbtn.z-fir{
-  background-image: url(../../../../static/img/imgModal/imgModal-lbtn-s.png)
-}
-.u-imgMd-btn.rbtn.z-lt{
-  background-image: url(../../../../static/img/imgModal/imgModal-rbtn-s.png)
-}
+  .u-imgMd-btn.rbtn{
+    right: 20px;
+    background-image: url(../../../../static/img/imgModal/imgModal-rbtn.png)
+  }
+  .u-imgMd-btn.rbtn:hover{
+    background-image: url(../../../../static/img/imgModal/imgModal-rbtn-h.png)
+  }
+  .u-imgMd-btn.rbtn:active{
+    background-image: url(../../../../static/img/imgModal/imgModal-rbtn-p.png)
+  }
+  .u-imgMd-btn.lbtn.z-fir{
+    background-image: url(../../../../static/img/imgModal/imgModal-lbtn-s.png)
+  }
+  .u-imgMd-btn.rbtn.z-lt{
+    background-image: url(../../../../static/img/imgModal/imgModal-rbtn-s.png)
+  }
+
 
 </style>

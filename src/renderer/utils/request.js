@@ -3,7 +3,7 @@
  */
 import store from '../store'
 import Fetch from './fetch'
-import { remote } from 'electron'
+// import { remote } from 'electron'
 
 function LoginAuth (params, $this) {
   /*
@@ -233,7 +233,7 @@ function AppVersions () {
    * @param versionNum  当前系统版本号
    */
   return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: remote.getGlobal('APPVERSION')}).then(res => resolve(res)).catch((err) => reject(err))
+    // Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: remote.getGlobal('APPVERSION')}).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 
