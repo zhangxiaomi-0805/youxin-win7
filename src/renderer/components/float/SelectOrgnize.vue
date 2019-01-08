@@ -164,7 +164,8 @@ export default {
         return
       }
       if (this.type === 2 || this.type === 4) {
-        if (this.chooselist.length > 199) {
+        let limit = this.type === 2 ? 199 : 200
+        if (this.chooselist.length > limit) {
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
@@ -198,10 +199,14 @@ export default {
               // 创建群数量达到限制
               this.eventBus.$emit('forwordFail', {type: 2})
             } else if (error.message) {
+              let toast = '群'
+              if (this.type === 2 || this.type === 4) {
+                toast = '讨论组'
+              }
               this.$store.commit('toastConfig', {
                 show: true,
                 type: 'fail',
-                toastText: '您创建的群人数超过最大限制。'
+                toastText: `您创建的${toast}人数超过最大限制。`
               })
             }
           }
