@@ -14,9 +14,9 @@
         <div style="padding:15px 30px">
           <div class="m-modal-header">
             <div class="user-info"><img :src="teamInfo.avatar"></div>
-            <div style="padding-left: 20px">
+            <div style="padding-left: 20px; width: 100%">
               <div class="nick">{{teamInfo.name}}</div>
-              <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum + '人'}}</div>
+              <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{(teamInfo.memberNum ? teamInfo.memberNum : 0) + '人'}}</div>
             </div>
           </div>
 
@@ -35,6 +35,7 @@
 <script>
   import drag from '../../utils/drag.js'
   import clickoutside from '../../utils/clickoutside.js'
+  import config from '../../configs'
   export default {
     name: 'group-invite',
     directives: {clickoutside},
@@ -68,6 +69,9 @@
       },
       async getTeamInfoFn (teamId) {
         this.teamInfo = await this.getTeamInfo(teamId)
+        if (this.teamInfo && !this.teamInfo.avatar) {
+          this.teamInfo.avatar = config.defaultGroupIcon
+        }
       },
       getTeamInfo (teamId) {
         // 获取群信息
@@ -151,6 +155,7 @@
     top: 0;
   }
   .m-modal-header {
+    width: 100%;
     position: relative;
     display: flex;
     flex-direction: row;
@@ -165,7 +170,7 @@
     height: 50px
   }
   .nick {
-    width: 100%;
+    width: 78%;
     font-size: 18px;
     color: #000;
     overflow:hidden;
