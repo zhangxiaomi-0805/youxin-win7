@@ -42,7 +42,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
         }
         commit('connectStatus', { networkStatus: 200 })
         if (config.environment === 'web') { // web分支
-          let AppDirectory = window.location.pathname // 應用所在目錄
+          let AppDirectory = window.location.pathname.slice(1) // 應用所在目錄
           if (AppDirectory.indexOf('dist') > -1) {
             let urlArr = AppDirectory.split('dist')
             AppDirectory = urlArr[0]
