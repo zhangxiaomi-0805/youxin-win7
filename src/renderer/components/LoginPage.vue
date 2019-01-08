@@ -400,7 +400,7 @@
                 }
                 this.$store.commit('updateLoginInfo', loginInfo)
                 if (config.environment === 'web') { // web分支
-                  NativeLogic.native.setBounds(922, 645) // 設置窗口大小
+                  NativeLogic.native.setBounds(config.mainWinWidth, config.mainWinHeight) // 設置窗口大小:922 645
                   let AppDirectory = window.location.pathname.slice(1) // 應用所在目錄
                   if (AppDirectory.indexOf('dist') > -1) {
                     let urlArr = AppDirectory.split('dist')

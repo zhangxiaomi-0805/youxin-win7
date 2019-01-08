@@ -26,7 +26,7 @@
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
       <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
+      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
@@ -1247,12 +1247,31 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-                if (openType && openType === 2) {
-                  let { shell } = require('electron')
-                  shell.openExternal(res)
-                } else {
-                  let { ipcRenderer } = require('electron')
-                  ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                if (config.environment === 'web') { // web分支
+                  console.log('openType:' + openType)
+                  if (openType && openType === 2) { // 外部窗口打开
+                    NativeLogic.native.openShell(3, res) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+                  } else { // 内部窗口打开
+                    // 1、打开窗口
+                    // params: windowName, path, height, width
+                    NativeLogic.native.createWindows('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
+                    // 2、跨窗口通信
+                    // params: windowName, data{}, eventName
+                    let data = {
+                      title: sessionInfo.name,
+                      icon: sessionInfo.avatar,
+                      appCode: this.msg.sessionId
+                    }
+                    NativeLogic.native.sendEvent('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
+                  }
+                } else { // electron分支
+                  if (openType && openType === 2) {
+                    let { shell } = require('electron')
+                    shell.openExternal(res)
+                  } else {
+                    let { ipcRenderer } = require('electron')
+                    ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                  }
                 }
               }).catch(() => {})
               return false

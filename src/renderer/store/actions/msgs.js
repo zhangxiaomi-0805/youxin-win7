@@ -2,7 +2,7 @@ import store from '../'
 import config from '../../configs'
 import util from '../../utils'
 import Fetch from '../../utils/fetch'
-// import NativeLogic from '../../utils/nativeLogic.js'
+import NativeLogic from '../../utils/nativeLogic.js'
 export function formatMsg (msg) {
   const nim = store.state.nim
   if (msg.type === 'robot') {
@@ -55,6 +55,7 @@ async function systemNewMsgsManage (msg) {
   // 通知主进程
   let unreads = document.getElementsByClassName('u-unread')
   if (config.environment === 'web') { // web分支
+    NativeLogic.native.receiveNewMsgs({unreadNums: unreads.length})
     // NativeLogic.native.sendEvent({ unreadNums: unreads.length }, 'receiveNewMsgs', () =>{
     //   console.log('111')
     // })
