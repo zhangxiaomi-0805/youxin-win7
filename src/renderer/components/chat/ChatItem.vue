@@ -1257,11 +1257,11 @@
                     NativeLogic.native.createWindows('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
                     // 2、跨窗口通信
                     // params: windowName, data{}, eventName
-                    let data = {
-                      title: sessionInfo.name,
-                      icon: sessionInfo.avatar,
-                      appCode: this.msg.sessionId
-                    }
+                    // let data = {
+                    //   title: sessionInfo.name,
+                    //   icon: sessionInfo.avatar,
+                    //   appCode: this.msg.sessionId
+                    // }
                     NativeLogic.native.sendEvent('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
                   }
                 } else { // electron分支
