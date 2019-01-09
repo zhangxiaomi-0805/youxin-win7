@@ -379,9 +379,9 @@
                 // str 是获取到的字符串
                 text = str
               })
-            } else if (item.kind === "file") {
+            } else if (item.kind === 'file') {
               var pasteFile = item.getAsFile()
-              file = new File([pasteFile], 'image.png', {type: "image/png"})
+              file = new File([pasteFile], 'image.png', {type: 'image/png'})
             }
           }
         } else {
@@ -1025,7 +1025,6 @@
       msgTransform () {
         let msgText = ''
         let msgImg = 0
-        console.log(this.$refs.editDiv.childNodes)
         let childNodes = [...(this.$refs.editDiv.childNodes)]
         // let nodes = this.$refs.editDiv.childNodes
         // for(let i = 0; i < nodes.length; i++) {

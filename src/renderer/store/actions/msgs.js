@@ -102,6 +102,9 @@ export function onForwordMsg ({state, commit}, OBJ) {
   if (obj.msg.type === 'file' && obj.msg.flow === 'out') {
     path = obj.msg.localCustom.downloadUrl
   }
+  if (obj.msg.type === 'file' && obj.msg.flow === 'in') {
+    path = 'null'
+  }
   if (obj.msg.type === 'custom-type1' || obj.msg.type === 'custom-type3' || obj.msg.type === 'custom-type7') {
     obj.msg.type = 'custom'
   }

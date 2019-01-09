@@ -22,7 +22,7 @@ class NativeHandle {
       if (result) {
       }
     })
-  }  // 1、设置窗口大小
+  } // 1、设置窗口大小
   setBounds = (width, height) => {
     console.log('寬度：。。。。' + width)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {
@@ -40,7 +40,6 @@ class NativeHandle {
    * @params: path   // 文件对应的为本地路径，浏览器对应的是url
    * **/
   openShell = (type, path) => {
-    console.log(type, path)
     window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
       console.log(error)
       console.log(result)
@@ -225,7 +224,7 @@ class NativeHandle {
    * 8、设置任务栏闪烁
    * **/
   flashFrame = (type) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('flashFrame', { flag: type },  (error, result) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('flashFrame', { flag: type }, (error, result) => {
       console.log(error)
       console.log(result)
       if (result) {
@@ -274,11 +273,16 @@ class NativeHandle {
    * @params: width      初始窗口宽
    * **/
   createWindows = (windowName, path, height, width) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindows', {windowName, path, height, width}, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
+        if (result) {
+          console.log(result)
+          resolve(result)
+        } else {
+          console.log(error)
+          reject(error)
+        }
+      })
     })
   }
 
@@ -289,7 +293,12 @@ class NativeHandle {
    * @params: eventName      事件名称（接收窗口监听该事件）
    * @params: callback      回调函数，等接收窗口处理完后回调给调用窗口
    * **/
-  sendEvent = (windowName, data, eventName, callback) => {
+  sendEvent = (windowName, data, eventName) => {
+    console.log({
+      windowName,
+      data: JSON.parse(data),
+      eventName
+    })
     window.NimCefWebInstance && window.NimCefWebInstance.call('sendEvent', {
       windowName,
       data,
