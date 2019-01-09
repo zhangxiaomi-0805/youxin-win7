@@ -345,6 +345,7 @@
           } else if (content.type === 7) {
             // 自定义富文本消息
             item.type = 'custom-type7'
+            console.log(content.data.value)
             item.showText = content.data.value
           } else if (content.type === 8) {
             // 自定义邀请入群消息
@@ -1389,18 +1390,21 @@
           AppDirectory = urlArr[0]
         }
         // const winURL = AppDirectory + 'static/windows/application.html'
-        const winURL = 'D:/vue_workspace/youxin-new/static/windows/application.html'
-        NativeLogic.native.createWindows('aplWindow', winURL, config.aplWinWidth, config.aplWinHeight)
-        // 2、跨窗口通信
-        // params: windowName, data{}, eventName
-        let dataObj = {
-          url,
-          title: sessionInfo.name,
-          icon: sessionInfo.avatar,
-          appCode: this.msg.sessionId
-        }
-        let data = JSON.stringify(dataObj)
-        NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
+        const winURL = 'D:/vue_workspace/youxin-new/static/windows/applicationXp.html'
+        NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then((result) => {
+          // 2、跨窗口通信
+          // params: windowName, data{}, eventName
+          let dataObj = {
+            url,
+            title: sessionInfo.name,
+            icon: sessionInfo.avatar,
+            appCode: this.msg.sessionId
+          }
+          let data = JSON.stringify(dataObj)
+          let date = new Date().getTime()
+          console.log('主窗口 ==== '+ date)
+          // NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
+        }).catch(error => console.log(error))
       },
       electronOpenOutWin (url) {
         // electron端打开外部窗口
