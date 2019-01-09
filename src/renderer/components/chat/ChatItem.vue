@@ -33,7 +33,7 @@
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
         <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -578,15 +578,16 @@
           this.$emit('msg-loaded')
         }
         if (item.type === 'file') {
-          let {ipcRenderer} = require('electron')
+          
           // 下载中
           if (config.environment === 'web') { // web分支
           } else { // electron分支
+            let {ipcRenderer} = require('electron')
             ipcRenderer.on(`downloading`, (evt, obj) => {
               if (obj.type !== 'fail') {
                 if (obj.id === this.msg.idClient) {
                   this.$store.commit('updateDownloadFileList', {
-                    type: 1,
+                    type: 0,
                     id: this.msg.idClient,
                     sessionId: `${this.scene}-${this.to}`,
                     downloadProgress: obj.progressing
@@ -1342,25 +1343,74 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-                if (openType && openType === 2) {
-                  let { shell } = require('electron')
-                  shell.openExternal(res)
-                } else {
-                  let { ipcRenderer } = require('electron')
-                  ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                if (openType && openType === 2) { // 外部窗口打开
+                  if (config.environment === 'web') { // web分支
+                    this.webOpenOutWin(res)
+                  } else { // electron分支
+                    this.electronOpenOutWin(res)
+                  }
+                } else { // 内部窗口打开
+                  if (config.environment === 'web') { // web分支
+                    this.webOpenInWin(res, sessionInfo)
+                  } else { // electron分支
+                    this.electronOpenInWin(res, sessionInfo)
+                  }
                 }
               }).catch(() => {})
               return false
             }
           }
           if (openType && openType === 1) {
-            let { ipcRenderer } = require('electron')
-            ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+            if (config.environment === 'web') {
+              this.webOpenInWin(url, sessionInfo)
+            } else {
+              this.electronOpenInWin(url, sessionInfo)
+            }
           } else {
-            let { shell } = require('electron')
-            shell.openExternal(url)
+            if (config.environment === 'web') { // web分支
+              this.webOpenOutWin(url)
+            } else { // electron分支
+              this.electronOpenOutWin(url)
+            }
           }
         }
+      },
+      webOpenOutWin (url) {
+        // web端打开外部窗口
+        NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+      },
+      webOpenInWin (url, sessionInfo) {
+        // web端打开内部窗口
+        // 1、创建窗口
+        // params: windowName, path, height, width
+        let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+        if (AppDirectory.indexOf('dist') > -1) {
+          let urlArr = AppDirectory.split('dist')
+          AppDirectory = urlArr[0]
+        }
+        // const winURL = AppDirectory + 'static/windows/application.html'
+        const winURL = 'D:/vue_workspace/youxin-new/static/windows/application.html'
+        NativeLogic.native.createWindows('aplWindow', winURL, config.aplWinWidth, config.aplWinHeight)
+        // 2、跨窗口通信
+        // params: windowName, data{}, eventName
+        let dataObj = {
+          url,
+          title: sessionInfo.name,
+          icon: sessionInfo.avatar,
+          appCode: this.msg.sessionId
+        }
+        let data = JSON.stringify(dataObj)
+        NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
+      },
+      electronOpenOutWin (url) {
+        // electron端打开外部窗口
+        let { shell } = require('electron')
+        shell.openExternal(url)
+      },
+      electronOpenInWin (url, sessionInfo) {
+        // electron端打开内部窗口
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.send('openAplWindow', {url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
       },
       httpSpring (str) {
         // 匹配url

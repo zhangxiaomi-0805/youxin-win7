@@ -5,7 +5,7 @@
       <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
         <div
           class="t-orgname"
-          :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'myDept' ? 0 : 1)) * 14 + 'px'}"
+          :style="{paddingLeft: (orgLevel + (showTitle || listType === 'myDept' ? 1 : 0)) * 13 + 'px'}"
           @click="toggleStatus(orgnize.id, orgnize, $index)"
           @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
           @mouseleave="mouseleave('orgAddAllId')">
@@ -19,11 +19,12 @@
           :class="activeId === orgnize.id ? 't-body active' : 't-body'">
           <tree-item
             :noAdd="noAdd"
+            :listType="listType"
             :showTitle="showTitle"
             :showCheck="showCheck"
             :orgnizeObj="orgnizeObj"
             :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
-            :orgLevel="listType === 'myDept' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
+            :orgLevel="orgLevel + 1"
             :orgSelectId="orgSelectId"
             :orgSelectLevel="orgSelectLevel"
             :orgSelectHandle="orgSelectHandle"
@@ -38,7 +39,7 @@
       <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
         <div
           :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
-          :style="{paddingLeft: (orgLevel + (showTitle ? 2 : 1)) * 14 + 'px', height: '31px'}"
+          :style="{paddingLeft: (orgLevel + (showTitle || listType === 'myDept' ? 2 : 1)) * 15 + 'px', height: '31px'}"
           @click="orgHandle(user)">
           <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
           <span v-if="showCheck" :class="className(user)"></span>
@@ -63,7 +64,12 @@
       noAdd: Boolean,
       orgnizeObj: Object,
       orgnizeLevelObj: Object,
-      orgLevel: Number,
+      orgLevel: {
+        type: Number,
+        default () {
+          return 0
+        }
+      },
       orgSelectId: String,
       orgSelectLevel: Number,
       orgSelectHandle: Function,
@@ -245,7 +251,7 @@
 
   .t-orgname .orgname {
     display: inline-block;
-    width: 86%;
+    width: 85%;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
