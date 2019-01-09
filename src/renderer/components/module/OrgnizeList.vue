@@ -45,7 +45,24 @@
       // 重置滚动条位置、重置路由
       this.$refs.contactCon.scrollTop = this.scrollTop
     },
+    mounted () {
+      this.setDragArea() // 设置可拖拽高度
+    },
     methods: {
+      setDragArea () {
+        let leftDom = document.getElementById('resize-side-lf')
+        let leftWidth = (leftDom.style.width).split('px')[0]
+        let percent = ((Number(leftWidth) + 70) / Number(config.mainWinWidth)).toFixed(2) // 70----最左边导航宽，为固定宽
+        console.log(percent)
+        /**
+        * @params:  percent, // 左边占整个应用的百分比：如：0.3
+        * @params:  leftTitleHeight, // 左侧可拖动区域高度：20
+        * @params:  rightTitleHeight, // 右侧可拖动区域高度：30
+        * * */
+        if (config.environment === 'web') {
+          NativeLogic.native.setDraggableArea(percent, 20, 30)
+        }
+      },
       toggleList (value) {
         if (this.listType === value) return
         this.listType = value

@@ -214,7 +214,6 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
-        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -554,77 +553,81 @@
           this.$emit('msg-loaded')
         }
         if (item.type === 'file' && item.flow === 'in') {
-          let {ipcRenderer} = require('electron')
-          // 下载中
-          ipcRenderer.on(`downloading`, (evt, obj) => {
-            if (obj.type !== 'fail') {
-              if (obj.id === this.msg.idClient) {
-                if (this.curDownloadStatus !== 1) {
+          if (config.environment === 'web') {
+            console.log('web====')
+          } else {
+            let {ipcRenderer} = require('electron')
+            // 下载中
+            ipcRenderer.on(`downloading`, (evt, obj) => {
+              if (obj.type !== 'fail') {
+                if (obj.id === this.msg.idClient) {
+                  if (this.curDownloadStatus !== 1) {
+                    this.$store.commit('updateDownloadFileList', {
+                      type: 1,
+                      id: this.msg.idClient,
+                      sessionId: `${this.scene}-${this.to}`
+                    })
+                  }
+                  this.downloadProgress = obj.progressing
+                }
+              } else {
+                if (this.curDownloadStatus !== 0) {
                   this.$store.commit('updateDownloadFileList', {
-                    type: 1,
+                    type: 0,
                     id: this.msg.idClient,
                     sessionId: `${this.scene}-${this.to}`
                   })
                 }
-                this.downloadProgress = obj.progressing
-              }
-            } else {
-              if (this.curDownloadStatus !== 0) {
-                this.$store.commit('updateDownloadFileList', {
-                  type: 0,
-                  id: this.msg.idClient,
-                  sessionId: `${this.scene}-${this.to}`
-                })
-              }
-            }
-          })
-          // 下载完成
-          ipcRenderer.on(`downloaded`, (evt, obj) => {
-            if (obj.id !== this.msg.idClient) {
-              return
-            }
-            const list = this.$store.state.downloadFileList
-            let sessionId = ''
-            let idClient = ''
-            list.forEach(item => {
-              if (item.id === this.msg.idClient) {
-                sessionId = item.sessionId
-                idClient = item.id
               }
             })
-            let newMsg = Object.assign({}, this.msg)
-            if (newMsg.localCustom) {
-              newMsg.localCustom.downloadUrl = obj.url
-            } else {
-              newMsg.localCustom = {
-                downloadUrl: obj.url
+            // 下载完成
+            ipcRenderer.on(`downloaded`, (evt, obj) => {
+              if (obj.id !== this.msg.idClient) {
+                return
               }
-            }
-            const param = {
-              sessionId,
-              idClient,
-              msg: newMsg
-            }
-            this.$store.commit('updateDownloadFileList', {
-              type: 0,
-              id: this.msg.idClient
-            })
-            this.$store.state.nim.updateLocalMsg({
-              idClient: this.msg.idClient,
-              localCustom: {downloadUrl: obj.url},
-              done: () => {
-                this.$store.commit('replaceMsg', param)
-                if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
-                  this.$store.commit('updateCurrSessionMsgs', {
-                    type: 'replace',
-                    idClient: this.msg.idClient,
-                    msg: newMsg
-                  })
+              const list = this.$store.state.downloadFileList
+              let sessionId = ''
+              let idClient = ''
+              list.forEach(item => {
+                if (item.id === this.msg.idClient) {
+                  sessionId = item.sessionId
+                  idClient = item.id
                 }
-                this.downloadUrl = obj.url
+              })
+              let newMsg = Object.assign({}, this.msg)
+              if (newMsg.localCustom) {
+                newMsg.localCustom.downloadUrl = obj.url
+              } else {
+                newMsg.localCustom = {
+                  downloadUrl: obj.url
+                }
               }
+              const param = {
+                sessionId,
+                idClient,
+                msg: newMsg
+              }
+              this.$store.commit('updateDownloadFileList', {
+                type: 0,
+                id: this.msg.idClient
+              })
+              this.$store.state.nim.updateLocalMsg({
+                idClient: this.msg.idClient,
+                localCustom: {downloadUrl: obj.url},
+                done: () => {
+                  this.$store.commit('replaceMsg', param)
+                  if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
+                    this.$store.commit('updateCurrSessionMsgs', {
+                      type: 'replace',
+                      idClient: this.msg.idClient,
+                      msg: newMsg
+                    })
+                  }
+                  this.downloadUrl = obj.url
+                }
+              })
             })
-          })
+          }
         }
         // 自定义消息（7）
         if (item.type === 'custom-type7' && this.iframe) {
@@ -712,7 +715,6 @@
                   let account = e.url.split('?account=')[1]
                   if (account) {
                     if (config.environment === 'web') { // web分支
-                      console.log(NativeLogic.native)
                       Request.GetAccid({userName: account}, this).then(ret => {
                         let accid = ret.accid
                         // 根据account 获取 accid 发起会话
@@ -735,7 +737,6 @@
         }, 1000)
       },
       showGroupInvite (teamInfo) {
-        console.log('群聊邀请')
         this.eventBus.$emit('showGroupInvite', {teamInfo: teamInfo})
       },
       openFile () {
@@ -1228,8 +1229,6 @@
         }
       },
       openAplWindow (url, openType) {
-        console.log(url)
-        console.log(openType)
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls
@@ -1247,30 +1246,17 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-                if (config.environment === 'web') { // web分支
-                  console.log('openType:' + openType)
-                  if (openType && openType === 2) { // 外部窗口打开
-                    NativeLogic.native.openShell(3, res) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
-                  } else { // 内部窗口打开
-                    // 1、打开窗口
-                    // params: windowName, path, height, width
-                    NativeLogic.native.createWindows('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
-                    // 2、跨窗口通信
-                    // params: windowName, data{}, eventName
-                    let data = {
-                      title: sessionInfo.name,
-                      icon: sessionInfo.avatar,
-                      appCode: this.msg.sessionId
-                    }
-                    NativeLogic.native.sendEvent('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
+                if (openType && openType === 2) { // 外部窗口打开
+                  if (config.environment === 'web') { // web分支
+                    this.webOpenOutWin(res)
+                  } else { // electron分支
+                    this.electronOpenOutWin(res)
                   }
-                } else { // electron分支
-                  if (openType && openType === 2) {
-                    let { shell } = require('electron')
-                    shell.openExternal(res)
-                  } else {
-                    let { ipcRenderer } = require('electron')
-                    ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                } else { // 内部窗口打开
+                  if (config.environment === 'web') { // web分支
+                    this.webOpenInWin(res, sessionInfo)
+                  } else { // electron分支
+                    this.electronOpenInWin(res, sessionInfo)
                   }
                 }
               }).catch(() => {})
@@ -1278,13 +1264,56 @@
             }
           }
           if (openType && openType === 1) {
-            let { ipcRenderer } = require('electron')
-            ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+            if (config.environment === 'web') {
+              this.webOpenInWin(url, sessionInfo)
+            } else {
+              this.electronOpenInWin(url, sessionInfo)
+            }
           } else {
-            let { shell } = require('electron')
-            shell.openExternal(url)
+            if (config.environment === 'web') { // web分支
+              this.webOpenOutWin(url)
+            } else { // electron分支
+              this.electronOpenOutWin(url)
+            }
           }
         }
+      },
+      webOpenOutWin (url) {
+        // web端打开外部窗口
+        NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+      },
+      webOpenInWin (url, sessionInfo) {
+        // web端打开内部窗口
+        // 1、创建窗口
+        // params: windowName, path, height, width
+        let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+        if (AppDirectory.indexOf('dist') > -1) {
+          let urlArr = AppDirectory.split('dist')
+          AppDirectory = urlArr[0]
+        }
+        // const winURL = AppDirectory + 'static/windows/application.html'
+        const winURL = 'D:/vue_workspace/youxin-new/static/windows/application.html'
+        NativeLogic.native.createWindows('aplWindow', winURL, config.aplWinWidth, config.aplWinHeight)
+        // 2、跨窗口通信
+        // params: windowName, data{}, eventName
+        let dataObj = {
+          url,
+          title: sessionInfo.name,
+          icon: sessionInfo.avatar,
+          appCode: this.msg.sessionId
+        }
+        let data = JSON.stringify(dataObj)
+        NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
+      },
+      electronOpenOutWin (url) {
+        // electron端打开外部窗口
+        let { shell } = require('electron')
+        shell.openExternal(url)
+      },
+      electronOpenInWin (url, sessionInfo) {
+        // electron端打开内部窗口
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.send('openAplWindow', {url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
       },
       httpSpring (str) {
         // 匹配url

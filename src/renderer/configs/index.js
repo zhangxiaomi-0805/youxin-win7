@@ -1,6 +1,6 @@
 var config = {
-  environment: 'electron', // 运行环境：web/electron
-  mainWinWidth: 936, // 主窗口初始宽
+  environment: 'web', // 运行环境：web/electron
+  mainWinWidth: 922, // 主窗口初始宽
   mainWinHeight: 645, // 主窗口初始高
   aplWinWidth: 899, // 内部子窗口初始宽
   aplWinHeight: 767, // 内部子窗口初始宽
@@ -56,7 +56,7 @@ let appConfig = {
   },
   online: {
     appkey: '393f9c3f3dabdc573cc634303f09573e',
-    postUrl: 'https://nice.yunxin.163.com/'
+    postUrl: '' // https://nice.yunxin.163.com/
   },
   self: {
     appkey: 'fd786db12662c1c6aa2d9fa13a02d830',

@@ -317,7 +317,7 @@
         }
       },
       screenShot () {
-        // ipcRenderer.send('screenShot')
+        ipcRenderer.send('screenShot')
       },
       preventDefault (e) {
         e.stopPropagation()
@@ -1008,7 +1008,6 @@
       msgTransform () {
         let msgText = ''
         let msgImg = 0
-        console.log(this.$refs.editDiv.childNodes)
         let childNodes = [...(this.$refs.editDiv.childNodes)]
         // let nodes = this.$refs.editDiv.childNodes
         // for(let i = 0; i < nodes.length; i++) {

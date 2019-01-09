@@ -2,7 +2,7 @@
  * Encapsulation of the fetch method
  */
 import configs from '../configs/index'
-import NativeLogic from './NativeLogic'
+import NativeLogic from './nativeLogic'
 var Fetch = {
   last_url: null
 }
@@ -64,9 +64,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
         ipcRenderer.send('relaunch-app')
       }
     }
-    console.log(configs.postUrl + url)
-    console.log('http://imapi.eyuntx.com/' + url)
-    console.log(headers)
+    // console.log('http://imapi.eyuntx.com/' + url)
     fetch(configs.postUrl + url, {
       method: 'POST',
       mode: 'cors',

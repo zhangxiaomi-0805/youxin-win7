@@ -42,13 +42,13 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
         }
         commit('connectStatus', { networkStatus: 200 })
         if (config.environment === 'web') { // web分支
-          let AppDirectory = window.location.pathname.slice(1) // 應用所在目錄
-          if (AppDirectory.indexOf('dist') > -1) {
-            let urlArr = AppDirectory.split('dist')
-            AppDirectory = urlArr[0]
-          }
-          // 設置系統托盤應用圖標
-          NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png')
+          // let AppDirectory = window.location.pathname.slice(1) // 應用所在目錄
+          // if (AppDirectory.indexOf('dist') > -1) {
+          //   let urlArr = AppDirectory.split('dist')
+          //   AppDirectory = urlArr[0]
+          // }
+          // // 設置系統托盤應用圖標
+          // NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png')
         } else { // electron分支
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('logined', null)
