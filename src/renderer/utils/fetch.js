@@ -2,7 +2,7 @@
  * Encapsulation of the fetch method
  */
 import configs from '../configs/index'
-import NativeLogic from './NativeLogic'
+import NativeLogic from './nativeLogic'
 var Fetch = {
   last_url: null
 }

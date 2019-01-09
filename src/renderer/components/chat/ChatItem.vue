@@ -26,7 +26,7 @@
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
       <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)"></span>
+      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
@@ -60,8 +60,7 @@
             <span v-if="msg.status === 'fail'" style="color: red;font-size: 12px;">
               发送失败
             </span>
-            <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn">
-              <a :href="downloadFile" type="*" style="width: 100%;height: 100%;display: block;" download="*"/>
+            <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click="handleDownloadFile">
             </span>
             <span class="circle-bar" v-else-if="curProgress < 100">
               <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
@@ -74,6 +73,7 @@
             <span v-else style="color: #999;font-size: 12px;">
               {{msg.flow === 'out' ? '已发送' : '已下载'}}
             </span>
+            <span style="display: none;">{{downloadProgress}}</span>
           </span>
         </span>
       </span>
@@ -98,7 +98,7 @@
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
   import Request from '../../utils/request.js'
-  import { setTimeout } from 'timers'
+  import getFile from '../../utils/getFile.js'
   import NativeLogic from '../../utils/nativeLogic.js'
   export default {
     props: {
@@ -146,13 +146,23 @@
         vioceToText: '',
         isPlay: false,
         myGroupIcon: config.defaultGroupIcon,
-        downloadProgress: 0,
         downloadUrl: ''
       }
     },
     computed: {
       curDownloadStatus () {
         const list = this.$store.state.downloadFileList
+        let status = 0
+        list.forEach(item => {
+          if (item.id === this.msg.idClient) {
+            status = item.status
+          }
+        })
+        return status
+      },
+      // 上传状态
+      curUploadStatus () {
+        const list = this.$store.state.uploadprogressList
         let status = 0
         list.forEach(item => {
           if (item.id === this.msg.idClient) {
@@ -205,8 +215,23 @@
         }
         return 100
       },
+      downloadProgress () {
+        const list = this.$store.state.downloadFileList
+        if (this.msg.type === 'file') {
+          const curProgress = list.find(item => {
+            return item.id === this.msg.idClient
+          })
+          if (curProgress) {
+            const percentage = curProgress.downloadProgress >= 99 ? 99 : curProgress.downloadProgress
+            return percentage
+          } else {
+            return 100
+          }
+        }
+        return 100
+      },
       curProgress () {
-        if (this.msg.flow === 'out') {
+        if (this.uploadprogress < 100) {
           return this.uploadprogress
         } else {
           return this.isDownloaded ? 100 : this.downloadProgress
@@ -214,7 +239,6 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
-        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -553,78 +577,80 @@
         } else {
           this.$emit('msg-loaded')
         }
-        if (item.type === 'file' && item.flow === 'in') {
+        if (item.type === 'file') {
           let {ipcRenderer} = require('electron')
           // 下载中
-          ipcRenderer.on(`downloading`, (evt, obj) => {
-            if (obj.type !== 'fail') {
-              if (obj.id === this.msg.idClient) {
-                if (this.curDownloadStatus !== 1) {
+          if (config.environment === 'web') { // web分支
+          } else { // electron分支
+            ipcRenderer.on(`downloading`, (evt, obj) => {
+              if (obj.type !== 'fail') {
+                if (obj.id === this.msg.idClient) {
                   this.$store.commit('updateDownloadFileList', {
                     type: 1,
                     id: this.msg.idClient,
-                    sessionId: `${this.scene}-${this.to}`
+                    sessionId: `${this.scene}-${this.to}`,
+                    downloadProgress: obj.progressing
                   })
                 }
-                this.downloadProgress = obj.progressing
-              }
-            } else {
-              if (this.curDownloadStatus !== 0) {
-                this.$store.commit('updateDownloadFileList', {
-                  type: 0,
-                  id: this.msg.idClient,
-                  sessionId: `${this.scene}-${this.to}`
-                })
-              }
-            }
-          })
-          // 下载完成
-          ipcRenderer.on(`downloaded`, (evt, obj) => {
-            if (obj.id !== this.msg.idClient) {
-              return
-            }
-            const list = this.$store.state.downloadFileList
-            let sessionId = ''
-            let idClient = ''
-            list.forEach(item => {
-              if (item.id === this.msg.idClient) {
-                sessionId = item.sessionId
-                idClient = item.id
-              }
-            })
-            let newMsg = Object.assign({}, this.msg)
-            if (newMsg.localCustom) {
-              newMsg.localCustom.downloadUrl = obj.url
-            } else {
-              newMsg.localCustom = {
-                downloadUrl: obj.url
-              }
-            }
-            const param = {
-              sessionId,
-              idClient,
-              msg: newMsg
-            }
-            this.$store.commit('updateDownloadFileList', {
-              type: 0,
-              id: this.msg.idClient
-            })
-            this.$store.state.nim.updateLocalMsg({
-              idClient: this.msg.idClient,
-              localCustom: {downloadUrl: obj.url},
-              done: () => {
-                this.$store.commit('replaceMsg', param)
-                if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
-                  this.$store.commit('updateCurrSessionMsgs', {
-                    type: 'replace',
-                    idClient: this.msg.idClient,
-                    msg: newMsg
+              } else {
+                if (this.curDownloadStatus !== 0) {
+                  this.$store.commit('updateDownloadFileList', {
+                    type: 0,
+                    id: this.msg.idClient,
+                    sessionId: `${this.scene}-${this.to}`,
+                    downloadProgress: obj.progressing
                   })
                 }
-                this.downloadUrl = obj.url
               }
             })
-          })
+            // 下载完成
+            ipcRenderer.on(`downloaded`, (evt, obj) => {
+              if (obj.id !== this.msg.idClient) {
+                return
+              }
+              const list = this.$store.state.downloadFileList
+              let sessionId = ''
+              let idClient = ''
+              list.forEach(item => {
+                if (item.id === this.msg.idClient) {
+                  sessionId = item.sessionId
+                  idClient = item.id
+                }
+              })
+              let newMsg = Object.assign({}, this.msg)
+              if (newMsg.localCustom) {
+                newMsg.localCustom.downloadUrl = obj.url
+              } else {
+                newMsg.localCustom = {
+                  downloadUrl: obj.url
+                }
+              }
+              const param = {
+                sessionId,
+                idClient,
+                msg: newMsg
+              }
+              this.$store.commit('updateDownloadFileList', {
+                type: 0,
+                id: this.msg.idClient
+              })
+              this.$store.state.nim.updateLocalMsg({
+                idClient: this.msg.idClient,
+                localCustom: {downloadUrl: obj.url},
+                done: () => {
+                  this.$store.commit('replaceMsg', param)
+                  if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
+                    this.$store.commit('updateCurrSessionMsgs', {
+                      type: 'replace',
+                      idClient: this.msg.idClient,
+                      msg: newMsg
+                    })
+                  }
+                  this.downloadUrl = obj.url
+                }
+              })
+            })
+          }
         }
         // 自定义消息（7）
         if (item.type === 'custom-type7' && this.iframe) {
@@ -693,6 +719,21 @@
           element.attachEvent('on' + eventName, eventHandler)
         }
       },
+      // 点击下载
+      handleDownloadFile () {
+        if (config.environment === 'web') {
+          const session = `${this.scene}-${this.to}`
+          const id = this.msg.idClient
+          NativeLogic.native.fileDownload(this.downloadFile, '', true, this.msg, session)
+        } else {
+          var $a = document.createElement('a')
+          $a.setAttribute('href', this.downloadFile)
+          $a.setAttribute('download', '*')
+          var evObj = document.createEvent('MouseEvents')
+          evObj.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null)
+          $a.dispatchEvent(evObj)
+        }
+      },
       sendMsgToIframe (showText) {
         this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
           params: {showText}
@@ -712,7 +753,6 @@
                   let account = e.url.split('?account=')[1]
                   if (account) {
                     if (config.environment === 'web') { // web分支
-                      console.log(NativeLogic.native)
                       Request.GetAccid({userName: account}, this).then(ret => {
                         let accid = ret.accid
                         // 根据account 获取 accid 发起会话
@@ -732,10 +772,9 @@
               this.openAplWindow(url, openType)
             })
           }
-        }, 1000)
+        }, 10)
       },
       showGroupInvite (teamInfo) {
-        console.log('群聊邀请')
         this.eventBus.$emit('showGroupInvite', {teamInfo: teamInfo})
       },
       openFile () {
@@ -778,13 +817,21 @@
               sessionId: `${this.scene}-${this.to}`
             })
             // type
-            let {ipcRenderer} = require('electron')
-            ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 1})
+            if (config.environment === 'web') { // web分支
+              NativeLogic.native.downloadControl(this.msg.id, 1)
+            } else { // electron分支
+              let { ipcRenderer } = require('electron')
+              ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 1})
+            }
             return false
           } else {
             // 恢复下载
-            let {ipcRenderer} = require('electron')
-            ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 2})
+            if (config.environment === 'web') { // web分支
+              NativeLogic.native.downloadControl(this.msg.id, 2)
+            } else { // electron分支
+              let { ipcRenderer } = require('electron')
+              ipcRenderer.send('handleDownEvent', {id: this.msg.idClient, type: 2})
+            }
             return false
           }
         }
@@ -924,7 +971,6 @@
         while (par) {
           // if (navigator.userAgent.indexOf("MSIE 8.0") === -1){
           //   // 不是IE8我们才进行累加父级参照物的边框
-          //   console.log(111)
           //   totalTop += par.clientTop;
           //   totalLeft += par.clientLeft;
           // }
@@ -1019,18 +1065,18 @@
                 // 图片或文件另存为
                 case 6:
                   if (this.msg === 'file') {
-                    const file = {
-                      name: this.msg.file.name,
-                      url: this.downloadUrl
-                    }
-                    this.$store.dispatch('downloadImg', file)
+                    this.saveFile()
                   } else {
                     this.$store.dispatch('downloadImg', this.msg.file)
                   }
                   break
                 case 7:
-                  let { shell } = require('electron')
-                  shell.showItemInFolder(this.msg.localCustom.downloadUrl)
+                  // 打开文件夹
+                  this.openFileInFolder()
+                  break
+                case 8:
+                  // 打开文件
+                  this.openFile()
                   break
               }
             }
@@ -1048,6 +1094,57 @@
         document.onmousemove = null
         document.onmouseup = null
         document.body.style.cursor = 'default'
+      },
+      // 文件另存为
+      async saveFile () {
+        if (config.environment === 'web') {
+          // 调用native
+        } else {
+          try {
+            await getFile(this.downloadUrl || this.msg.localCustom.downloadUrl)
+            const file = {
+              name: this.msg.file.name,
+              url: this.downloadUrl || this.msg.localCustom.downloadUrl
+            }
+            this.$store.dispatch('downloadImg', file)
+          } catch (err) {
+            // 重新触发下载逻辑
+            this.handleDownloadFile()
+            this.followEvent = 3
+          }
+        }
+      },
+      // 打开文件
+      async openItemFile () {
+        if (config.environment === 'web') {
+          // 调用native
+        } else {
+          try {
+            await getFile(this.downloadUrl || this.msg.localCustom.downloadUrl)
+            let { shell } = require('electron')
+            shell.openItem(this.msg.localCustom.downloadUrl)
+          } catch (err) {
+            // 重新触发下载逻辑
+            this.handleDownloadFile()
+            this.followEvent = 1
+          }
+        }
+      },
+      // 打开文件夹
+      async openFileInFolder () {
+        if (config.environment === 'web') {
+          // 调用native
+        } else {
+          try {
+            await getFile(this.downloadUrl || this.msg.localCustom.downloadUrl)
+            let { shell } = require('electron')
+            shell.showItemInFolder(this.msg.localCustom.downloadUrl)
+          } catch (err) {
+            // 重新触发下载逻辑
+            this.handleDownloadFile()
+            this.followEvent = 2
+          }
+        }
       },
       copyAll () {
         // 右键复制全选
@@ -1228,8 +1325,6 @@
         }
       },
       openAplWindow (url, openType) {
-        console.log(url)
-        console.log(openType)
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls
@@ -1247,31 +1342,12 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-                if (config.environment === 'web') { // web分支
-                  console.log('openType:' + openType)
-                  if (openType && openType === 2) { // 外部窗口打开
-                    NativeLogic.native.openShell(3, res) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
-                  } else { // 内部窗口打开
-                    // 1、打开窗口
-                    // params: windowName, path, height, width
-                    NativeLogic.native.createWindows('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
-                    // 2、跨窗口通信
-                    // params: windowName, data{}, eventName
-                    let data = {
-                      title: sessionInfo.name,
-                      icon: sessionInfo.avatar,
-                      appCode: this.msg.sessionId
-                    }
-                    NativeLogic.native.sendEvent('aplWwindow', res, config.aplWinWidth, config.aplWinHeight)
-                  }
-                } else { // electron分支
-                  if (openType && openType === 2) {
-                    let { shell } = require('electron')
-                    shell.openExternal(res)
-                  } else {
-                    let { ipcRenderer } = require('electron')
-                    ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
-                  }
+                if (openType && openType === 2) {
+                  let { shell } = require('electron')
+                  shell.openExternal(res)
+                } else {
+                  let { ipcRenderer } = require('electron')
+                  ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
                 }
               }).catch(() => {})
               return false
@@ -1835,8 +1911,8 @@
   display: flex;
   justify-content: space-between;
   padding: 0 15px;
-  width: 253px;
-  height: 100px;
+  width: 263px;
+  height: 85px;
   background: #fff !important;
   border: 1px solid #529EFF;
 }

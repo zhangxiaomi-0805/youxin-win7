@@ -247,6 +247,12 @@ export async function showListOptions ({state, commit}, obj) {
       obj.callBack(7)
     }
   }
+  let event38 = {
+    title: '打开',
+    callBack: () => {
+      obj.callBack(8)
+    }
+  }
   // 历史消息记录
   if (obj.key === 'msg-record') {
     items = [
@@ -670,7 +676,12 @@ export async function showListOptions ({state, commit}, obj) {
   // 文件消息右键处理
   if (obj.key === 'file-out') {
     items = [
-      event2, event6, event4, event1, event37
+      event38, event2, event6, event4, event1, event37
+    ]
+  }
+  if (obj.key === 'file-out-timeout') {
+    items = [
+      event38, event2, event6, event4, event37
     ]
   }
   if (obj.key === 'file-in') {
@@ -680,7 +691,7 @@ export async function showListOptions ({state, commit}, obj) {
   }
   if (obj.key === 'file-in-isDownloaded') {
     items = [
-      event2, event6, event4, event37
+      event38, event2, event6, event4, event37
     ]
   }
 

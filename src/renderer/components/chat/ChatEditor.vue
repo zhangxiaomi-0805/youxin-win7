@@ -111,6 +111,7 @@
   import emojiObj from '../../configs/emoji'
   import { getPinyin } from '../../utils/pinyin'
   import util from '../../utils'
+  import getFile from '../../utils/getFile'
   import pageUtil from '../../utils/page'
   import clickoutside from '../../utils/clickoutside.js'
   import NativeLogic from '../../utils/nativeLogic.js'
@@ -277,7 +278,7 @@
         if (key === 'drop') {
           const file = e.dataTransfer.files[0]
           if (file.type.indexOf('image') > -1) {
-            const newFile = await this.getFile(file.path)
+            const newFile = await getFile(file.path)
             this.sendImgMsg(newFile)
           } else {
             if (file.size > 100 * 1024 * 1024) {
@@ -317,14 +318,26 @@
         }
       },
       screenShot () {
-        // ipcRenderer.send('screenShot')
+        if (config.environment === 'web') { // web分支
+          NativeLogic.native.screenShot()
+          // if (Number(code) === 200) {
+          //   this.onPaste()
+          // }
+        } else { // electron分支
+          let { ipcRenderer } = require('electron')
+          ipcRenderer.on('screenShotCb', (evt, arg) => {
+            if (arg.isChange === 2) {
+              this.onPaste()
+            }
+          })
+        }
       },
       preventDefault (e) {
         e.stopPropagation()
       },
       // 右键粘贴
       showPaste (e) {
-        if (e.button === 2) {
+        if (e.button === 2 && config.environment !== 'web') {
           e.preventDefault()
           this.showPasteBtn = true
           this.pasteLeft = e.offsetX
@@ -359,14 +372,18 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
-          try {
-            const res = await NativeLogic.native.getClipboard()
-            if ((res instanceof String) || (typeof res).toLowerCase() === 'string') {
-              text = res
-            } else {
-              file = res
+          for (var i = 0, len = e.clipboardData.items.length; i < len; i++) {
+            var item = e.clipboardData.items[i];
+            if (item.kind === "string") {
+                item.getAsString(function (str) {
+                    // str 是获取到的字符串
+                    text = str
+                })
+            } else if (item.kind === "file") {
+                var pasteFile = item.getAsFile();
+                file = new File([pasteFile], 'image.png', {type: "image/png"})
             }
-          } catch (err) {}
+          }
         } else {
           const { clipboard } = require('electron')
           if (clipboard.readText() && !clipboard.read('public.file-url')) {
@@ -381,7 +398,7 @@
               filePath = clipboard.read('public.file-url').replace('file://', '')
             }
             try {
-              file = await this.getFile(filePath)
+              file = await getFile(filePath)
             } catch (err) {}
           } else if (clipboard.readImage()) {
             let nativeImage = clipboard.readImage()
@@ -1008,7 +1025,6 @@
       msgTransform () {
         let msgText = ''
         let msgImg = 0
-        console.log(this.$refs.editDiv.childNodes)
         let childNodes = [...(this.$refs.editDiv.childNodes)]
         // let nodes = this.$refs.editDiv.childNodes
         // for(let i = 0; i < nodes.length; i++) {
@@ -1177,46 +1193,6 @@
         }
         this.atListIndex = 0
         return this.members
-      },
-      getFile (path) {
-        // 根本绝对路径获取文件对象
-        let fs = require('fs')
-        let mime = require('mime')
-        return new Promise((resolve, reject) => {
-          // 先获取文件信息
-          fs.stat(path, (err, stats) => {
-            if (err) {
-              reject(err)
-              return
-            }
-            if (!stats.isFile) {
-              return
-            }
-            var mimetype = null
-            try {
-              mimetype = mime.getType(path)
-            } catch (err) { return }
-            // 读取文件流生成文件
-            var readStream = fs.createReadStream(path)
-            var blobParts
-            readStream.on('open', (fd) => {
-              blobParts = []
-            })
-            readStream.on('data', (data) => {
-              var blob = new Blob([data], {type: mimetype})
-              blobParts.push(blob)
-            })
-            readStream.on('end', () => {
-              let index = path.lastIndexOf('\\')
-              let filename = index !== -1 ? path.substring(index + 1, path.length) : path
-              let file = new File(blobParts, filename, {type: mimetype})
-              resolve(file)
-            })
-            readStream.on('error', (err) => {
-              reject(err)
-            })
-          })
-        })
       },
       resetAtInfo () {
         this.atListPos = {}

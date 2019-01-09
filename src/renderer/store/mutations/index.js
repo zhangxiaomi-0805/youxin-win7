@@ -1203,7 +1203,7 @@ export default {
   },
   updateDownloadFileList (state, obj) {
     // type 0 -下载完成 1 -下载中 2 -暂停
-    const {type, id, sessionId} = obj
+    const { type, id, sessionId, downloadProgress } = obj
     let newArr = Object.assign([], state.downloadFileList)
     const index = newArr.findIndex(item => {
       return item.id === id
@@ -1213,6 +1213,7 @@ export default {
         newArr.push({ id, sessionId, status: 1 })
       } else {
         newArr[index].status = 1
+        newArr[index].downloadProgress = downloadProgress
       }
     } else if (type === 0) {
       const index = newArr.findIndex(item => {

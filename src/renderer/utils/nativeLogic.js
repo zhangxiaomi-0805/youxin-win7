@@ -3,7 +3,6 @@
  * **/
 
 import store from '../store'
-// import { resolve } from 'url'
 
 // 一、electron提供的方法
 class ElectronHandle {
@@ -57,6 +56,7 @@ class NativeHandle {
       savePath,
       showSaveDlg
     }, (error, result) => {
+      console.log(result)
       if (error) {
         console.log('下载文件失败', result)
       } else {
@@ -71,14 +71,14 @@ class NativeHandle {
             sessionId: session,
             downloadProgress: result.percentComplete
           })
-        } else if (result.isCompleted) {
+        } else if (result.isComplete) {
           console.log('下载完成', result.totalBytes, result.receiveBytes)
           let newMsg = Object.assign({}, msg)
           if (newMsg.localCustom) {
-            newMsg.localCustom.downloadUrl = result.url
+            newMsg.localCustom.downloadUrl = result.fullPath
           } else {
             newMsg.localCustom = {
-              downloadUrl: result.url
+              downloadUrl: result.fullPath
             }
           }
           const param = {
@@ -92,7 +92,7 @@ class NativeHandle {
           })
           store.state.nim.updateLocalMsg({
             idClient: id,
-            localCustom: { downloadUrl: result.url },
+            localCustom: { downloadUrl: result.fullPath },
             done: () => {
               store.commit('replaceMsg', param)
               if (session === store.state.currSessionId) {
