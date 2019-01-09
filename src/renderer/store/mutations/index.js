@@ -930,7 +930,7 @@ export default {
       IndexedDB.setItem(targetObj, curStateObj)
       // 组织排序
       let newOrgList = sortOrgList.sort((a, b) => {
-        return b.orgSeq - a.orgSeq
+        return a.orgSeq - b.orgSeq
       })
       return newOrgList
     }

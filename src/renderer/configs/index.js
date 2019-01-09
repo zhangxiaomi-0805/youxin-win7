@@ -4,7 +4,7 @@ var config = {
   mainWinHeight: 645, // 主窗口初始高
   aplWinWidth: 899, // 内部子窗口初始宽
   aplWinHeight: 767, // 内部子窗口初始宽
-  env: 'self',
+  env: 'test',
   sdk: 'NIM_Web_SDK_v5.7.0',
   // 用户自定义的登录注册地址
   loginUrl: '#/',
