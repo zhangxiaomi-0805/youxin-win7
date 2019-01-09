@@ -345,7 +345,6 @@
           } else if (content.type === 7) {
             // 自定义富文本消息
             item.type = 'custom-type7'
-            console.log(content.data.value)
             item.showText = content.data.value
           } else if (content.type === 8) {
             // 自定义邀请入群消息
@@ -1356,22 +1355,34 @@
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
                 if (openType && openType === 2) {
-                  let { shell } = require('electron')
-                  shell.openExternal(res)
+                  if (config.environment === 'web') {
+                    this.webOpenOutWin(res)
+                  } else {
+                    this.electronOpenOutWin(res)
+                  }
                 } else {
-                  let { ipcRenderer } = require('electron')
-                  ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                  if (config.environment === 'web') {
+                    this.webOpenInWin(res, sessionInfo)
+                  } else {
+                    this.electronOpenInWin(res, sessionInfo)
+                  }
                 }
               }).catch(() => {})
               return false
             }
           }
           if (openType && openType === 1) {
-            let { ipcRenderer } = require('electron')
-            ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+            if (config.environment === 'web') {
+              this.webOpenInWin(url, sessionInfo)
+            } else {
+              this.electronOpenInWin(url, sessionInfo)
+            }
           } else {
-            let { shell } = require('electron')
-            shell.openExternal(url)
+            if (config.environment === 'web') {
+              this.webOpenOutWin(url)
+            } else {
+              this.electronOpenOutWin(url)
+            }
           }
         }
       },
@@ -1400,10 +1411,15 @@
             appCode: this.msg.sessionId
           }
           let data = JSON.stringify(dataObj)
-          let date = new Date().getTime()
-          console.log('主窗口 ==== '+ date)
           // NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
         }).catch(error => console.log(error))
+        NimCefWebInstance.register('OnReceiveEvent', (params) => {
+          if (params.eventName === 'childIsLoaded') {
+            console.log('childIsLoaded......')
+            console.log(params.data)
+            NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
+          }
+        })
       },
       electronOpenOutWin (url) {
         // electron端打开外部窗口
