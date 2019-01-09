@@ -298,7 +298,6 @@
           account: this.account,
           password: DES.encryptByDES(this.password)
         }, this).then(ret => {
-          console.log(ret)
           if (ret.type === 'setPassword') {
             this.type = 'setPassword'
             this.loading = false
@@ -307,7 +306,6 @@
             this.loginPC(ret.userInfo)
           }
         }).catch(err => {
-          console.log(err)
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
@@ -401,16 +399,18 @@
                 this.$store.commit('updateLoginInfo', loginInfo)
                 if (config.environment === 'web') { // web分支
                   NativeLogic.native.setBounds(config.mainWinWidth, config.mainWinHeight) // 設置窗口大小:922 645
-                  let AppDirectory = window.location.pathname.slice(1) // 應用所在目錄
+                  let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
                   if (AppDirectory.indexOf('dist') > -1) {
                     let urlArr = AppDirectory.split('dist')
                     AppDirectory = urlArr[0]
                   }
-                  console.log(AppDirectory + '/static/img/systry-logo.png')
-                  // 設置系統托盤應用圖標
+                  // 设置系统托盘应用图标
                   NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
                 } else { // electron分支
-                  NativeLogic.electron.setBounds(userInfo)
+                  const electron = require('electron')
+                  const ipcRenderer = electron.ipcRenderer
+                  ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
+                  // NativeLogic.electron.setBounds(userInfo)
                 }
                 location.href = config.homeUrl
               }
