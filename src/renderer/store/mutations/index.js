@@ -930,33 +930,30 @@ export default {
       IndexedDB.setItem(targetObj, curStateObj)
       // 组织排序
       let newOrgList = sortOrgList.sort((a, b) => {
-        return a.orgSeq - b.orgSeq
+        return b.orgSeq - a.orgSeq
       })
       return newOrgList
     }
     let SortUserFn = (sortUserList) => {
       IndexedDB.setItem(targetObj, curStateObj)
       // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
-      // let superManger = []
-      // let manager = []
-      // let member = []
-      // for (let i in sortUserList) {
-      //   let obj = sortUserList[i]
-      //   if (obj.userType === 2) {
-      //     superManger.push(obj)
-      //   } else if (obj.userType === 3) {
-      //     manager.push(obj)
-      //   } else {
-      //     member.push(obj)
-      //   }
-      // }
-      // superManger = listSort(superManger)
-      // manager = listSort(manager)
-      // member = listSort(member)
-      // sortUserList = [...superManger, ...manager, ...member]
-      sortUserList = sortUserList.sort((a, b) => {
-        return a.userSeq - b.userSeq
-      })
+      let superManger = []
+      let manager = []
+      let member = []
+      for (let i in sortUserList) {
+        let obj = sortUserList[i]
+        if (obj.userType === 2) {
+          superManger.push(obj)
+        } else if (obj.userType === 3) {
+          manager.push(obj)
+        } else {
+          member.push(obj)
+        }
+      }
+      superManger = listSort(superManger)
+      manager = listSort(manager)
+      member = listSort(member)
+      sortUserList = [...superManger, ...manager, ...member]
     }
     // 更新组织数据
     if (obj.type === 'init') {
@@ -1205,7 +1202,7 @@ export default {
     state.thirdUrls = obj
   },
   updateDownloadFileList (state, obj) {
-    // type 0 -下载完成 1 -下载中 2 -暂停
+    // type 0 -下载完成 1 -下载中 2 -暂停 3 -取消下载
     const { type, id, sessionId, downloadProgress } = obj
     let newArr = Object.assign([], state.downloadFileList)
     const index = newArr.findIndex(item => {
@@ -1218,13 +1215,15 @@ export default {
         newArr[index].status = 1
         newArr[index].downloadProgress = downloadProgress
       }
-    } else if (type === 0) {
+    } else if (type === 0 || type === 3) {
       const index = newArr.findIndex(item => {
         return item.id === id
       })
       newArr.splice(index, 1)
     } else if (type === 2) {
       newArr[index].status = 2
+    } else if (type === 3) {
+
     }
     state.downloadFileList = newArr
   },

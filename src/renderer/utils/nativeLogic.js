@@ -56,21 +56,23 @@ class NativeHandle {
       savePath,
       showSaveDlg
     }, (error, result) => {
-      console.log(result)
       if (error) {
         console.log('下载文件失败', result)
       } else {
         if (result.isReady) {
           console.log('任务开始， 任务 Id', result.id)
-          this.downList[id] = result.id
+          // status 1 -下载中 2 -暂停
+          this.downList[id] = {id: result.id, status: 1}
         } else if (result.isInProgress) {
           console.log('下载中', result.currentSpeed, result.totalBytes, result.receiveBytes, result.percentComplete)
-          store.commit('updateDownloadFileList', {
-            type: 1,
-            id: id,
-            sessionId: session,
-            downloadProgress: result.percentComplete
-          })
+          if (this.downList[id].status === 1) {
+            store.commit('updateDownloadFileList', {
+              type: 1,
+              id: id,
+              sessionId: session,
+              downloadProgress: result.percentComplete
+            })
+          }
         } else if (result.isComplete) {
           console.log('下载完成', result.totalBytes, result.receiveBytes)
           let newMsg = Object.assign({}, msg)
@@ -106,6 +108,10 @@ class NativeHandle {
           })
         } else if (result.isCanceled) {
           console.log('取消下载中', result.totalBytes, result.receiveBytes)
+          store.commit('updateDownloadFileList', {
+            type: 3,
+            id: id
+          })
         }
       }
     })
@@ -117,8 +123,13 @@ class NativeHandle {
    * @params: status   // 下载状态（1-暂停下载，2-恢复下载，3-取消下载）
    * **/
   downloadControl = (msgId, status) => {
-    const downloadId = this.downList[msgId]
-    window.NimCefWebInstance && window.NimCefWebInstance.call('downloadControl', { downloadId, status }, (error, result) => {
+    const downloadId = this.downList[msgId].id
+    if (status === 0) {
+      this.downList[msgId].status = 2
+    } else {
+      this.downList[msgId].status = 1
+    }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('downloadControl', { id: downloadId, status: status }, (error, result) => {
       console.log(error)
       console.log(result)
       if (result) {
@@ -175,7 +186,7 @@ class NativeHandle {
   receiveNewMsgs = (arg) => {
     if (arg.unreadNums <= 0) {
       if (this.twinkle) {
-        this.setTrayImage(`${__static}/img/systry-logo.png`)
+        this.setTrayImage(`./static/img/systry-logo.png`)
         clearInterval(this.twinkle)
         this.twinkle = null
       }
@@ -190,9 +201,9 @@ class NativeHandle {
     this.twinkle = setInterval(() => {
       count++
       if (count % 2 === 0) {
-        this.setTrayImage(`${__static}/img/systry-logo.png`)
+        this.setTrayImage(`./static/img/systry-logo.png`)
       } else {
-        this.setTrayImage(`${__static}/img/systry-logo-a.png`)
+        this.setTrayImage(`./static/img/systry-logo-a.png`)
       }
     }, 600)
   }
@@ -227,10 +238,11 @@ class NativeHandle {
    * 10、获取窗口状态: 收到新消息，当窗口处于非激活状态时进行消息通知
    * **/
   getWinStatus = () => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('getWinStatus', {}, (error, result) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('getWinStatus', { windowName: 'main_form' }, (error, result) => {
       console.log(error)
       console.log(result)
       if (result) {
+        // resolve(result)
         // 回参
         // windowName: "main", // 窗口名称；main-表示主窗口；其他窗口在创建时传入windowName
         // isFocused: true, // 是否获取焦点
