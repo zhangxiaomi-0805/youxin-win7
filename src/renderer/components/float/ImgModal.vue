@@ -134,7 +134,7 @@ export default {
         if (this.canManage) {
           return this.imgList[this.currentIndex].file.url.split('?')[0]
         } else {
-          // return '../../../static/img/setting/loading-b.gif'
+          return './static/img/setting/loading-b.gif'
         }
       } else {
         return ''

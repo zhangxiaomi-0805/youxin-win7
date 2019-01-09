@@ -111,15 +111,6 @@
       sessionlist () {
         return this.$store.state.sessionlist
       },
-      // sessionName () {
-      //   if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-      //     // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
-      //     var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
-      //     var memberCount = members && members.length
-      //     return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
-      //   }
-      //   return '成员'
-      // },
       memberCount () {
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息

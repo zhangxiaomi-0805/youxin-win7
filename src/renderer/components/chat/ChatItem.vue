@@ -33,7 +33,7 @@
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
         <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow === 'in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -659,51 +659,6 @@
               this.iframe.style.height = (e.data.params.contentHeight + 40) + 'px'
             }
           })
-          // webview
-          // let webview = this.$refs.webview
-          // webview.addEventListener('dom-ready', e => {
-          //   // Inject CSS
-          //   webview.insertCSS(`
-          //     img {
-          //       max-width:100% !important;
-          //     }
-          //   `)
-          // })
-          // webview.addEventListener('did-finish-load', () => {
-          //   webview.send('executeJavaScript', item.showText)
-          //   webview.openDevTools() // 打开webview控制台
-          // })
-          // // 获取html页面内容实际高度
-          // webview.addEventListener('ipc-message', (event) => { // ipc-message监听，被webview加载页面传来的信息
-          //   webview.style.height = (event.channel + 40) + 'px'
-          // })
-          // webview.addEventListener('new-window', (e) => {
-          //   if (e.url) {
-          //     if (e.url.indexOf('yximcreatesession.telecomjs.com') > -1) {
-          //       // 发起会话处理
-          //       let account = e.url.split('?account=')[1]
-          //       if (account) {
-          //         ipcRenderer.send('sendAccount', {account})
-          //       }
-          //     }
-          //     // webview.loadURL(e.url)
-          //   }
-          //   let openType = 1
-          //   if (e.url.indexOf('#browserWindow') > -1) {
-          //     openType = 2
-          //   }
-          //   this.openAplWindow(e, openType)
-          // })
-          // webview.addEventListener('did-fail-load', (e) => {
-          //   if (e.validatedURL.indexOf('yximcreatesession.telecomjs.com') > -1) {
-          //     // 发起会话处理
-          //     let account = e.validatedURL.split('?account=')[1]
-          //     if (account) {
-          //       ipcRenderer.send('sendAccount', {account})
-          //     }
-          //   }
-          //   // webview.goBack()
-          // })
         }
         setTimeout(() => {
           // 停止高亮聊天记录闪烁
@@ -768,7 +723,7 @@
               if (url.indexOf('#browserWindow') > -1) {
                 openType = 2
               }
-              this.openAplWindow(url, openType)
+              this.openAplWindow({url}, openType)
             })
           }
         }, 10)
@@ -1336,7 +1291,13 @@
           this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
         }
       },
-      openAplWindow (url, openType) {
+      openAplWindow (evt, openType) {
+        let url = ''
+        if (!openType) {
+          url = evt.target.getAttribute('data-url')
+        } else {
+          url = evt.url
+        }
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls

@@ -320,16 +320,9 @@
       screenShot () {
         if (config.environment === 'web') { // web分支
           NativeLogic.native.screenShot()
-          // if (Number(code) === 200) {
-          //   this.onPaste()
-          // }
         } else { // electron分支
           let { ipcRenderer } = require('electron')
-          ipcRenderer.on('screenShotCb', (evt, arg) => {
-            if (arg.isChange === 2) {
-              this.onPaste()
-            }
-          })
+          ipcRenderer.send('screenShot')
         }
       },
       preventDefault (e) {
