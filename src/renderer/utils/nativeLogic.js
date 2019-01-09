@@ -45,6 +45,8 @@ class NativeHandle {
    * @params: path   // 文件对应的为本地路径，浏览器对应的是url
    * **/
   openShell = (type, path) => {
+    console.log(type)
+    console.log(path)
     window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
       console.log(error)
       console.log(result)
@@ -277,11 +279,16 @@ class NativeHandle {
    * @params: width      初始窗口宽
    * **/
   createWindows = (windowName, path, height, width) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
+        if (result) {
+          console.log(result)
+          resolve(result)
+        } else {
+          console.log(error)
+          reject(error)
+        }
+      })
     })
   }
 
@@ -293,9 +300,11 @@ class NativeHandle {
    * @params: callback      回调函数，等接收窗口处理完后回调给调用窗口
    * **/
   sendEvent = (windowName, data, eventName) => {
-    console.log('windowName===' + windowName)
-    console.log('data=====' + JSON.parse(data))
-    console.log('eventName===' + eventName)
+    console.log({
+      windowName,
+      data: JSON.parse(data),
+      eventName
+    })
     window.NimCefWebInstance && window.NimCefWebInstance.call('sendEvent', {
       windowName,
       data: JSON.parse(data),

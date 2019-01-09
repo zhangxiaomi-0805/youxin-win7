@@ -345,6 +345,7 @@
           } else if (content.type === 7) {
             // 自定义富文本消息
             item.type = 'custom-type7'
+            console.log(content.data.value)
             item.showText = content.data.value
           } else if (content.type === 8) {
             // 自定义邀请入群消息
@@ -1334,6 +1335,46 @@
             shell.openExternal(url)
           }
         }
+      },
+      webOpenOutWin (url) {
+        // web端打开外部窗口
+        NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+      },
+      webOpenInWin (url, sessionInfo) {
+        // web端打开内部窗口
+        // 1、创建窗口
+        // params: windowName, path, height, width
+        let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+        if (AppDirectory.indexOf('dist') > -1) {
+          let urlArr = AppDirectory.split('dist')
+          AppDirectory = urlArr[0]
+        }
+        // const winURL = AppDirectory + 'static/windows/application.html'
+        const winURL = 'D:/vue_workspace/youxin-new/static/windows/applicationXp.html'
+        NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then((result) => {
+          // 2、跨窗口通信
+          // params: windowName, data{}, eventName
+          let dataObj = {
+            url,
+            title: sessionInfo.name,
+            icon: sessionInfo.avatar,
+            appCode: this.msg.sessionId
+          }
+          let data = JSON.stringify(dataObj)
+          let date = new Date().getTime()
+          console.log('主窗口 ==== '+ date)
+          // NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
+        }).catch(error => console.log(error))
+      },
+      electronOpenOutWin (url) {
+        // electron端打开外部窗口
+        let { shell } = require('electron')
+        shell.openExternal(url)
+      },
+      electronOpenInWin (url, sessionInfo) {
+        // electron端打开内部窗口
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.send('openAplWindow', {url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
       },
       httpSpring (str) {
         // 匹配url
