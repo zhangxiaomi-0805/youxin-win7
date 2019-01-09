@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>外部接入系统</title>
+  <link rel="stylesheet" href="../css/default.css">
+</head>
+<body oncontextmenu="return false">
+  <div class="g-window appli-window">
+    <header>
+      <div class="u-caption"><div class="u-sysbtn">
+        <a id="appli-min" class="btn-min"></a>
+        <a id="appli-max" class="btn-max"></a>
+        <a id="appli-restore" class="btn-restore" style="display: none;"></a>
+        <a id="appli-colse" class="btn-close"></a>
+      </div></div>
+      <div class="nav"><a id="appli-back" class="disabled">后退</a><a id="appli-refresh">刷新</a></div>
+      <div id="appli-tabs" class="tabs"></div>
+    </header>
+    <div id="appli-iframe" class="appli-container"><div class="appli-loading"></div></div>
+  </div>
+
+  <script type="text/javascript" src='./applicationXp.js'></script>
+</body>
+</html>
