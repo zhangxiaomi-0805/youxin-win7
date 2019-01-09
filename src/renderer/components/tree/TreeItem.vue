@@ -1,16 +1,31 @@
 <template>
   <div>
-    <ul class="t-u-list"
-        style="{height: 'auto',overflow: 'hidden'}">
+    <ul
+      v-if="userlist"
+      class="t-u-list t-body active"
+      style="{height: 'auto',overflow: 'hidden'}">
+      <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
+        <div
+          :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
+          :style="{paddingLeft: (orgLevel + (showTitle || listType === 'myDept' ? 1 : 0)) * 17 + 'px', height: '31px'}"
+          @click="orgHandle(user)">
+          <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
+          <span v-if="showCheck" :class="className(user)"></span>
+          <img :src="user.avatar && (user.avatar !== 'undefined') ? user.avatar : defaultUserIcon"/>
+          <span class="orgname" style="fontSize: 13px;" :title="user.name">{{user.name}}</span>
+        </div>
+      </li>
+    </ul>
+    <ul class="t-u-list" style="{height: 'auto',overflow: 'hidden'}">
       <li class="t-u-list-item" v-for="(orgnize, $index) in orgnizelist" :key="orgnize.id" :id="orgnize.id">
         <div
           class="t-orgname"
-          :style="{paddingLeft: (orgnize.orgLevel + (showTitle ? 2 : listType === 'myDept' ? 0 : 1)) * 14 + 'px'}"
+          :style="{paddingLeft: (orgLevel + (showTitle || listType === 'myDept' ? 1 : 0)) * 17 + 'px'}"
           @click="toggleStatus(orgnize.id, orgnize, $index)"
           @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
           @mouseleave="mouseleave('orgAddAllId')">
           <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
-          <span v-else class="t-common"/>
+          <!-- <span v-else class="t-common"/> -->
           <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
           <transition name="fade"><a v-if="orgnize.id === orgAddAllId && showCheck" class="t-addAll" @click.stop="selectAllMember(orgnize, orgnize.id, $index)">+</a></transition>
         </div>
@@ -28,22 +43,6 @@
             :orgSelectLevel="orgSelectLevel"
             :orgSelectHandle="orgSelectHandle"
             :renderOrgData="renderOrgData"/>
-        </div>
-      </li>
-    </ul>
-    <ul
-      v-if="userlist"
-      class="t-u-list t-body active"
-      style="{height: 'auto',overflow: 'hidden'}">
-      <li class="t-u-list-item" v-for="user in userlist" :key="user.id" :id="user.id">
-        <div
-          :class="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId) ? 't-orgname active' : 't-orgname'"
-          :style="{paddingLeft: (orgLevel + (showTitle ? 2 : 1)) * 14 + 'px', height: '31px'}"
-          @click="orgHandle(user)">
-          <span v-if="!showCheck && (orgSelectId === user.accid && orgSelectLevel === currentId)" class="t-side"></span>
-          <span v-if="showCheck" :class="className(user)"></span>
-          <img :src="user.avatar && (user.avatar !== 'undefined') ? user.avatar : defaultUserIcon"/>
-          <span class="orgname" :title="user.name">{{user.name}}</span>
         </div>
       </li>
     </ul>
@@ -255,8 +254,8 @@
   }
 
   .t-orgname > img {
-    width: 24px;
-    height: 24px;
+    width: 19px;
+    height: 19px;
     border-radius: 50%;
     margin-right: 6px;
   }

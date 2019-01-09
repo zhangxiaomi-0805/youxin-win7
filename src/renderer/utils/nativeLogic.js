@@ -7,23 +7,33 @@ import store from '../store'
 // 一、electron提供的方法
 class ElectronHandle {
   // 1、设置窗口大小
-  setBounds = (userInfo) => {
-    const electron = require('electron')
-    const ipcRenderer = electron.ipcRenderer
-    ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
-  }
+  // setBounds = (userInfo) => {
+  //   const electron = require('electron')
+  //   const ipcRenderer = electron.ipcRenderer
+  //   ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
+  // }
 }
 
 // 二、Native提供的接口合集
 class NativeHandle {
   downList = {}
+  // 0、设置窗口可拖动区域
+  setDraggableArea = (percent, leftTitleHeight, rightTitleHeight) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', {
+      percent, // 左边占整个应用的百分比：如：0.3
+      leftTitleHeight, // 左侧可拖动区域高度：20
+      rightTitleHeight, // 右侧可拖动区域高度：30
+    }, (error, result) => {
+      console.log(result)
+      if (result) {
+      }
+    })
+  }
+
   // 1、设置窗口大小
   setBounds = (width, height) => {
-    console.log('寬度：。。。。' + width)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {
-      console.log(error)
       console.log(result)
-      console.log('Native设置窗口大小')
       if (result) {
       }
     })
@@ -184,6 +194,14 @@ class NativeHandle {
   }
 
   receiveNewMsgs = (arg) => {
+    let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+    console.log(AppDirectory)
+    // if (AppDirectory.indexOf('dist') > -1) {
+    //   let urlArr = AppDirectory.split('dist')
+    //   AppDirectory = urlArr[0]
+    // }
+    // 设置系统托盘应用图标
+    // NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
     if (arg.unreadNums <= 0) {
       if (this.twinkle) {
         this.setTrayImage(`./static/img/systry-logo.png`)
@@ -259,7 +277,7 @@ class NativeHandle {
    * @params: width      初始窗口宽
    * **/
   createWindows = (windowName, path, height, width) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindows', {windowName, path, height, width}, (error, result) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
       console.log(error)
       console.log(result)
       if (result) {
@@ -274,10 +292,13 @@ class NativeHandle {
    * @params: eventName      事件名称（接收窗口监听该事件）
    * @params: callback      回调函数，等接收窗口处理完后回调给调用窗口
    * **/
-  sendEvent = (windowName, data, eventName, callback) => {
+  sendEvent = (windowName, data, eventName) => {
+    console.log('windowName===' + windowName)
+    console.log('data=====' + JSON.parse(data))
+    console.log('eventName===' + eventName)
     window.NimCefWebInstance && window.NimCefWebInstance.call('sendEvent', {
       windowName,
-      data,
+      data: JSON.parse(data),
       eventName
     }, (error, result) => {
       console.log(error)
