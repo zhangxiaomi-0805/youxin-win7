@@ -38,7 +38,7 @@
             :showCheck="showCheck"
             :orgnizeObj="orgnizeObj"
             :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
-            :orgLevel="listType === 'myDept' ?  orgnize.orgLevel : orgnize.orgLevel + 1"
+            :orgLevel="listType === 'myDept' ?  orgLevel : orgLevel + 1"
             :orgSelectId="orgSelectId"
             :orgSelectLevel="orgSelectLevel"
             :orgSelectHandle="orgSelectHandle"
@@ -62,7 +62,12 @@
       noAdd: Boolean,
       orgnizeObj: Object,
       orgnizeLevelObj: Object,
-      orgLevel: Number,
+      orgLevel: {
+        type: Number,
+        default () {
+          return 0
+        }
+      },
       orgSelectId: String,
       orgSelectLevel: Number,
       orgSelectHandle: Function,
