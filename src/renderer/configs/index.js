@@ -1,5 +1,5 @@
 var config = {
-  environment: 'web', // 运行环境：web/electron
+  environment: 'electron', // 运行环境：web/electron
   mainWinWidth: 922, // 主窗口初始宽
   mainWinHeight: 645, // 主窗口初始高
   aplWinWidth: 899, // 内部子窗口初始宽
@@ -52,7 +52,7 @@ let appConfig = {
   },
   test: {
     appkey: '6e2baf0f1988f1ff2c6ca4fe46043e88',
-    postUrl: '' //'http://imapi.eyuntx.com/'
+    postUrl: 'http://imapi.eyuntx.com/'
   },
   online: {
     appkey: '393f9c3f3dabdc573cc634303f09573e',

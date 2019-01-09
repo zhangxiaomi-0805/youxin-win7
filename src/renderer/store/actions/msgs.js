@@ -55,10 +55,8 @@ async function systemNewMsgsManage (msg) {
   // 通知主进程
   let unreads = document.getElementsByClassName('u-unread')
   if (config.environment === 'web') { // web分支
+    NativeLogic.native.getWinStatus()
     NativeLogic.native.receiveNewMsgs({unreadNums: unreads.length})
-    // NativeLogic.native.sendEvent({ unreadNums: unreads.length }, 'receiveNewMsgs', () =>{
-    //   console.log('111')
-    // })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('receiveNewMsgs', {unreadNums: unreads.length})
@@ -404,10 +402,7 @@ export function sendMsg ({state, commit}, obj) {
           to: obj.to,
           pushContent: obj.pushContent,
           content: JSON.stringify(obj.content),
-          done: (error, msg) => {
-            if (error) reject(error)
-            else resolve(msg)
-          }
+          done: onSendMsgDone
         })
     }
   })

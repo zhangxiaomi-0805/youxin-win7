@@ -71,7 +71,6 @@ export default {
       this.teamAvatarUrl = data.teamAvatarUrl || configs.defaultGroupIcon
       this.memberNum = data.memberNum || 0
       this.msg = data.msg || ''
-      this.isNormal = data.isNormal
       if (data.isDiscussGroup) this.isDiscussGroup = true
       else this.isDiscussGroup = false
     })
@@ -87,8 +86,7 @@ export default {
       type: 1, // 1-创建群，2-添加成员（创建讨论组），3-添加群成员，4-创建讨论组，5-转发到新聊天
       searchValue: '',
       msg: '',
-      isDiscussGroup: false,
-      isNormal: null
+      isDiscussGroup: false
     }
   },
   computed: {
@@ -243,11 +241,6 @@ export default {
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
     },
     addTeamMember () {
-      if (this.type === 3 && this.isNormal) {
-        // 普通成员邀请人入群
-        this.sendCustomMsg()
-        return false
-      }
       if (this.isDiscussGroup) {
         let orgDisabledlist = this.$store.state.orgDisabledlist
         if ((orgDisabledlist.length + this.chooselist.length) > 199) {
@@ -258,6 +251,8 @@ export default {
           })
           return false
         }
+      } else { // 普通成员邀请人入群
+        this.sendCustomMsg()
       }
       this.loading = true
       // 拉人入群、讨论组
@@ -286,15 +281,12 @@ export default {
       }
     },
     sendCustomMsg (coustomMsg) {
-      this.loading = true
       let chooselist = Object.assign([], this.chooselist)
       this.sendMsg(chooselist[0], Callback.bind(this))
       function Callback () {
         chooselist.splice(0, 1)
         if (chooselist[0]) {
           this.sendMsg(chooselist[0], Callback.bind(this))
-        } else {
-          this.closeModal()
         }
       }
     },
@@ -321,7 +313,7 @@ export default {
           to: item.accid,
           content
         })
-      } catch (error) { console.log(error) }
+      } catch (error) {}
       callback()
     },
     async forwordNewChat () {

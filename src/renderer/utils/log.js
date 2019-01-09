@@ -43,7 +43,7 @@ var Logger = {}
  */
 Logger.output = function (opts) {
   // if(Logger.isZiping) return;
-  if (config.environment === 'web') return false
+  if (config.environment === 'web') return
   var logMsg = []
   var timeStr = _u._$format(new Date(), 'yyyy_MM_dd HH:mm:ss')
   var date = timeStr.split(' ')[0]
@@ -75,7 +75,7 @@ Logger.output = function (opts) {
  * opts.logMsg
  */
 Logger.write = function (opts) {
-  if (config.environment === 'web') return false
+  if (config.environment === 'web') return
   let { fs } = require('path')
   let { path } = require('fs')
   let { electron } = require('electron')
