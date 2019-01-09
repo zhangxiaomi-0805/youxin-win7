@@ -109,12 +109,8 @@
         let isCurrent = newMsg.sessionId === this.$store.state.currSessionId
         let href = `#/mainpage/session/chat?sessionId=` + newMsg.sessionId
         let data = {body: showMsg, current: isCurrent, href: href}
-        if (config.environment === 'web') { // web分支
-          // NativeLogic.native.sendEvent() // 跨窗口通信
-        } else { // electron分支
-          let { ipcRenderer } = require('electron')
-          ipcRenderer.send('onReceiveMsg', data)
-        }
+        // let { ipcRenderer } = require('electron')
+        // ipcRenderer.send('onReceiveMsg', data)
       }
     },
     computed: {

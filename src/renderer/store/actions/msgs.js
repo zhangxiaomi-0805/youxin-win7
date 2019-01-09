@@ -53,13 +53,16 @@ export function onNewMsg (msg) {
 async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   // 通知主进程
-  let unreads = document.getElementsByClassName('u-unread')
+  let unreadNums = 0
+  store.state.sessionlist.forEach(session => {
+    unreadNums += session.unread
+  })
   if (config.environment === 'web') { // web分支
     NativeLogic.native.getWinStatus()
-    NativeLogic.native.receiveNewMsgs({unreadNums: unreads.length})
+    NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
-    ipcRenderer.send('receiveNewMsgs', {unreadNums: unreads.length})
+    ipcRenderer.send('receiveNewMsgs', {unreadNums})
   }
   // 发送音频
   let isMute = false
@@ -73,7 +76,7 @@ async function systemNewMsgsManage (msg) {
     if (muteNotiType === 1) isMute = true
   }
   if (!isMute) {
-    let audio = new Audio(`${__static}/img/msg.wav`)
+    let audio = new Audio(`./static/img/msg.wav`)
     audio.play()
     setTimeout(() => audio.pause(), 800)
   }

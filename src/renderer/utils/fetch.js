@@ -64,7 +64,6 @@ Fetch.post = async function (url, params, $this, ContentType) {
         ipcRenderer.send('relaunch-app')
       }
     }
-    // console.log('http://imapi.eyuntx.com/' + url)
     fetch(configs.postUrl + url, {
       method: 'POST',
       mode: 'cors',
