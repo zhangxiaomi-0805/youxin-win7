@@ -63,6 +63,7 @@
   import Request from '../../utils/request'
   import Search from '../search/Search.vue'
   import clickoutside from '../../utils/clickoutside.js'
+  import NativeLogic from '../../utils/nativeLogic.js'
   export default {
     name: 'contacts-list',
     directives: {clickoutside},

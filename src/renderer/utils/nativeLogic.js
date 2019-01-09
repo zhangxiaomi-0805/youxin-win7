@@ -22,9 +22,9 @@ class NativeHandle {
     window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', {
       percent, // 左边占整个应用的百分比：如：0.3
       leftTitleHeight, // 左侧可拖动区域高度：20
-      rightTitleHeight, // 右侧可拖动区域高度：30
+      rightTitleHeight // 右侧可拖动区域高度：30
     }, (error, result) => {
-      console.log(result)
+      console.log(error, result)
       if (result) {
       }
     })
@@ -33,7 +33,7 @@ class NativeHandle {
   // 1、设置窗口大小
   setBounds = (width, height) => {
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {
-      console.log(result)
+      console.log(error, result)
       if (result) {
       }
     })
