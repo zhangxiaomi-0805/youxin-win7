@@ -937,23 +937,26 @@ export default {
     let SortUserFn = (sortUserList) => {
       IndexedDB.setItem(targetObj, curStateObj)
       // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
-      let superManger = []
-      let manager = []
-      let member = []
-      for (let i in sortUserList) {
-        let obj = sortUserList[i]
-        if (obj.userType === 2) {
-          superManger.push(obj)
-        } else if (obj.userType === 3) {
-          manager.push(obj)
-        } else {
-          member.push(obj)
-        }
-      }
-      superManger = listSort(superManger)
-      manager = listSort(manager)
-      member = listSort(member)
-      sortUserList = [...superManger, ...manager, ...member]
+      // let superManger = []
+      // let manager = []
+      // let member = []
+      // for (let i in sortUserList) {
+      //   let obj = sortUserList[i]
+      //   if (obj.userType === 2) {
+      //     superManger.push(obj)
+      //   } else if (obj.userType === 3) {
+      //     manager.push(obj)
+      //   } else {
+      //     member.push(obj)
+      //   }
+      // }
+      // superManger = listSort(superManger)
+      // manager = listSort(manager)
+      // member = listSort(member)
+      // sortUserList = [...superManger, ...manager, ...member]
+      sortUserList = sortUserList.sort((a, b) => {
+        return a.userSeq - b.userSeq
+      })
     }
     // 更新组织数据
     if (obj.type === 'init') {

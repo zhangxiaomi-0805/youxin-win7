@@ -33,7 +33,7 @@
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
         <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -214,7 +214,6 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
-        console.log(item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -716,7 +715,6 @@
                   let account = e.url.split('?account=')[1]
                   if (account) {
                     if (config.environment === 'web') { // web分支
-                      console.log(NativeLogic.native)
                       Request.GetAccid({userName: account}, this).then(ret => {
                         let accid = ret.accid
                         // 根据account 获取 accid 发起会话
@@ -739,7 +737,6 @@
         }, 1000)
       },
       showGroupInvite (teamInfo) {
-        console.log('群聊邀请')
         this.eventBus.$emit('showGroupInvite', {teamInfo: teamInfo})
       },
       openFile () {
@@ -1232,8 +1229,6 @@
         }
       },
       openAplWindow (url, openType) {
-        console.log(url)
-        console.log(openType)
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls
@@ -1251,7 +1246,6 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
-                console.log('openType:' + openType)
                 if (openType && openType === 2) { // 外部窗口打开
                   if (config.environment === 'web') { // web分支
                     this.webOpenOutWin(res)
@@ -1297,7 +1291,6 @@
           let urlArr = AppDirectory.split('dist')
           AppDirectory = urlArr[0]
         }
-        console.log(window.location.pathname)
         // const winURL = AppDirectory + 'static/windows/application.html'
         const winURL = 'D:/vue_workspace/youxin-new/static/windows/application.html'
         NativeLogic.native.createWindows('aplWindow', winURL, config.aplWinWidth, config.aplWinHeight)

@@ -327,10 +327,16 @@
         }
       },
       addTeamMember () {
-        console.log(this.teamInfo)
         // 添加成员
         this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-        this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId, teamAvatarUrl: this.teamInfo.teamAvatar, teamName: this.teamInfo.name, isDiscussGroup: this.isDiscussGroup})
+        this.eventBus.$emit('selectOrgnize', {
+          type: 3,
+          teamId: this.teamId,
+          teamAvatarUrl: this.teamInfo.teamAvatar,
+          teamName: this.teamInfo.name,
+          isDiscussGroup: this.isDiscussGroup,
+          isNormal: this.power === 'normal'
+        })
       },
       removeTeamMember () {
         // 移出成员

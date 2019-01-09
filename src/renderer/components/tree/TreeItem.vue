@@ -251,7 +251,7 @@
 
   .t-orgname .orgname {
     display: inline-block;
-    width: 86%;
+    width: 85%;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
