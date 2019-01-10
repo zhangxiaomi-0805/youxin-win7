@@ -94,10 +94,9 @@ export default {
         let urlArr = AppDirectory.split('dist')
         AppDirectory = urlArr[0]
       }
-      // const winURL = AppDirectory + 'static/windows/application.html'
-      const winURL = 'D:/vue_workspace/youxin-new/static/windows/applicationXp.html'
-      NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then((result) => {
-      }).catch(error => console.log(error))
+      console.log(AppDirectory)
+      const winURL = AppDirectory + 'static/windows/applicationXp.html'
+      NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
 
       // 注册事件监听子页面是否加载完成
       window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {

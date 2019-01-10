@@ -273,16 +273,12 @@ class NativeHandle {
    * @params: width      初始窗口宽
    * **/
   createWindows = (windowName, path, height, width) => {
-    return new Promise((resolve, reject) => {
-      window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
-        if (result) {
-          console.log(result)
-          resolve(result)
-        } else {
-          console.log(error)
-          reject(error)
-        }
-      })
+    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
+      if (result) {
+        console.log(result)
+      } else {
+        console.log(error)
+      }
     })
   }
 
