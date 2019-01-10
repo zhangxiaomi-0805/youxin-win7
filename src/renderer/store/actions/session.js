@@ -3,7 +3,7 @@
  */
 
 import store from '../'
-// import NativeLogic from '../../utils/nativeLogic.js'
+import NativeLogic from '../../utils/nativeLogic.js'
 import config from '../../configs'
 // 如果会话对象不是好友，需要更新好友名片
 function updateSessionAccount (sessions) {
@@ -141,9 +141,8 @@ export function onUpdateSession (session, callback) {
     unreadNums += session.unread
   })
   if (config.environment === 'web') { // web分支
-    // NativeLogic.native.sendEvent({ unreadNums: unreads.length }, 'sessionUnreadNums', () =>{
-    //   console.log('111')
-    // })
+    NativeLogic.native.getWinStatus()
+    NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('sessionUnreadNums', {unreadNums})

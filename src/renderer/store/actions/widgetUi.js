@@ -702,6 +702,9 @@ export async function showListOptions ({state, commit}, obj) {
     ]
   }
 
+  console.log(obj.key)
+  console.log(items)
+
   commit('updateListOptions', {
     items,
     show: true,

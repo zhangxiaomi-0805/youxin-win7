@@ -73,7 +73,6 @@
   import pageUtil from '../../utils/page'
   import SliderMenu from '../float/SliderMenu'
   import Resize from '../../utils/resize.js'
-  import NativeLogic from '../../utils/nativeLogic.js'
   export default {
     name: 'chat',
     components: {

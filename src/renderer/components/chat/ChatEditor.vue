@@ -359,6 +359,14 @@
           range && range.collapseToEnd()
         }
       },
+      // 获取粘贴文字
+      getAsString (item) {
+        return new Promise((resolve, reject) => {
+          item.getAsString(str => {
+            resolve(str)
+          })
+        })
+      },
       // 粘贴事件
       async onPaste (e) {
         e && e.preventDefault()
@@ -368,10 +376,9 @@
           for (var i = 0, len = e.clipboardData.items.length; i < len; i++) {
             var item = e.clipboardData.items[i]
             if (item.kind === 'string') {
-              item.getAsString(function (str) {
-                // str 是获取到的字符串
-                text = str
-              })
+              try {
+                text = await this.getAsString(item)
+              } catch (err) {}
             } else if (item.kind === 'file') {
               var pasteFile = item.getAsFile()
               file = new File([pasteFile], 'image.png', {type: 'image/png'})

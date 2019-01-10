@@ -33,7 +33,7 @@
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
         <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow === 'in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -234,7 +234,7 @@
         if (this.uploadprogress < 100) {
           return this.uploadprogress
         } else {
-          return this.isDownloaded ? 100 : this.downloadProgress
+          return this.downloadProgress
         }
       },
       msg () {
@@ -345,6 +345,7 @@
           } else if (content.type === 7) {
             // 自定义富文本消息
             item.type = 'custom-type7'
+            console.log(content.data.value)
             item.showText = content.data.value
           } else if (content.type === 8) {
             // 自定义邀请入群消息
@@ -455,7 +456,7 @@
       },
       fileSize () {
         if (this.msg.type === 'file') {
-          const size = (this.msg.file.size / 1024 / 1024).toFixed(2) + 'MB'
+          const size = util.fileSize(this.msg.file.size)
           return size
         }
         return 0
@@ -578,10 +579,10 @@
           this.$emit('msg-loaded')
         }
         if (item.type === 'file') {
-          let {ipcRenderer} = require('electron')
           // 下载中
           if (config.environment === 'web') { // web分支
           } else { // electron分支
+            let {ipcRenderer} = require('electron')
             ipcRenderer.on(`downloading`, (evt, obj) => {
               if (obj.type !== 'fail') {
                 if (obj.id === this.msg.idClient) {
@@ -740,7 +741,7 @@
       // 点击取消当前下载或上传
       handleCancelLoad () {
         // 上传取消
-        if (this.msg.flow === 'out') {
+        if (this.uploadprogress < 100) {
           const list = this.$store.state.uploadprogressList
           const curProgress = list.find(item => {
             return item.id === this.msg.idClientFake
@@ -762,7 +763,7 @@
               msg: newObj
             })
           }
-        } else if (this.msg.flow === 'in') {
+        } else {
           if (this.curDownloadStatus !== 2) {
             // 下载暂停
             this.$store.commit('updateDownloadFileList', {
@@ -1053,6 +1054,7 @@
       async saveFile () {
         if (config.environment === 'web') {
           // 调用native
+          this.handleDownloadFile()
         } else {
           try {
             await getFile(this.downloadUrl || this.msg.localCustom.downloadUrl)
@@ -1074,6 +1076,13 @@
         if (config.environment === 'web') {
           // 调用native
           NativeLogic.native.openShell(1, fileUrl)
+            .then(() => {})
+            .catch(err => {
+              console.log(err)
+              // 重新触发下载逻辑
+              this.handleDownloadFile()
+              this.followEvent = 1
+            })
         } else {
           try {
             await getFile(fileUrl)
@@ -1101,6 +1110,13 @@
             }
           })
           NativeLogic.native.openShell(2, folderUrl)
+            .then()
+            .catch(err => {
+              console.log(err)
+              // 重新触发下载逻辑
+              this.handleDownloadFile()
+              this.followEvent = 1
+            })
         } else {
           try {
             await getFile(fileUrl)
@@ -1235,7 +1251,7 @@
             dom = e.target
           }
         }
-        dom.childNodes.forEach((item, index) => {
+        [...dom.childNodes].forEach((item, index) => {
           if (item.nodeType === 3) {
             text += item.data
           } else if (item.nodeType === 1) {
@@ -1363,21 +1379,20 @@
         // const winURL = AppDirectory + 'static/windows/application.html'
         const winURL = 'D:/vue_workspace/youxin-new/static/windows/applicationXp.html'
         NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then((result) => {
-          // 2、跨窗口通信
-          // params: windowName, data{}, eventName
-          let dataObj = {
-            url,
-            title: sessionInfo.name,
-            icon: sessionInfo.avatar,
-            appCode: this.msg.sessionId
-          }
-          let data = JSON.stringify(dataObj)
-          // NativeLogic.native.sendEvent('aplWindow', data, 'asyncMessage')
         }).catch(error => console.log(error))
-        NimCefWebInstance.register('OnReceiveEvent', (params) => {
+
+        // 注册事件监听子页面是否加载完成
+        window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
           if (params.eventName === 'childIsLoaded') {
-            console.log('childIsLoaded......')
-            console.log(params.data)
+            // 2、跨窗口通信,等子页面准备完成再发送事件
+            // params: windowName, data{}, eventName
+            let dataObj = {
+              url,
+              title: sessionInfo.name,
+              icon: sessionInfo.avatar,
+              appCode: this.msg.sessionId
+            }
+            let data = JSON.stringify(dataObj)
             NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
           }
         })

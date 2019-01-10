@@ -7,17 +7,11 @@ import store from '../store'
 // 一、electron提供的方法
 class ElectronHandle {
   // 1、设置窗口大小
-  // setBounds = (userInfo) => {
-  //   const electron = require('electron')
-  //   const ipcRenderer = electron.ipcRenderer
-  //   ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
-  // }
 }
 
 // 二、Native提供的接口合集
 class NativeHandle {
   downList = {}
-  // 0、设置窗口可拖动区域
   setDraggableArea = (percent, leftTitleHeight, rightTitleHeight) => {
     window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', {
       percent, // 左边占整个应用的百分比：如：0.3
@@ -28,12 +22,13 @@ class NativeHandle {
       if (result) {
       }
     })
-  }
-
-  // 1、设置窗口大小
+  } // 1、设置窗口大小
   setBounds = (width, height) => {
+    console.log('寬度：。。。。' + width)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {
-      console.log(error, result)
+      console.log(error)
+      console.log(result)
+      console.log('Native设置窗口大小')
       if (result) {
       }
     })
@@ -45,13 +40,14 @@ class NativeHandle {
    * @params: path   // 文件对应的为本地路径，浏览器对应的是url
    * **/
   openShell = (type, path) => {
-    console.log(type)
-    console.log(path)
-    window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(result)
+        }
+      })
     })
   }
 
@@ -186,27 +182,20 @@ class NativeHandle {
    * @params: tooltip // 图标示例
    * **/
   setTrayImage = (iconPath, tooltip) => {
-    console.log(iconPath)
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {iconPath, tooltip}, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
-    })
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {iconPath, tooltip})
   }
 
   receiveNewMsgs = (arg) => {
-    let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
-    console.log(AppDirectory)
-    // if (AppDirectory.indexOf('dist') > -1) {
-    //   let urlArr = AppDirectory.split('dist')
-    //   AppDirectory = urlArr[0]
-    // }
-    // 设置系统托盘应用图标
-    // NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
+    let AppDirectory = window.location.pathname.slice(1)
+    if (AppDirectory.indexOf('dist') > -1) {
+      let urlArr = AppDirectory.split('dist')
+      AppDirectory = urlArr[0]
+    }
+    let logo1 = AppDirectory + '/static/img/systry-logo.png'
+    let logo2 = AppDirectory + '/static/img/systry-logo-a.png'
     if (arg.unreadNums <= 0) {
       if (this.twinkle) {
-        this.setTrayImage(`./static/img/systry-logo.png`)
+        this.setTrayImage(logo1)
         clearInterval(this.twinkle)
         this.twinkle = null
       }
@@ -221,9 +210,9 @@ class NativeHandle {
     this.twinkle = setInterval(() => {
       count++
       if (count % 2 === 0) {
-        this.setTrayImage(`./static/img/systry-logo.png`)
+        this.setTrayImage(logo1)
       } else {
-        this.setTrayImage(`./static/img/systry-logo-a.png`)
+        this.setTrayImage(logo2)
       }
     }, 600)
   }
@@ -231,8 +220,8 @@ class NativeHandle {
   /**
    * 8、设置任务栏闪烁
    * **/
-  flashFrame = () => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('flashFrame', (error, result) => {
+  flashFrame = (type) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('flashFrame', { flag: type }, (error, result) => {
       console.log(error)
       console.log(result)
       if (result) {
@@ -262,11 +251,13 @@ class NativeHandle {
       console.log(error)
       console.log(result)
       if (result) {
-        // resolve(result)
         // 回参
         // windowName: "main", // 窗口名称；main-表示主窗口；其他窗口在创建时传入windowName
         // isFocused: true, // 是否获取焦点
         // isMinimized: true // 是否最小化
+        if (!result.isFocused) {
+          this.flashFrame(true)
+        }
       }
     })
   }
@@ -307,7 +298,7 @@ class NativeHandle {
     })
     window.NimCefWebInstance && window.NimCefWebInstance.call('sendEvent', {
       windowName,
-      data: JSON.parse(data),
+      data,
       eventName
     }, (error, result) => {
       console.log(error)
