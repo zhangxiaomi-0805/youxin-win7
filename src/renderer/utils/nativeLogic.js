@@ -12,6 +12,7 @@ class ElectronHandle {
 // 二、Native提供的接口合集
 class NativeHandle {
   downList = {}
+  // 设置可拖拽区域
   setDraggableArea = (percent) => {
     let params = {
       percent: parseFloat(percent), // 左边占整个应用的百分比：如：0.3
@@ -19,13 +20,12 @@ class NativeHandle {
       rightTitleHeight: 30, // 右侧可拖动区域高度：30
       rightTitleMargin: 80 // 右侧可拖动区域与右侧边框的距离
     }
-    console.log(params)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, (error, result) => {
-      console.log(error, result)
       if (result) {
       }
     })
-  } // 1、设置窗口大小
+  } 
+  // 1、设置窗口大小
   setBounds = (width, height) => {
     console.log('寬度：。。。。' + width)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {

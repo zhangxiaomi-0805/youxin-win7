@@ -1377,11 +1377,27 @@
         }
         console.log(AppDirectory)
         const winURL = AppDirectory + 'static/windows/applicationXp.html'
+        // 跟子页面通信
+        let sendMsgToChild = () => {
+          let dataObj = {
+            url,
+            title: sessionInfo.name,
+            icon: sessionInfo.avatar,
+            appCode: this.msg.sessionId
+          }
+          let data = JSON.stringify(dataObj)
+          NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
+        }
         NativeLogic.native.getWinStatus('营业精灵').then((result) => {
-          console.log(result)
           if (!result) {
             // 当子窗口不存在时创建子窗口
             NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
+          } else {
+            if (result.isMinimized) {
+              NativeLogic.native.setWinStatus('营业精灵', 7) // 如果窗口最小化，则让其显示
+            }
+            // 存在时直接通信
+            sendMsgToChild()
           }
         }).catch(error => {
           console.log(error)
@@ -1391,14 +1407,7 @@
           if (params.eventName === 'childIsLoaded') {
             // 2、跨窗口通信,等子页面准备完成再发送事件
             // params: windowName, data{}, eventName
-            let dataObj = {
-              url,
-              title: sessionInfo.name,
-              icon: sessionInfo.avatar,
-              appCode: this.msg.sessionId
-            }
-            let data = JSON.stringify(dataObj)
-            NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
+            sendMsgToChild()
           }
         })
       },
