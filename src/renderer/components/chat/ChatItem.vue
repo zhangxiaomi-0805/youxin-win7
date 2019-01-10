@@ -33,7 +33,7 @@
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
         <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -234,7 +234,7 @@
         if (this.uploadprogress < 100) {
           return this.uploadprogress
         } else {
-          return this.isDownloaded ? 100 : this.downloadProgress
+          return this.downloadProgress
         }
       },
       msg () {
@@ -456,7 +456,7 @@
       },
       fileSize () {
         if (this.msg.type === 'file') {
-          const size = (this.msg.file.size / 1024 / 1024).toFixed(2) + 'MB'
+          const size = util.fileSize(this.msg.file.size)
           return size
         }
         return 0
@@ -579,10 +579,10 @@
           this.$emit('msg-loaded')
         }
         if (item.type === 'file') {
-          let {ipcRenderer} = require('electron')
           // 下载中
           if (config.environment === 'web') { // web分支
           } else { // electron分支
+            let {ipcRenderer} = require('electron')
             ipcRenderer.on(`downloading`, (evt, obj) => {
               if (obj.type !== 'fail') {
                 if (obj.id === this.msg.idClient) {
@@ -741,7 +741,7 @@
       // 点击取消当前下载或上传
       handleCancelLoad () {
         // 上传取消
-        if (this.msg.flow === 'out') {
+        if (this.uploadprogress < 100) {
           const list = this.$store.state.uploadprogressList
           const curProgress = list.find(item => {
             return item.id === this.msg.idClientFake
@@ -763,7 +763,7 @@
               msg: newObj
             })
           }
-        } else if (this.msg.flow === 'in') {
+        } else {
           if (this.curDownloadStatus !== 2) {
             // 下载暂停
             this.$store.commit('updateDownloadFileList', {
