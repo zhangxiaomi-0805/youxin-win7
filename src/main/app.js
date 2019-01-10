@@ -150,7 +150,7 @@ APP.prototype.initIPC = function () {
     _this.logined = true
 
     const menubarPic = process.platform === 'darwin' ? `${__static}/img/logo-mac-menu.png` : `${__static}/img/systry-logo.png`
-    _this.sysTray.create(menubarPic, '江苏优信客户端')
+    _this.sysTray.create(menubarPic, '优信客户端')
     _this.sysTray.enableMenuItem('login', false)
     _this.sysTray.enableMenuItem('logout', true)
     _this.sysTray.enableMenuItem('status', true)
@@ -255,7 +255,7 @@ APP.prototype.initIPC = function () {
 
   ipcMain.on('onReset', (evt, arg) => {
     _this.mainWindow.reset()
-    setTimeout(() => _this.sysTray.setToolTip(`江苏优信(${arg.userInfo.name})`), 0)
+    setTimeout(() => _this.sysTray.setToolTip(`优信(${arg.userInfo.name})`), 0)
   })
 
   ipcMain.on('relaunch-app', () => {

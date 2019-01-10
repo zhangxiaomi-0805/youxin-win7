@@ -2,12 +2,12 @@
   "name": "youxin",
   "version": "1.0.0",
   "author": "Netease",
-  "description": "江苏优信企业办公解决方案桌面端",
+  "description": "优信企业办公解决方案桌面端",
   "displayName": "",
   "homepage": "http://netease.im/nice",
   "keywords": [
     "electron",
-    "江苏优信",
+    "优信",
     "企业办公"
   ],
   "os": [
@@ -35,7 +35,7 @@
     "package:mac": "electron-packager ./ --platform=darwin --arch=x64 --app-version=0.0.1 --electron-version=2.0.3 --icon=./build/icons/icon.icns --overwrite"
   },
   "build": {
-    "productName": "江苏优信",
+    "productName": "优信",
     "appId": "org.netease.nice",
     "asar": false,
     "directories": {
@@ -45,7 +45,7 @@
       "dist/electron/**/*"
     ],
     "dmg": {
-      "title": "江苏优信",
+      "title": "优信",
       "icon": "static/img/logo.icns",
       "iconSize": "102",
       "contents": [
