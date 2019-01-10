@@ -111,15 +111,6 @@
       sessionlist () {
         return this.$store.state.sessionlist
       },
-      // sessionName () {
-      //   if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
-      //     // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
-      //     var members = this.$store.state.teamMembers && this.$store.state.teamMembers[this.teamInfo.teamId]
-      //     var memberCount = members && members.length
-      //     return '成员 ' + (memberCount ? `${this.onlineMembers}/${memberCount}` : '')
-      //   }
-      //   return '成员'
-      // },
       memberCount () {
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           // teamInfo中的人数为初始获取的值，在人员增减后不会及时更新，而teamMembers在人员增减后同步维护的人员信息
@@ -329,7 +320,14 @@
       addTeamMember () {
         // 添加成员
         this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-        this.eventBus.$emit('selectOrgnize', {type: 3, teamId: this.teamId, teamAvatarUrl: this.teamInfo.teamAvatar, teamName: this.teamInfo.name, isDiscussGroup: this.isDiscussGroup})
+        this.eventBus.$emit('selectOrgnize', {
+          type: 3,
+          teamId: this.teamId,
+          teamAvatarUrl: this.teamInfo.teamAvatar,
+          teamName: this.teamInfo.name,
+          isDiscussGroup: this.isDiscussGroup,
+          isNormal: this.power === 'normal'
+        })
       },
       removeTeamMember () {
         // 移出成员

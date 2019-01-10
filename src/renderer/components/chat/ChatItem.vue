@@ -723,7 +723,7 @@
               if (url.indexOf('#browserWindow') > -1) {
                 openType = 2
               }
-              this.openAplWindow(url, openType)
+              this.openAplWindow({url}, openType)
             })
           }
         }, 10)
@@ -1053,6 +1053,7 @@
       async saveFile () {
         if (config.environment === 'web') {
           // 调用native
+          this.handleDownloadFile()
         } else {
           try {
             await getFile(this.downloadUrl || this.msg.localCustom.downloadUrl)
@@ -1074,6 +1075,13 @@
         if (config.environment === 'web') {
           // 调用native
           NativeLogic.native.openShell(1, fileUrl)
+            .then(() => {})
+            .catch(err => {
+              console.log(err)
+              // 重新触发下载逻辑
+              this.handleDownloadFile()
+              this.followEvent = 1
+            })
         } else {
           try {
             await getFile(fileUrl)
@@ -1101,6 +1109,13 @@
             }
           })
           NativeLogic.native.openShell(2, folderUrl)
+            .then()
+            .catch(err => {
+              console.log(err)
+              // 重新触发下载逻辑
+              this.handleDownloadFile()
+              this.followEvent = 1
+            })
         } else {
           try {
             await getFile(fileUrl)
@@ -1235,7 +1250,7 @@
             dom = e.target
           }
         }
-        dom.childNodes.forEach((item, index) => {
+        [...dom.childNodes].forEach((item, index) => {
           if (item.nodeType === 3) {
             text += item.data
           } else if (item.nodeType === 1) {
@@ -1291,7 +1306,13 @@
           this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
         }
       },
-      openAplWindow (url, openType) {
+      openAplWindow (evt, openType) {
+        let url = ''
+        if (!openType) {
+          url = evt.target.getAttribute('data-url')
+        } else {
+          url = evt.url
+        }
         if (url) {
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls

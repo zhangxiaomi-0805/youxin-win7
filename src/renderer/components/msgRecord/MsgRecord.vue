@@ -344,7 +344,6 @@
         })
       },
       manageItem (item) {
-        console.log(item)
         if (item.flow === 'in') {
           if (item.type === 'robot' && item.content && item.content.msgOut) {
             // 机器人下行消息
@@ -365,6 +364,8 @@
         }
         if (item.type === 'text') {
           item.showText = item.text
+          // 标签解析
+          item.showText = util.escape(item.showText)
           // 文本消息
           let variable = 0
           let replaceArr = []
@@ -379,8 +380,6 @@
               })
             })
           }
-          // 标签解析
-          item.showText = util.escape(item.showText)
           if (item.apns && item.flow === 'in') {
             if (!item.apns.accounts) {
               item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')

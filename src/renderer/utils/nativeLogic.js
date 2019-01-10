@@ -40,11 +40,14 @@ class NativeHandle {
    * @params: path   // 文件对应的为本地路径，浏览器对应的是url
    * **/
   openShell = (type, path) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(result)
+        }
+      })
     })
   }
 
@@ -179,13 +182,7 @@ class NativeHandle {
    * @params: tooltip // 图标示例
    * **/
   setTrayImage = (iconPath, tooltip) => {
-    console.log(iconPath)
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {iconPath, tooltip}, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
-    })
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {iconPath, tooltip})
   }
 
   receiveNewMsgs = (arg) => {

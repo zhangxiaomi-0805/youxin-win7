@@ -143,6 +143,8 @@
         }
         if (item.type === 'text') {
           item.showText = item.text
+          // 标签解析
+          item.showText = util.escape(item.showText)
           // 文本消息
           let variable = 0
           let replaceArr = []
@@ -165,8 +167,6 @@
             replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
             return `{---===${variable}}`
           })
-          // 标签解析
-          item.showText = util.escape(item.showText)
           // 表情匹配
           if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
             let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)

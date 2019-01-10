@@ -162,21 +162,21 @@ export default {
     const newListLength = state.sessionlist.length
     // 当sessions数量发生变化
     if (oldListLength !== newListLength && sessions[0].scene === 'p2p') {
-      state.nim.subscribeEvent({
-        // type 1 为登录事件，用于同步多端登录状态
-        type: 1,
-        accounts: [sessions[0].to],
-        subscribeTime: 3600 * 24 * 30,
-        // 同步订阅事件，保证每次登录时会收到推送消息
-        sync: true,
-        done: function (err, res) {
-          if (err) {
-            console.error('订阅好友事件失败', err)
-          } else {
-            // console.log(res)
-          }
-        }
-      })
+      // state.nim.subscribeEvent({
+      //   // type 1 为登录事件，用于同步多端登录状态
+      //   type: 1,
+      //   accounts: [sessions[0].to],
+      //   subscribeTime: 3600 * 24 * 30,
+      //   // 同步订阅事件，保证每次登录时会收到推送消息
+      //   sync: true,
+      //   done: function (err, res) {
+      //     if (err) {
+      //       console.error('订阅好友事件失败', err)
+      //     } else {
+      //       // console.log(res)
+      //     }
+      //   }
+      // })
     }
     state.sessionlist.sort((a, b) => {
       return b.updateTime - a.updateTime
@@ -930,30 +930,15 @@ export default {
       IndexedDB.setItem(targetObj, curStateObj)
       // 组织排序
       let newOrgList = sortOrgList.sort((a, b) => {
-        return b.orgSeq - a.orgSeq
+        return a.orgSeq - b.orgSeq
       })
       return newOrgList
     }
     let SortUserFn = (sortUserList) => {
       IndexedDB.setItem(targetObj, curStateObj)
-      // 成员排序（用户类型；1-普通成员；2-超级管理员；3-管理员）
-      let superManger = []
-      let manager = []
-      let member = []
-      for (let i in sortUserList) {
-        let obj = sortUserList[i]
-        if (obj.userType === 2) {
-          superManger.push(obj)
-        } else if (obj.userType === 3) {
-          manager.push(obj)
-        } else {
-          member.push(obj)
-        }
-      }
-      superManger = listSort(superManger)
-      manager = listSort(manager)
-      member = listSort(member)
-      sortUserList = [...superManger, ...manager, ...member]
+      sortUserList = sortUserList.sort((a, b) => {
+        return a.userSeq - b.userSeq
+      })
     }
     // 更新组织数据
     if (obj.type === 'init') {
