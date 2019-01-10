@@ -136,14 +136,17 @@ export function onUpdateSession (session, callback) {
     store.commit('updateSessions', sessions)
   }
   // 通知主进程
-  let unreads = document.getElementsByClassName('u-unread')
+  let unreadNums = 0
+  store.state.sessionlist.forEach(session => {
+    unreadNums += session.unread
+  })
   if (config.environment === 'web') { // web分支
     // NativeLogic.native.sendEvent({ unreadNums: unreads.length }, 'sessionUnreadNums', () =>{
     //   console.log('111')
     // })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
-    ipcRenderer.send('sessionUnreadNums', {unreadNums: unreads.length})
+    ipcRenderer.send('sessionUnreadNums', {unreadNums})
   }
 }
 
