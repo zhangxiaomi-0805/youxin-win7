@@ -152,21 +152,21 @@ export async function subscribeEvent ({state}, sessions) {
     })
   }
   if ([...accounts].length > 0) {
-    state.nim.subscribeEvent({
-      // type 1 为登录事件，用于同步多端登录状态
-      type: 1,
-      accounts: [...accounts],
-      subscribeTime: 3600 * 24 * 30,
-      // 同步订阅事件，保证每次登录时会收到推送消息
-      sync: true,
-      done: function (err, res) {
-        if (err) {
-          console.error('订阅好友事件失败', err)
-        } else {
-          // console.log(res)
-        }
-      }
-    })
+    // state.nim.subscribeEvent({
+    //   // type 1 为登录事件，用于同步多端登录状态
+    //   type: 1,
+    //   accounts: [...accounts],
+    //   subscribeTime: 3600 * 24 * 30,
+    //   // 同步订阅事件，保证每次登录时会收到推送消息
+    //   sync: true,
+    //   done: function (err, res) {
+    //     if (err) {
+    //       console.error('订阅好友事件失败', err)
+    //     } else {
+    //       // console.log(res)
+    //     }
+    //   }
+    // })
   }
 }
 
@@ -190,13 +190,13 @@ function querySubscribe (accounts) {
 
 // 取消订阅事件
 export function unSubscribeEvent ({state}, accounts) {
-  state.nim.unSubscribeEventsByAccounts({
-    type: 1,
-    accounts,
-    done: function (error, obj) {
-      console.log('取消订阅事件' + (!error ? '成功' : '失败'), error, obj)
-    }
-  })
+  // state.nim.unSubscribeEventsByAccounts({
+  //   type: 1,
+  //   accounts,
+  //   done: function (error, obj) {
+  //     console.log('取消订阅事件' + (!error ? '成功' : '失败'), error, obj)
+  //   }
+  // })
 }
 
 // 发布在线状态事件 type  0 -在线  1 -忙碌

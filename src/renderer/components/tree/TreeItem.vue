@@ -34,11 +34,12 @@
           :class="activeId === orgnize.id ? 't-body active' : 't-body'">
           <tree-item
             :noAdd="noAdd"
+            :listType="listType"
             :showTitle="showTitle"
             :showCheck="showCheck"
             :orgnizeObj="orgnizeObj"
             :orgnizeLevelObj="getNextOrgnizeObj(orgnize.id)"
-            :orgLevel="listType === 'myDept' ?  orgLevel : orgLevel + 1"
+            :orgLevel="orgLevel + 1"
             :orgSelectId="orgSelectId"
             :orgSelectLevel="orgSelectLevel"
             :orgSelectHandle="orgSelectHandle"
