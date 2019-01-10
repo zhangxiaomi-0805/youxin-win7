@@ -119,7 +119,7 @@ export default {
       // electron端打开内部窗口
       let { ipcRenderer } = require('electron')
       ipcRenderer.send('openAplWindow', {url, title: item.appName, appCode: item.appCode})
-    },
+    }
   }
 }
 </script>
