@@ -397,19 +397,20 @@
                   localStorage.setItem('HistoryAccount', JSON.stringify(this.rememberAccount))
                 }
                 this.$store.commit('updateLoginInfo', loginInfo)
-                if (config.environment === 'web') {
-                  NativeLogic.native.setBounds(config.mainWinWidth, config.mainWinHeight)
-                  let AppDirectory = window.location.pathname.slice(1)
+                if (config.environment === 'web') { // web分支
+                  NativeLogic.native.setBounds(config.mainWinWidth, config.mainWinHeight) // 設置窗口大小:922 645
+                  let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
                   if (AppDirectory.indexOf('dist') > -1) {
                     let urlArr = AppDirectory.split('dist')
                     AppDirectory = urlArr[0]
                   }
-                  // 設置系統托盤應用圖標
+                  // 设置系统托盘应用图标
                   NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
                 } else { // electron分支
                   const electron = require('electron')
                   const ipcRenderer = electron.ipcRenderer
                   ipcRenderer.send('onReset', {userInfo}) // 设置系统托盘，设置窗口大小
+                  // NativeLogic.electron.setBounds(userInfo)
                 }
                 location.href = config.homeUrl
               }

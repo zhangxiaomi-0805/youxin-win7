@@ -1,9 +1,7 @@
 /**
  * 访客页初始化
  */
-window.onload = () => {
-  this.sendEvent('main_form', JSON.stringify({isLoaded: true}), 'childIsLoaded')
-}
+
 var TabManage = function () {
   this.data = [] // 数据源
   this.currentTab = -1 // 当前活跃项
@@ -14,9 +12,8 @@ var TabManage = function () {
 TabManage.prototype.init = function () {
   this.PreDef()
   this.setWinStatus('营业精灵', 7) // params: 1.窗口名称 2.类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
-  console.log('子窗口 ==== ' + new Date().getTime())
   // 监听主窗口通信方法
-  NimCefWebInstance.register('OnReceiveEvent', (params) => {
+  window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
     console.log('事件监听====')
     if (params.eventName === 'asyncMessage') {
       const eventData = params.data
@@ -24,15 +21,6 @@ TabManage.prototype.init = function () {
       this.createDom(eventData)
     }
   })
-  let eventData = {
-    appCode: "p2p-test_6760f5ab416a41dc",
-    icon: "http://nim.nosdn.127.net/MTEwMDQ4Nzk=/bmltd18wXzE1NDMyMTkyODE3ODhfZmNlZjk0NjktYjMyOC00MGM3LTgzNmEtNzQ0YmFkNzMwMTQ2?imageView&thumbnail=40z40",
-    title : "kangfa2",
-    // url : "https://www.baidu.com"
-    url : "https://www.zhihu.com/special/19619159"
-  }
-  this.createDom(eventData)
-  console.log('44444')
 }
 
 TabManage.prototype.PreDef = function () {
@@ -184,6 +172,7 @@ TabManage.prototype.setWinStatus = (windowName, type) => {
     }
   })
 }
+
 TabManage.prototype.sendEvent = (windowName, data, eventName) => {
   console.log({
     windowName,
@@ -234,3 +223,8 @@ TabManage.prototype.canGoBack = function () {
 }
 
 new TabManage().init()
+
+window.onload = () => {
+  console.log(this)
+  new TabManage().sendEvent('main_form', JSON.stringify({isLoaded: true}), 'childIsLoaded')
+}
