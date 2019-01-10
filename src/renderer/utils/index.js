@@ -436,4 +436,29 @@ Utils.isJSON = (str) => {
   }
 }
 
+// 文件大小显示
+Utils.fileSize = (size) => {
+  let sizeNum = ''
+  switch (true) {
+    case size <= 0:
+      sizeNum = '0B'
+      break
+    case size <= 1024:
+      sizeNum = size + 'B'
+      break
+    case size < 1024 * 1024:
+      sizeNum = (size / 1024).toFixed(1) + 'KB'
+      break
+    case size < 1024 * 1024 * 1024:
+      sizeNum = (size / 1024 / 1024).toFixed(1) + 'MB'
+      break
+    case size < 1024 * 1024 * 1024 * 1024:
+      sizeNum = (size / 1024 / 1024 / 1024).toFixed(1) + 'GB'
+      break
+    default:
+      break
+  }
+  return sizeNum
+}
+
 export default Utils

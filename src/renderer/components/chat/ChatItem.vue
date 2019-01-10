@@ -455,7 +455,7 @@
       },
       fileSize () {
         if (this.msg.type === 'file') {
-          const size = (this.msg.file.size / 1024 / 1024).toFixed(2) + 'MB'
+          const size = util.fileSize(this.msg.file.size)
           return size
         }
         return 0

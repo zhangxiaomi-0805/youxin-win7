@@ -99,11 +99,8 @@ function notifyForNewTeamMsg (teamId) {
 export function onForwordMsg ({state, commit}, OBJ) {
   let path = ''
   let obj = Object.assign({}, OBJ)
-  if (obj.msg.type === 'file' && obj.msg.flow === 'out') {
-    path = obj.msg.localCustom.downloadUrl
-  }
-  if (obj.msg.type === 'file' && obj.msg.flow === 'in') {
-    path = 'null'
+  if (obj.msg.type === 'file') {
+    path = obj.msg.localCustom.downloadUrl || 'null'
   }
   if (obj.msg.type === 'custom-type1' || obj.msg.type === 'custom-type3' || obj.msg.type === 'custom-type7') {
     obj.msg.type = 'custom'
