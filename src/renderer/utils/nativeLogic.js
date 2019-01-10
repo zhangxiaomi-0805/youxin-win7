@@ -12,12 +12,15 @@ class ElectronHandle {
 // 二、Native提供的接口合集
 class NativeHandle {
   downList = {}
-  setDraggableArea = (percent, leftTitleHeight, rightTitleHeight) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', {
-      percent, // 左边占整个应用的百分比：如：0.3
-      leftTitleHeight, // 左侧可拖动区域高度：20
-      rightTitleHeight // 右侧可拖动区域高度：30
-    }, (error, result) => {
+  setDraggableArea = (percent) => {
+    let params = {
+      percent: parseFloat(percent), // 左边占整个应用的百分比：如：0.3
+      leftTitleHeight: 20, // 左侧可拖动区域高度：20
+      rightTitleHeight: 30, // 右侧可拖动区域高度：30
+      rightTitleMargin: 80 // 右侧可拖动区域与右侧边框的距离
+    }
+    console.log(params)
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, (error, result) => {
       console.log(error, result)
       if (result) {
       }
@@ -235,30 +238,41 @@ class NativeHandle {
    * @params: type      // 类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
    * **/
   setWinStatus = (windowName, type) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setWinStatus', {windowName, type}, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('setWinStatus', {windowName, type}, (error, result) => {
+        console.log(error)
+        console.log(result)
+        if (result) {
+          resolve(result)
+        } else {
+          reject(error)
+        }
+      })
     })
   }
 
   /**
    * 10、获取窗口状态: 收到新消息，当窗口处于非激活状态时进行消息通知
    * **/
-  getWinStatus = () => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('getWinStatus', { windowName: 'main_form' }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-        // 回参
-        // windowName: "main", // 窗口名称；main-表示主窗口；其他窗口在创建时传入windowName
-        // isFocused: true, // 是否获取焦点
-        // isMinimized: true // 是否最小化
-        if (!result.isFocused) {
-          this.flashFrame(true)
+  getWinStatus = (windowName) => {
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('getWinStatus', { windowName }, (error, result) => {
+        console.log(error)
+        console.log(result)
+        if (error) {
+          resolve('')
+        } else {
+          if (result) {
+            resolve(result)
+            // 回参
+            // windowName: "main", // 窗口名称；main-表示主窗口；其他窗口在创建时传入windowName
+            // isFocused: true, // 是否获取焦点
+            // isMinimized: true // 是否最小化
+          } else {
+            reject(error)
+          }
         }
-      }
+      })
     })
   }
 

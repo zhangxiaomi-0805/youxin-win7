@@ -96,11 +96,20 @@ export default {
       }
       console.log(AppDirectory)
       const winURL = AppDirectory + 'static/windows/applicationXp.html'
-      NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
-
+      NativeLogic.native.getWinStatus('营业精灵').then((result) => {
+        console.log(result)
+        if (!result) {
+          // 当子窗口不存在时创建子窗口
+          NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
+        }
+      }).catch(error => {
+        console.log(error)
+      })
       // 注册事件监听子页面是否加载完成
       window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
+        console.log('通信。。。。')
         if (params.eventName === 'childIsLoaded') {
+          console.log('通信aaaaaaaa。。。。')
           // 2、跨窗口通信,等子页面准备完成再发送事件
           // params: windowName, data{}, eventName
           let dataObj = {url, title: item.appName, appCode: item.appCode}
