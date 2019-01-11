@@ -152,6 +152,10 @@
       }
     },
     mounted () {
+      if (config.environment === 'web') {
+        // 设置可拖拽范围
+        NativeLogic.native.setDraggableArea(0, 30, 30, 70)
+      }
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }

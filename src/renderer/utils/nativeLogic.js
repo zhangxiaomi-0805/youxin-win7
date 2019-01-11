@@ -13,12 +13,12 @@ class ElectronHandle {
 class NativeHandle {
   downList = {}
   // 设置可拖拽区域
-  setDraggableArea = (percent) => {
+  setDraggableArea = (percent, leftTitleHeight, rightTitleHeight, rightTitleMargin) => {
     let params = {
       percent: parseFloat(percent), // 左边占整个应用的百分比：如：0.3
-      leftTitleHeight: 20, // 左侧可拖动区域高度：20
-      rightTitleHeight: 30, // 右侧可拖动区域高度：30
-      rightTitleMargin: 80 // 右侧可拖动区域与右侧边框的距离
+      leftTitleHeight, // 左侧可拖动区域高度：20
+      rightTitleHeight, // 右侧可拖动区域高度：30
+      rightTitleMargin, // 右侧可拖动区域与右侧边框的距离
     }
     window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, (error, result) => {
       if (result) {
@@ -27,11 +27,9 @@ class NativeHandle {
   } 
   // 1、设置窗口大小
   setBounds = (width, height) => {
-    console.log('寬度：。。。。' + width)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {
       console.log(error)
       console.log(result)
-      console.log('Native设置窗口大小')
       if (result) {
       }
     })
@@ -283,8 +281,8 @@ class NativeHandle {
    * @params: height      初始窗口高
    * @params: width      初始窗口宽
    * **/
-  createWindows = (windowName, path, height, width) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, height, width}, (error, result) => {
+  createWindows = (windowName, path, width, height) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, width, height}, (error, result) => {
       if (result) {
         console.log(result)
       } else {
@@ -301,11 +299,6 @@ class NativeHandle {
    * @params: callback      回调函数，等接收窗口处理完后回调给调用窗口
    * **/
   sendEvent = (windowName, data, eventName) => {
-    console.log({
-      windowName,
-      data: JSON.parse(data),
-      eventName
-    })
     window.NimCefWebInstance && window.NimCefWebInstance.call('sendEvent', {
       windowName,
       data,
@@ -317,7 +310,47 @@ class NativeHandle {
       }
     })
   }
+
+  /**
+   * 13、设置窗口图标： 主窗口与子窗口
+   * @params:  iconPath icon的绝对路径
+   * **/
+  setWindowIcon = (iconPath) => {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
+      iconPath
+    }, (error, result) => {
+      console.log(error)
+      console.log(result)
+      if (result) {
+      }
+    })
+  }
+
+  /**
+  * 14、获取版本信息
+  * **/
+  getAppVersion = () => {
+    return new Promise((resolve, reject) => {
+      NimCefWebInstance.call('getAppVersion', (error, result) => {
+        // error 是否包含错误
+        // error 为 true，包含错误具体内容
+        // result.appVersion 为返回的版本号
+        console.log(result)
+        if (error) {
+          resolve('')
+        } else {
+          if (result) {
+            resolve(result)
+          } else {
+            reject(error)
+          }
+        }
+      })
+    })
+  }
 }
+
+ 
 
 const electron = new ElectronHandle()
 const native = new NativeHandle()

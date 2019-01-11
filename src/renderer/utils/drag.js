@@ -3,6 +3,7 @@
  * dragItem  -  dom对象
  * position  -  domParent初始位置
  */
+import config from '../configs'
 const drag = {
   dragPosition: (dragItem, position) => {
     let dom = document.getElementById(dragItem)
@@ -34,10 +35,24 @@ const drag = {
           } else if (left > window.innerWidth - domParent.offsetWidth + translateX) {
             left = window.innerWidth - domParent.offsetWidth + translateX
           }
-          if (top < domParentTop) {
-            top = domParentTop
-          } else if (top > window.innerHeight - translateY) {
-            top = window.innerHeight - translateY
+          if (config.environment === 'web') { // 头部预留30px
+            let newTop = domParentTop
+            if (position === 1) {
+              newTop = domParentTop
+            } else {
+              newTop = domParentTop + 30
+            }
+            if (top < newTop) {
+              top = newTop
+            } else if (top > window.innerHeight - translateY) {
+              top = window.innerHeight - translateY
+            }
+          } else {
+            if (top < domParentTop) {
+              top = domParentTop
+            } else if (top > window.innerHeight - translateY) {
+              top = window.innerHeight - translateY
+            }
           }
           domParent.style.left = left / window.innerWidth * 100 + '%'
           domParent.style.top = top / window.innerHeight * 100 + '%'

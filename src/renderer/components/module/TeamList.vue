@@ -162,7 +162,7 @@
         * @params:  percent, // 左边占整个应用的百分比：如：0.3
         * * */
         if (configs.environment === 'web') {
-          NativeLogic.native.setDraggableArea(percent)
+          NativeLogic.native.setDraggableArea(percent, 20, 30, 80)
         }
       },
       memberCount (teamId) {

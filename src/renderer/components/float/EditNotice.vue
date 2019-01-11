@@ -1,7 +1,7 @@
 <template>
 <!-- 公告编辑 -->
 <transition name="fade">
-  <div class="m-editnotice-contain" v-if="showEditNotice">
+  <div id="modal-box" class="m-editnotice-contain" style="top: 0" v-if="showEditNotice">
     <div class="m-editnotice-cover" @click="closeCover"></div>
     <div class="m-editnotice" style="width:600px;height:502px;">
       <div class="drag" id="editNoticeDrag">
@@ -60,6 +60,7 @@
 <script>
 import platform from '../../utils/platform'
 import drag from '../../utils/drag.js'
+import config from '../../configs'
 export default {
   name: 'edit-notice',
   mounted () {
@@ -77,6 +78,9 @@ export default {
     this.eventBus.$on('editNoticePromiss', (data) => {
       this.jurisdiction = data.jurisdiction
     })
+    setTimeout(() => {
+      this.setHeaderTop()
+    }, 0)
   },
   data () {
     return {
@@ -110,6 +114,13 @@ export default {
     drag.dragPosition('editNoticeDrag', 1)
   },
   methods: {
+    setHeaderTop () {
+      if (config.environment === 'web' && this.showSelectContact) { // 头部预留30px
+        let modalBox = document.getElementById('modal-box')
+        console.log(modalBox)
+        modalBox.style.top = 30 + 'px'
+      }
+    },
     closeModal () {
       this.showEditNotice = false
       this.loading = false

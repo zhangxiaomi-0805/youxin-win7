@@ -63,7 +63,7 @@
   import UpdateApp from './float/UpdateApp.vue'
   import GroupInvite from './float/groupInvite.vue'
   import config from '../configs'
-  // import NativeLogic from '../utils/nativeLogic.js'
+  import NativeLogic from '../utils/nativeLogic.js'
   export default {
     name: 'main-page',
     components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite},
@@ -71,7 +71,12 @@
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
       if (config.environment === 'web') { // web分支
-        // NativeLogic.native.sendEvent() // 跨窗口通信
+        let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+        if (AppDirectory.indexOf('dist') > -1) {
+          let urlArr = AppDirectory.split('dist')
+          AppDirectory = urlArr[0]
+        }
+        NativeLogic.native.setWindowIcon(AppDirectory + '/static/img/systry-logo.png') // 设置窗口图标
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('getAccid', (evt, arg) => {

@@ -1,7 +1,7 @@
 <template>
   <!-- 历史消息记录 -->
   <transition name="fade">
-    <div class="m-historymsg-contain" v-if="showHistoryMsg">
+    <div id="modal-box" class="m-historymsg-contain" style="top: 0" v-if="showHistoryMsg">
       <div class="m-historymsg-cover" @click="closeCover"></div>
       <div class="m-info-box" style="width:600px;height:502px;">
         <!-- 头部 -->
@@ -170,6 +170,9 @@
         this.teamInfo = data.teamInfo
         this.scene = data.scene
         this.to = data.to
+        setTimeout(() => {
+          this.setHeaderTop()
+        }, 0)
       })
     },
     watch: {
@@ -312,6 +315,13 @@
       drag.dragPosition('historyMsgDrag', 1)
     },
     methods: {
+      setHeaderTop () {
+        if (config.environment === 'web' && this.showHistoryMsg) { // 头部预留30px
+          let modalBox = document.getElementById('modal-box')
+          console.log(modalBox)
+          modalBox.style.top = 30 + 'px'
+        }
+      },
       className (value) {
         let className = 'tab-title-item'
         if (value === this.checkFunc) {

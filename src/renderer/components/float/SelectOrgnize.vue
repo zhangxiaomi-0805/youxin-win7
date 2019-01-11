@@ -1,7 +1,7 @@
 <template>
 <!-- 组织架构 - 创建群聊 -->
 <transition name="fade">
-  <div class="m-selectcontact-contain" v-if="showSelectOrgnize">
+  <div id="modal-box" class="m-selectcontact-contain" style="top:0" v-if="showSelectOrgnize">
     <div class="m-selectcontact-cover"></div>
     <div class="m-selectcontact" style="width:680px;height:502px;">
       <div class="drag" id="selectOrgnizeDrag">
@@ -74,6 +74,9 @@ export default {
       this.isNormal = data.isNormal
       if (data.isDiscussGroup) this.isDiscussGroup = true
       else this.isDiscussGroup = false
+      setTimeout(() => {
+        this.setHeaderTop()
+      }, 0)
     })
   },
   data () {
@@ -109,6 +112,13 @@ export default {
     drag.dragPosition('selectOrgnizeDrag', 1)
   },
   methods: {
+    setHeaderTop () {
+      if (configs.environment === 'web' && this.showSelectOrgnize) { // 头部预留30px
+        let modalBox = document.getElementById('modal-box')
+        console.log(modalBox)
+        modalBox.style.top = 30 + 'px'
+      }
+    },
     closeModal () {
       this.searchValue = ''
       this.showSelectOrgnize = false
