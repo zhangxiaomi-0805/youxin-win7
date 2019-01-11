@@ -41,7 +41,7 @@ TabManage.prototype.init = function () {
             // 发起会话处理
             let account = e.url.split('?account=')[1]
             if (account) {
-              ipcRenderer.send('sendAccount',{account})
+              ipcRenderer.send('sendAccount', {account})
             }
           }
           webview.loadURL(e.url)
@@ -56,7 +56,7 @@ TabManage.prototype.init = function () {
           // 发起会话处理
           let account = e.validatedURL.split('?account=')[1]
           if (account) {
-            ipcRenderer.send('sendAccount',{account})
+            ipcRenderer.send('sendAccount', {account})
           }
         }
         webview.goBack()

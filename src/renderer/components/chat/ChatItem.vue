@@ -345,7 +345,6 @@
           } else if (content.type === 7) {
             // 自定义富文本消息
             item.type = 'custom-type7'
-            console.log(content.data.value)
             item.showText = content.data.value
           } else if (content.type === 8) {
             // 自定义邀请入群消息
@@ -1077,8 +1076,7 @@
           // 调用native
           NativeLogic.native.openShell(1, fileUrl)
             .then(() => {})
-            .catch(err => {
-              console.log(err)
+            .catch(() => {
               // 重新触发下载逻辑
               this.handleDownloadFile()
               this.followEvent = 1

@@ -231,6 +231,7 @@ export function deleteSession ({state, commit}, obj) {
             //   store.dispatch('unSubscribeEvent', [account])
             // }
             commit('deleteSessions', [sessionId])
+            obj.callback && obj.callback()
           }
         })
       }
@@ -278,10 +279,12 @@ export function insertLocalSession ({state}, params) {
         if (!error) {
           onUpdateSession(obj.session, params.callback)
         } else {
-          store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: error.message
+          // 执行删除再创建会话
+          store.dispatch('deleteSession', {
+            id: params.scene + '-' + params.account,
+            callback: () => {
+              store.dispatch('insertLocalSession', params)
+            }
           })
         }
       }
