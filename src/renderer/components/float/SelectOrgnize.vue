@@ -309,7 +309,7 @@ export default {
       }
     },
     async sendMsg (item, callback) {
-      let myInfo = this.$store.state.myInfo
+      let personInfos = this.$store.state.personInfos
       let teamAvatarUrl = this.teamAvatarUrl
       if (teamAvatarUrl && teamAvatarUrl.indexOf('/img/team/group-default.png') > -1) { // 如果是默认头像，则置为空，不然本地路径与移动端不一致
         teamAvatarUrl = ''
@@ -320,7 +320,7 @@ export default {
           value: {
             teamId: this.teamId,
             teamAvatarUrl,
-            description: `"${myInfo.nick || myInfo.name}"邀请你加入群聊${this.teamName}群，进入可查看详情`
+            description: `"${personInfos.name}"邀请你加入群聊${this.teamName}群，进入可查看详情`
           }
         }
       }

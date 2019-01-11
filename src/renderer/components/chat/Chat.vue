@@ -2,7 +2,7 @@
   <div class="g-hbf-container m-chat">
     <div class="g-hbf-header m-header">
       <div style="width: 75%;  overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        <span class="session-name">{{sessionName}}</span>
+        <span class="session-name b-more" @click="openSliderMenu">{{sessionName}}</span>
       </div>
       <div class="m-setting" v-if="funKey >= 2 && teamInvalid && valid">
         <a class="b-check" @click="showHistoryMsgModal"/>
@@ -551,10 +551,12 @@
   }
 
   .m-chat .m-header .session-name {
+    -webkit-app-region: no-drag;
     height: 14px;
     line-height: 14px;
     font-size: 17px;
     color: rgba(11,13,12,1);
+    cursor: pointer;
   }
 
   .m-chat .m-body {

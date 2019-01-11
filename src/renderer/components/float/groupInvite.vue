@@ -13,7 +13,7 @@
 
         <div style="padding:15px 30px">
           <div class="m-modal-header">
-            <div class="user-info"><img :src="teamInfo.avatar"></div>
+            <div class="user-info"><img :src="teamInfo.avatar || myGroupIcon"></div>
             <div style="padding-left: 20px">
               <div class="nick">{{teamInfo.name}}</div>
               <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px" >{{teamInfo.memberNum + '人'}}</div>
@@ -35,6 +35,7 @@
 <script>
   import drag from '../../utils/drag.js'
   import clickoutside from '../../utils/clickoutside.js'
+  import config from '../../configs/index'
   export default {
     name: 'group-invite',
     directives: {clickoutside},
@@ -43,7 +44,8 @@
         showModal: false,
         teamId: '',
         description: '',
-        teamInfo: {}
+        teamInfo: {},
+        myGroupIcon: config.defaultGroupIcon
       }
     },
     mounted () {

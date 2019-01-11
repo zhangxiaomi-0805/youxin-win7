@@ -155,7 +155,7 @@ export default {
       phone: '',
       email: '',
       version: '',
-      logo: '../../../static/img/logo.png',
+      logo: './static/img/logo.png',
       menuList: [
         {
           title: '账号与安全',
@@ -342,9 +342,18 @@ export default {
       }
     },
     checkUpdate () {
-      this.closeModal()
       // 检查更新
-      Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
+      Request.AppVersions().then(res => {
+        if (res) {
+          this.eventBus.$emit('updateApp', res)
+        } else {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'success',
+            toastText: '当前已是最新版本！'
+          })
+        }
+      }).catch(() => {})
     }
   }
 }

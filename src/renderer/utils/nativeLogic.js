@@ -21,10 +21,11 @@ class NativeHandle {
       rightTitleMargin, // 右侧可拖动区域与右侧边框的距离
     }
     window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, (error, result) => {
+      console.log(error)
       if (result) {
       }
     })
-  } 
+  }
   // 1、设置窗口大小
   setBounds = (width, height) => {
     window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {

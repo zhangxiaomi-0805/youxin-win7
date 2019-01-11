@@ -251,7 +251,6 @@ function AppVersions () {
       Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: remote.getGlobal('APPVERSION')}).then(res => resolve(res)).catch((err) => reject(err))
     })
   }
- 
 }
 
 export default {
