@@ -30,6 +30,7 @@
         </div>
         <!-- 内容 -->
         <div class="m-historymsg-content">
+          <date-picker ref="datePicker" :callback="dateFilter"/>
           <!-- 搜索 -->
           <div class="search-bar">
             <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
@@ -47,6 +48,12 @@
             <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('all')">全部</a>
             <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('image')">图片</a>
             <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('file')">文件</a>
+            <div class="tab-data-side">
+              <transition name="fade">
+              <a class="date" v-show="date"><span>{{date}}</span><span class="clear" @click="clearDate"></span></a>
+              </transition>
+              <a class="icon" @click="showPicker"></a>
+            </div>
           </div>
 
           <!-- 短信选择 -->
@@ -133,11 +140,12 @@
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
   import MsgRecordFn from './msgRecord.js'
+  import DatePicker from './DatePicker.vue'
   export default {
     name: 'msg-record',
     directives: {clickoutside},
     components: {
-      MsgItem, SearchMsg
+      MsgItem, SearchMsg, DatePicker
     },
     data () {
       return {
@@ -157,7 +165,8 @@
         teamInfo: {},
         beforeValue: '', // 上一次输入的值，做延时搜索
         isCheckMore: false,
-        isSearchCheckMore: false
+        isSearchCheckMore: false,
+        date: ''
       }
     },
     mounted () {
@@ -536,12 +545,29 @@
         this.checkFunc = ''
         this.isSearchCheckMore = false
         this.$store.commit('updateCheckedMsgs', [])
+        this.date = ''
       },
       scrollEndLoad (e) {
         let { scrollTop, clientHeight, scrollHeight } = e.target
         if (scrollTop + clientHeight === scrollHeight) {
           this.InitHistoryMsg()
         }
+      },
+      showPicker (evt) {
+        this.$refs.datePicker.initStatus()
+      },
+      dateFilter (params) {
+        // 日期筛选
+        if (params[1] < 10) {
+          params[1] = '0' + params[1]
+        }
+        if (params[2] < 10) {
+          params[2] = '0' + params[2]
+        }
+        this.date = params.join('/')
+      },
+      clearDate () {
+        this.date = ''
       }
     }
   }
@@ -594,6 +620,7 @@
     top: 0;
   }
   .m-historymsg-content {
+    position: relative;
     /* padding: 0 40px 0 0; */
     padding: 0;
     height: 420px;
@@ -663,6 +690,7 @@
   /* tab头 */
   /* 左 */
   .m-info-box .tab-left-title {
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -686,6 +714,53 @@
 
   .m-info-box .tab-left-title .tab-title-item.active {
     color: #049AFF;
+  }
+
+  /* 日历相关样式 */
+  .m-info-box .tab-left-title .tab-data-side {
+    position: absolute;
+    right: 0;
+    width: 200px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .m-info-box .tab-left-title .tab-data-side .icon {
+    width: 16px;
+    height: 17px;
+    background: url('../../../../static/img/msgRecord/rili.png') no-repeat center center;
+    background-size: 16px 17px;
+    transition: all .24s linear;
+  }
+  .m-info-box .tab-left-title .tab-data-side .icon:hover {
+    background: url('../../../../static/img/msgRecord/rili-c.png') no-repeat center center;
+    background-size: 16px 17px;
+  }
+
+  .m-info-box .tab-left-title .tab-data-side .date {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 6px;
+    color: #999;
+    background-color: #F0F0F0;
+    font-size: 12px;
+    border-radius: 3px;
+    cursor: default;
+    margin-right: 8px;
+  }
+
+  .m-info-box .tab-left-title .tab-data-side .clear {
+    display: block;
+    width: 13px;
+    height: 13px;
+    background-image: url('../../../../static/img/setting/delete.png');
+    background-size: 100% 100%;
+    cursor: pointer;
+    margin-left: 8px;
   }
 
   /* 右 */

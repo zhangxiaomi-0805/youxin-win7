@@ -64,7 +64,7 @@ let appConfig = {
   },
   selfOnline: {
     appkey: 'b8614ab01186f2ad8925f1e05a6d243f',
-    postUrl: 'http://yxim.telecomjs.com/'
+    postUrl: 'http://yxim.telecomjs.com:10081/'
   }
 }
 
