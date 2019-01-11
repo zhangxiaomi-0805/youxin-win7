@@ -60,6 +60,8 @@
                 <span v-if="msg.status === 'fail'" style="color: red;font-size: 12px;">
                   发送失败
                 </span>
+                <span v-else-if="msg.flow === 'in' && isDownloaded(msg) === 0 && curDownloadStatus(msg) === 0" class="file-downloadBtn" @click.stop="handleDownloadFile(msg)">
+                </span>
                 <span v-else style="color: #999;font-size: 12px;">
                   {{msg.flow === 'out' ? '已发送' : '已下载'}}
                 </span>
@@ -418,6 +420,29 @@ export default {
         })
         return nameUrl + '#' + msg.idClient
       }
+    },
+    // 0 -未下载 1 -已下载
+    isDownloaded (msg) {
+      // 文件下载后保存的地址
+      if (msg.type === 'file' && msg.flow === 'in') {
+        const url = msg.localCustom && msg.localCustom.downloadUrl
+        if (!url) {
+          return 0
+        } else {
+          return 1
+        }
+      }
+      return false
+    },
+    curDownloadStatus (msg) {
+      const list = this.$store.state.downloadFileList
+      let status = 0
+      list.forEach(item => {
+        if (item.id === msg.idClient) {
+          status = item.status
+        }
+      })
+      return status
     }
   }
 }

@@ -60,14 +60,14 @@
             <span v-if="msg.status === 'fail'" style="color: red;font-size: 12px;">
               发送失败
             </span>
-            <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click="handleDownloadFile">
+            <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click.stop="handleDownloadFile">
             </span>
             <span class="circle-bar" v-else-if="curProgress < 100">
               <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
               <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
               <!-- 遮罩层，显示百分比 -->
               <span class="mask">
-                <span :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click="handleCancelLoad"></span>
+                <span :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click.stop="handleCancelLoad"></span>
               </span>
             </span>
             <span v-else style="color: #999;font-size: 12px;">
