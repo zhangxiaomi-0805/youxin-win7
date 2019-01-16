@@ -18,7 +18,7 @@ class NativeHandle {
       percent: parseFloat(percent), // 左边占整个应用的百分比：如：0.3
       leftTitleHeight, // 左侧可拖动区域高度：20
       rightTitleHeight, // 右侧可拖动区域高度：30
-      rightTitleMargin, // 右侧可拖动区域与右侧边框的距离
+      rightTitleMargin // 右侧可拖动区域与右侧边框的距离
     }
     window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, (error, result) => {
       console.log(error)
@@ -332,7 +332,7 @@ class NativeHandle {
   * **/
   getAppVersion = () => {
     return new Promise((resolve, reject) => {
-      NimCefWebInstance.call('getAppVersion', (error, result) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('getAppVersion', (error, result) => {
         // error 是否包含错误
         // error 为 true，包含错误具体内容
         // result.appVersion 为返回的版本号
@@ -350,9 +350,6 @@ class NativeHandle {
     })
   }
 }
-
- 
-
 const electron = new ElectronHandle()
 const native = new NativeHandle()
 export default{

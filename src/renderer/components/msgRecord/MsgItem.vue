@@ -254,7 +254,7 @@ export default {
         }
       }
     },
-     webOpenOutWin (url) {
+    webOpenOutWin (url) {
       // web端打开外部窗口
       NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
     },
