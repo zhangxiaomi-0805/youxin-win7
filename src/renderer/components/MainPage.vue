@@ -76,7 +76,14 @@
           let urlArr = AppDirectory.split('dist')
           AppDirectory = urlArr[0]
         }
-        NativeLogic.native.setWindowIcon(AppDirectory + '/static/img/systry-logo.png') // 设置窗口图标
+        console.log(AppDirectory)
+        NativeLogic.native.setWindowIcon(AppDirectory + '/dist/static/img/systry-logo.png') // 设置窗口图标
+        // 点击右下角退出按钮时的通知--这里是隐藏
+        window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
+          NativeLogic.native.setWinStatus('main', 6).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
+            console.log(res)
+          }).catch(err => console.log(err))
+        })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('getAccid', (evt, arg) => {

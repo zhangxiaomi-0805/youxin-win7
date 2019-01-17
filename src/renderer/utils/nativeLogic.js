@@ -318,6 +318,8 @@ class NativeHandle {
    * @params:  iconPath icon的绝对路径
    * **/
   setWindowIcon = (iconPath) => {
+    console.log('窗口图标====')
+    console.log(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
       iconPath
     }, (error, result) => {
