@@ -128,7 +128,10 @@ TabManage.prototype.PreDef = function () {
   const refreshBtn = document.getElementById('appli-refresh')
   refreshBtn.addEventListener('click', () => {
     let webview = this.getActiveDom(2)
-    webview && webview.reload()
+    // 刷新时禁用缓存
+    webview && webview.getWebContents().session.clearCache(() => {
+      webview.reload()
+    })
   })
 
   // 返回上级页面

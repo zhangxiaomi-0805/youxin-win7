@@ -3,7 +3,10 @@
   <div class="title" :style="{borderBottomWidth: !pageType ? '1px' : '0'}"></div>
   <div class="body" :style="{backgroundColor: !pageType ? 'rgba(242,242,242,1)' : '#fff'}">
     <div v-if="!pageType"><img style="width: 158px; height: 131px;" :src="logo"/><div class="no-msg">暂无消息</div></div>
-    <div v-else style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
+    <div v-else style="paddingTop: 7%;">
+      <img class="nice" :src="logoGray"/>
+      <div class="no-msg" style="color: #999;fontSize: 14px;">优信</div>
+    </div>
   </div>
 </div>
 </template>
@@ -13,7 +16,8 @@ export default {
   name: 'default',
   data () {
     return {
-      logo: './static/img/no-msg.png'
+      logo: './static/img/no-msg.png',
+      logoGray: './static/img/orgnize/logo-gray.png'
     }
   },
   computed: {
@@ -66,7 +70,7 @@ export default {
     width: 120px;
     height: 120px;
     margin-bottom: 5px;
-    background: url('../../../../static/img/orgnize/logo-gray.png') no-repeat center center;
-    background-size: 100% 100%;
+    /* background: url('../../../../static/img/orgnize/logo-gray.png') no-repeat center center; */
+    /* background-size: 100% 100%; */
   }
 </style>

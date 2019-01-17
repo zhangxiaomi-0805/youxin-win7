@@ -184,6 +184,7 @@ class NativeHandle {
    * @params: tooltip // 图标示例
    * **/
   setTrayImage = (iconPath, tooltip) => {
+    console.log(tooltip)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {iconPath, tooltip})
   }
 
@@ -193,8 +194,8 @@ class NativeHandle {
       let urlArr = AppDirectory.split('dist')
       AppDirectory = urlArr[0]
     }
-    let logo1 = AppDirectory + '/static/img/systry-logo.png'
-    let logo2 = AppDirectory + '/static/img/systry-logo-a.png'
+    let logo1 = AppDirectory + '/dist/static/img/systry-logo.png'
+    let logo2 = AppDirectory + '/dist/static/img/systry-logo-a.png'
     if (arg.unreadNums <= 0) {
       if (this.twinkle) {
         this.setTrayImage(logo1)
