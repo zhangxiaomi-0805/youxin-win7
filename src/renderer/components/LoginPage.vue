@@ -409,7 +409,7 @@
                     AppDirectory = urlArr[0]
                   }
                   // 设置系统托盘应用图标
-                  NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
+                  NativeLogic.native.setTrayImage(AppDirectory + '/dist/static/img/systry-logo.png', userInfo.name)
                 } else { // electron分支
                   const electron = require('electron')
                   const ipcRenderer = electron.ipcRenderer

@@ -237,10 +237,12 @@ function AppVersions () {
     NativeLogic.native.getAppVersion().then(result => {
       if (result && result.appVersion) {
         let versionNum = result.appVersion
-        Fetch.post('api/appPc/appVersions', {
-          osType: 3,
-          versionNum
-        }).then(res => resolve(res)).catch((err) => reject(err))
+        return new Promise((resolve, reject) => {
+          Fetch.post('api/appPc/appVersions', {
+            osType: 3,
+            versionNum
+          }).then(res => resolve(res)).catch((err) => reject(err))
+        })
       }
     }).catch(err => {
       console.log(err)

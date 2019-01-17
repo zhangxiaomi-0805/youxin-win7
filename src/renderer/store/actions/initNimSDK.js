@@ -48,7 +48,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           //   AppDirectory = urlArr[0]
           // }
           // // 設置系統托盤應用圖標
-          // NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png')
+          // NativeLogic.native.setTrayImage(AppDirectory + '/dist/static/img/systry-logo.png')
         } else { // electron分支
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('logined', null)

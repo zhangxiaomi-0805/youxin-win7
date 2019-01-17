@@ -317,6 +317,8 @@ class NativeHandle {
    * @params:  iconPath icon的绝对路径
    * **/
   setWindowIcon = (iconPath) => {
+    console.log('窗口图标====')
+    console.log(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
       iconPath
     }, (error, result) => {
@@ -332,7 +334,7 @@ class NativeHandle {
   * **/
   getAppVersion = () => {
     return new Promise((resolve, reject) => {
-      NimCefWebInstance.call('getAppVersion', (error, result) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('getAppVersion', (error, result) => {
         // error 是否包含错误
         // error 为 true，包含错误具体内容
         // result.appVersion 为返回的版本号
@@ -350,9 +352,6 @@ class NativeHandle {
     })
   }
 }
-
- 
-
 const electron = new ElectronHandle()
 const native = new NativeHandle()
 export default{

@@ -1375,7 +1375,7 @@
           AppDirectory = urlArr[0]
         }
         console.log(AppDirectory)
-        const winURL = AppDirectory + 'static/windows/applicationXp.html'
+        const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
         // 跟子页面通信
         let sendMsgToChild = () => {
           let dataObj = {
