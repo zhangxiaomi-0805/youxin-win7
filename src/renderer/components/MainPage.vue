@@ -84,6 +84,18 @@
             console.log(res)
           }).catch(err => console.log(err))
         })
+
+        // 监听子窗口通信方法
+        window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
+          if (params.eventName === 'createSession') {
+            let arg = JSON.parse(params.data)
+            Request.GetAccid({userName: arg.account}, this).then(ret => {
+              let accid = ret.accid
+              // 根据account 获取 accid 发起会话
+              this.createSession(accid)
+            })
+          }
+        })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('getAccid', (evt, arg) => {
