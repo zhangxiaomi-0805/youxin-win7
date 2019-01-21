@@ -1,7 +1,7 @@
 <template>
 <!-- 组织架构 - 创建群聊 -->
 <transition name="fade">
-  <div id="modal-box" class="m-selectcontact-contain" style="top:0" v-if="showSelectOrgnize">
+  <div  :class="isXp ? 'm-selectcontact-contain contain-top' : 'm-historymsg-contain'" v-if="showSelectOrgnize">
     <div class="m-selectcontact-cover"></div>
     <div class="m-selectcontact" style="width:680px;height:502px;">
       <div class="drag" id="selectOrgnizeDrag">
@@ -65,6 +65,9 @@ export default {
   mounted () {
     this.eventBus.$on('selectOrgnize', (data) => {
       this.showSelectOrgnize = true
+      if (configs.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
+        this.isXp = true
+      }
       this.type = data.type
       this.teamId = data.teamId || -1
       this.teamName = data.teamName || ''
@@ -74,9 +77,6 @@ export default {
       this.isNormal = data.isNormal
       if (data.isDiscussGroup) this.isDiscussGroup = true
       else this.isDiscussGroup = false
-      setTimeout(() => {
-        this.setHeaderTop()
-      }, 0)
     })
   },
   data () {
@@ -91,7 +91,8 @@ export default {
       searchValue: '',
       msg: '',
       isDiscussGroup: false,
-      isNormal: null
+      isNormal: null,
+      isXp: false
     }
   },
   computed: {
@@ -112,13 +113,6 @@ export default {
     drag.dragPosition('selectOrgnizeDrag', 1)
   },
   methods: {
-    setHeaderTop () {
-      if (configs.environment === 'web' && this.showSelectOrgnize) { // 头部预留30px
-        let modalBox = document.getElementById('modal-box')
-        console.log(modalBox)
-        modalBox.style.top = 30 + 'px'
-      }
-    },
     closeModal () {
       this.searchValue = ''
       this.showSelectOrgnize = false
@@ -428,7 +422,9 @@ export default {
     background-color: rgba(250,250,250,1);
     padding: 0 8px;
   }
-
+  .contain-top {
+    top: 30px;
+  }
   .alignCenter {
     display: flex;
     flex-direction: row;
