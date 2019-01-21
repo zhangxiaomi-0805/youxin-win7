@@ -94,12 +94,12 @@ export default {
         let urlArr = AppDirectory.split('dist')
         AppDirectory = urlArr[0]
       }
-      console.log(AppDirectory)
-      const winURL = AppDirectory + 'static/windows/applicationXp.html'
+      const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
       // 跟子页面通信
       let sendMsgToChild = () => {
         let dataObj = {url, title: item.appName, appCode: item.appCode}
         let data = JSON.stringify(dataObj)
+        console.log('子窗口加载完成，向其发送数据')
         NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
       }
       NativeLogic.native.getWinStatus('营业精灵').then((result) => {

@@ -6,7 +6,10 @@
       <div class="c-default">
         <div :class="type === 'sysmsgs' ? 'title active' : 'title'"><span v-if="type === 'sysmsgs'">群聊验证消息</span></div>
         <div v-if="type === 'default'" class="body" style="backgroundColor: #fff">
-          <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
+          <div style="paddingTop: 7%;">
+            <img class="nice" :src="logoGray"/>
+            <div class="no-msg" style="color: #999;fontSize: 14px;">优信</div>
+          </div>
         </div>
         <name-card v-else-if="type === 'team'" pageType="team" :teamId="teamId"/>
         <sys-msgs v-else-if="type === 'sysmsgs'"/>
@@ -27,7 +30,8 @@
     data () {
       return {
         teamId: '',
-        type: 'default'
+        type: 'default',
+        logoGray: './static/img/orgnize/logo-gray.png'
       }
     },
     mounted () {
@@ -58,6 +62,12 @@
   }
   .c-default .title.active {
     border-bottom: 1px solid rgba(214,214,214,1);
+  }
+  .c-default .nice {
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 5px;
   }
 </style>
 

@@ -4,7 +4,7 @@
   <div class="body" :style="{backgroundColor: !pageType ? 'rgba(242,242,242,1)' : '#fff'}">
     <div v-if="!pageType"><img style="width: 158px; height: 131px;" :src="logo"/><div class="no-msg">暂无消息</div></div>
     <div v-else style="paddingTop: 7%;">
-      <img class="nice" :src="logoGray"/>
+      <span class="nice"/>
       <div class="no-msg" style="color: #999;fontSize: 14px;">优信</div>
     </div>
   </div>
@@ -16,8 +16,7 @@ export default {
   name: 'default',
   data () {
     return {
-      logo: './static/img/no-msg.png',
-      logoGray: './static/img/orgnize/logo-gray.png'
+      logo: './static/img/no-msg.png'
     }
   },
   computed: {
@@ -70,7 +69,7 @@ export default {
     width: 120px;
     height: 120px;
     margin-bottom: 5px;
-    /* background: url('../../../../static/img/orgnize/logo-gray.png') no-repeat center center; */
-    /* background-size: 100% 100%; */
+    background: url('../../../../static/img/orgnize/logo-gray.png') no-repeat center center;
+    background-size: 100% 100%;
   }
 </style>
