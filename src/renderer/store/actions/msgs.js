@@ -105,7 +105,7 @@ export function onForwordMsg ({state, commit}, OBJ) {
   let path = ''
   let obj = Object.assign({}, OBJ)
   if (obj.msg.type === 'file') {
-    path = obj.msg.localCustom.downloadUrl || 'null'
+    path = (obj.msg.localCustom && obj.msg.localCustom.downloadUrl) || 'null'
   }
   if (obj.msg.type === 'custom-type1' || obj.msg.type === 'custom-type3' || obj.msg.type === 'custom-type7') {
     obj.msg.type = 'custom'

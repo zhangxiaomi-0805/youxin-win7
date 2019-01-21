@@ -1,7 +1,7 @@
 <template>
 <!-- 公告编辑 -->
 <transition name="fade">
-  <div id="modal-box" class="m-editnotice-contain" style="top: 0" v-if="showEditNotice">
+  <div :class="isXp ? 'm-editnotice-contain contain-top' : 'm-historymsg-contain'" style="top: 0" v-if="showEditNotice">
     <div class="m-editnotice-cover" @click="closeCover"></div>
     <div class="m-editnotice" style="width:600px;height:502px;">
       <div class="drag" id="editNoticeDrag">
@@ -66,6 +66,9 @@ export default {
   mounted () {
     this.eventBus.$on('editNotice', (data) => {
       this.showEditNotice = true
+      if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
+        this.isXp = true
+      }
       this.teamInfo = data.teamInfo
       this.announcement = data.teamInfo.announcement
       this.announcementCopy = data.teamInfo.announcement
@@ -78,9 +81,6 @@ export default {
     this.eventBus.$on('editNoticePromiss', (data) => {
       this.jurisdiction = data.jurisdiction
     })
-    setTimeout(() => {
-      this.setHeaderTop()
-    }, 0)
   },
   data () {
     return {
@@ -94,7 +94,8 @@ export default {
       announcementCopy: '',
       type: '',
       scene: '',
-      to: ''
+      to: '',
+      isXp: false
     }
   },
   computed: {
@@ -114,13 +115,6 @@ export default {
     drag.dragPosition('editNoticeDrag', 1)
   },
   methods: {
-    setHeaderTop () {
-      if (config.environment === 'web' && this.showSelectContact) { // 头部预留30px
-        let modalBox = document.getElementById('modal-box')
-        console.log(modalBox)
-        modalBox.style.top = 30 + 'px'
-      }
-    },
     closeModal () {
       this.showEditNotice = false
       this.loading = false
@@ -193,7 +187,9 @@ export default {
     height: 100%;
     z-index: 1001;
   }
-
+  .contain-top {
+    top: 30px;
+  }
   .m-editnotice-contain .m-editnotice-cover {
     position: absolute;
     top: 0;

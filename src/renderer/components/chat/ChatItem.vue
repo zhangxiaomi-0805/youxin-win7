@@ -1018,7 +1018,7 @@
                   break
                 // 图片或文件另存为
                 case 6:
-                  if (this.msg === 'file') {
+                  if (this.msg.type === 'file') {
                     this.saveFile()
                   } else {
                     this.$store.dispatch('downloadImg', this.msg.file)
@@ -1071,7 +1071,7 @@
       },
       // 打开文件
       async openItemFile () {
-        const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
+        const fileUrl = this.downloadUrl || (this.msg.localCustom && this.msg.localCustom.downloadUrl)
         if (config.environment === 'web') {
           // 调用native
           NativeLogic.native.openShell(1, fileUrl)
@@ -1113,8 +1113,8 @@
           NativeLogic.native.openShell(2, folderUrl)
             .then()
             .catch(err => {
-              console.log(err)
               // 重新触发下载逻辑
+              console.log(err)
               this.handleDownloadFile()
               this.followEvent = 1
             })

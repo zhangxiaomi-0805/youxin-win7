@@ -1,7 +1,7 @@
-const getFile = (path) => {
+let fs = require('fs')
+export default function getFile (path) {
   // 根本绝对路径获取文件对象
-  let fs = require('fs')
-  let mime = require('mime')
+  // let mime = require('mime')
   return new Promise((resolve, reject) => {
     // 先获取文件信息
     fs.stat(path, (err, stats) => {
@@ -13,9 +13,6 @@ const getFile = (path) => {
         return
       }
       var mimetype = null
-      try {
-        mimetype = mime.getType(path)
-      } catch (err) { return }
       // 读取文件流生成文件
       var readStream = fs.createReadStream(path)
       var blobParts
@@ -24,6 +21,7 @@ const getFile = (path) => {
       })
       readStream.on('data', (data) => {
         var blob = new Blob([data], { type: mimetype })
+        // var md5Value = crypto.createHash('md5').update(data, 'utf8').digest('hex');
         blobParts.push(blob)
       })
       readStream.on('end', () => {
@@ -38,5 +36,3 @@ const getFile = (path) => {
     })
   })
 }
-
-export default getFile

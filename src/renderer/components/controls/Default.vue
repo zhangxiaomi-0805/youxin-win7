@@ -16,7 +16,7 @@ export default {
   name: 'default',
   data () {
     return {
-      logo: './static/img/no-msg.png',
+      logo: './static/img/no-msg.png'
     }
   },
   computed: {

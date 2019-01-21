@@ -1,7 +1,7 @@
 <template>
   <!-- 历史消息记录 -->
   <transition name="fade">
-    <div id="modal-box" class="m-historymsg-contain" style="top: 0" v-if="showHistoryMsg">
+    <div :class="isXp ? 'm-historymsg-contain contain-top' : 'm-historymsg-contain'" v-if="showHistoryMsg">
       <div class="m-historymsg-cover" @click="closeCover"></div>
       <div class="m-info-box" style="width:600px;height:502px;">
         <!-- 头部 -->
@@ -166,7 +166,8 @@
         beforeValue: '', // 上一次输入的值，做延时搜索
         isCheckMore: false,
         isSearchCheckMore: false,
-        date: ''
+        date: '',
+        isXp: false
       }
     },
     mounted () {
@@ -174,14 +175,14 @@
       this.InitHistoryMsg()
       this.eventBus.$on('checkHistoryMsg', (data) => {
         this.showHistoryMsg = true
+        if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
+          this.isXp = true
+        }
         this.isRobot = data.isRobot
         this.sessionName = data.sessionName
         this.teamInfo = data.teamInfo
         this.scene = data.scene
         this.to = data.to
-        setTimeout(() => {
-          this.setHeaderTop()
-        }, 0)
       })
     },
     watch: {
@@ -324,13 +325,6 @@
       drag.dragPosition('historyMsgDrag', 1)
     },
     methods: {
-      setHeaderTop () {
-        if (config.environment === 'web' && this.showHistoryMsg) { // 头部预留30px
-          let modalBox = document.getElementById('modal-box')
-          console.log(modalBox)
-          modalBox.style.top = 30 + 'px'
-        }
-      },
       className (value) {
         let className = 'tab-title-item'
         if (value === this.checkFunc) {
@@ -591,6 +585,9 @@
     width: 100%;
     height: 100%;
     z-index: 1001;
+  }
+  .contain-top {
+    top: 30px;
   }
   .m-historymsg-contain .m-historymsg-cover {
     position: absolute;
