@@ -307,6 +307,9 @@
         let input = document.createElement('input')
         input.type = 'file'
         input.accept = 'image/gif, image/jpeg, image/png, image/bmp, image/jpg'
+        if (config.environment === 'web') { // 解决XP系统不支持过滤图片格式问题
+          input.accept = ''
+        }
         input.id = `input${this.inputIndex++}`
         input.click()
         input.onchange = () => {
