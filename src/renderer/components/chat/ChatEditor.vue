@@ -585,7 +585,7 @@
           selection.addRange(range)
           return false
         }
-        let data = '';
+        let data = ''
         if (config.environment === 'web') {
           data = e.target.textContent
         } else {
