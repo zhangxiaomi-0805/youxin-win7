@@ -582,9 +582,15 @@
           selection.addRange(range)
           return false
         }
-        if ((e.data === '@' || this.showAtList) && this.scene === 'team') {
+        let data = '';
+        if (config.environment === 'web') {
+          data = e.target.textContent
+        } else {
+          data = e.data
+        }
+        if ((data.indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
           let textComputed = () => {
-            if (e.data === '@') {
+            if (data.indexOf('@') > -1) {
               // 根据光标位置获取@后面字符串
               if (this.showAtList) {
                 this.inAtText += '@'
@@ -606,12 +612,12 @@
           }
           textComputed()
           let memList = this.resetMemberList()
-          if ((!memList || memList.length === 0) && e.data === '@') {
+          if ((!memList || memList.length === 0) && data.indexOf('@') > -1) {
             // 重新进入@流程
             this.resetAtInfo()
             textComputed()
             this.resetMemberList()
-          } else if (e.data !== '@') {
+          } else if (data.indexOf('@') < 1) {
             let allText = this.getNodeData(this.anchorNode)
             if (allText.length < this.atStartOffset || allText.charAt(this.atStartOffset - 1) !== '@') {
               this.resetAtInfo()
