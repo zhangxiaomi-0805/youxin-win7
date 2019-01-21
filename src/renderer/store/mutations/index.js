@@ -1214,5 +1214,17 @@ export default {
   },
   updateMobileOnline (state, type) {
     state.mobileOnline = type
+  },
+  updateCurrentMsgAudio (state, obj) {
+    // 更新当前播放音频消息对象
+    if (obj.type === 'init') {
+      state.currentMsgAudio = obj
+    } else if (obj.type === 'reset') {
+      state.currentMsgAudio = {}
+    }
+  },
+  updateCurrentMsgPlay (state, obj) {
+    // 更新当前音频消息播放状态
+    state.currentMsgPlay = obj
   }
 }

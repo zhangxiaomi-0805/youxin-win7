@@ -25,7 +25,7 @@
           @mouseenter="mouseenter('orgAddAllId', orgnize.id)"
           @mouseleave="mouseleave('orgAddAllId')">
           <span v-if="orgnize.hasChild" :class="activeId === orgnize.id ? 't-open' : 't-takeup'"/>
-          <!-- <span v-else class="t-common"/> -->
+          <span v-else class="t-common"/>
           <span class="orgname" :title="orgnize.name">{{orgnize.name}}</span>
           <transition name="fade"><a v-if="orgnize.id === orgAddAllId && showCheck" class="t-addAll" @click.stop="selectAllMember(orgnize, orgnize.id, $index)">+</a></transition>
         </div>
@@ -229,7 +229,6 @@
     width: 15px;
     height: 15px;
     margin-right: 3.5px;
-    margin-left: 5px;
   }
 
   .t-orgname .t-takeup {

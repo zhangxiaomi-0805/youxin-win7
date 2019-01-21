@@ -28,7 +28,7 @@
               <span v-if="type === 4" :class="friend.checked ? 'radio-active common' : 'radio common'"></span>
               <span v-else :class="friend.disabled ? 'disabled common' : friend.checked ? 'checked common' : 'check common'"></span>
               <img class="msg-img" :src="friend.avatar">
-              <span class="inline">{{friend.alias || friend.nick || friend.name}}</span>
+              <span class="inline">{{friend.alias || friend.nick || friend.name || friend.account}}</span>
               <span v-if="friend.memberNum" style="margin-left: 5px;">({{friend.memberNum}}人)</span>
               <span :class="friend.type" v-show="(type === 4 || type === 6) && friend.type !== 'normal'"/>
             </li>
@@ -40,7 +40,7 @@
           <ul class="u-list" v-show="chooselist.length > 0" style="top: 44px;">
             <li class="u-list-item" v-for="(item, $index) in chooselist" :key="$index" :id="item.id">
               <img class="msg-img" :src="item.avatar">
-              <span class="inline">{{item.alias || item.nick || item.name}}</span>
+              <span class="inline">{{item.alias || item.nick || item.name || item.account}}</span>
               <span v-if="item.memberNum" style="margin-left: 5px;">({{item.memberNum}}人)</span>
               <span class="delete" @click="deleted($index)"></span>
             </li>
@@ -85,7 +85,7 @@
 import platform from '../../utils/platform'
 import util from '../../utils'
 import drag from '../../utils/drag.js'
-import listSort from '../../utils/listSort.js'
+// import listSort from '../../utils/listSort.js'
 import config from '../../configs'
 export default {
   name: 'select-contact',
@@ -96,7 +96,7 @@ export default {
       this.sidelist = Object.assign([], data.sidelist)
       this.sidelistCopy = Object.assign([], data.sidelist)
       if (data.type !== 7 && data.type !== 8) {
-        this.sidelist = listSort(this.sidelist)
+        // this.sidelist = listSort(this.sidelist)
       }
       this.chooselist = []
       if (data.teamId) {
@@ -218,7 +218,6 @@ export default {
     setHeaderTop () {
       if (config.environment === 'web' && this.showSelectContact) { // 头部预留30px
         let modalBox = document.getElementById('modal-box')
-        console.log(modalBox)
         modalBox.style.top = 30 + 'px'
       }
     },
@@ -564,7 +563,7 @@ export default {
       }
       let sidelist = []
       for (let i in this.sidelist) {
-        let name = this.sidelist[i].alias || this.sidelist[i].nick || this.sidelist[i].name
+        let name = this.sidelist[i].alias || this.sidelist[i].nick || this.sidelist[i].name || this.sidelist[i].account
         if (name.indexOf(value) > -1) {
           sidelist.push(this.sidelist[i])
         }
