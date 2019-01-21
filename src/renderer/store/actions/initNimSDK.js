@@ -166,7 +166,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
       }
     }
   }
-  if (config.env === 'self') {
+  if (config.env === 'self' || config.env === 'selfOnline') {
     // 私有化
     Params = Object.assign(Params, {privateConf: config.privateConf})
   }
