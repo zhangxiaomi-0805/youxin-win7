@@ -63,7 +63,7 @@
   import UpdateApp from './float/UpdateApp.vue'
   import GroupInvite from './float/groupInvite.vue'
   import config from '../configs'
-  // import NativeLogic from '../utils/nativeLogic.js'
+  import NativeLogic from '../utils/nativeLogic.js'
   export default {
     name: 'main-page',
     components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite},
@@ -71,7 +71,31 @@
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
       if (config.environment === 'web') { // web分支
-        // NativeLogic.native.sendEvent() // 跨窗口通信
+        let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+        if (AppDirectory.indexOf('dist') > -1) {
+          let urlArr = AppDirectory.split('dist')
+          AppDirectory = urlArr[0]
+        }
+        console.log(AppDirectory)
+        NativeLogic.native.setWindowIcon(AppDirectory + '/dist/static/img/systry-logo.png') // 设置窗口图标
+        // 点击右下角退出按钮时的通知--这里是隐藏
+        window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
+          NativeLogic.native.setWinStatus('main', 6).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
+            console.log(res)
+          }).catch(err => console.log(err))
+        })
+
+        // 监听子窗口通信方法
+        window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
+          if (params.eventName === 'createSession') {
+            let arg = JSON.parse(params.data)
+            Request.GetAccid({userName: arg.account}, this).then(ret => {
+              let accid = ret.accid
+              // 根据account 获取 accid 发起会话
+              this.createSession(accid)
+            })
+          }
+        })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('getAccid', (evt, arg) => {

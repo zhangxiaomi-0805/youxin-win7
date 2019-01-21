@@ -152,6 +152,10 @@
       }
     },
     mounted () {
+      if (config.environment === 'web') {
+        // 设置可拖拽范围
+        NativeLogic.native.setDraggableArea(0, 30, 30, 70)
+      }
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
@@ -405,7 +409,7 @@
                     AppDirectory = urlArr[0]
                   }
                   // 设置系统托盘应用图标
-                  NativeLogic.native.setTrayImage(AppDirectory + '/static/img/systry-logo.png', userInfo.name)
+                  NativeLogic.native.setTrayImage(AppDirectory + '/dist/static/img/systry-logo.png', userInfo.name)
                 } else { // electron分支
                   const electron = require('electron')
                   const ipcRenderer = electron.ipcRenderer

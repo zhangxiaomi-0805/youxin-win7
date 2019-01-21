@@ -1,7 +1,7 @@
 <template>
 <!-- 选择联系人 -->
 <transition name="fade">
-  <div class="m-selectcontact-contain" v-if="showSelectContact">
+  <div id="modal-box" class="m-selectcontact-contain" style="top: 0" v-if="showSelectContact">
     <div class="m-selectcontact-cover" @click="closeCover"></div>
     <div class="m-selectcontact" style="width:600px;height:502px;">
       <div class="drag" id="selectContactDrag">
@@ -86,6 +86,7 @@ import platform from '../../utils/platform'
 import util from '../../utils'
 import drag from '../../utils/drag.js'
 import listSort from '../../utils/listSort.js'
+import config from '../../configs'
 export default {
   name: 'select-contact',
   mounted () {
@@ -105,6 +106,9 @@ export default {
         this.msg = data.msg
       }
       this.managelist()
+      setTimeout(() => {
+        this.setHeaderTop()
+      }, 0)
     })
   },
   data () {
@@ -211,6 +215,13 @@ export default {
     drag.dragPosition('selectContactDrag', 1)
   },
   methods: {
+    setHeaderTop () {
+      if (config.environment === 'web' && this.showSelectContact) { // 头部预留30px
+        let modalBox = document.getElementById('modal-box')
+        console.log(modalBox)
+        modalBox.style.top = 30 + 'px'
+      }
+    },
     managelist () {
       this.sidelist.map((item, index) => {
         item.checked = false

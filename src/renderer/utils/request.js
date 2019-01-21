@@ -3,8 +3,8 @@
  */
 import store from '../store'
 import Fetch from './fetch'
-import { remote } from 'electron'
-
+import NativeLogic from './nativeLogic'
+import config from '../configs'
 function LoginAuth (params, $this) {
   /*
    * 登录鉴权
@@ -232,9 +232,27 @@ function AppVersions () {
    * @param osType      操作系统（1-IOS 2-Android 3-PC）
    * @param versionNum  当前系统版本号
    */
-  return new Promise((resolve, reject) => {
-    Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: remote.getGlobal('APPVERSION')}).then(res => resolve(res)).catch((err) => reject(err))
-  })
+  if (config.environment === 'web') {
+    // 获取版本号
+    NativeLogic.native.getAppVersion().then(result => {
+      if (result && result.appVersion) {
+        let versionNum = result.appVersion
+        return new Promise((resolve, reject) => {
+          Fetch.post('api/appPc/appVersions', {
+            osType: 3,
+            versionNum
+          }).then(res => resolve(res)).catch((err) => reject(err))
+        })
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  } else {
+    return new Promise((resolve, reject) => {
+      let { remote } = require('electron')
+      Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: remote.getGlobal('APPVERSION')}).then(res => resolve(res)).catch((err) => reject(err))
+    })
+  }
 }
 
 export default {

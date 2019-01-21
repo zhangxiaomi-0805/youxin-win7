@@ -6,7 +6,10 @@
       <div class="c-default">
         <div class="title" style="borderBottomWidth: 0"></div>
         <div v-if="!showCard" class="body" style="backgroundColor: #fff">
-          <div style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
+          <div style="paddingTop: 7%;">
+            <img class="nice" :src="logoGray"/>
+            <div class="no-msg" style="color: #999;fontSize: 14px;">优信</div>
+          </div>
         </div>
         <name-card v-else pageType="p2p" type="contactsTop" :contactId="contactId" :accid="contactId" :callBack="resetStatus"/>
       </div>
@@ -25,7 +28,8 @@
     data () {
       return {
         contactId: '',
-        showCard: false
+        showCard: false,
+        logoGray: './static/img/orgnize/logo-gray.png'
       }
     },
     mounted () {
@@ -44,3 +48,11 @@
     }
   }
 </script>
+<style>
+  .c-default .body .nice {
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 5px;
+  }
+</style>

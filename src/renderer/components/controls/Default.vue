@@ -3,7 +3,10 @@
   <div class="title" :style="{borderBottomWidth: !pageType ? '1px' : '0'}"></div>
   <div class="body" :style="{backgroundColor: !pageType ? 'rgba(242,242,242,1)' : '#fff'}">
     <div v-if="!pageType"><img style="width: 158px; height: 131px;" :src="logo"/><div class="no-msg">暂无消息</div></div>
-    <div v-else style="paddingTop: 7%;"><span class="nice"/><div class="no-msg" style="color: #999;fontSize: 14px;">优信</div></div>
+    <div v-else style="paddingTop: 7%;">
+      <span class="nice"/>
+      <div class="no-msg" style="color: #999;fontSize: 14px;">优信</div>
+    </div>
   </div>
 </div>
 </template>

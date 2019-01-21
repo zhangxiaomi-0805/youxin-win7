@@ -205,8 +205,6 @@ export default {
       }, 1000)
     },
     openAplWindow (url, openType) {
-      let {ipcRenderer, shell} = require('electron')
-
       if (url) {
         // 打开营业精灵
         let thirdUrls = this.$store.state.thirdUrls
@@ -225,20 +223,90 @@ export default {
           if (thirdUrls[i].url === domain) {
             Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
               if (openType && openType === 2) {
-                shell.openExternal(res)
+                if (config.environment === 'web') {
+                  this.webOpenOutWin(res)
+                } else {
+                  this.electronOpenOutWin(res)
+                }
               } else {
-                ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+                if (config.environment === 'web') {
+                  this.webOpenInWin(res, sessionInfo)
+                } else {
+                  this.electronOpenInWin(res, sessionInfo)
+                }
               }
             }).catch(() => {})
             return false
           }
         }
         if (openType && openType === 1) {
-          ipcRenderer.send('openAplWindow', {url: url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+          if (config.environment === 'web') {
+            this.webOpenInWin(url, sessionInfo)
+          } else {
+            this.electronOpenInWin(url, sessionInfo)
+          }
         } else {
-          shell.openExternal(url)
+          if (config.environment === 'web') {
+            this.webOpenOutWin(url)
+          } else {
+            this.electronOpenOutWin(url)
+          }
         }
       }
+    },
+    webOpenOutWin (url) {
+      // web端打开外部窗口
+      NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+    },
+    webOpenInWin (url, item) {
+      // web端打开内部窗口
+      // 1、创建窗口
+      // params: windowName, path, height, width
+      let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+      if (AppDirectory.indexOf('dist') > -1) {
+        let urlArr = AppDirectory.split('dist')
+        AppDirectory = urlArr[0]
+      }
+      console.log(AppDirectory)
+      const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
+      // 跟子页面通信
+      let sendMsgToChild = () => {
+        let dataObj = {url, title: item.appName, appCode: item.appCode}
+        let data = JSON.stringify(dataObj)
+        NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
+      }
+      NativeLogic.native.getWinStatus('营业精灵').then((result) => {
+        console.log(result)
+        if (!result) {
+          // 当子窗口不存在时创建子窗口
+          NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
+        } else {
+          if (result.isMinimized) {
+            NativeLogic.native.setWinStatus('营业精灵', 7) // 如果窗口最小化，则让其显示
+          }
+          sendMsgToChild()
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+      // 注册事件监听子页面是否加载完成
+      window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
+        if (params.eventName === 'childIsLoaded') {
+          // 2、跨窗口通信,等子页面准备完成再发送事件
+          // params: windowName, data{}, eventName
+          sendMsgToChild()
+        }
+      })
+    },
+    electronOpenOutWin (url) {
+      // electron端打开外部窗口
+      let { shell } = require('electron')
+      shell.openExternal(url)
+    },
+    electronOpenInWin (url, item) {
+      // electron端打开内部窗口
+      let { ipcRenderer } = require('electron')
+      ipcRenderer.send('openAplWindow', {url, title: item.appName, appCode: item.appCode})
     },
     className (msg) {
       // 选择框样式
