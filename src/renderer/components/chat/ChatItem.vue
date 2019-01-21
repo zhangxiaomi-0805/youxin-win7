@@ -1096,6 +1096,8 @@
       // 打开文件夹
       async openFileInFolder () {
         const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
+        console.log(this.msg.localCustom)
+        console.log('downloadUrl==========='+ fileUrl)
         if (config.environment === 'web') {
           // 调用native
           let folderUrl = ''
@@ -1107,6 +1109,7 @@
               }
             }
           })
+          console.log('文件夹位置================' + folderUrl)
           NativeLogic.native.openShell(2, folderUrl)
             .then()
             .catch(err => {

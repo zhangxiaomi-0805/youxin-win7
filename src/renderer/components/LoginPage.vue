@@ -408,6 +408,7 @@
                     let urlArr = AppDirectory.split('dist')
                     AppDirectory = urlArr[0]
                   }
+                  localStorage.setItem('UserName', userInfo.name) // 本地保存登录用户名，收到新消息设置系统托盘应用图标和tip时用
                   // 设置系统托盘应用图标
                   NativeLogic.native.setTrayImage(AppDirectory + '/dist/static/img/systry-logo.png', userInfo.name)
                 } else { // electron分支

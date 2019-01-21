@@ -66,6 +66,7 @@ export default {
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
           if (config.environment === 'web') { // web分支
+            localStorage.removeItem('UserName')
             // 先关闭所有子窗口，再重启主窗口
             NativeLogic.native.setWinStatus('aplWindow', 3) // 类型（1-最小化，2-最大化，3-关闭，4-重启，5-隐藏，6-显示）
             NativeLogic.native.setWinStatus('main', 4)

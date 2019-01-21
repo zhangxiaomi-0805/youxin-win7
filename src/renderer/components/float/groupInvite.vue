@@ -23,7 +23,7 @@
           <!-- 内容 -->
           <div style="width: 100%; height:90px;display: flex;flex-direction: column; align-items:center;padding: 30px 0;justify-content: space-between">
             <div style="color: #666; font-size: 14px;text-overflow:ellipsis;white-space:nowrap;">{{description.split('聊')[0] + '聊'}}</div>
-            <a class="button" @mouseup.stop="applyJoinTeam()">{{'加入群聊'}}</a>
+            <a class="button" @mouseup.stop="isJoined ? sendMsg(teamId) : applyJoinTeam()">{{isJoined ? '进入群聊' : '加入群聊'}}</a>
           </div>
         </div>
       </div>
@@ -36,6 +36,7 @@
   import drag from '../../utils/drag.js'
   import clickoutside from '../../utils/clickoutside.js'
   import config from '../../configs/index'
+  import util from '../../utils'
   export default {
     name: 'group-invite',
     directives: {clickoutside},
@@ -45,7 +46,8 @@
         teamId: '',
         description: '',
         teamInfo: {},
-        myGroupIcon: config.defaultGroupIcon
+        myGroupIcon: config.defaultGroupIcon,
+        isJoined: false
       }
     },
     mounted () {
@@ -55,10 +57,25 @@
         this.teamId = data.teamInfo.teamId
         this.description = data.teamInfo.description
         this.getTeamInfoFn(this.teamId)
+        let teamlist = this.$store.state.teamlist.filter(item => {
+          return item.valid && item.validToCurrentUser && !util.isDiscussGroup(item)
+        })
+        teamlist.map(item => {
+          if (item.teamId === this.teamId) {
+            this.isJoined = true
+          } else {
+            this.isJoined = false
+          }
+        })
       })
     },
     updated () {
       drag.dragPosition('historyMsgDrag', 1)
+    },
+    computed: {
+      sessionlist () {
+        return this.$store.state.sessionlist
+      }
     },
     methods: {
       closeCover () {
@@ -90,16 +107,50 @@
             ps: 'ps',
             done: (error, obj) => {
               if (error) {
-                this.$toast(error)
+                this.$store.commit('toastConfig', {
+                  show: true,
+                  type: 'success',
+                  toastText: error.message
+                })
                 return
               }
-              this.$toast('申请成功')
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'success',
+                toastText: '申请成功'
+              })
               setTimeout(() => {
                 this.closeModal()
               }, 1000)
             }
           }
         })
+      },
+      sendMsg (account) {
+        // 加入群聊
+        let sessionId = ''
+        for (let i in this.sessionlist) {
+          if (this.sessionlist[i].to === account) {
+            sessionId = this.sessionlist[i].id
+            break
+          }
+        }
+        if (sessionId) {
+          this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+          this.eventBus.$emit('toggleSelect', {sessionId})
+          this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+        } else {
+          this.$store.dispatch('insertLocalSession', {
+            scene: this.pageType,
+            account: account,
+            callback: (sessionId) => {
+              this.eventBus.$emit('updateNavBar', {navTo: 'session'})
+              this.eventBus.$emit('toggleSelect', {sessionId})
+              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+            }
+          })
+        }
+        this.closeModal()
       }
     }
   }

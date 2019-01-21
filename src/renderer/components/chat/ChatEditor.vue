@@ -254,6 +254,8 @@
     methods: {
       // 文件发送
       onSendFlie (e) {
+        console.log(e.target)
+        console.log(e.target.files[0])
         if (e.target.files[0].size > 100 * 1024 * 1024) {
           this.$store.commit('toastConfig', {
             show: true,
