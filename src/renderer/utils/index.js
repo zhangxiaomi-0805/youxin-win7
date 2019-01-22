@@ -178,6 +178,10 @@ Utils.parseCustomMsg = function (msg) {
           return '[贴图表情]'
         case 4:
           return '[白板消息]'
+        case 7:
+          return '[媒体消息]'
+        case 8:
+          return '[入群邀请]'
       }
     } catch (e) {}
     return '[自定义消息]'

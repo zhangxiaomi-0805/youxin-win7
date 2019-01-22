@@ -458,7 +458,6 @@
         // 添加管理员
         let sidelist = []
         if (this.memberList) {
-          console.log(this.memberList)
           this.memberList.map(item => {
             if (item.type !== 'owner') {
               sidelist.push(item)
