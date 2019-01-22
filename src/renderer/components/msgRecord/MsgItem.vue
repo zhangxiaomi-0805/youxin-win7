@@ -19,7 +19,7 @@
             v-if="msg.type==='text'"
             style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
-            @click="openAplWindow($event, msg.sessionId)"
+            @click="openAplWindow($event)"
             v-html="msg.showText"
             :ref="`copy_${msg.idClient}`"
           ></div>
@@ -199,12 +199,19 @@ export default {
             if (url.indexOf('#browserWindow') > -1) {
               openType = 2
             }
-            this.openAplWindow(url, openType)
+            this.openAplWindow({url}, openType)
           })
         }
       }, 1000)
     },
-    openAplWindow (url, openType) {
+    openAplWindow (evt, openType) {
+      let url = ''
+      if (!openType) {
+        url = evt.target.getAttribute('data-url')
+        url = url.substr(1, url.length - 2)
+      } else {
+        url = evt.url
+      }
       if (url) {
         // 打开营业精灵
         let thirdUrls = this.$store.state.thirdUrls
@@ -217,6 +224,7 @@ export default {
           }
         }
         let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,6}))+\.?/
+        console.log(url)
         let domain = url.match(regDomain)[0]
         if (url.split('://').length <= 1) url = 'http://' + url
         for (let i in thirdUrls) {

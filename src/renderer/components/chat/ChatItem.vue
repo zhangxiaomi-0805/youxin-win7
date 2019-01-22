@@ -1456,15 +1456,18 @@
         // 匹配url
         // let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
         let regHttpAll = /(?:http(s?):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
+        let regEmail = /^([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
           // 分割空格
           lineStr.split(/\s+/).map(minStr => {
-            let httpResult = minStr.match(regHttpAll)
-            // if (!httpResult) {
-            //   httpResult = minStr.match(regHttpAll)
-            // }
-            if (httpResult) httpArr.push(httpResult[0])
+            if (!regEmail.test(minStr)) {
+              let httpResult = minStr.match(regHttpAll)
+              // if (!httpResult) {
+              //   httpResult = minStr.match(regHttpAll)
+              // }
+              if (httpResult) httpArr.push(httpResult[0])
+            }
           })
         })
         return httpArr

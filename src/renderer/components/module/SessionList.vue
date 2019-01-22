@@ -1,8 +1,8 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-  <div class="u-search searchevent">
+  <div class="u-search searchevent" v-clickoutside="clearStatus">
     <div class="u-cont">
-      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" />
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
@@ -720,6 +720,7 @@ export default {
     transform: rotate(45deg);
   }
   .u-search{
+    -webkit-app-region: drag;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -728,6 +729,7 @@ export default {
     height: 56px;
   }
   .u-search .u-cont {
+    -webkit-app-region: no-drag;
     position: relative;
     width: 90%;
     height: 28px;
