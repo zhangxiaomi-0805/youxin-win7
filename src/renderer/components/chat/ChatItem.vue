@@ -881,6 +881,7 @@
           this.currentAudio = new Audio(src)
           this.currentAudio.play()
           this.isPlay = true
+          //播放结束就会触发
           this.currentAudio.onended = () => {
             this.currentAudio = null
             this.isPlay = false
@@ -1096,8 +1097,6 @@
       // 打开文件夹
       async openFileInFolder () {
         const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
-        console.log(this.msg.localCustom)
-        console.log('downloadUrl==========='+ fileUrl)
         if (config.environment === 'web') {
           // 调用native
           let folderUrl = ''
@@ -1109,12 +1108,10 @@
               }
             }
           })
-          console.log('文件夹位置================' + folderUrl)
           NativeLogic.native.openShell(2, folderUrl)
             .then()
             .catch(err => {
               // 重新触发下载逻辑
-              console.log(err)
               this.handleDownloadFile()
               this.followEvent = 1
             })
@@ -1377,7 +1374,6 @@
           let urlArr = AppDirectory.split('dist')
           AppDirectory = urlArr[0]
         }
-        console.log(AppDirectory)
         const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
         // 跟子页面通信
         let sendMsgToChild = () => {
@@ -1401,8 +1397,7 @@
             // 存在时直接通信
             sendMsgToChild()
           }
-        }).catch(error => {
-          console.log(error)
+        }).catch(() => {
         })
         // 注册事件监听子页面是否加载完成
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {

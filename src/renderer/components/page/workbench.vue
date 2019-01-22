@@ -99,11 +99,9 @@ export default {
       let sendMsgToChild = () => {
         let dataObj = {url, title: item.appName, appCode: item.appCode}
         let data = JSON.stringify(dataObj)
-        console.log('子窗口加载完成，向其发送数据')
         NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
       }
       NativeLogic.native.getWinStatus('营业精灵').then((result) => {
-        console.log(result)
         if (!result) {
           // 当子窗口不存在时创建子窗口
           NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
@@ -113,8 +111,7 @@ export default {
           }
           sendMsgToChild()
         }
-      }).catch(error => {
-        console.log(error)
+      }).catch(() => {
       })
       // 注册事件监听子页面是否加载完成
       window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {

@@ -48,7 +48,7 @@
     position: absolute;
     left: 240px;
     top: 80px;
-    z-index: 100;
+    z-index: 110;
   }
 
   .d-contain .vdp-datepicker {

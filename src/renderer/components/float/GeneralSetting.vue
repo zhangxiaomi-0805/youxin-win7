@@ -353,6 +353,8 @@ export default {
     checkUpdate () {
       // 检查更新
       Request.AppVersions().then(res => {
+        console.log('检查更新=====')
+        console.log(res)
         if (res) {
           this.eventBus.$emit('updateApp', res)
         } else {
