@@ -147,6 +147,7 @@
 import util from '../../utils'
 import config from '../../configs'
 import Request from '../../utils/request.js'
+import NativeLogic from '../../utils/nativeLogic'
 export default {
   name: 'general-setting',
   data () {
@@ -198,7 +199,15 @@ export default {
   mounted () {
     this.eventBus.$on('generalSetting', (data) => {
       this.showGeneralSetting = data.show
-      this.version = process.env.npm_package_version
+      if (config.environment === 'web') {
+        NativeLogic.native.getAppVersion().then(result => {
+          if (result) {
+            this.version = result.appVersion
+          }
+        })
+      } else {
+        this.version = process.env.npm_package_version
+      }
     })
   },
   computed: {

@@ -184,8 +184,12 @@ class NativeHandle {
    * @params: tooltip // 图标示例
    * **/
   setTrayImage = (iconPath, tooltip) => {
-    console.log(tooltip)
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {iconPath, tooltip})
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {
+      iconPath, tooltip
+    }, (error, result) => {
+      console.log(error)
+      console.log(result)
+    })
   }
 
   receiveNewMsgs = (arg) => {
@@ -194,11 +198,12 @@ class NativeHandle {
       let urlArr = AppDirectory.split('dist')
       AppDirectory = urlArr[0]
     }
+    let userName = localStorage.getItem('UserName')
     let logo1 = AppDirectory + '/dist/static/img/systry-logo.png'
     let logo2 = AppDirectory + '/dist/static/img/systry-logo-a.png'
     if (arg.unreadNums <= 0) {
       if (this.twinkle) {
-        this.setTrayImage(logo1)
+        this.setTrayImage(logo1, userName)
         clearInterval(this.twinkle)
         this.twinkle = null
       }
@@ -211,11 +216,12 @@ class NativeHandle {
     }
     let count = 0
     this.twinkle = setInterval(() => {
+      console.log('登录用户====' + userName)
       count++
       if (count % 2 === 0) {
-        this.setTrayImage(logo1)
+        this.setTrayImage(logo1, userName)
       } else {
-        this.setTrayImage(logo2)
+        this.setTrayImage(logo2, userName)
       }
     }, 600)
   }
@@ -318,8 +324,6 @@ class NativeHandle {
    * @params:  iconPath icon的绝对路径
    * **/
   setWindowIcon = (iconPath) => {
-    console.log('窗口图标====')
-    console.log(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
       iconPath
     }, (error, result) => {

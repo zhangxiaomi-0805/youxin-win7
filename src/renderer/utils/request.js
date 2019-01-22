@@ -234,23 +234,27 @@ function AppVersions () {
    */
   if (config.environment === 'web') {
     // 获取版本号
-    NativeLogic.native.getAppVersion().then(result => {
-      if (result && result.appVersion) {
-        let versionNum = result.appVersion
-        return new Promise((resolve, reject) => {
-          Fetch.post('api/appPc/appVersions', {
-            osType: 3,
-            versionNum
-          }).then(res => resolve(res)).catch((err) => reject(err))
-        })
-      }
-    }).catch(err => {
-      console.log(err)
+    return new Promise((resolve, reject) => {
+      NativeLogic.native.getAppVersion().then(result => {
+        if (result) {
+          resolve(result)
+        }
+      }).then(result => {
+        Fetch.post('api/appPc/appVersions', {
+          osType: 4, // 4 --- XP系统
+          versionNum: result.appVersion
+        }).then(result => resolve(result))
+      }).catch(err => {
+        reject(err)
+      })
     })
   } else {
     return new Promise((resolve, reject) => {
       let { remote } = require('electron')
-      Fetch.post('api/appPc/appVersions', {osType: 3, versionNum: remote.getGlobal('APPVERSION')}).then(res => resolve(res)).catch((err) => reject(err))
+      Fetch.post('api/appPc/appVersions', {
+        osType: 3, // 3 --- PC
+        versionNum: remote.getGlobal('APPVERSION')
+      }).then(res => resolve(res)).catch((err) => reject(err))
     })
   }
 }
