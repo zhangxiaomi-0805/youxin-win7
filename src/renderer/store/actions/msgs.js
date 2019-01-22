@@ -411,6 +411,7 @@ export function sendMsg ({state, commit}, obj) {
           pushContent: obj.pushContent,
           content: JSON.stringify(obj.content),
           done: (error, msg) => {
+            onSendMsgDone(error, msg)
             if (error) reject(error)
             else resolve(msg)
           }

@@ -3,7 +3,6 @@
  */
 
 import store from '../'
-import NativeLogic from '../../utils/nativeLogic.js'
 import config from '../../configs'
 // 如果会话对象不是好友，需要更新好友名片
 function updateSessionAccount (sessions) {

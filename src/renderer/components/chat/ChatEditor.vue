@@ -42,8 +42,24 @@
             <a class="b-common b-emoji"/>
           </div>
           <!-- 截图 -->
-          <div v-if="!isRobot" class="u-editor-icon" @click="screenShot">
-            <a class="b-common b-screenshot"/>
+          <div v-if="!isRobot" class="u-editor-icon" style="position: relative;">
+            <a class="b-common b-screenshot" @click="screenShot" :title="isXp ? '' : '截图(Alt + A)'"/>
+            <a
+              v-if="!isXp"
+              class="quick-send noevent" 
+              @click="showHideWin = true" 
+              style="width: 8px;position: absolute;right: -10px; top: 10px;" />
+            <!-- 截屏时隐藏当前窗口设置 -->
+            <transition name="fade">
+              <div 
+                v-if="showHideWin"
+                v-clickoutside="closeShowHideWin"
+                class="show-hide-win"
+                @click="showHideWinCheckFn">
+                <span :class="showHideWinCheck ? 'radio-active' : 'radio'"></span>
+                <span>截屏时隐藏当前窗口</span>
+              </div>
+            </transition>
           </div>
           <!-- 图片 -->
           <div v-if="!isRobot" class="u-editor-icon" @click="createInput" style="cursor: pointer">
@@ -76,9 +92,7 @@
 
         <!-- 短信发送鼠标悬停时，显示的提示框 -->
         <transition name="fade">
-          <div v-if="showPrompt"
-               class="prompt"
-          >
+          <div v-if="showPrompt" class="prompt">
             <div class="triangle_border_down"></div>
             用短信发送
           </div>
@@ -176,6 +190,9 @@
             this.onPaste()
           }
         })
+        ipcRenderer.on('shortcutScreen', (evt, arg) => {
+          this.screenShot()
+        })
       }
     },
     watch: {
@@ -234,7 +251,10 @@
         atStartOffset: 0,
         atRange: null,
         atAccounts: [],
-        rangeInfo: null
+        rangeInfo: null,
+        isXp: config.environment === 'web',
+        showHideWin: false,
+        showHideWinCheck: localStorage.SHOWHIDEWINCHECK
       }
     },
     computed: {
@@ -254,8 +274,6 @@
     methods: {
       // 文件发送
       onSendFlie (e) {
-        console.log(e.target)
-        console.log(e.target.files[0])
         if (e.target.files[0].size > 100 * 1024 * 1024) {
           this.$store.commit('toastConfig', {
             show: true,
@@ -300,10 +318,24 @@
         if (className.indexOf('noevent') > -1) return
         this.showQuickSet = false
       },
+      closeShowHideWin (el, e) {
+        let className = e.target.className
+        if (className.indexOf('noevent') > -1) return
+        this.showHideWin = false
+      },
       chooseQuickSet (index) {
         this.showQuickSet = false
         this.quickIndex = index
         localStorage.setItem('QUICKSET', this.quickIndex)
+      },
+      showHideWinCheckFn () {
+        this.showHideWinCheck = !this.showHideWinCheck
+        this.showHideWin = false
+        if (this.showHideWinCheck) {
+          localStorage.setItem('SHOWHIDEWINCHECK', true)
+        } else {
+          localStorage.removeItem('SHOWHIDEWINCHECK')
+        }
       },
       createInput () {
         let input = document.createElement('input')
@@ -327,7 +359,7 @@
           NativeLogic.native.screenShot()
         } else { // electron分支
           let { ipcRenderer } = require('electron')
-          ipcRenderer.send('screenShot')
+          ipcRenderer.send('screenShot', { hideWin: localStorage.SHOWHIDEWINCHECK })
         }
       },
       preventDefault (e) {
@@ -593,7 +625,7 @@
         } else {
           data = e.data
         }
-        if ((data.indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
+        if (data && (data.indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
           let textComputed = () => {
             if (data.indexOf('@') > -1) {
               // 根据光标位置获取@后面字符串
@@ -1650,6 +1682,49 @@
     width: 96%;
     top: 2.5rem;
     bottom: 45px;
+  }
+
+  /* 截屏时隐藏当前窗口modal样式 */
+  .show-hide-win {
+    position: absolute;
+    top: 30px;
+    left: 25px;
+    width: 160px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px 4px rgba(0, 0, 0, 0.14);
+    font-size: 13px;
+  }
+
+  .show-hide-win .radio {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 9px;
+    background-image: url('../../../../static/img/setting/radio.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: all .2s linear;
+  }
+  .show-hide-win .radio:hover, .radio:focus {
+    background-image: url('../../../../static/img/setting/radio-p.png');
+    background-size: 100% 100%;
+  }
+  .show-hide-win .radio-active {
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    margin-right: 9px;
+    background-image: url('../../../../static/img/setting/radio-c.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: all .2s linear;
   }
 
 

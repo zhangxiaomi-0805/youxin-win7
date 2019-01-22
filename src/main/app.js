@@ -1,4 +1,4 @@
-import { app, ipcMain, protocol, dialog, BrowserWindow, clipboard } from 'electron'
+import { app, ipcMain, protocol, dialog, BrowserWindow, clipboard, globalShortcut } from 'electron'
 import path from 'path'
 import log from '../renderer/utils/log.js'
 import MainWindow from './module/MainWindow.js'
@@ -78,6 +78,11 @@ APP.prototype.initApp = function () {
         e.preventDefault()
         _this.mainWindow.hide()
       }
+    })
+
+    // 监听截屏事件
+    globalShortcut.register('Alt+A', () => {
+      _this.mainWindow.shortcutScreen()
     })
   })
 
@@ -228,7 +233,10 @@ APP.prototype.initIPC = function () {
     this.sysTray.enableMenuItem('status', false)
   })
 
-  ipcMain.on('screenShot', () => {
+  ipcMain.on('screenShot', (evt, arg) => {
+    if (arg.hideWin) {
+      _this.mainWindow.hide()
+    }
     let getStrFn = () => {
       // 获取截屏图片
       let nativeImage = clipboard.readImage()

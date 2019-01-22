@@ -29,7 +29,7 @@
             </div>
             <div class="set-block">
               <div class="title">密码</div>
-              <div class="set-block-show"><span>已设置</span><a @click="showDetail($event, 4)" class="toggle">修改密码</a></div>
+              <div class="set-block-show"><span>已设置</span><a v-if="personInfos.accountType !== 1" @click="showDetail($event, 4)" class="toggle">修改密码</a></div>
             </div>
             <div class="set-block logout">
               <a @click="eventBus.$emit('logout')">退出登录</a>
@@ -81,7 +81,7 @@
               <img style="width: 100%;height: 100%;" :src="logo">
             </div>
             <div style="margin-top: 15px;fontsize: 14px;color: #333;">
-              当前优信版本 {{version}}
+              当前优信版本 {{ 'V' + version}}
             </div>
             <div
               class="update-btn"
@@ -206,7 +206,8 @@ export default {
           }
         })
       } else {
-        this.version = process.env.npm_package_version
+        let { remote } = require('electron')
+        this.version = remote.getGlobal('APPVERSION')
       }
     })
   },

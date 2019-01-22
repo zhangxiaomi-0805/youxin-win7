@@ -165,5 +165,9 @@ export default {
   // 免登录域名列表
   thirdUrls: [],
   // 下载文件列表
-  downloadFileList: []
+  downloadFileList: [],
+  // 当前消息播放音频消息对象
+  currentMsgAudio: {},
+  // 当前音频消息播放状态
+  currentMsgPlay: {}
 }

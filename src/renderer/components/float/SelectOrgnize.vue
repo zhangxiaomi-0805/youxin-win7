@@ -31,7 +31,7 @@
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
           <ul class="u-list" v-show="chooselist.length > 0" style="top: 44px;">
             <li class="u-list-item" v-for="item in chooselist" :key="item.id" :id="item.id">
-              <div class="alignCenter"><img class="msg-img" :src="item.avatar || defaultUserIcon"><span class="inline">{{item.name || item.nick}}</span></div>
+              <div class="alignCenter"><img class="msg-img" :src="item.avatar || defaultUserIcon"><span class="inline" style="width: 60%;">{{item.name || item.nick || item.account}}</span></div>
               <span class="delete" @click="deleted(item)"></span>
             </li>
           </ul>

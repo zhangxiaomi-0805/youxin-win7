@@ -720,6 +720,7 @@ export default {
     transform: rotate(45deg);
   }
   .u-search{
+    -webkit-app-region: drag;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -728,6 +729,7 @@ export default {
     height: 56px;
   }
   .u-search .u-cont {
+    -webkit-app-region: no-drag;
     position: relative;
     width: 90%;
     height: 28px;

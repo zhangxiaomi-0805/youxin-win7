@@ -208,4 +208,8 @@ MainWindow.prototype.getAccid = function (arg) {
   this.mainWindow.webContents.send('getAccid', arg)
 }
 
+MainWindow.prototype.shortcutScreen = function (arg) {
+  this.mainWindow && this.mainWindow.webContents.send('shortcutScreen', arg)
+}
+
 export default MainWindow

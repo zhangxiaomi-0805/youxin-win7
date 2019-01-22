@@ -1,6 +1,6 @@
 <template>
   <!-- 历史消息记录搜索 -->
-  <div class="s-cont">
+  <div class="s-cont" style="top: 120px;">
     <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
     <ul class="u-list" v-if="searchlist.length > 0">
       <li

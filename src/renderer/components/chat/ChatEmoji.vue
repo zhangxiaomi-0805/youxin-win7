@@ -226,7 +226,7 @@
 
   .emoji-content .cnt .cover {
     display: inline-block;
-    width: 34px;
+    width: 37px;
     height: 38px;
     line-height: 38px;
     text-align: center;

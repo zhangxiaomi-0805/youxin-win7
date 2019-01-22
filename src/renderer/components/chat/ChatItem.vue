@@ -42,7 +42,7 @@
       </span>
       <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
       <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
-      <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')">
+      <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="currentMsgPlay.idClient === msg.idClient && currentMsgPlay.isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')">
         <span v-if="!msg.localCustom || !msg.localCustom.isPlayed" class="nomsg" style="top: 0;right: -22px;width: 8px;height: 8px;"></span>
         <span>{{msg.showText.split(' ')[0]}}</span>
       </span>
@@ -144,7 +144,6 @@
         currentAudio: null,
         showVioceToText: false,
         vioceToText: '',
-        isPlay: false,
         myGroupIcon: config.defaultGroupIcon,
         downloadUrl: ''
       }
@@ -520,6 +519,12 @@
         } else {
           return false
         }
+      },
+      currentMsgAudio () {
+        return this.$store.state.currentMsgAudio
+      },
+      currentMsgPlay () {
+        return this.$store.state.currentMsgPlay
       }
     },
     mounted () {
@@ -665,6 +670,14 @@
           this.$store.commit('updateMsgHighBgIdClient', '')
         }, 2000)
       }) // end this.nextTick
+    },
+    beforeDestroy () {
+      if (this.currentAudio) {
+        this.currentAudio.pause()
+        this.currentAudio = null
+        this.$store.commit('updateCurrentMsgPlay', {idClient: this.msg.idClient, isPlay: false})
+        this.updateMsgCustom(this.msg)
+      }
     },
     methods: {
       bindEvent (element, eventName, eventHandler) {
@@ -877,24 +890,41 @@
         })
       },
       playAudio (src, msg) {
+        if (Object.keys(this.currentMsgAudio).length > 0) {
+          // 处理上一个播放音频
+          this.currentMsgAudio.audio.pause()
+          let audioPlayMsg = this.$store.state.currSessionMsgs.find(item => {
+            return item.idClient === this.currentMsgAudio.idClient
+          })
+          this.updateMsgCustom(audioPlayMsg)
+        }
+        if (this.currentAudio) {
+          this.currentAudio = null
+        }
         if (!this.currentAudio) {
           this.currentAudio = new Audio(src)
+          this.$store.commit('updateCurrentMsgAudio', {type: 'init', idClient: msg.idClient, audio: this.currentAudio})
           this.currentAudio.play()
           this.isPlay = true
           //播放结束就会触发
+          this.$store.commit('updateCurrentMsgPlay', {idClient: msg.idClient, isPlay: true})
           this.currentAudio.onended = () => {
             this.currentAudio = null
-            this.isPlay = false
+            this.$store.commit('updateCurrentMsgPlay', {idClient: msg.idClient, isPlay: false})
+            this.$store.commit('updateCurrentMsgAudio', {type: 'reset'})
           }
-          // 更新消息自定义字段
-          if (!msg.localCustom || !msg.localCustom.isPlayed) {
-            if (!msg.localCustom) {
-              msg.localCustom = { isPlayed: true }
-            } else {
-              msg.localCustom.isPlayed = true
-            }
-            this.$store.dispatch('updateLocalMsg', {idClient: msg.idClient, localCustom: msg.localCustom})
+          this.updateMsgCustom(msg)
+        }
+      },
+      updateMsgCustom (msg) {
+        // 更新消息自定义字段
+        if (!msg.localCustom || !msg.localCustom.isPlayed) {
+          if (!msg.localCustom) {
+            msg.localCustom = { isPlayed: true }
+          } else {
+            msg.localCustom.isPlayed = true
           }
+          this.$store.dispatch('updateLocalMsg', {idClient: msg.idClient, localCustom: msg.localCustom})
         }
       },
       toMsgUnReadDetail () {
@@ -1019,7 +1049,7 @@
                   break
                 // 图片或文件另存为
                 case 6:
-                  if (this.msg.type === 'file') {
+                  if (this.msg === 'file') {
                     this.saveFile()
                   } else {
                     this.$store.dispatch('downloadImg', this.msg.file)
@@ -1072,7 +1102,7 @@
       },
       // 打开文件
       async openItemFile () {
-        const fileUrl = this.downloadUrl || (this.msg.localCustom && this.msg.localCustom.downloadUrl)
+        const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
         if (config.environment === 'web') {
           // 调用native
           NativeLogic.native.openShell(1, fileUrl)
@@ -1097,6 +1127,8 @@
       // 打开文件夹
       async openFileInFolder () {
         const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
+        console.log(this.msg.localCustom)
+        console.log('downloadUrl===========' + fileUrl)
         if (config.environment === 'web') {
           // 调用native
           let folderUrl = ''
@@ -1110,7 +1142,7 @@
           })
           NativeLogic.native.openShell(2, folderUrl)
             .then()
-            .catch(err => {
+            .catch(() => {
               // 重新触发下载逻辑
               this.handleDownloadFile()
               this.followEvent = 1
@@ -1422,15 +1454,18 @@
         // 匹配url
         // let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
         let regHttpAll = /(?:http(s?):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
+        let regEmail = /^([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
           // 分割空格
           lineStr.split(/\s+/).map(minStr => {
-            let httpResult = minStr.match(regHttpAll)
-            // if (!httpResult) {
-            //   httpResult = minStr.match(regHttpAll)
-            // }
-            if (httpResult) httpArr.push(httpResult[0])
+            if (!regEmail.test(minStr)) {
+              let httpResult = minStr.match(regHttpAll)
+              // if (!httpResult) {
+              //   httpResult = minStr.match(regHttpAll)
+              // }
+              if (httpResult) httpArr.push(httpResult[0])
+            }
           })
         })
         return httpArr

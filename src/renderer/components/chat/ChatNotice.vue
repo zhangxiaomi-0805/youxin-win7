@@ -45,7 +45,7 @@
             <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
             <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
           </div>
-          <span class="t-style">{{member.alias}}</span>
+          <span class="t-style">{{member.alias || member.account}}</span>
         </div>
         <span :class="member.type" v-show="member.type !== 'normal' && !isDiscussGroup"/>
       </li>
@@ -470,7 +470,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 80%;
+    width: 85%;
   }
 
   .m-chat-nt .t-style {
@@ -480,7 +480,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     min-height: 1.2rem;
-    max-width: 65px;
   }
 
   .m-chat-nt .m-u-list .m-u-list-item .t-img {
@@ -488,7 +487,7 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    margin-right: 9px;
+    margin-right: 5px;
   }
 
   .m-chat-nt .m-u-list .m-u-list-item .owner {
