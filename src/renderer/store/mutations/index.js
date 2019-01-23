@@ -1226,5 +1226,27 @@ export default {
   updateCurrentMsgPlay (state, obj) {
     // 更新当前音频消息播放状态
     state.currentMsgPlay = obj
+  },
+  updateCurrSessionHistoryMsgs (state, obj) {
+    // 更新当前会话云端消息
+    let type = obj.type || ''
+    if (type === 'destroy') { // 清空会话消息
+      state.currSessionHistoryMsgs = []
+    } else if (type === 'concat') {
+      let currSessionHistoryMsgs = []
+      let lastMsgTime = 0
+      obj.msgs.reverse()
+      obj.msgs.forEach(msg => {
+        if ((msg.time - lastMsgTime) > 1000 * 60 * 5) {
+          lastMsgTime = msg.time
+          currSessionHistoryMsgs.push({
+            type: 'timeTag',
+            text: util.formatDate(msg.time, false)
+          })
+        }
+        currSessionHistoryMsgs.push(msg)
+      })
+      state.currSessionHistoryMsgs = currSessionHistoryMsgs.concat(state.currSessionHistoryMsgs)
+    }
   }
 }

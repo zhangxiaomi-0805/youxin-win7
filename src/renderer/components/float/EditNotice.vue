@@ -1,7 +1,7 @@
 <template>
 <!-- 公告编辑 -->
 <transition name="fade">
-  <div :class="isXp ? 'm-editnotice-contain contain-top' : 'm-historymsg-contain'" style="top: 0" v-if="showEditNotice">
+  <div :class="isXp ? 'm-editnotice-contain contain-top' : 'm-editnotice-contain'" style="top: 0" v-if="showEditNotice">
     <div class="m-editnotice-cover" @click="closeCover"></div>
     <div class="m-editnotice" style="width:600px;height:502px;">
       <div class="drag" id="editNoticeDrag">

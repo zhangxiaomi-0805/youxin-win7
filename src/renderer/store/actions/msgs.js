@@ -644,37 +644,34 @@ export function sendMsgReceipt ({state, commit}) {
 export function getHistoryMsgs ({state, commit}, obj) {
   const nim = state.nim
   if (nim) {
-    let {scene, to} = obj
+    let {scene, to, beginTime, endTime, lastMsgId} = obj
     let options = {
       scene,
       to,
       reverse: false,
-      asc: true,
+      asc: false,
       limit: config.localMsglimit || 20,
       done: function getHistoryMsgsDone (_error, obj) {
         if (obj.msgs) {
-          if (obj.msgs.length === 0) {
-            commit('setNoMoreHistoryMsgs')
-          } else {
-            let msgs = obj.msgs.map(msg => {
-              return formatMsg(msg)
-            })
-            commit('updateCurrSessionMsgs', {
-              type: 'concat',
-              msgs: msgs
-            })
-          }
+          let msgs = obj.msgs.map(msg => {
+            return formatMsg(msg)
+          })
+          commit('updateCurrSessionHistoryMsgs', {
+            type: 'concat',
+            msgs: msgs
+          })
         }
-        store.dispatch('hideLoading')
       }
     }
-    if (state.currSessionLastMsg) {
-      options = Object.assign(options, {
-        lastMsgId: state.currSessionLastMsg.idServer,
-        endTime: state.currSessionLastMsg.time
-      })
+    if (endTime) {
+      options.endTime = endTime
     }
-    store.dispatch('showLoading')
+    if (beginTime) {
+      options.beginTime = beginTime
+    }
+    if (lastMsgId) {
+      options.lastMsgId = lastMsgId
+    }
     nim.getHistoryMsgs(options)
   }
 }

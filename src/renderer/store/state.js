@@ -169,5 +169,7 @@ export default {
   // 当前消息播放音频消息对象
   currentMsgAudio: {},
   // 当前音频消息播放状态
-  currentMsgPlay: {}
+  currentMsgPlay: {},
+  // 当前会话云端历史消息
+  currSessionHistoryMsgs: []
 }

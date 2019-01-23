@@ -15,8 +15,8 @@
       </div>
     </div>
     <div class="contact-con" ref="contactCon" @scroll="scrollTop = $event.target.scrollTop">
-      <tree v-show="listType === 'team'" :callBack="callBack" listType = 'team'/>
-      <tree v-show="listType === 'myDept'" :callBack="callBack" listType = 'myDept'/>
+      <tree ref="orgTree" v-show="listType === 'team'" :callBack="callBack" listType = 'team'/>
+      <tree ref="depTree" v-show="listType === 'myDept'" :callBack="callBack" listType = 'myDept'/>
     </div>
     <div class="border" id="resize-we"></div>
   </div>
@@ -66,6 +66,11 @@
       toggleList (value) {
         if (this.listType === value) return
         this.listType = value
+        if (value === 'team') {
+          this.$refs.orgTree.orgDataInit()
+        } else {
+          this.$refs.depTree.myDeptDataInit()
+        }
       },
       clearStatus (el, e) {
         if (e) {

@@ -1,7 +1,7 @@
 <template>
 <!-- 组织架构 - 创建群聊 -->
 <transition name="fade">
-  <div  :class="isXp ? 'm-selectcontact-contain contain-top' : 'm-historymsg-contain'" v-if="showSelectOrgnize">
+  <div :class="isXp ? 'm-selectcontact-contain contain-top' : 'm-selectcontact-contain'" v-if="showSelectOrgnize">
     <div class="m-selectcontact-cover"></div>
     <div class="m-selectcontact" style="width:680px;height:502px;">
       <div class="drag" id="selectOrgnizeDrag">

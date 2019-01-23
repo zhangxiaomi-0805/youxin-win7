@@ -1,6 +1,6 @@
 <template>
   <!-- 历史消息记录搜索 -->
-  <div class="s-cont" style="top: 120px;">
+  <div class="s-cont" style="top: 126px;">
     <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
     <ul class="u-list" v-if="searchlist.length > 0">
       <li
@@ -156,7 +156,7 @@
                 variable++
                 let urlContent = url
                 urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-                replaceArr.push(`<a style="display: inherit; text-decoration: underline;width: 100%;" data-url="[${url}]">${urlContent}</a>`)
+                replaceArr.push(`<a style="max-width: 100%;text-decoration: underline;display: inline-block;" data-url="[${url}]">${urlContent}</a>`)
                 return `{---===${variable}}`
               })
             })

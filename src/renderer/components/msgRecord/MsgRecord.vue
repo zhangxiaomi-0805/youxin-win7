@@ -32,9 +32,10 @@
         <div class="m-historymsg-content">
           <date-picker ref="datePicker" :callback="dateFilter"/>
           <!-- 搜索 -->
-          <div class="search-bar">
+          <div class="search-bar" style="position: relative;">
             <input :class="showSearch ? 'active' : ''" type="text" autofocus="autofocus" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
             <span v-if="showSearch" class="clear" @click="clearStatus"/>
+            <div v-if="date" style="position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: #fff;opacity: 0.5;"/>
           </div>
           <!-- 转发 && 删除 && 取消 -->
           <div v-if="(isCheckMore || isSearchCheckMore)" class="tab-right-title">
@@ -50,19 +51,23 @@
             <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('file')">文件</a>
             <div class="tab-data-side">
               <transition name="fade">
-              <a class="date" v-show="date"><span>{{date}}</span><span class="clear" @click="clearDate"></span></a>
+              <a class="date" v-show="date"><span>{{date && date.join('/')}}</span><span class="clear" @click="clearDate"></span></a>
               </transition>
               <a class="icon" @click="showPicker"></a>
             </div>
+            <div v-if="date" style="position: absolute;top: 0;left: 0;width: 60%;height: 100%;background: #fff;opacity: 0.5;"/>
           </div>
 
           <!-- 短信选择 -->
           <div
             class="message-box"
-            @click.stop="shortMsgCheck = !shortMsgCheck"
           >
-            <span :class="shortMsgCheck ? 'checked common':'check common'"></span>
-            <span style="font-size: 12px; color: #333; line-height:40px">短信</span>
+            <div @click.stop="shortMsgCheck = !shortMsgCheck">
+              <span :class="shortMsgCheck ? 'checked common':'check common'"></span>
+              <span style="font-size: 12px; color: #333; line-height:40px">短信</span>
+            </div>
+
+            <div v-if="date" style="position: absolute;top: 0;right: 0;width: 15%;height: 100%;background: #fff;opacity: 0.5;"/>
           </div>
 
           <!-- 内容列表 -->
@@ -167,12 +172,13 @@
         isCheckMore: false,
         isSearchCheckMore: false,
         date: '',
+        endTime: '',
         isXp: false
       }
     },
     mounted () {
       // 获取当前聊天记录
-      this.InitHistoryMsg()
+      this.InitLocalMsg()
       this.eventBus.$on('checkHistoryMsg', (data) => {
         this.showHistoryMsg = true
         if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
@@ -261,7 +267,11 @@
       allMsgList () {
         let allList = []
         let allMsgList = []
-        this.$store.state.currSessionMsgs.map((item, index) => {
+        let currSessionMsgs = this.$store.state.currSessionMsgs
+        if (this.date) {
+          currSessionMsgs = this.$store.state.currSessionHistoryMsgs
+        }
+        currSessionMsgs.map((item, index) => {
           item = this.manageItem(item)
           if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
             allList.unshift(item)
@@ -344,10 +354,29 @@
       searchCheckMoreFn () {
         this.isSearchCheckMore = true
       },
-      InitHistoryMsg () {
-        this.getHistoryMsgs()
+      InitLocalMsg () {
+        this.getLocalMsgs()
       },
-      getHistoryMsgs () {
+      InitHistoryMsg () {
+        let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
+        let lastMsg = currSessionHistoryMsgs[1]
+        let date = this.date.join('-')
+        let beginTime = new Date(date + ' 00:00:00').getTime()
+        let endTime = new Date(date + ' 24:00:00').getTime()
+        let params = {
+          scene: this.scene,
+          to: this.to,
+          beginTime,
+          endTime,
+          callBack: () => {}
+        }
+        if (lastMsg) {
+          params.lastMsgId = lastMsg.idServer
+          params.endTime = lastMsg.time
+        }
+        this.$store.dispatch('getHistoryMsgs', params)
+      },
+      getLocalMsgs () {
         let callBack = () => {}
         this.$store.dispatch('getLocalMsgs', {
           scene: this.scene,
@@ -388,7 +417,7 @@
             httpUrls.map(url => {
               item.showText = item.showText.replace(url, (m) => {
                 variable++
-                replaceArr.push(`<a style="text-decoration: underline;width: 100%;" data-url="[${url}]">${url}</a>`)
+                replaceArr.push(`<a style="text-decoration: underline;display: inline-block;max-width: 100%;" data-url="[${url}]">${url}</a>`)
                 return `{---===${variable}}`
               })
             })
@@ -553,22 +582,26 @@
       },
       scrollEndLoad (e) {
         let { scrollTop, clientHeight, scrollHeight } = e.target
-        if (scrollTop + clientHeight === scrollHeight) {
-          this.InitHistoryMsg()
+        if (scrollHeight - (scrollTop + clientHeight) < 1) {
+          if (this.date) {
+            this.InitHistoryMsg()
+          } else {
+            this.InitLocalMsg()
+          }
         }
       },
       showPicker (evt) {
+        this.showSearch = false
+        this.searchValue = ''
         this.$refs.datePicker.initStatus()
       },
       dateFilter (params) {
         // 日期筛选
-        if (params[1] < 10) {
-          params[1] = '0' + params[1]
-        }
-        if (params[2] < 10) {
-          params[2] = '0' + params[2]
-        }
-        this.date = params.join('/')
+        this.date = params
+        this.checkType = 'all'
+        this.shortMsgCheck = false
+        this.$store.commit('updateCurrSessionHistoryMsgs', { type: 'destroy' })
+        this.InitHistoryMsg()
       },
       clearDate () {
         this.date = ''
@@ -809,7 +842,13 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding:5px 0
+    padding:5px 0;
+    position: relative;
+  }
+  .m-info-box .message-box > div:first-child {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
   }
   .m-info-box .common {
     display: inline-block;
