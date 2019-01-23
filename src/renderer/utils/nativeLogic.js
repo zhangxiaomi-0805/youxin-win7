@@ -174,8 +174,10 @@ class NativeHandle {
    * @params: tooltip // 图标示例
    * **/
   setTrayImage = (iconPath, tooltip) => {
+    tooltip = `优信(${tooltip})`
     window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {
-      iconPath, tooltip
+      iconPath,
+      tooltip
     }, () => {
     })
   }

@@ -48,12 +48,13 @@
             <a :class="checkType === 'all' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('all')">全部</a>
             <a :class="checkType === 'image' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('image')">图片</a>
             <a :class="checkType === 'file' ? 'tab-title-item active' : 'tab-title-item'" @click.stop="toggleList('file')">文件</a>
-            <div class="tab-data-side">
+            <!-- 功能没完成，暂时注释 -->
+            <!-- <div class="tab-data-side">
               <transition name="fade">
               <a class="date" v-show="date"><span>{{date}}</span><span class="clear" @click="clearDate"></span></a>
               </transition>
               <a class="icon" @click="showPicker"></a>
-            </div>
+            </div> -->
           </div>
 
           <!-- 短信选择 -->
