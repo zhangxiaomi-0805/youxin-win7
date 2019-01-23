@@ -3,7 +3,6 @@
  */
 import store from '../store'
 import Fetch from './fetch'
-import NativeLogic from './nativeLogic'
 import config from '../configs'
 function LoginAuth (params, $this) {
   /*
@@ -243,10 +242,7 @@ function AppVersions () {
   }
   // 获取版本号
   return new Promise((resolve, reject) => {
-	  Fetch.post('api/appPc/appVersions', {
-      osType,
-      versionNum
-	  }).then(res => resolve(res)).catch((err) => reject(err))
+    Fetch.post('api/appPc/appVersions', {osType, versionNum}).then(res => resolve(res)).catch((err) => reject(err))
   })
 }
 

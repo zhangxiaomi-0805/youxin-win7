@@ -135,9 +135,7 @@ class NativeHandle {
     } else {
       this.downList[msgId].status = 1
     }
-    window.NimCefWebInstance && window.NimCefWebInstance.call('downloadControl', { id: downloadId, status: status }, (error, result) => {
-      if (result) {
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('downloadControl', { id: downloadId, status: status }, () => {
     })
   }
 
@@ -145,10 +143,8 @@ class NativeHandle {
    * 5.截屏:
    * **/
   screenShot = () => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('screenShot', {}, (error, result) => {
-      if (result) {
-        // code: 200 // 截屏状态（200-成功，400-取消截屏）
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('screenShot', {}, () => {
+      // code: 200 // 截屏状态（200-成功，400-取消截屏）
     })
   }
 

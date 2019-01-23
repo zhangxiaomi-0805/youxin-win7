@@ -906,7 +906,6 @@
           this.$store.commit('updateCurrentMsgAudio', {type: 'init', idClient: msg.idClient, audio: this.currentAudio})
           this.currentAudio.play()
           this.isPlay = true
-          //播放结束就会触发
           this.$store.commit('updateCurrentMsgPlay', {idClient: msg.idClient, isPlay: true})
           this.currentAudio.onended = () => {
             this.currentAudio = null
