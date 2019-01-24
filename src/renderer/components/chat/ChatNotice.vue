@@ -42,7 +42,7 @@
       >
         <div class="m-left">
           <div class="t-img">
-            <img style="width: 100%;height: 100%;border-radius: 50%;" :src="member.avatar">
+            <img style="width: 24px;height: 24px;border-radius: 50%;" :src="member.avatar">
             <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
           </div>
           <span class="t-style">{{member.alias || member.account}}</span>
@@ -58,7 +58,6 @@
   import util from '../../utils'
   import SearchMember from '../search/SearchMember'
   import clickoutside from '../../utils/clickoutside.js'
-  // import { setTimeout, clearTimeout } from 'timers';
   export default {
     name: 'chat-notice',
     directives: {clickoutside},
@@ -158,6 +157,7 @@
             })
             // 加上自己
             this.onlineMembers = onlineMembers.length + 1
+            console.log(members)
             return members
           }
         } else return []

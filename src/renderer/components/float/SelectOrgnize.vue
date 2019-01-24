@@ -31,7 +31,7 @@
           <div class="title">{{chooselist.length > 0 ? '已选择' + ' (' + chooselist.length + '人)' : '已选择'}}</div>
           <ul class="u-list" v-show="chooselist.length > 0" style="top: 44px;">
             <li class="u-list-item" v-for="item in chooselist" :key="item.id" :id="item.id">
-              <div class="alignCenter"><img class="msg-img" :src="item.avatar || defaultUserIcon"><span class="inline" style="width: 60%;">{{item.name || item.nick || item.account}}</span></div>
+              <div class="alignCenter" style="width: 90%;"><img class="msg-img" :src="item.avatar || defaultUserIcon"><span class="inline" style="width: 70%;">{{item.name || item.nick || item.account}}</span></div>
               <span class="delete" @click="deleted(item)"></span>
             </li>
           </ul>
@@ -201,10 +201,11 @@ export default {
             }, 350)
           } else {
             this.closeModal()
+            console.log(error)
             if (error.code === 806) {
               // 创建群数量达到限制
               this.eventBus.$emit('forwordFail', {type: 2})
-            } else if (error.message) {
+            } else if (error.code === 414) {
               let toast = '群'
               if (this.type === 2 || this.type === 4) {
                 toast = '讨论组'
@@ -212,7 +213,7 @@ export default {
               this.$store.commit('toastConfig', {
                 show: true,
                 type: 'fail',
-                toastText: `您创建的${toast}人数超过最大限制。`
+                toastText: `${toast}成员参数错误。`
               })
             }
           }
@@ -270,18 +271,28 @@ export default {
         item.accid && accounts.push(item.accid)
       })
       if (accounts.length > 0) {
+        console.log(accounts)
+        console.log(this.teamId)
         this.$store.dispatch('addTeamMembers', {
           accounts,
           teamId: this.teamId,
           callback: (error) => {
             this.closeModal()
-            if (error && error.code === 801) {
-              // 群人数达到上限
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'fail',
-                toastText: '无法操作，群人数已达上限200人，最多可提高至500人'
-              })
+            console.log(error)
+            if (error) {
+              let toastText = ''
+              if (error.code === 801) {
+                toastText = '群人数达到上限'
+              } else if (error.code === 414) {
+                toastText = '群成员参数错误'
+              }
+              if (toastText) {
+                this.$store.commit('toastConfig', {
+                  show: true,
+                  type: 'fail',
+                  toastText
+                })
+              }
             }
           }
         })

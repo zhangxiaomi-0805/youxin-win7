@@ -625,7 +625,7 @@
         } else {
           data = e.data
         }
-        if (data && (data.indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
+        if (data && (data[data.length - 1].indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
           let textComputed = () => {
             if (data.indexOf('@') > -1) {
               // 根据光标位置获取@后面字符串

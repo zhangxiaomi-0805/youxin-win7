@@ -341,7 +341,7 @@ export default {
 </script>
 
 <style scoped>
-  .u-caption{
+  .m-imgMd .u-caption{
     -webkit-app-region: no-drag;
     height: 29px;
     overflow: hidden;

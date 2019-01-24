@@ -95,9 +95,6 @@ export default {
       this.type = data.type
       this.sidelist = Object.assign([], data.sidelist)
       this.sidelistCopy = Object.assign([], data.sidelist)
-      if (data.type !== 7 && data.type !== 8) {
-        // this.sidelist = listSort(this.sidelist)
-      }
       this.chooselist = []
       if (data.teamId) {
         this.teamId = data.teamId
@@ -222,6 +219,7 @@ export default {
       }
     },
     managelist () {
+      this.managerNum = 0
       this.sidelist.map((item, index) => {
         item.checked = false
         item.disabled = false
@@ -234,6 +232,8 @@ export default {
           case 2 :
             if (item.type !== 'normal') {
               item.disabled = true
+            }
+            if (item.type === 'manager') {
               this.managerNum++
             }
             break

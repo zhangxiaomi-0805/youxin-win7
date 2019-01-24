@@ -449,7 +449,7 @@ export function leaveTeam ({state}, params) {
           return item.id
         })
         setTimeout(() => {
-          store.dispatch('deleteSession', {curSessionId: state.currSessionId, id: state.currSessionId, sessionIdArr, that: params.that})
+          store.dispatch('deleteSession', {curSessionId: state.currSessionId, id: 'team-' + params.teamId, sessionIdArr, that: params.that})
         }, 200)
       } else {
         store.commit('toastConfig', {
