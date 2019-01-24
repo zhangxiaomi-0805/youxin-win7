@@ -528,6 +528,9 @@
       }
     },
     mounted () {
+      this.eventBus.$on('sendMsgToChild', () => { // 监听到子窗口加载完成，向子窗口发送数据
+        this.sendMsgToChild()
+      })
       this.iframe = this.$refs.iframe
       let item = this.msg
       // 有时序问题的操作
@@ -1048,7 +1051,7 @@
                   break
                 // 图片或文件另存为
                 case 6:
-                  if (this.msg === 'file') {
+                  if (this.msg.type === 'file') {
                     this.saveFile()
                   } else {
                     this.$store.dispatch('downloadImg', this.msg.file)
@@ -1101,7 +1104,7 @@
       },
       // 打开文件
       async openItemFile () {
-        const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
+        const fileUrl = this.downloadUrl || (this.msg.localCustom && this.msg.localCustom.downloadUrl)
         if (config.environment === 'web') {
           // 调用native
           NativeLogic.native.openShell(1, fileUrl)
@@ -1126,8 +1129,6 @@
       // 打开文件夹
       async openFileInFolder () {
         const fileUrl = this.downloadUrl || this.msg.localCustom.downloadUrl
-        console.log(this.msg.localCustom)
-        console.log('downloadUrl===========' + fileUrl)
         if (config.environment === 'web') {
           // 调用native
           let folderUrl = ''
@@ -1398,6 +1399,13 @@
       },
       webOpenInWin (url, sessionInfo) {
         // web端打开内部窗口
+        let itemInfo = {
+          url,
+          title: sessionInfo.name,
+          icon: sessionInfo.avatar,
+          appCode: this.msg.sessionId
+        }
+        localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
         // 1、创建窗口
         // params: windowName, path, height, width
         let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
@@ -1406,38 +1414,18 @@
           AppDirectory = urlArr[0]
         }
         const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
-        // 跟子页面通信
-        let sendMsgToChild = () => {
-          let dataObj = {
-            url,
-            title: sessionInfo.name,
-            icon: sessionInfo.avatar,
-            appCode: this.msg.sessionId
-          }
+        NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then(res => {
+          this.sendMsgToChild()
+        })
+      },
+      // 跟子页面通信
+      sendMsgToChild () {
+        let itemInfo = localStorage.getItem('ItemInfo')
+        if (itemInfo) {
+          let dataObj = JSON.parse(itemInfo)
           let data = JSON.stringify(dataObj)
           NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
         }
-        NativeLogic.native.getWinStatus('营业精灵').then((result) => {
-          if (!result) {
-            // 当子窗口不存在时创建子窗口
-            NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
-          } else {
-            if (result.isMinimized) {
-              NativeLogic.native.setWinStatus('营业精灵', 7) // 如果窗口最小化，则让其显示
-            }
-            // 存在时直接通信
-            sendMsgToChild()
-          }
-        }).catch(() => {
-        })
-        // 注册事件监听子页面是否加载完成
-        window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
-          if (params.eventName === 'childIsLoaded') {
-            // 2、跨窗口通信,等子页面准备完成再发送事件
-            // params: windowName, data{}, eventName
-            sendMsgToChild()
-          }
-        })
       },
       electronOpenOutWin (url) {
         // electron端打开外部窗口

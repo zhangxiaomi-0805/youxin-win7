@@ -452,7 +452,6 @@
               content.data.value.teamAvatarUrl = config.defaultGroupIcon
             }
             item.showText = content.data.value
-            console.log(item.showText)
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {

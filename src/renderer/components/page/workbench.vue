@@ -50,6 +50,9 @@ export default {
   },
   mounted () {
     this.getThirdList()
+    this.eventBus.$on('sendMsgToChild', () => { // 监听到子窗口加载完成，向子窗口发送数据
+      this.sendMsgToChild()
+    })
   },
   methods: {
     getThirdList () {
@@ -81,53 +84,6 @@ export default {
         }
       }
     },
-    webOpenOutWin (url) {
-      // web端打开外部窗口
-      NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
-    },
-    webOpenInWin (url, item) {
-      console.log('打开内部窗口事件触发=======')
-      // web端打开内部窗口
-      // 1、创建窗口
-      // params: windowName, path, height, width
-      let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
-      if (AppDirectory.indexOf('dist') > -1) {
-        let urlArr = AppDirectory.split('dist')
-        AppDirectory = urlArr[0]
-      }
-      const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
-      // 跟子页面通信
-      let sendMsgToChild = () => {
-        let dataObj = {url, title: item.appName, appCode: item.appCode}
-        let data = JSON.stringify(dataObj)
-        console.log('主窗口发送的数据========')
-        console.log(data)
-        NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
-      }
-      NativeLogic.native.getWinStatus('营业精灵').then((result) => {
-        if (!result) {
-          console.log('子窗口不存在，创建窗口=========')
-          // 当子窗口不存在时创建子窗口
-          NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
-        } else {
-          if (result.isMinimized) {
-            NativeLogic.native.setWinStatus('营业精灵', 7) // 如果窗口最小化，则让其显示
-          }
-          console.log('子窗口已存在，直接通信========')
-          sendMsgToChild()
-        }
-      }).catch(() => {
-      })
-      // 注册事件监听子页面是否加载完成
-      window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
-        console.log('监听子页面加载完成========')
-        if (params.eventName === 'childIsLoaded') {
-          // 2、跨窗口通信,等子页面准备完成再发送事件
-          // params: windowName, data{}, eventName
-          sendMsgToChild()
-        }
-      })
-    },
     electronOpenOutWin (url) {
       // electron端打开外部窗口
       let { shell } = require('electron')
@@ -137,6 +93,35 @@ export default {
       // electron端打开内部窗口
       let { ipcRenderer } = require('electron')
       ipcRenderer.send('openAplWindow', {url, title: item.appName, appCode: item.appCode})
+    },
+    webOpenOutWin (url) {
+      // web端打开外部窗口
+      NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+    },
+    webOpenInWin (url, item) {
+      // web端打开内部窗口
+      let itemInfo = {url, title: item.appName, appCode: item.appCode, icon: item.appIconUrl}
+      localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
+      // 1、创建窗口
+      // params: windowName, path, height, width
+      let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+      if (AppDirectory.indexOf('dist') > -1) {
+        let urlArr = AppDirectory.split('dist')
+        AppDirectory = urlArr[0]
+      }
+      const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
+      NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then(res => {
+        this.sendMsgToChild()
+      })
+    },
+    // 跟子页面通信
+    sendMsgToChild () {
+      let itemInfo = localStorage.getItem('ItemInfo')
+      if (itemInfo) {
+        let dataObj = JSON.parse(itemInfo)
+        let data = JSON.stringify(dataObj)
+        NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
+      }
     }
   }
 }

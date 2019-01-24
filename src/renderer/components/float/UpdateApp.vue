@@ -26,7 +26,6 @@ export default {
   name: 'update-app',
   mounted () {
     this.eventBus.$on('updateApp', (data) => {
-      console.log(data)
       this.showUpdateApp = true
       this.content = data
       this.updateLocalVersion()
