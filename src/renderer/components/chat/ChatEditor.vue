@@ -273,7 +273,6 @@
         // 注册事件监听
         if (config.environment === 'web') { // web分支
           await window.NimCefWebInstance && window.NimCefWebInstance.register('OnSelectedFile', (params) => {
-            console.log(params)
             e.target.files[0].path = params.file
           })
         }

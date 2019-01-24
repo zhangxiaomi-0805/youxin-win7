@@ -47,7 +47,6 @@ export default {
       if (localStorage.CLOSEMETHOD && (JSON.parse(localStorage.CLOSEMETHOD) === 2)) {
         if (config.environment === 'web') { // web分支
           NativeLogic.native.setWinStatus('main', 4).then(res => {
-            console.log(res)
           }).catch(err => console.log(err)) // params: 1.窗口名称 2.类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
         } else { // electron分支
           let electron = require('electron')

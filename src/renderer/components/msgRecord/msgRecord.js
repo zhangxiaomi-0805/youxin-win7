@@ -212,7 +212,7 @@ MsgRecordFn.openAplWindow = function (evt, sessionId) {
       if (thirdUrls[i].url === domain) {
         Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
           if (config.environment === 'web') { // web分支
-            NativeLogic.native.createWindows('aplWindow', url, config.aplWinHeight, config.aplWinWidth)
+            NativeLogic.native.createWindows('营业精灵', url, config.aplWinHeight, config.aplWinWidth)
           } else { // electron分支
             let { ipcRenderer } = require('electron')
             ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId})
