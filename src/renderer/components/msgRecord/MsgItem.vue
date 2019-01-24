@@ -224,7 +224,6 @@ export default {
           }
         }
         let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,6}))+\.?/
-        console.log(url)
         let domain = url.match(regDomain)[0]
         if (url.split('://').length <= 1) url = 'http://' + url
         for (let i in thirdUrls) {
@@ -275,7 +274,6 @@ export default {
         let urlArr = AppDirectory.split('dist')
         AppDirectory = urlArr[0]
       }
-      console.log(AppDirectory)
       const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
       // 跟子页面通信
       let sendMsgToChild = () => {
@@ -284,7 +282,6 @@ export default {
         NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
       }
       NativeLogic.native.getWinStatus('营业精灵').then((result) => {
-        console.log(result)
         if (!result) {
           // 当子窗口不存在时创建子窗口
           NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
@@ -294,8 +291,7 @@ export default {
           }
           sendMsgToChild()
         }
-      }).catch(error => {
-        console.log(error)
+      }).catch(() => {
       })
       // 注册事件监听子页面是否加载完成
       window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {

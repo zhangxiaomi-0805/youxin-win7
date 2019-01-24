@@ -157,7 +157,6 @@
             })
             // 加上自己
             this.onlineMembers = onlineMembers.length + 1
-            console.log(members)
             return members
           }
         } else return []

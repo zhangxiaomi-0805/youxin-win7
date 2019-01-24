@@ -480,7 +480,6 @@
               content.data.value.teamAvatarUrl = config.defaultGroupIcon
             }
             item.showText = content.data.value
-            console.log(item.showText)
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {
@@ -551,6 +550,7 @@
         switch (value) {
           case 'forword':
             let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+            console.log(this.checkedMsgList)
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
             // 状态重置
             this.reset()

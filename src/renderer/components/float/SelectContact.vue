@@ -514,7 +514,9 @@ export default {
             await this.forwordMsg(this.chooselist[i], this.msg)
           } else if (type === 8) { // 多条消息逐条转发
             for (let j = 0; j < this.msg.length; j++) {
-              await this.forwordMsg(this.chooselist[i], this.msg[j])
+              if (typeof this.msg[j] !== 'string') {
+                await this.forwordMsg(this.chooselist[i], this.msg[j])
+              }
             }
           }
         } catch (err) {

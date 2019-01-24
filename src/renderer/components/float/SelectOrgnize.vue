@@ -201,7 +201,6 @@ export default {
             }, 350)
           } else {
             this.closeModal()
-            console.log(error)
             if (error.code === 806) {
               // 创建群数量达到限制
               this.eventBus.$emit('forwordFail', {type: 2})
@@ -271,14 +270,11 @@ export default {
         item.accid && accounts.push(item.accid)
       })
       if (accounts.length > 0) {
-        console.log(accounts)
-        console.log(this.teamId)
         this.$store.dispatch('addTeamMembers', {
           accounts,
           teamId: this.teamId,
           callback: (error) => {
             this.closeModal()
-            console.log(error)
             if (error) {
               let toastText = ''
               if (error.code === 801) {
