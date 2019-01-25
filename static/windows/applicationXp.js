@@ -11,10 +11,9 @@ var TabManage = function () {
 TabManage.prototype.init = function () {
   this.PreDef()
   // 监听主窗口通信方法
-  window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
+  window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
     if (params.eventName === 'asyncMessage') {
       let arg = JSON.parse(params.data)
-      console.log(arg)
       this.currentTab = arg.appCode
       let hasExit = false
       for (let i = 0; i < this.data.length; i++) {
@@ -32,31 +31,6 @@ TabManage.prototype.init = function () {
         this.data.push(arg)
         this.createDom(arg)
       }
-    }
-    // 窗口内链接跳转
-    const iframe = this.getActiveDom(2)
-    console.log('iframe=====')
-    console.log(iframe)
-    if (iframe) {
-      /* 接收拦截到打开新链接的事件 */
-      window.NimCefWebInstance && window.NimCefWebInstance.register('OnOpenNewLink', (params) => {
-        console.log('接收拦截到打开新链接的事件')
-        console.log(params)
-        if (params.url.indexOf('yximcreatesession.telecomjs.com') > -1) { // 发起会话处理
-          let account = params.url.split('?account=')[1]
-          if (account) {
-            console.log(account)
-            // 跟主页面通信
-            let sendMsgToMain = () => {
-              this.sendEvent('main', JSON.stringify({account}), 'createSession')
-            }
-            sendMsgToMain()
-          }
-        } else { // 渲染新url
-          iframe.src = params.url
-        }
-        this.canGoBack()
-      })
     }
   })
 }
@@ -86,7 +60,6 @@ TabManage.prototype.PreDef = function () {
   const minMax = document.getElementById('appli-max')
   minMax.addEventListener('click', () => {
     this.setWinStatus('营业精灵', 2).then(res => {
-      console.log(res)
       minMax.style.display = 'none'
       minRestore.style.display = 'inline-block'
     }).catch(err => {console.log(err)}) // params: 1.窗口名称 2.类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
@@ -96,7 +69,6 @@ TabManage.prototype.PreDef = function () {
   const minRestore = document.getElementById('appli-restore')
   minRestore.addEventListener('click', () => {
     this.setWinStatus('营业精灵', 3).then(res => {
-      console.log(res)
       minRestore.style.display = 'none'
       minMax.style.display = 'inline-block'
     }).catch(err => {console.log(err)}) // params: 1.窗口名称 2.类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
@@ -115,12 +87,10 @@ TabManage.prototype.PreDef = function () {
     iframe &&  iframe.contentWindow.location.reload()
   })
 
-  // 返回上级页面
+  // 后退
   const backBtn = document.getElementById('appli-back')
-  console.log(backBtn.addEventListener)
   backBtn.addEventListener('click', () => {
     let iframe = this.getActiveDom(2)
-    console.log(iframe)
     if (iframe) {
       iframe.contentWindow.history.back()
     }
@@ -249,8 +219,6 @@ TabManage.prototype.canGoBack = function () {
 TabManage.prototype.setWinStatus = (windowName, type) => {
   return new Promise((resolve, reject) => {
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWinStatus', {windowName, type}, (error, result) => {
-      console.log(error)
-      console.log(result)
       if (result) {
         resolve(result)
       } else {
@@ -262,16 +230,11 @@ TabManage.prototype.setWinStatus = (windowName, type) => {
 
 // 跨窗口通信
 TabManage.prototype.sendEvent = (windowName, data, eventName) => {
-  console.log('通知主窗口我已加载完成')
   window.NimCefWebInstance && window.NimCefWebInstance.call('sendEvent', {
     windowName,
     data: JSON.parse(data),
     eventName
-  }, (error, result) => {
-    console.log(error)
-    console.log(result)
-    if (result) {
-    }
+  }, () => {
   })
 }
 
@@ -288,7 +251,6 @@ TabManage.prototype.setDraggableArea = () => {
 }
 // 设置窗口图标
 TabManage.prototype.setWindowIcon = () => {
-  console.log(window.location.pathname)
   let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
   if (AppDirectory.indexOf('dist') > -1) {
     let urlArr = AppDirectory.split('dist')
@@ -297,25 +259,44 @@ TabManage.prototype.setWindowIcon = () => {
   let iconPath = AppDirectory + '/dist/static/img/systry-logo.png'
   window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon',{
     iconPath
-  }, (error, result) => {})
+  }, () => {})
 } 
 
-new TabManage().init()
+let tabManage = new TabManage()
+tabManage.init()
 
 window.onload = () => {
   // 通知主窗口，我已加载完成
-  new TabManage().sendEvent('main', JSON.stringify({isLoaded: true}), 'childIsLoaded')
+  tabManage.sendEvent('main', JSON.stringify({isLoaded: true}), 'childIsLoaded')
 
   // 设置窗口图标
-  new TabManage().setWindowIcon()
+  tabManage.setWindowIcon()
   
   // 设置可拖拽区域
-  new TabManage().setDraggableArea()
+  tabManage.setDraggableArea()
 
   // 点击右下角退出按钮时的通知--这里是关闭
   window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
-    new TabManage().setWinStatus('营业精灵', 4).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
-      // console.log(res)
+    tabManage.setWinStatus('营业精灵', 4).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
     }).catch(err => console.log(err))
+  })
+  
+  /* 接收拦截到打开新链接的事件 */
+  window.NimCefWebInstance && window.NimCefWebInstance.register('OnOpenNewLink', (params) => {
+    // 窗口内链接跳转
+    const iframe = tabManage.getActiveDom(2) // 找到当前活跃的iframe
+    if (params.url.indexOf('yximcreatesession.telecomjs.com') > -1) { // 发起会话处理
+      let account = params.url.split('?account=')[1]
+      if (account) {
+        // 跟主页面通信
+        let sendMsgToMain = () => {
+          tabManage.sendEvent('main', JSON.stringify({account}), 'createSession')
+        }
+        sendMsgToMain()
+      }
+    } else { // 渲染新url
+      iframe.src = params.url
+    }
+    tabManage.canGoBack()
   })
 }
