@@ -171,6 +171,8 @@ class NativeHandle {
    * **/
   setTrayImage = (iconPath, tooltip) => {
     tooltip = `优信(${tooltip})`
+    console.log(iconPath)
+    iconPath = decodeURI(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {
       iconPath,
       tooltip
@@ -304,6 +306,8 @@ class NativeHandle {
    * @params:  iconPath icon的绝对路径
    * **/
   setWindowIcon = (iconPath) => {
+    console.log(iconPath)
+    iconPath = decodeURI(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
       iconPath
     }, () => {

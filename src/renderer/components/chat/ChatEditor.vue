@@ -423,16 +423,14 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
-          for (var i = 0, len = e.clipboardData.items.length; i < len; i++) {
-            var item = e.clipboardData.items[i]
-            if (item.kind === 'string') {
-              try {
-                text = await this.getAsString(item)
-              } catch (err) {}
-            } else if (item.kind === 'file') {
-              var pasteFile = item.getAsFile()
-              file = new File([pasteFile], 'image.png', {type: 'image/png'})
-            }
+          var item = e.clipboardData.items[0]
+          if (item.kind === 'string') {
+            try {
+              text = await this.getAsString(item)
+            } catch (err) {}
+          } else if (item.kind === 'file') {
+            var pasteFile = item.getAsFile()
+            file = new File([pasteFile], 'image.png', {type: 'image/png'})
           }
         } else {
           const { clipboard } = require('electron')

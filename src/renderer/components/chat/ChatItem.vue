@@ -31,7 +31,7 @@
       <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
       <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-        <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+        <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
       <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
         <span class="custom-type8-title">邀请你加入群聊</span>
@@ -664,7 +664,9 @@
         if (item.type === 'custom-type7' && this.iframe) {
           this.bindEvent(window, 'message', (e) => { // 获取iframe页面内容高度
             if (e.data.cmd === 'returnHeight') {
-              this.iframe.style.height = (e.data.params.contentHeight + 40) + 'px'
+              if (item.idClient === e.data.params.idClient) {
+                this.iframe.style.height = (e.data.params.contentHeight) + 'px'
+              }
             }
           })
         }
@@ -704,9 +706,9 @@
           $a.dispatchEvent(evObj)
         }
       },
-      sendMsgToIframe (showText) {
+      sendMsgToIframe (showText, idClient) {
         this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
-          params: {showText}
+          params: {showText, idClient}
         }, '*')
         setTimeout(() => {
           this.iframe.contentWindow.document.body.onmouseup = (e) => {

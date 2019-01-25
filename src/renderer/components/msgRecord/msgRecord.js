@@ -155,7 +155,8 @@ MsgRecordFn.getCopyText = function (e) {
       dom = e.target
     }
   }
-  dom.childNodes.forEach((item, index) => {
+  let childNodes = [...(dom.childNodes)] // dom节点不是真正的数组，不能用forEach,需转化为数组
+  childNodes.forEach((item, index) => {
     if (item.nodeType === 3) {
       text += item.data
     } else if (item.nodeType === 1) {

@@ -116,6 +116,7 @@ export default {
     },
     // 跟子页面通信
     sendMsgToChild () {
+      console.log('跟子页面通信==============')
       let itemInfo = localStorage.getItem('ItemInfo')
       if (itemInfo) {
         let dataObj = JSON.parse(itemInfo)

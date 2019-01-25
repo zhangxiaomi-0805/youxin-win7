@@ -200,11 +200,7 @@ export default {
     this.eventBus.$on('generalSetting', (data) => {
       this.showGeneralSetting = data.show
       if (config.environment === 'web') {
-        NativeLogic.native.getAppVersion().then(result => {
-          if (result) {
-            this.version = result.appVersion
-          }
-        })
+        this.version = config.xpVersion
       } else {
         let { remote } = require('electron')
         this.version = remote.getGlobal('APPVERSION')

@@ -38,7 +38,7 @@
           style="position: relative;overflow: hidden;"
           v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'">
           <a class="b-edit">编辑</a>
-          <input @change="previewFile($event.target)" class="b-input" type="file" ref="imgToSent" accept="image/gif, image/jpeg, image/png, image/bmp, image/jpg" title=" " />
+          <input @change="previewFile($event.target)" class="b-input" type="file" ref="imgToSent" accept="" title=" " />
         </div>
       </div>
       <div class="team-block">
@@ -108,6 +108,7 @@
   import clickoutside from '../../utils/clickoutside.js'
   import util from '../../utils'
   import Request from '../../utils/request'
+  import config from '../../configs'
   export default {
     name: 'slider-menu',
     props: {
@@ -327,15 +328,30 @@
       },
       previewFile (target) {
         let ipt = target
-        if (ipt.value) {
-          if (!/\.(png|jpg|bmp|jpeg|gif)$/i.test(ipt.value)) {
+        if (config.environment === 'web') { // 解决XP系统不支持过滤图片格式问题
+          // 检查上传文件类型
+          if (['jpeg', 'png', 'gif', 'jpg', 'bmp'].indexOf(target.files[0].type.split('/')[1]) < 0) {
             this.$store.commit('toastConfig', {
               show: true,
               type: 'fail',
-              toastText: '图片格式不正确'
+              toastText: '图片格式不正确!'
             })
             return
           }
+        } else {
+          ipt.accept = 'image/gif, image/jpeg, image/png, image/bmp, image/jpg'
+          if (ipt.value) {
+            if (!/\.(png|jpg|bmp|jpeg|gif)$/i.test(ipt.value)) {
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: '图片格式不正确!'
+              })
+              return
+            }
+          }
+        }
+        if (ipt.value) {
           if (target.files[0].size > 10 * 1024 * 1024) {
             this.$store.commit('toastConfig', {
               show: true,
