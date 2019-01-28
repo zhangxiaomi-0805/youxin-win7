@@ -20,19 +20,15 @@ class NativeHandle {
       rightTitleHeight, // 右侧可拖动区域高度：30
       rightTitleMargin // 右侧可拖动区域与右侧边框的距离
     }
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, (error, result) => {
-      console.log(error)
-      if (result) {
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setDraggableArea', params, () => {
     })
   }
   // 1、设置窗口大小
   setBounds = (width, height) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', { width, height }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('setBounds', {
+      width,
+      height
+    }, () => {
     })
   }
 
@@ -139,11 +135,7 @@ class NativeHandle {
     } else {
       this.downList[msgId].status = 1
     }
-    window.NimCefWebInstance && window.NimCefWebInstance.call('downloadControl', { id: downloadId, status: status }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('downloadControl', { id: downloadId, status: status }, () => {
     })
   }
 
@@ -151,12 +143,8 @@ class NativeHandle {
    * 5.截屏:
    * **/
   screenShot = () => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('screenShot', {}, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-        // code: 200 // 截屏状态（200-成功，400-取消截屏）
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('screenShot', {}, () => {
+      // code: 200 // 截屏状态（200-成功，400-取消截屏）
     })
   }
 
@@ -166,8 +154,6 @@ class NativeHandle {
   getClipboard = () => {
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('getClipboard', {}, (error, result) => {
-        console.log(error)
-        console.log(result)
         if (result) {
           // data: {} // 截切板数据，如果为文件，则返回blob对象
           resolve(result)
@@ -184,11 +170,13 @@ class NativeHandle {
    * @params: tooltip // 图标示例
    * **/
   setTrayImage = (iconPath, tooltip) => {
+    tooltip = `优信(${tooltip})`
+    console.log(iconPath)
+    iconPath = decodeURI(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {
-      iconPath, tooltip
-    }, (error, result) => {
-      console.log(error)
-      console.log(result)
+      iconPath,
+      tooltip
+    }, () => {
     })
   }
 
@@ -230,11 +218,9 @@ class NativeHandle {
    * 8、设置任务栏闪烁
    * **/
   flashFrame = (type) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('flashFrame', { flag: type }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    window.NimCefWebInstance && window.NimCefWebInstance.call('flashFrame', {
+      flag: type
+    }, () => {
     })
   }
 
@@ -246,8 +232,6 @@ class NativeHandle {
   setWinStatus = (windowName, type) => {
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('setWinStatus', {windowName, type}, (error, result) => {
-        console.log(error)
-        console.log(result)
         if (result) {
           resolve(result)
         } else {
@@ -263,8 +247,6 @@ class NativeHandle {
   getWinStatus = (windowName) => {
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('getWinStatus', { windowName }, (error, result) => {
-        console.log(error)
-        console.log(result)
         if (error) {
           resolve('')
         } else {
@@ -290,12 +272,16 @@ class NativeHandle {
    * @params: width      初始窗口宽
    * **/
   createWindows = (windowName, path, width, height) => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {windowName, path, width, height}, (error, result) => {
-      if (result) {
-        console.log(result)
-      } else {
-        console.log(error)
-      }
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('createWindow', {
+        windowName, path, width, height
+      }, (err, result) => {
+        if (result) {
+          resolve(result)
+        } else {
+          reject(err)
+        }
+      })
     })
   }
 
@@ -311,11 +297,7 @@ class NativeHandle {
       windowName,
       data,
       eventName
-    }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    }, () => {
     })
   }
 
@@ -324,13 +306,11 @@ class NativeHandle {
    * @params:  iconPath icon的绝对路径
    * **/
   setWindowIcon = (iconPath) => {
+    console.log(iconPath)
+    iconPath = decodeURI(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
       iconPath
-    }, (error, result) => {
-      console.log(error)
-      console.log(result)
-      if (result) {
-      }
+    }, () => {
     })
   }
 
@@ -343,7 +323,6 @@ class NativeHandle {
         // error 是否包含错误
         // error 为 true，包含错误具体内容
         // result.appVersion 为返回的版本号
-        console.log(result)
         if (error) {
           resolve('')
         } else {

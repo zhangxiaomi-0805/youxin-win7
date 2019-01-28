@@ -179,10 +179,6 @@
     },
     mounted () {
       if (config.environment === 'web') { // web分支
-        // let code = NativeLogic.native.screenShot()
-        // if (Number(code) === 200) {
-        //   this.onPaste()
-        // }
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('screenShotCb', (evt, arg) => {
@@ -273,7 +269,13 @@
     },
     methods: {
       // 文件发送
-      onSendFlie (e) {
+      async onSendFlie (e) {
+        // 注册事件监听
+        if (config.environment === 'web') { // web分支
+          await window.NimCefWebInstance && window.NimCefWebInstance.register('OnSelectedFile', (params) => {
+            e.target.files[0].path = params.file
+          })
+        }
         if (e.target.files[0].size > 100 * 1024 * 1024) {
           this.$store.commit('toastConfig', {
             show: true,
@@ -347,6 +349,17 @@
         input.id = `input${this.inputIndex++}`
         input.click()
         input.onchange = () => {
+          if (config.environment === 'web') { // 解决XP系统不支持过滤图片格式问题
+            // 检查上传文件类型
+            if (['jpeg', 'png', 'gif', 'jpg', 'bmp'].indexOf(input.files[0].type.split('/')[1]) < 0) {
+              this.$store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: '请选择图片上传！'
+              })
+              return
+            }
+          }
           this.sendImgMsg(input.files[0])
           this.$refs.editDiv.focus()
           setTimeout(() => {
@@ -410,16 +423,14 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
-          for (var i = 0, len = e.clipboardData.items.length; i < len; i++) {
-            var item = e.clipboardData.items[i]
-            if (item.kind === 'string') {
-              try {
-                text = await this.getAsString(item)
-              } catch (err) {}
-            } else if (item.kind === 'file') {
-              var pasteFile = item.getAsFile()
-              file = new File([pasteFile], 'image.png', {type: 'image/png'})
-            }
+          var item = e.clipboardData.items[0]
+          if (item.kind === 'string') {
+            try {
+              text = await this.getAsString(item)
+            } catch (err) {}
+          } else if (item.kind === 'file') {
+            var pasteFile = item.getAsFile()
+            file = new File([pasteFile], 'image.png', {type: 'image/png'})
           }
         } else {
           const { clipboard } = require('electron')

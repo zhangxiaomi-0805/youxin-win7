@@ -31,7 +31,7 @@
           </div>
           <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
             <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-            <iframe ref="iframe" @load="sendMsgToIframe(msg.showText)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+            <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
           </div>
           <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)">
             <span class="custom-type8-title">邀请你加入群聊</span>
@@ -144,6 +144,9 @@ export default {
     }
   },
   mounted () {
+    this.eventBus.$on('sendMsgToChild', () => { // 监听到子窗口加载完成，向子窗口发送数据
+      this.sendMsgToChild()
+    })
     let item = this.msg
     this.iframe = this.$refs.iframe
     // 自定义消息（7）
@@ -151,7 +154,9 @@ export default {
     if (item.type === 'custom-type7' && this.iframe) {
       this.bindEvent(window, 'message', (e) => { // 获取iframe页面内容高度
         if (e.data.cmd === 'returnHeight') {
-          this.iframe.style.height = (e.data.params.contentHeight + 40) + 'px'
+          if (item.idClient === e.data.params.idClient) {
+            this.iframe.style.height = (e.data.params.contentHeight) + 'px'
+          }
         }
       })
     }
@@ -164,9 +169,9 @@ export default {
         element.attachEvent('on' + eventName, eventHandler)
       }
     },
-    sendMsgToIframe (showText) {
+    sendMsgToIframe (showText, idClient) {
       this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
-        params: {showText}
+        params: {showText, idClient}
       }, '*')
       setTimeout(() => {
         this.iframe.contentWindow.document.body.onmouseup = (e) => {
@@ -267,6 +272,12 @@ export default {
     },
     webOpenInWin (url, item) {
       // web端打开内部窗口
+      let itemInfo = {
+        url,
+        title: item.appName,
+        appCode: item.appCode
+      }
+      localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
       // 1、创建窗口
       // params: windowName, path, height, width
       let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
@@ -275,32 +286,18 @@ export default {
         AppDirectory = urlArr[0]
       }
       const winURL = AppDirectory + '/dist/static/windows/applicationXp.html'
-      // 跟子页面通信
-      let sendMsgToChild = () => {
-        let dataObj = {url, title: item.appName, appCode: item.appCode}
+      NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight).then(res => {
+        this.sendMsgToChild()
+      })
+    },
+    // 跟子页面通信
+    sendMsgToChild () {
+      let itemInfo = localStorage.getItem('ItemInfo')
+      if (itemInfo) {
+        let dataObj = JSON.parse(itemInfo)
         let data = JSON.stringify(dataObj)
         NativeLogic.native.sendEvent('营业精灵', data, 'asyncMessage')
       }
-      NativeLogic.native.getWinStatus('营业精灵').then((result) => {
-        if (!result) {
-          // 当子窗口不存在时创建子窗口
-          NativeLogic.native.createWindows('营业精灵', winURL, config.aplWinWidth, config.aplWinHeight)
-        } else {
-          if (result.isMinimized) {
-            NativeLogic.native.setWinStatus('营业精灵', 7) // 如果窗口最小化，则让其显示
-          }
-          sendMsgToChild()
-        }
-      }).catch(() => {
-      })
-      // 注册事件监听子页面是否加载完成
-      window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
-        if (params.eventName === 'childIsLoaded') {
-          // 2、跨窗口通信,等子页面准备完成再发送事件
-          // params: windowName, data{}, eventName
-          sendMsgToChild()
-        }
-      })
     },
     electronOpenOutWin (url) {
       // electron端打开外部窗口

@@ -190,7 +190,6 @@ export default {
         Request.PullUserInfo(params, this).then(ret => {
           if (ret) {
             this.userInfos = ret.userList[0]
-            console.log(this.userInfos)
           }
         }).catch(() => {
         })

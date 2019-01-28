@@ -2,7 +2,7 @@
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
   <div class="u-search searchevent" v-clickoutside="clearStatus">
     <div class="u-cont">
-      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" />
+      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>

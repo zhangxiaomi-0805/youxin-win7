@@ -76,7 +76,6 @@
           let urlArr = AppDirectory.split('dist')
           AppDirectory = urlArr[0]
         }
-        console.log(AppDirectory)
         NativeLogic.native.setWindowIcon(AppDirectory + '/dist/static/img/systry-logo.png') // 设置窗口图标
         // 点击右下角退出按钮时的通知--这里是隐藏
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
@@ -86,7 +85,7 @@
         })
 
         // 监听子窗口通信方法
-        window.NimCefWebInstance && window.NimCefWebInstance.register('OnReceiveEvent', (params) => {
+        window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
           if (params.eventName === 'createSession') {
             let arg = JSON.parse(params.data)
             Request.GetAccid({userName: arg.account}, this).then(ret => {
@@ -94,6 +93,11 @@
               // 根据account 获取 accid 发起会话
               this.createSession(accid)
             })
+          }
+          if (params.eventName === 'childIsLoaded') {
+            // 2、跨窗口通信,等子页面准备完成再发送事件
+            // params: windowName, data{}, eventName
+            this.eventBus.$emit('sendMsgToChild')
           }
         })
       } else { // electron分支

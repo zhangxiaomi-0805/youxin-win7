@@ -1,9 +1,9 @@
 <template>
   <!-- 群组 -->
   <div class="m-main-list" id="resize-side-lf" style="width:270px;">
-    <div class="u-search searchevent">
+    <div class="u-search searchevent" v-clickoutside="clearStatus">
       <div class="u-cont">
-        <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" v-clickoutside="clearStatus"/>
+        <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
         <span v-if="showSearch" class="clear" @click="clearStatus"/>
       </div>
     </div>
@@ -157,7 +157,6 @@
         let leftDom = document.getElementById('resize-side-lf')
         let leftWidth = (leftDom.style.width).split('px')[0]
         let percent = ((Number(leftWidth) + 70) / Number(configs.mainWinWidth)).toFixed(2) // 70----最左边导航宽，为固定宽
-        console.log(percent)
         /**
         * @params:  percent, // 左边占整个应用的百分比：如：0.3
         * * */
