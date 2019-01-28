@@ -42,12 +42,22 @@
             <a class="b-common b-emoji"/>
           </div>
           <!-- 截图 -->
-          <div v-if="!isRobot" class="u-editor-icon" style="position: relative;">
-            <a class="b-common b-screenshot" @click="screenShot" :title="hotkeyTip"/>
+          <div v-if="!isRobot" class="u-editor-icon" style="position: relative;"
+            @mouseover="showShotPrompt = true"
+            @mouseout="showShotPrompt = false"
+          >
+            <a class="b-common b-screenshot" @click="screenShot"/>
             <a
               class="quick-send noevent" 
               @click="showHideWin = true" 
               style="width: 8px;position: absolute;right: -10px; top: 10px;" />
+            <!-- 截屏鼠标悬停时，显示的提示框 -->
+            <transition name="fade">
+              <div v-if="showShotPrompt" :class="isXP ? 'prompt shotPrompt':'prompt'">
+                <div :class="isXP ? 'shotTriangle triangle_border_down':'triangle_border_down'"></div>
+                {{isXP ? '截图(Alt+A),粘贴(Ctrl+V)' : '截图(Alt+A)'}}
+              </div>
+            </transition>
             <!-- 截屏时隐藏当前窗口设置 -->
             <transition name="fade">
               <div 
@@ -178,9 +188,7 @@
     },
     mounted () {
       if (config.environment === 'web') { // web分支
-        this.hotkeyTip = '截图(Alt + A),/n粘贴(Alt + V)'
         this.eventBus.$on('screenShot', () => {
-          console.log('jieping============')
           this.screenShot()
         })
       } else { // electron分支
@@ -254,7 +262,8 @@
         rangeInfo: null,
         showHideWin: false,
         showHideWinCheck: localStorage.SHOWHIDEWINCHECK,
-        hotkeyTip: '截图(Alt + A)'
+        isXP: config.environment === 'web',
+        showShotPrompt: false
       }
     },
     computed: {
@@ -1289,6 +1298,11 @@
     color: #888893;
     text-align: center;
   }
+  .shotPrompt {
+    width: 150px;
+    right: -58px;
+    top: -30px;
+  }
   .triangle_border_down{
     width:0;
     height:0;
@@ -1298,6 +1312,9 @@
     position: absolute;
     top: 25px;
     right: 28px;
+  }
+  .shotTriangle {
+    right: 60px;
   }
   .g-window .m-chat-editor {
     position: absolute;
