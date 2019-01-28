@@ -79,6 +79,7 @@
         NativeLogic.native.setWindowIcon(AppDirectory + '/dist/static/img/systry-logo.png') // 设置窗口图标
         // 点击右下角退出按钮时的通知--这里是隐藏
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
+          console.log('监听窗口退出======')
           NativeLogic.native.setWinStatus('main', 6).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
             console.log(res)
           }).catch(err => console.log(err))
@@ -99,6 +100,22 @@
             // params: windowName, data{}, eventName
             this.eventBus.$emit('sendMsgToChild')
           }
+        })
+
+        // 设置截屏快捷键
+        NativeLogic.native.setCaptureHotkey(false, false, true, 'A').then(res => {
+          if (res) {
+            // 监听截屏快捷键方法
+            window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveHotkeyEvent', (params) => {
+              this.eventBus.$emit('screenShot')
+            })
+          }
+        }).catch(err => {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '截屏快捷键设置失败！'
+          })
         })
       } else { // electron分支
         let { ipcRenderer } = require('electron')

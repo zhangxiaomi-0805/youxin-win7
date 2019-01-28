@@ -43,9 +43,8 @@
           </div>
           <!-- 截图 -->
           <div v-if="!isRobot" class="u-editor-icon" style="position: relative;">
-            <a class="b-common b-screenshot" @click="screenShot" :title="isXp ? '' : '截图(Alt + A)'"/>
+            <a class="b-common b-screenshot" @click="screenShot" :title="hotkeyTip"/>
             <a
-              v-if="!isXp"
               class="quick-send noevent" 
               @click="showHideWin = true" 
               style="width: 8px;position: absolute;right: -10px; top: 10px;" />
@@ -179,6 +178,11 @@
     },
     mounted () {
       if (config.environment === 'web') { // web分支
+        this.hotkeyTip = '截图(Alt + A),/n粘贴(Alt + V)'
+        this.eventBus.$on('screenShot', () => {
+          console.log('jieping============')
+          this.screenShot()
+        })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('screenShotCb', (evt, arg) => {
@@ -248,9 +252,9 @@
         atRange: null,
         atAccounts: [],
         rangeInfo: null,
-        isXp: config.environment === 'web',
         showHideWin: false,
-        showHideWinCheck: localStorage.SHOWHIDEWINCHECK
+        showHideWinCheck: localStorage.SHOWHIDEWINCHECK,
+        hotkeyTip: '截图(Alt + A)'
       }
     },
     computed: {
@@ -369,7 +373,13 @@
       },
       screenShot () {
         if (config.environment === 'web') { // web分支
-          NativeLogic.native.screenShot()
+          if (localStorage.SHOWHIDEWINCHECK) {
+            NativeLogic.native.setWinStatus('main', 6).then(res => {
+              NativeLogic.native.screenShot()
+            }) // 截屏前隐藏该窗口
+          } else {
+            NativeLogic.native.screenShot()
+          }
         } else { // electron分支
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('screenShot', { hideWin: localStorage.SHOWHIDEWINCHECK })
