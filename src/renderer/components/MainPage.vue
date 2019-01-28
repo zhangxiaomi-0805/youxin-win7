@@ -110,7 +110,7 @@
               this.eventBus.$emit('screenShot')
             })
           }
-        }).catch(err => {
+        }).catch(() => {
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',

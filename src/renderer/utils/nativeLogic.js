@@ -335,13 +335,13 @@ class NativeHandle {
       })
     })
   }
-   /**
-   * 15、设置截屏快捷键
-   * @params:  isCtrl ---是否需要按下 ctrl
-   * @params:  isShift ---是否需要按下 shift
-   * @params:  isAlt ---是否需要按下 alt
-   * @params:  virtualKey ---快捷键字母，仅支持字母，其他键不支持，如：F1、F2等
-   * **/
+  /**
+  * 15、设置截屏快捷键
+  * @params:  isCtrl ---是否需要按下 ctrl
+  * @params:  isShift ---是否需要按下 shift
+  * @params:  isAlt ---是否需要按下 alt
+  * @params:  virtualKey ---快捷键字母，仅支持字母，其他键不支持，如：F1、F2等
+  * **/
   setCaptureHotkey = (isCtrl, isShift, isAlt, virtualKey) => {
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('setCaptureHotkey', {
