@@ -526,7 +526,7 @@ body,
     justify-content: flex-start;
     position: absolute;
     top: 0;
-    left: 70px;
+    left: 80px;
     height: 31px;
     z-index: 1001;
     width: 82%;
@@ -589,7 +589,7 @@ body,
     position: absolute;
     top: 0;
     left: 0;
-    width: 70px;
+    width: 80px;
     height: 31px;
     display: flex;
     justify-content: center;
@@ -598,11 +598,11 @@ body,
 }
 
 .appli-window .nav a {
-    font-size: 11px;
+    font-size: 13px;
     color: rgba(4,154,255,1);
 }
 .appli-window .nav a:first-child {
-    margin-right: 5px;
+    margin-right: 8px;
 }
 
 .appli-window .nav a.disabled {

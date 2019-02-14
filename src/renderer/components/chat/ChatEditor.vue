@@ -190,6 +190,7 @@
           this.screenShot()
         })
       }
+      this.syncDraft()
     },
     watch: {
       continueRobotAccid (curVal, oldVal) {
@@ -215,6 +216,7 @@
       $route () {
         this.$refs.editDiv.innerHTML = ''
         this.isMsg = false
+        this.syncDraft()
       }
     },
     data () {
@@ -300,8 +302,8 @@
         if (key === 'drop') {
           const file = e.dataTransfer.files[0]
           if (file.type.indexOf('image') > -1) {
-            const newFile = await getFile(file.path)
-            this.sendImgMsg(newFile)
+            // const newFile = await getFile(file.path)
+            this.sendImgMsg(file)
           } else {
             if (file.size > 100 * 1024 * 1024) {
               this.$store.commit('toastConfig', {
@@ -816,9 +818,15 @@
                 let dataObj = item.getAttribute('data-obj').slice(1, -1)
                 if (msgToSent[i]) {
                   msgToSent[++i] = this.msgFileObj[dataObj]
+                  if (msgToSent[i]) {
+                    msgToSent[i].dataObj = dataObj
+                  }
                   i++
                 } else {
                   msgToSent[i] = this.msgFileObj[dataObj]
+                  if (msgToSent[i]) {
+                    msgToSent[i].dataObj = dataObj
+                  }
                   i++
                 }
               }
@@ -1257,6 +1265,72 @@
         this.atStartOffset = 1
         this.atRange = null
         this.members = []
+      },
+      getEditContent () {
+        // 获取输入框内容
+        let msgToSent = this.getEditText(this.$refs.editDiv)
+        msgToSent.forEach((item, index) => {
+          if (item && !item.text) {
+            if (item.type) {
+              // 图片
+              msgToSent[index] = {
+                type: 'image',
+                path: item.path || item.base64Str,
+                dataObj: item.dataObj,
+                w: item.w,
+                h: item.h
+              }
+            }
+          }
+        })
+        return { msgToSent, innerHTML: this.$refs.editDiv.innerHTML }
+      },
+      // 将base64转换为文件
+      dataURLtoFile (dataurl, filename) {
+        var arr = dataurl.split(',')
+        var mime = arr[0].match(/:(.*?);/)[1]
+        var bstr = atob(arr[1])
+        var n = bstr.length
+        var u8arr = new Uint8Array(n)
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n)
+        }
+        return new File([u8arr], filename, {type: mime})
+      },
+      syncDraft () {
+        // 同步草稿
+        let sessionId = this.scene + '-' + this.to
+        let session = this.$store.state.sessionlist.find(item => {
+          return item.id === sessionId
+        })
+        if (session.localCustom && session.localCustom.draftInner) {
+          let {draftInner, draftMsg} = session.localCustom
+          this.$refs.editDiv.innerHTML = draftInner
+          // 同步草稿数据（图片、文件）
+          if (this.$refs.editDiv.innerHTML) {
+            if (draftMsg) {
+              // 数据处理
+              draftMsg.draftMsg.forEach(async item => {
+                if (item && item.type === 'image') {
+                  let msgFileObj = this.msgFileObj[item.dataObj]
+                  try {
+                    msgFileObj = await getFile(item.path)
+                  } catch (err) {
+                    msgFileObj = this.dataURLtoFile(item.path, 'image')
+                  }
+                  msgFileObj.w = item.w
+                  msgFileObj.h = item.h
+                  msgFileObj.base64Str = item.path
+                  console.log(msgFileObj)
+                  this.msgFileObj[item.dataObj] = msgFileObj
+                }
+              })
+            }
+          }
+          setTimeout(() => {
+            this.$refs.editDiv.scrollTop = this.$refs.editDiv.scrollHeight
+          }, 0)
+        }
       }
     }
   }

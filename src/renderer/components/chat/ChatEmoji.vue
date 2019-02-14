@@ -226,9 +226,9 @@
 
   .emoji-content .cnt .cover {
     display: inline-block;
-    width: 37px;
+    /* width: 37px;
     height: 38px;
-    line-height: 38px;
+    line-height: 38px; */
     text-align: center;
   }
 
@@ -252,9 +252,9 @@
     width: inherit;
     height: inherit;
   }
-  .pinup-item {
-    width: 44px;
-    height: 44px;
+  .emoji-content .pinup-item {
+    width: 48px;
+    height: 48px;
   }
 
   /* @media screen and (min-width: 300px) and (max-width: 420px) {

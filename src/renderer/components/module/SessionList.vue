@@ -32,9 +32,16 @@
             <div class="multi-content">
               <div class="title" style="width: 95%;">{{session.name}}</div>
               <div class="content">
-                <span v-if="session.localCustom && session.localCustom.at && !lastMsgStatus(session)" style="color: #F43530;">[有人@你] </span>
-                <span v-if="lastMsgStatus(session)" style="color: #F43530;">{{session.lastMsgShow}}</span>
-                <span v-else-if="session.lastMsgShow">{{session.lastMsgShow}}</span>
+                <span class="fail-icon" v-if="session.fileStatus === 'fail' && !(session.localCustom && session.localCustom.draftMsg && session.localCustom.draftMsg.show)"></span>
+                <span v-if="session.localCustom && session.localCustom.draftMsg && curSessionId !== session.id">
+                  <span style="color: #F43530;">[草稿] </span>
+                  <span>{{showDraft(session.localCustom.draftMsg.draftMsg)}}</span>
+                </span>
+                <span v-else>
+                  <span v-if="session.localCustom && session.localCustom.at && !lastMsgStatus(session)" style="color: #F43530;">[有人@你] </span>
+                  <span v-if="lastMsgStatus(session)" style="color: #F43530;">{{session.lastMsgShow}}</span>
+                  <span v-else-if="session.lastMsgShow">{{session.lastMsgShow}}</span>
+                </span>
               </div>
             </div>
           </div>
@@ -192,6 +199,9 @@ export default {
     myPhoneId () {
       return `${this.$store.state.userUID}`
     },
+    curSessionId () {
+      return this.$store.state.currSessionId
+    },
     sessionlist () {
       let sessionlist = this.$store.state.sessionlist.filter(item => {
         item.name = ''
@@ -327,6 +337,9 @@ export default {
     toggleChat (session) {
       // 会话切换(不采用router-link方式是为了避免鼠标中键对a标签的默认行为)
       let sessionId = session.id
+      if (sessionId === this.curSessionId) {
+        return
+      }
       if (session.unread > 0) {
         this.eventBus.$emit('showPositionBtn', {
           isShow: true,
@@ -577,6 +590,22 @@ export default {
       }
       this.showSearch = false
       this.searchValue = ''
+    },
+    showDraft (msg) {
+      // 草稿内容
+      let showText = ''
+      for (let i = 0; i < msg.length; i++) {
+        if (msg[i]) {
+          if (msg[i].text) {
+            showText += msg[i].text
+          } else if (msg[i].type && msg[i].type === 'image') {
+            showText += '[图片消息]'
+          } else {
+            showText += '[未知消息类型]'
+          }
+        }
+      }
+      return showText
     }
   }
 }

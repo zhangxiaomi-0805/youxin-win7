@@ -107,6 +107,22 @@ class IndexedDB {
       }
     })
   }
+
+  // 清除
+  async clear (name) {
+    const db = await this.openDB()
+    return new Promise((resolve, reject) => {
+      const request = db.transaction([name], 'readwrite')
+        .objectStore(name)
+        .clear()
+      request.onsuccess = function (event) {
+        resolve()
+      }
+      request.onerror = (err) => {
+        reject(err)
+      }
+    })
+  }
 }
 
 const DB = new IndexedDB()

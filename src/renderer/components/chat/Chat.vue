@@ -35,6 +35,7 @@
       <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
         <div class="border" id="resize-ns"></div>
         <chat-editor
+          ref="chatEditor"
           type="session"
           :scene="scene"
           :to="to"
@@ -341,11 +342,16 @@
           })
         }
       },
-      $route () {
+      $route (newRoute, oldRoute) {
         if (document.querySelector('#newMsgTip')) {
           document.querySelector('#chat-list').removeChild(document.querySelector('#newMsgTip'))
         }
         this.getMembers()
+        let newId = newRoute.query.sessionId
+        let oldId = oldRoute.query.sessionId
+        if (newId !== oldId) {
+          this.syncDraft(newId, oldId)
+        }
       }
     },
     methods: {
@@ -523,6 +529,30 @@
         this.showInvitMsgTip = false
         this.eventBus.$emit('updateNavBar', {navTo: 'team'})
         this.$router.push({name: 'team', query: {isApplyTeam: true}})
+      },
+      syncDraft (newId, oldId) {
+        // 同步草稿
+        let result = this.$refs.chatEditor ? this.$refs.chatEditor.getEditContent() : null
+        let prevSession = this.$store.state.sessionlist.find(item => {
+          return item.id === oldId
+        })
+        // 处理当前会话场景
+        this.$store.commit('updateCurrentDraft', { type: 'toggle', sessionId: newId })
+        // 更新上一个会话草稿状态
+        if (prevSession && result) {
+          let draftMsg = result.innerHTML ? { show: true, draftMsg: result.msgToSent } : null
+          if (prevSession.localCustom) {
+            prevSession.localCustom.draftMsg = draftMsg
+            prevSession.localCustom.draftInner = result.innerHTML
+          } else {
+            prevSession.localCustom = { draftMsg, draftInner: result.innerHTML }
+          }
+          // 更新本地信息
+          this.$store.state.nim.updateLocalSession({
+            id: prevSession.id,
+            localCustom: prevSession.localCustom
+          })
+        }
       }
     }
   }

@@ -1,7 +1,7 @@
 let fs = require('fs')
 export default function getFile (path) {
   // 根本绝对路径获取文件对象
-  // let mime = require('mime')
+  let mime = require('mime')
   return new Promise((resolve, reject) => {
     // 先获取文件信息
     fs.stat(path, (err, stats) => {
@@ -13,6 +13,9 @@ export default function getFile (path) {
         return
       }
       var mimetype = null
+      try {
+        mimetype = mime.getType(path)
+      } catch (err) { return }
       // 读取文件流生成文件
       var readStream = fs.createReadStream(path)
       var blobParts

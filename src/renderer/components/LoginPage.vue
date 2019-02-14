@@ -340,22 +340,28 @@
                   this.loading = false
                   return
                 }
-                // 初始化组织架构、我的部门、联系、常用联系人列表
-                IndexedDB.getItem('orgnizeObj')
-                  .then(data => {
-                    data && this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
-                  })
-                  .catch(() => {})
-                IndexedDB.getItem('myDeptObj')
-                  .then(data => {
-                    data && this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
-                  })
-                  .catch(() => {})
-                IndexedDB.getAll('contactslist')
-                  .then(data => {
-                    data && this.$store.commit('updateContactslist', {data, type: 'replace'})
-                  })
-                  .catch(() => {})
+                // 初始化组织架构、我的部门、联系、常用联系人列表（是否清除组织数据 (clearOrg：2-清除)）
+                if (ret.clearOrg === 2) {
+                  IndexedDB.clear('orgnizeObj')
+                  IndexedDB.clear('myDeptObj')
+                  IndexedDB.clear('contactslist')
+                } else {
+                  IndexedDB.getItem('orgnizeObj')
+                    .then(data => {
+                      data && this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'orgnize'})
+                    })
+                    .catch(() => {})
+                  IndexedDB.getItem('myDeptObj')
+                    .then(data => {
+                      data && this.$store.commit('updateOrgnizeObj', {data, type: 'replace', pageType: 'myDept'})
+                    })
+                    .catch(() => {})
+                  IndexedDB.getAll('contactslist')
+                    .then(data => {
+                      data && this.$store.commit('updateContactslist', {data, type: 'replace'})
+                    })
+                    .catch(() => {})
+                }
                 IndexedDB.getAll('contactsToplist')
                   .then(data => {
                     data && this.$store.commit('updateContactsToplist', {data, type: 'init'})

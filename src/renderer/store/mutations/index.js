@@ -1248,5 +1248,25 @@ export default {
       })
       state.currSessionHistoryMsgs = currSessionHistoryMsgs.concat(state.currSessionHistoryMsgs)
     }
+  },
+  updateCurrentDraft (state, { type, sessionId }) {
+    sessionId = sessionId || state.currSessionId
+    // 更新当前会话草稿状态
+    let currSession = state.sessionlist.find(item => {
+      return item.id === sessionId
+    })
+    if (currSession && currSession.localCustom && currSession.localCustom.draftMsg) {
+      if (type === 'toggle') {
+        currSession.localCustom.draftMsg.show = false
+      } else if (type === 'reset') {
+        currSession.localCustom.draftMsg = null
+        currSession.localCustom.draftInner = null
+      }
+
+      state.nim.updateLocalSession({
+        id: sessionId,
+        localCustom: currSession.localCustom
+      })
+    }
   }
 }
