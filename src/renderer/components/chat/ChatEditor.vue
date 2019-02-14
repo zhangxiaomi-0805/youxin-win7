@@ -455,7 +455,16 @@
           }
         } else {
           const { clipboard } = require('electron')
-          if (clipboard.readText() && !clipboard.read('public.file-url')) {
+          let imgPath = this._readHTML(clipboard.readHTML())
+          if (imgPath) {
+            file = await getFile(imgPath.split('file:///')[1])
+            let image = new Image()
+            image.onload = () => {
+              file.w = image.width
+              file.h = image.height
+            }
+            image.src = imgPath
+          } else if (clipboard.readText() && !clipboard.read('public.file-url')) {
             text = clipboard.readText()
           } else if (clipboard.read('FileNameW') || clipboard.read('public.file-url')) {
             let filePath = ''
@@ -534,6 +543,20 @@
           // 图片粘贴
           this.sendImgMsg(file)
         }
+      },
+      _readHTML (html) {
+        // 针对QQ图片复制兼容
+        let imgReg = /<img.*?(?:>|\/>)/gi
+        let srcReg = /src="([^"]*)"/g
+        let arr = html.match(imgReg)
+        let imgArr = []
+        if (arr) {
+          for (let i = 0; i < arr.length; i++) {
+            let src = arr[i].match(srcReg)
+            if (src[0]) imgArr.push(src[0].split('=')[1].split('"').join(''))
+          }
+        }
+        return imgArr[0]
       },
       inputMsg (e) {
         if (this.showAtList && this.members.length !== 0) {
@@ -1340,7 +1363,6 @@
                   msgFileObj.w = item.w
                   msgFileObj.h = item.h
                   msgFileObj.base64Str = item.path
-                  console.log(msgFileObj)
                   this.msgFileObj[item.dataObj] = msgFileObj
                 }
               })

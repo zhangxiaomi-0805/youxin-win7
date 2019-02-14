@@ -136,6 +136,17 @@
               </div>
             </div>
           </div>
+          <div
+            class="set-quick"
+            v-if="curPanelKey === 5"
+          >
+            <div class="set-q-cut">
+              <span style="color: #999;font-size: 14px;">截取屏幕</span>
+              <span class="set-q-btn" @click="showSetCutCodeModal">{{cutCode}}</span>
+            </div>
+            <div class="update-btn" style="color: #333;width: 102px;" @click="recove">恢复默认设置</div>
+            
+          </div>
         </div>
       </div>
     </div>
@@ -172,6 +183,10 @@ export default {
         {
           title: '会话清理',
           key: 4
+        },
+        {
+          title: '快捷按键',
+          key: 5
         }
       ],
       // 当前界面
@@ -192,7 +207,8 @@ export default {
       // 软件升级
       needUpdate: true,
       myGroupIcon: config.defaultGroupIcon,
-      choseSessionList: []
+      choseSessionList: [],
+      cutCode: localStorage.CUTCODE || 'Alt + A'
     }
   },
   mounted () {
@@ -359,6 +375,22 @@ export default {
           })
         }
       }).catch(() => {})
+    },
+    showSetCutCodeModal () {
+      this.eventBus.$emit('cutCode', {
+        code: this.cutCode,
+        callBack: (code) => {
+          this.cutCode = code
+        }
+      })
+    },
+    recove () {
+      this.cutCode = 'Alt + A'
+      if (config.environment !== 'web') {
+        // 通知主进程注册事件
+        const ipcRenderer = require('electron').ipcRenderer
+        ipcRenderer.send('registerShortcut', this.cutCode)
+      }
     }
   }
 }
@@ -632,6 +664,34 @@ export default {
     background-image: url(../../../../static/img/setting/checkbox-c.png);
   }
 
+  .m-gen-set-con .set-quick {
+    position: relative;
+  }
+
+  .m-gen-set-con .set-quick .set-q-cut {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 45px;
+  }
+
+  .m-gen-set-con .set-quick .set-q-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 102px;
+    height: 24px;
+    border-radius:1px;
+    border:1px solid rgba(229,229,229,1);
+    font-size: 12px;
+    color: #333;
+    margin-left: 15px;
+    cursor: pointer;
+  }
+
+  .m-gen-set-con .set-quick .update-btn {
+    margin: 0 auto;
+  }
 
 </style>
 

@@ -79,11 +79,6 @@ APP.prototype.initApp = function () {
         _this.mainWindow.hide()
       }
     })
-
-    // 监听截屏事件
-    globalShortcut.register('Alt+A', () => {
-      _this.mainWindow.shortcutScreen()
-    })
   })
 
   app.on('certificate-error', function (event, webContents, url, error, certificate, callback) {
@@ -328,6 +323,10 @@ APP.prototype.initIPC = function () {
   ipcMain.on('sendAccount', function (evt, arg) {
     if (_this.mainWindow) _this.mainWindow.getAccid(arg)
   })
+
+  ipcMain.on('registerShortcut', function (evt, arg) {
+    _this.registerShortcut(arg.replace(/\s+/g, ''))
+  })
 }
 
 APP.prototype.login = function () {
@@ -419,6 +418,14 @@ APP.prototype.tryTwinkle = function (arg) {
       this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
     }
   }, 600)
+}
+
+APP.prototype.registerShortcut = function (arg) {
+  // 注册快捷键
+  globalShortcut.unregisterAll()
+  globalShortcut.register(arg, () => {
+    this.mainWindow.shortcutScreen()
+  })
 }
 
 export default APP

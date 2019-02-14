@@ -30,6 +30,7 @@
       <msg-record/>
       <update-app/>
       <group-invite/>
+      <cut-code/>
     </div>
   </div>
 </template>
@@ -62,11 +63,12 @@
   import MsgRecord from './msgRecord/MsgRecord.vue'
   import UpdateApp from './float/UpdateApp.vue'
   import GroupInvite from './float/groupInvite.vue'
+  import CutCode from './float/CutCode.vue'
   import config from '../configs'
   import NativeLogic from '../utils/nativeLogic.js'
   export default {
     name: 'main-page',
-    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite},
+    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite, CutCode},
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
@@ -126,6 +128,8 @@
             this.createSession(accid)
           })
         })
+        // 注册快捷键
+        ipcRenderer.send('registerShortcut', localStorage.CUTCODE || 'Alt+A')
       }
       // 检查更新
       if (localStorage.APPVERSIONS) {
