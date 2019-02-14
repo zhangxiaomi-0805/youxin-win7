@@ -386,6 +386,7 @@ export default {
     },
     recove () {
       this.cutCode = 'Alt + A'
+      localStorage.setItem('CUTCODE', this.cutCode)
       if (config.environment !== 'web') {
         // 通知主进程注册事件
         const ipcRenderer = require('electron').ipcRenderer

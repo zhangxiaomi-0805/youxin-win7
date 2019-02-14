@@ -43,7 +43,7 @@
           </div>
           <!-- 截图 -->
           <div v-if="!isRobot" class="u-editor-icon" style="position: relative;"
-            @mouseover="showShotPrompt = true"
+            @mouseover="showShotPromptFn"
             @mouseout="showShotPrompt = false"
           >
             <a class="b-common b-screenshot" @click="screenShot"/>
@@ -55,7 +55,7 @@
             <transition name="fade">
               <div v-if="showShotPrompt" :class="isXP ? 'prompt shotPrompt':'prompt'">
                 <div :class="isXP ? 'shotTriangle triangle_border_down':'triangle_border_down'"></div>
-                {{isXP ? '截图(Alt+A),粘贴(Ctrl+V)' : '截图(Alt+A)'}}
+                <div style="display: inline-block;white-space: nowrap;">{{isXP ? `截图(${cutCode}),粘贴(Ctrl+V)` : `截图(${cutCode})`}}</div>
               </div>
             </transition>
             <!-- 截屏时隐藏当前窗口设置 -->
@@ -101,7 +101,7 @@
 
         <!-- 短信发送鼠标悬停时，显示的提示框 -->
         <transition name="fade">
-          <div v-if="showPrompt" class="prompt">
+          <div v-if="showPrompt" class="prompt" style="right: 25px;">
             <div class="triangle_border_down"></div>
             用短信发送
           </div>
@@ -265,7 +265,8 @@
         showHideWin: false,
         showHideWinCheck: localStorage.SHOWHIDEWINCHECK,
         isXP: config.environment === 'web',
-        showShotPrompt: false
+        showShotPrompt: false,
+        cutCode: localStorage.CUTCODE || 'Alt + A'
       }
     },
     computed: {
@@ -1372,6 +1373,10 @@
             this.$refs.editDiv.scrollTop = this.$refs.editDiv.scrollHeight
           }, 0)
         }
+      },
+      showShotPromptFn () {
+        this.showShotPrompt = true
+        this.cutCode = localStorage.CUTCODE || 'Alt + A'
       }
     }
   }
@@ -1379,14 +1384,14 @@
 
 <style scoped>
   .prompt {
-    width: 76px;
     height: 25px;
     line-height: 25px;
     position: absolute;
     z-index: 1005;
-    right: 25px;
+    right: -25px;
     top: -25px;
     background: #fff;
+    padding: 0 5px;
     border: 1px solid #D9D9D9;
     border-radius: 2px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
@@ -1395,7 +1400,6 @@
     text-align: center;
   }
   .shotPrompt {
-    width: 150px;
     right: -58px;
     top: -30px;
   }
