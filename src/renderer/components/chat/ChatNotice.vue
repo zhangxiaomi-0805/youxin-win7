@@ -319,7 +319,6 @@
       addTeamMember () {
         // 添加成员
         this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-        console.log(this.teamInfo)
         let params = {
           type: 3,
           teamId: this.teamId,

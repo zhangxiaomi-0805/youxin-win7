@@ -252,18 +252,17 @@ export default {
     },
     addTeamMember () {
       if (this.type === 3) {
-        if (this.isNormal) {
-          // 普通成员邀请人入群
-          this.sendCustomMsg()
-          return false
-        }
-        console.log(this.chooselist.length + '======' + this.memberNum + '=========' + this.teamMaxNum)
         if ((this.chooselist.length + this.memberNum) > this.teamMaxNum) {
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
             toastText: '无法操作，群人数已达上限200人'
           })
+          return false
+        }
+        if (this.isNormal) {
+          // 普通成员邀请人入群
+          this.sendCustomMsg()
           return false
         }
       }
