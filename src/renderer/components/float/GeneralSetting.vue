@@ -680,12 +680,13 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 102px;
+    min-width: 102px;
     height: 24px;
     border-radius:1px;
     border:1px solid rgba(229,229,229,1);
     font-size: 12px;
     color: #333;
+    padding: 0 8px;
     margin-left: 15px;
     cursor: pointer;
   }

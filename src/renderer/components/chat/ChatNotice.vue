@@ -319,14 +319,24 @@
       addTeamMember () {
         // 添加成员
         this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
-        this.eventBus.$emit('selectOrgnize', {
+        console.log(this.teamInfo)
+        let params = {
           type: 3,
           teamId: this.teamId,
           teamAvatarUrl: this.teamInfo.teamAvatar,
           teamName: this.teamInfo.name,
           isDiscussGroup: this.isDiscussGroup,
-          isNormal: this.power === 'normal'
-        })
+          isNormal: this.power === 'normal',
+          memberNum: this.memberList.length
+        }
+        let custom = this.teamInfo.custom
+        if (custom) {
+          custom = JSON.parse(custom)
+          if (custom.teamMaxNum) {
+            params.teamMaxNum = custom.teamMaxNum
+          }
+        }
+        this.eventBus.$emit('selectOrgnize', params)
       },
       removeTeamMember () {
         // 移出成员

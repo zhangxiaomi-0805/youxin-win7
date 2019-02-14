@@ -73,6 +73,7 @@ export default {
       this.teamName = data.teamName || ''
       this.teamAvatarUrl = data.teamAvatarUrl || configs.defaultGroupIcon
       this.memberNum = data.memberNum || 0
+      this.teamMaxNum = data.teamMaxNum || 200
       this.msg = data.msg || ''
       this.isNormal = data.isNormal
       if (data.isDiscussGroup) this.isDiscussGroup = true
@@ -92,7 +93,9 @@ export default {
       msg: '',
       isDiscussGroup: false,
       isNormal: null,
-      isXp: false
+      isXp: false,
+      memberNum: 0,
+      teamMaxNum: 200
     }
   },
   computed: {
@@ -169,13 +172,14 @@ export default {
         this.errToast()
         return
       }
-      if (this.type === 2 || this.type === 4) {
+      if (this.type < 5) {
         let limit = this.type === 2 ? 199 : 200
         if (this.chooselist.length > limit) {
+          let toast = this.type === 1 ? '群' : '讨论组'
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
-            toastText: '无法操作，讨论组人数已达上限200人'
+            toastText: `无法操作，${toast}人数已达上限200人`
           })
           this.loading = false
           return
@@ -247,10 +251,21 @@ export default {
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
     },
     addTeamMember () {
-      if (this.type === 3 && this.isNormal) {
-        // 普通成员邀请人入群
-        this.sendCustomMsg()
-        return false
+      if (this.type === 3) {
+        if (this.isNormal) {
+          // 普通成员邀请人入群
+          this.sendCustomMsg()
+          return false
+        }
+        console.log(this.chooselist.length + '======' + this.memberNum + '=========' + this.teamMaxNum)
+        if ((this.chooselist.length + this.memberNum) > this.teamMaxNum) {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '无法操作，群人数已达上限200人'
+          })
+          return false
+        }
       }
       if (this.isDiscussGroup) {
         let orgDisabledlist = this.$store.state.orgDisabledlist
