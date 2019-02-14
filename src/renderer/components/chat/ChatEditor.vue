@@ -42,13 +42,22 @@
             <a class="b-common b-emoji"/>
           </div>
           <!-- 截图 -->
-          <div v-if="!isRobot" class="u-editor-icon" style="position: relative;">
-            <a class="b-common b-screenshot" @click="screenShot" :title="isXp ? '' : '截图(Alt + A)'"/>
+          <div v-if="!isRobot" class="u-editor-icon" style="position: relative;"
+            @mouseover="showShotPrompt = true"
+            @mouseout="showShotPrompt = false"
+          >
+            <a class="b-common b-screenshot" @click="screenShot"/>
             <a
-              v-if="!isXp"
               class="quick-send noevent" 
               @click="showHideWin = true" 
               style="width: 8px;position: absolute;right: -10px; top: 10px;" />
+            <!-- 截屏鼠标悬停时，显示的提示框 -->
+            <transition name="fade">
+              <div v-if="showShotPrompt" :class="isXP ? 'prompt shotPrompt':'prompt'">
+                <div :class="isXP ? 'shotTriangle triangle_border_down':'triangle_border_down'"></div>
+                {{isXP ? '截图(Alt+A),粘贴(Ctrl+V)' : '截图(Alt+A)'}}
+              </div>
+            </transition>
             <!-- 截屏时隐藏当前窗口设置 -->
             <transition name="fade">
               <div 
@@ -179,6 +188,9 @@
     },
     mounted () {
       if (config.environment === 'web') { // web分支
+        this.eventBus.$on('screenShot', () => {
+          this.screenShot()
+        })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('screenShotCb', (evt, arg) => {
@@ -250,9 +262,10 @@
         atRange: null,
         atAccounts: [],
         rangeInfo: null,
-        isXp: config.environment === 'web',
         showHideWin: false,
-        showHideWinCheck: localStorage.SHOWHIDEWINCHECK
+        showHideWinCheck: localStorage.SHOWHIDEWINCHECK,
+        isXP: config.environment === 'web',
+        showShotPrompt: false
       }
     },
     computed: {
@@ -371,7 +384,13 @@
       },
       screenShot () {
         if (config.environment === 'web') { // web分支
-          NativeLogic.native.screenShot()
+          if (localStorage.SHOWHIDEWINCHECK) {
+            NativeLogic.native.setWinStatus('main', 6).then(res => {
+              NativeLogic.native.screenShot()
+            }) // 截屏前隐藏该窗口
+          } else {
+            NativeLogic.native.screenShot()
+          }
         } else { // electron分支
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('screenShot', { hideWin: localStorage.SHOWHIDEWINCHECK })
@@ -1353,6 +1372,11 @@
     color: #888893;
     text-align: center;
   }
+  .shotPrompt {
+    width: 150px;
+    right: -58px;
+    top: -30px;
+  }
   .triangle_border_down{
     width:0;
     height:0;
@@ -1362,6 +1386,9 @@
     position: absolute;
     top: 25px;
     right: 28px;
+  }
+  .shotTriangle {
+    right: 60px;
   }
   .g-window .m-chat-editor {
     position: absolute;
