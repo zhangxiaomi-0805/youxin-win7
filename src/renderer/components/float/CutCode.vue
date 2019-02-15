@@ -94,7 +94,7 @@ export default {
         let isShift = false
         let isAlt = true
         let virtualKey = 'A'
-        let cutCode = this.setCutCode.replace(/\s+/g,"") // 去除所有空格
+        let cutCode = this.setCutCode.replace(/\s+/g, '') // 去除所有空格
         let codeArr = cutCode.split('+')
         if (codeArr.indexOf('Shift') > -1) {
           isShift = true
@@ -111,9 +111,8 @@ export default {
         } else {
           isAlt = false
         }
-        virtualKey = codeArr[codeArr.length-1]
+        virtualKey = codeArr[codeArr.length - 1]
         NativeLogic.native.setCaptureHotkey(isCtrl, isShift, isAlt, virtualKey).then(res => {
-         console.log(res)
         }).catch(() => {
           this.$store.commit('toastConfig', {
             show: true,

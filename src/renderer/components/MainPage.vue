@@ -82,7 +82,6 @@
         // 点击右下角退出按钮时的通知--这里是隐藏
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
           NativeLogic.native.setWinStatus('main', 6).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
-            console.log(res)
           }).catch(err => console.log(err))
         })
 
@@ -108,12 +107,10 @@
         let isShift = false
         let isAlt = true
         let virtualKey = 'A'
-        if(localStorage.CUTCODE){
+        if (localStorage.CUTCODE) {
           let cutCode = localStorage.CUTCODE
-          cutCode = cutCode.replace(/\s+/g,"") // 去除所有空格
-          console.log(cutCode)
+          cutCode = cutCode.replace(/\s+/g, '') // 去除所有空格
           let codeArr = cutCode.split('+')
-          console.log(codeArr)
           if (codeArr.indexOf('Shift') > -1) {
             isShift = true
           } else {
@@ -129,14 +126,9 @@
           } else {
             isAlt = false
           }
-          virtualKey = codeArr[codeArr.length-1]
+          virtualKey = codeArr[codeArr.length - 1]
         }
-        console.log(isShift)
-        console.log(isCtrl)
-        console.log(isAlt)
-        console.log(virtualKey)
         NativeLogic.native.setCaptureHotkey(isCtrl, isShift, isAlt, virtualKey).then(res => {
-          console.log(res)
         }).catch(() => {
           this.$store.commit('toastConfig', {
             show: true,
@@ -146,7 +138,6 @@
         })
         // 监听截屏快捷键方法
         window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveHotkeyEvent', (params) => {
-          console.log('监听截屏快捷键方法===========')
           this.eventBus.$emit('screenShot')
         })
       } else { // electron分支
