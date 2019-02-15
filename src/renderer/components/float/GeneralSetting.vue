@@ -158,6 +158,7 @@
 import util from '../../utils'
 import config from '../../configs'
 import Request from '../../utils/request.js'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'general-setting',
   data () {
@@ -391,6 +392,15 @@ export default {
         // 通知主进程注册事件
         const ipcRenderer = require('electron').ipcRenderer
         ipcRenderer.send('registerShortcut', this.cutCode)
+      } else {
+        NativeLogic.native.setCaptureHotkey(false, false, true, 'A').then(res => {
+        }).catch(() => {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '截屏快捷键设置失败！'
+          })
+        })
       }
     }
   }
