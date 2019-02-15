@@ -16,6 +16,7 @@
 
 <script>
 import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'cut-code',
   data () {
@@ -87,6 +88,39 @@ export default {
         // 通知主进程注册事件
         const ipcRenderer = require('electron').ipcRenderer
         ipcRenderer.send('registerShortcut', this.setCutCode)
+      } else {
+        // 设置截屏快捷键
+        let isCtrl = false
+        let isShift = false
+        let isAlt = true
+        let virtualKey = 'A'
+        let cutCode = this.setCutCode.replace(/\s+/g,"") // 去除所有空格
+        let codeArr = cutCode.split('+')
+        if (codeArr.indexOf('Shift') > -1) {
+          isShift = true
+        } else {
+          isShift = false
+        }
+        if (codeArr.indexOf('Ctrl') > -1) {
+          isCtrl = true
+        } else {
+          isCtrl = false
+        }
+        if (codeArr.indexOf('Alt') > -1) {
+          isAlt = true
+        } else {
+          isAlt = false
+        }
+        virtualKey = codeArr[codeArr.length-1]
+        NativeLogic.native.setCaptureHotkey(isCtrl, isShift, isAlt, virtualKey).then(res => {
+         console.log(res)
+        }).catch(() => {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '截屏快捷键设置失败！'
+          })
+        })
       }
       this.closeModal()
     }
