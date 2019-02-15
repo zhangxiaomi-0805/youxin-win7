@@ -81,7 +81,6 @@
         NativeLogic.native.setWindowIcon(AppDirectory + '/dist/static/img/systry-logo.png') // 设置窗口图标
         // 点击右下角退出按钮时的通知--这里是隐藏
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
-          console.log('监听窗口退出======')
           NativeLogic.native.setWinStatus('main', 6).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
             console.log(res)
           }).catch(err => console.log(err))
@@ -104,20 +103,51 @@
           }
         })
 
-        // 设置截屏快捷键
-        NativeLogic.native.setCaptureHotkey(false, false, true, 'A').then(res => {
-          if (res) {
-            // 监听截屏快捷键方法
-            window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveHotkeyEvent', (params) => {
-              this.eventBus.$emit('screenShot')
-            })
+        // 初始化设置截屏快捷键
+        let isCtrl = false
+        let isShift = false
+        let isAlt = true
+        let virtualKey = 'A'
+        if(localStorage.CUTCODE){
+          let cutCode = localStorage.CUTCODE
+          cutCode = cutCode.replace(/\s+/g,"") // 去除所有空格
+          console.log(cutCode)
+          let codeArr = cutCode.split('+')
+          console.log(codeArr)
+          if (codeArr.indexOf('Shift') > -1) {
+            isShift = true
+          } else {
+            isShift = false
           }
+          if (codeArr.indexOf('Ctrl') > -1) {
+            isCtrl = true
+          } else {
+            isCtrl = false
+          }
+          if (codeArr.indexOf('Alt') > -1) {
+            isAlt = true
+          } else {
+            isAlt = false
+          }
+          virtualKey = codeArr[codeArr.length-1]
+        }
+        console.log(isShift)
+        console.log(isCtrl)
+        console.log(isAlt)
+        console.log(virtualKey)
+        NativeLogic.native.setCaptureHotkey(isCtrl, isShift, isAlt, virtualKey).then(res => {
+          console.log(res)
         }).catch(() => {
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
             toastText: '截屏快捷键设置失败！'
           })
+        })
+        // 监听截屏快捷键方法
+        window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveHotkeyEvent', (params) => {
+          console.log('监听截屏快捷键方法===========')
+          this.eventBus.$emit('screenShot')
         })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
