@@ -42,6 +42,11 @@ export default {
       })
     }
   },
+  watch: {
+    isWindowMax (value) {
+      this.eventBus.$emit('imgModalSizeCtrl')
+    }
+  },
   methods: {
     onClose () {
       if (localStorage.CLOSEMETHOD && (JSON.parse(localStorage.CLOSEMETHOD) === 2)) {

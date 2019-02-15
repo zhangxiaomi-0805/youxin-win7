@@ -6,11 +6,13 @@
       <li
         class="list-item"
         v-for="msg in searchlist"
-        :key="msg.id"
-        :id="msg.id"
-        @click.stop="isSearchCheckMore ? checkItemFn(msg) : locationToMsg(msg, true)"
+        :key="msg.idClient"
+        :id="msg.idClient"
+        @click.stop="isSearchCheckMore ? checkItemFn(msg) : null"
+        @mouseenter="idClient = msg.idClient"
+        @mouseleave="idClient = ''"
       >
-        <div  class="list-item">
+        <div class="list-item" style="position: relative;">
           <div class="left">
             <!-- 选择框 -->
             <span v-show="isSearchCheckMore" :class="className(msg)"></span>
@@ -26,7 +28,7 @@
                 class="searchValue"
                 style="-webkit-user-select: text"
                 v-html="msg.showText"
-                @click="openAplWindow($event, msg.sessionId)"
+                @click.stop="openAplWindow($event, msg.sessionId)"
               />
               <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
               <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
@@ -44,6 +46,7 @@
           </div>
           <!-- 时间 -->
           <div style="font-size:12px; color:#999">{{manageTime(msg.time)}}</div>
+          <a v-if="idClient === msg.idClient " class="check-more" @click.stop="locationToMsg(msg, true)">查看上下文</a>
         </div>
       </li>
     </ul>
@@ -85,7 +88,8 @@
         beforeValue: '', // 上一次输入的值，做延时搜索
         searchlist: [],
         isPlay: false,
-        msgsTemp: []
+        msgsTemp: [],
+        idClient: ''
       }
     },
     watch: {
@@ -505,6 +509,14 @@
   .list-item .checked {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 15px 15px;
+  }
+
+  .check-more {
+    position: absolute;
+    right: 16px;
+    top: 26px;
+    font-size: 12px;
+    color: #333;
   }
 </style>
 

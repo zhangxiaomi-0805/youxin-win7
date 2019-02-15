@@ -524,7 +524,7 @@ export default {
     } else if (type === 'reset') {
       // 聊天记录重置会话
       state.msgs[obj.sessionId] = obj.msgs
-      state.currSessionMsgs = obj.msgs
+      // state.currSessionMsgs = obj.msgs
     }
   },
   updateSysMsgs (state, sysMsgs) {

@@ -3,9 +3,11 @@
   <!-- 图片查看组件 -->
   <div class="m-selectcontact-contain" v-if="showImgModal">
     <div class="m-selectcontact-cover"></div>
-    <div class="m-imgMd" style="width:624px;height:468px;">
-      <div class="u-caption" id="imgModalDrag">
+    <div class="m-imgMd" :style="{width: modalWidth + 'px', height: modalHeight + 'px'}">
+      <div class="u-caption" id="imgModalDrag" @dblclick="resizeModal">
           <div class="u-sysbtn">
+            <a class="btn-max" @click="onMax" v-if="!isImageModalMax"/>
+            <a class="btn-restore" @click="onRestore" v-else-if="isImageModalMax"/>
             <a class="btn-close" @click="onCloseModal"/>
           </div>
       </div>
@@ -79,8 +81,15 @@ export default {
       transition: '',
       zIndex: 70,
       canManage: false,
-      isReverse: false
+      isReverse: false,
+      // modal大小控制相关
+      isImageModalMax: false,
+      modalWidth: 624,
+      modalHeight: 468
     }
+  },
+  mounted () {
+    this.eventBus.$on('imgModalSizeCtrl', () => this.onRestore())
   },
   watch: {
     currentIndex: function () {
@@ -335,6 +344,38 @@ export default {
       this.imgTop = (this.bodyH / 2)
       this.imgLeft = (this.bodyW / 2)
       this.isReverse = false
+    },
+    onMax () {
+      // 图片查看器放大
+      this.isImageModalMax = true
+      this.modalWidth = window.innerWidth * 0.78
+      this.modalHeight = window.innerHeight * 0.82
+      this.bodyW = this.modalWidth
+      this.bodyH = this.modalHeight - 28
+      this.resetImg()
+      this.positionReset()
+    },
+    onRestore () {
+      // 图片查看器还原
+      this.isImageModalMax = false
+      this.modalWidth = 624
+      this.modalHeight = 468
+      this.bodyH = 440
+      this.bodyW = 624
+      this.resetImg()
+      this.positionReset()
+    },
+    positionReset () {
+      let dom = document.getElementById('imgModalDrag')
+      dom.parentNode.style.left = '50%'
+      dom.parentNode.style.top = '50%'
+    },
+    resizeModal () {
+      if (this.modalWidth === 624 && this.modalHeight === 468) {
+        this.onMax()
+      } else {
+        this.onRestore()
+      }
     }
   }
 }
@@ -366,7 +407,7 @@ export default {
     position: relative;
     z-index: 110;
     overflow: hidden;
-    height: 440px;
+    height: 96%;
     width: 100%;
     background: #fff;
     margin-top: 29px;

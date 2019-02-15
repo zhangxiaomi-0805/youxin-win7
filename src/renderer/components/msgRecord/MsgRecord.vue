@@ -84,8 +84,7 @@
               :idClient="msg.idClient"
               :isRobot="isRobot"
               :userInfos="userInfos"
-              :myInfo="myInfo"
-              :closeCover="closeCover"/>
+              :myInfo="myInfo"/>
           </ul>
           <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
             <msg-item
@@ -100,8 +99,7 @@
               :idClient="msg.idClient"
               :isRobot="isRobot"
               :userInfos="userInfos"
-              :myInfo="myInfo"
-              :closeCover="closeCover"/>
+              :myInfo="myInfo"/>
           </ul>
           <ul v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
             <msg-item
@@ -116,8 +114,7 @@
               :idClient="msg.idClient"
               :isRobot="isRobot"
               :userInfos="userInfos"
-              :myInfo="myInfo"
-              :closeCover="closeCover"/>
+              :myInfo="myInfo"/>
           </ul>
           <!-- 搜索结果 -->
           <search-msg
@@ -554,7 +551,6 @@
         switch (value) {
           case 'forword':
             let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
-            console.log(this.checkedMsgList)
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
             // 状态重置
             this.reset()
