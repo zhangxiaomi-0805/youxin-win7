@@ -203,6 +203,10 @@
       }
     },
     computed: {
+      currSessionMsgs () {
+        let currSessionMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
+        return currSessionMsgs
+      },
       myPhoneId () {
         return `${this.$store.state.userUID}`
       },
@@ -268,7 +272,7 @@
       allMsgList () {
         let allList = []
         let allMsgList = []
-        let currSessionMsgs = this.$store.state.currSessionMsgs
+        let currSessionMsgs = this.currSessionMsgs
         if (this.date) {
           currSessionMsgs = this.$store.state.currSessionHistoryMsgs
         }
@@ -290,7 +294,7 @@
       imageMsgList () {
         let imageAllList = []
         let imageMsgList = []
-        this.$store.state.currSessionMsgs.map((item, index) => {
+        this.currSessionMsgs.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'image') {
             imageAllList.unshift(item)
@@ -308,7 +312,7 @@
       fileMsgList () {
         let allFileList = []
         let fileMsgList = []
-        this.$store.state.currSessionMsgs.map((item, index) => {
+        this.currSessionMsgs.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'file') {
             allFileList.unshift(item)
