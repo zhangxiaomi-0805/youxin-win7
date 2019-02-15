@@ -97,8 +97,14 @@
       this.getMembers()
     },
     updated () {
-      if (this.$route.query.firstFlag && this.$store.state.currSessionId !== this.sessionId) {
+      if ((this.$route.query.firstFlag && this.$store.state.currSessionId !== this.sessionId)) {
         this.sessionInit()
+      }
+      if (this.$route.query.isReset) {
+        // 从历史纪录消息跳转
+        this.sessionInit()
+        let dom = document.getElementById('chat-list')
+        if (dom) dom.scrollTop = 0
       }
       if (this.msglist.length > 10 || !this.canLoadMore) {
         this.$nextTick(() => {
@@ -372,6 +378,7 @@
         this.$store.dispatch('setCurrSession', this.sessionId)
         this.$store.dispatch('resetNoMoreHistoryMsgs')
         this.$route.query.firstFlag = false
+        this.$route.query.isReset = false
         if (this.noInit) return
         let dom = document.getElementById('chat-list')
         if (dom) {

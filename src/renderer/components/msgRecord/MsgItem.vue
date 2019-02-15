@@ -1,7 +1,7 @@
 <template>
   <li 
     class="list-item"
-    @click.stop="isCheckMore ? checkItemFn(msg) : null"
+    @click.stop="isCheckMore ? checkItemFn(msg) : locationToMsg(msg, true)"
   >
     <div  class="list-item">
       <div 
@@ -83,6 +83,7 @@ import config from '../../configs'
 import MsgRecordFn from './msgRecord.js'
 import NativeLogic from '../../utils/nativeLogic.js'
 import getFile from '../../utils/getFile.js'
+import SearchData from '../search/search.js'
 export default {
   name: 'msg-item',
   props: {
@@ -121,13 +122,15 @@ export default {
       default () {
         return false
       }
-    }
+    },
+    closeCover: Function
   },
   data () {
     return {
       isPlay: false,
       currentAudio: null,
-      myGroupIcon: config.defaultGroupIcon
+      myGroupIcon: config.defaultGroupIcon,
+      msgsTemp: []
     }
   },
   computed: {
@@ -141,6 +144,11 @@ export default {
       } else {
         return []
       }
+    }
+  },
+  watch: {
+    $route () {
+      this.msgsTemp = []
     }
   },
   mounted () {
@@ -213,7 +221,9 @@ export default {
       let url = ''
       if (!openType) {
         url = evt.target.getAttribute('data-url')
-        url = url.substr(1, url.length - 2)
+        if (url) {
+          url = url.substr(1, url.length - 2)
+        }
       } else {
         url = evt.url
       }
@@ -512,6 +522,25 @@ export default {
         }
       })
       return status
+    },
+    async locationToMsg (msg, isFirst) {
+      // 跳转到相应消息页面
+      let msgs = []
+      try {
+        msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
+      } catch (error) {}
+      if (isFirst) {
+        msgs.unshift(msg)
+      }
+      this.msgsTemp = this.msgsTemp.concat(msgs)
+      if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
+      else {
+        this.closeCover()
+        let idClient = msg.idClient
+        this.$store.commit('updateMsgHighBgIdClient', idClient)
+        this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
+        this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true, isReset: true}})
+      }
     }
   }
 }

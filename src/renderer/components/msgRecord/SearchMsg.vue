@@ -8,7 +8,7 @@
         v-for="msg in searchlist"
         :key="msg.id"
         :id="msg.id"
-        @click.stop="isSearchCheckMore ? checkItemFn(msg) : null"
+        @click.stop="isSearchCheckMore ? checkItemFn(msg) : locationToMsg(msg, true)"
       >
         <div  class="list-item">
           <div class="left">
@@ -26,7 +26,7 @@
                 class="searchValue"
                 style="-webkit-user-select: text"
                 v-html="msg.showText"
-                @click.stop="openAplWindow($event, msg.sessionId)"
+                @click="openAplWindow($event, msg.sessionId)"
               />
               <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
               <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
@@ -55,12 +55,12 @@
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
   import MsgRecordFn from './msgRecord.js'
+  import SearchData from '../search/search.js'
   export default {
     name: 'search-msg',
     props: {
       shortMsgCheck: Boolean,
       searchValue: String,
-      historyMsgList: Array,
       clearStatus: Function,
       isSearchCheckMore: Boolean,
       sessionId: String,
@@ -76,14 +76,16 @@
         default () {
           return {}
         }
-      }
+      },
+      closeCover: Function
     },
     data () {
       return {
         myGroupIcon: config.defaultGroupIcon,
         beforeValue: '', // 上一次输入的值，做延时搜索
         searchlist: [],
-        isPlay: false
+        isPlay: false,
+        msgsTemp: []
       }
     },
     watch: {
@@ -379,6 +381,23 @@
       },
       openAplWindow (evt, sessionId) {
         MsgRecordFn.openAplWindow(evt, sessionId)
+      },
+      async locationToMsg (msg, isFirst) {
+        // 跳转到相应消息页面
+        let msgs = []
+        try {
+          msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
+        } catch (error) {}
+        isFirst && msgs.unshift(msg)
+        this.msgsTemp = this.msgsTemp.concat(msgs)
+        if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
+        else {
+          this.closeCover()
+          let idClient = msg.idClient
+          this.$store.commit('updateMsgHighBgIdClient', idClient)
+          this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
+          this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true, isReset: true}})
+        }
       }
     }
   }

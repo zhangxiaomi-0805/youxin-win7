@@ -84,7 +84,8 @@
               :idClient="msg.idClient"
               :isRobot="isRobot"
               :userInfos="userInfos"
-              :myInfo="myInfo"/>
+              :myInfo="myInfo"
+              :closeCover="closeCover"/>
           </ul>
           <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
             <msg-item
@@ -99,7 +100,8 @@
               :idClient="msg.idClient"
               :isRobot="isRobot"
               :userInfos="userInfos"
-              :myInfo="myInfo"/>
+              :myInfo="myInfo"
+              :closeCover="closeCover"/>
           </ul>
           <ul v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
             <msg-item
@@ -114,7 +116,8 @@
               :idClient="msg.idClient"
               :isRobot="isRobot"
               :userInfos="userInfos"
-              :myInfo="myInfo"/>
+              :myInfo="myInfo"
+              :closeCover="closeCover"/>
           </ul>
           <!-- 搜索结果 -->
           <search-msg
@@ -129,7 +132,8 @@
             :userInfos="userInfos"
             :myInfo="myInfo"
             :shortMsgCheck="shortMsgCheck"
-            :clearStatus="clearStatus"/>
+            :clearStatus="clearStatus"
+            :closeCover="closeCover"/>
         </div>
       </div>
     </div>
