@@ -353,8 +353,14 @@ export function downloadImg ({state, commit}, file) {
     name: file.name
   })
   var $a = document.createElement('a')
-  $a.setAttribute('href', nameUrl)
-  $a.setAttribute('download', 'image')
+  let decodeUrl = ''
+  if (file.type === 'file') {
+    decodeUrl = decodeURI(file.url)
+  } else {
+    decodeUrl = decodeURI(nameUrl)
+  }
+  $a.setAttribute('href', decodeUrl)
+  $a.setAttribute('download', file.name)
   var evObj = document.createEvent('MouseEvents')
   evObj.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null)
   $a.dispatchEvent(evObj)

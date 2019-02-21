@@ -1094,7 +1094,8 @@
             await getFile(this.downloadUrl || this.msg.localCustom.downloadUrl)
             const file = {
               name: this.msg.file.name,
-              url: this.downloadUrl || this.msg.localCustom.downloadUrl
+              url: this.downloadUrl || this.msg.localCustom.downloadUrl,
+              type: 'file'
             }
             this.$store.dispatch('downloadImg', file)
           } catch (err) {
