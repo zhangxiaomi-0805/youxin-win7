@@ -245,7 +245,7 @@ export default {
       this.loading = true
       // 登录成功后确认原密码
       Request.ConfirmOrigPassword({
-        password: DES.encryptByDES(this.vertifyPassword)
+        password: DES.encryptByDES(this.vertifyPassword, 2)
       }, this).then(ret => {
         this.loading = false
         this.type = this.setType
@@ -339,9 +339,9 @@ export default {
       }
       this.loading = true
       Request.ModifyPassword({
-        password: DES.encryptByDES(this.newPwd),
-        oldPassword: DES.encryptByDES(this.password),
-        confirmPassword: DES.encryptByDES(this.confirmNewPwd)
+        password: DES.encryptByDES(this.newPwd, 2),
+        oldPassword: DES.encryptByDES(this.password, 2),
+        confirmPassword: DES.encryptByDES(this.confirmNewPwd, 2)
       }, this).then(ret => {
         this.loading = false
         this.$store.commit('toastConfig', {
@@ -356,7 +356,7 @@ export default {
         let USERINFO = localStorage.AUTOLOGIN
         if (USERINFO) {
           USERINFO = JSON.parse(USERINFO)
-          USERINFO.password = DES.encryptByDES(this.password)
+          USERINFO.password = DES.encryptByDES(this.password, 2)
           localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
         }
       }).catch((err) => {

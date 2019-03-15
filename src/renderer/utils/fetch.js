@@ -3,6 +3,7 @@
  */
 import configs from '../configs/index'
 import NativeLogic from './nativeLogic'
+import DES from '../utils/des'
 var Fetch = {
   last_url: null
 }
@@ -32,7 +33,10 @@ Fetch.post = async function (url, params, $this, ContentType) {
       break
     }
   }
-  let headers = { 'Content-Type': ContentType, 'platformType': 2, 'Access-Control-Allow-Origin': '*' }
+  let headers = { 'Content-Type': ContentType, 'platformType': 2, 'Access-Control-Allow-Origin': '*', osType: configs.environment === 'web' ? 4 : 3 }
+  if (localStorage.sessionId) {
+    headers['sessionId'] = localStorage.sessionId + ''
+  }
   if (needToken) {
     try {
       if (localStorage.sessionToken) {
@@ -64,7 +68,6 @@ Fetch.post = async function (url, params, $this, ContentType) {
         ipcRenderer.send('relaunch-app')
       }
     }
-    // console.log('http://imapi.eyuntx.com/' + url)
     fetch(configs.postUrl + url, {
       method: 'POST',
       mode: 'cors',
@@ -78,10 +81,18 @@ Fetch.post = async function (url, params, $this, ContentType) {
     }).then((respResult) => {
       switch (respResult.code) {
         case 200: // 成功
-          resolve(respResult.ret)
+          if (respResult.retJson) {
+            let retJson = DES.decryptByDESModeEBC(respResult.retJson, url === 'api/appPc/login/auth' ? 1 : 3)
+            try {
+              retJson = JSON.parse(retJson)
+            } catch (error) { console.log(error) }
+            resolve(retJson)
+          } else {
+            resolve(respResult.ret)
+          }
           break
         case 412: // 账号未激活---去设置新密码
-          resolve({ type: 'setPassword' })
+          resolve({ type: 'setPassword', secret: respResult.ret })
           break
         case 404: // 请求资源不存在
           resolve({ msg: '请求资源不存在' })

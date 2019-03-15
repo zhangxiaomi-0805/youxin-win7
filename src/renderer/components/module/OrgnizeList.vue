@@ -55,7 +55,6 @@
         let leftDom = document.getElementById('resize-side-lf')
         let leftWidth = (leftDom.style.width).split('px')[0]
         let percent = ((Number(leftWidth) + 70) / Number(configs.mainWinWidth)).toFixed(2) // 70----最左边导航宽，为固定宽
-        console.log(percent)
         /**
         * @params:  percent, // 左边占整个应用的百分比：如：0.3
         * * */

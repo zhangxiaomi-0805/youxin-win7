@@ -1269,5 +1269,9 @@ export default {
         localCustom: currSession.localCustom
       })
     }
+  },
+  updateCurrentUserSecret (state, secret) {
+    // 更新当前登录用户密钥
+    state.currentUserSecret = secret
   }
 }

@@ -171,5 +171,7 @@ export default {
   // 当前音频消息播放状态
   currentMsgPlay: {},
   // 当前会话云端历史消息
-  currSessionHistoryMsgs: []
+  currSessionHistoryMsgs: [],
+  // 当前用户对应的密钥
+  currentUserSecret: 'asdasdhhq192hd1f'
 }

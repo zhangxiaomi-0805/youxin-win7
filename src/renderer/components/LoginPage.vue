@@ -38,32 +38,47 @@
           </div>
 
           <!-- 密码 -->
-          <div  :class="password ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
+          <div :class="password ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'" ref="loginIpt">
             <input
               type="password"
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;"
               maxlength="32"
               v-model="password"
-              placeholder="请输入密码"
+              placeholder="请输入密码"/>
+          </div>
+
+          <!-- 图形验证码 -->
+          <div :class="verifyCodeImg ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'">
+            <input
+              type="password"
+              class="ipt"
+              style="fontSize: 19px;letterSpacing: 2px;width: 60%"
+              maxlength="4"
+              v-model="verifyCodeImg"
+              placeholder="请输入图形验证码"
               @keyup="keyToNext($event, 1)"/>
+              <a style="width: 60%; height: 70%; text-align: right" @click="verifyCodeUrlCtrl('')">
+                <img style="width: 80%;height: 100%" :src="verifyCodeUrl"/>
+              </a>
           </div>
 
           <div class="m-login-ctl">
             <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
-            <a
+            <span></span>
+            <!-- <a
               @click="autoLogin = !autoLogin, isRember = true"
               @mouseover="showPrompt = true"
               @mouseout="showPrompt = false"
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
-            </a>
+            </a> -->
             <a @click="isRember = !isRember,autoLogin = autoLogin ? false : false">
               <span :class="isRember ||  autoLogin ? 'common checked' : 'common check'"></span><span>记住密码</span>
             </a>
           </div>
 
-          <login-button :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password"  :callBack="login"/>
+          <login-button style="margin-top: 5px" :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password || !verifyCodeImg"  :callBack="login"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
 
         </div>
@@ -143,7 +158,9 @@
         befObj: {},
         showModal: false,
         selectedId: 0, // 历史账号当前选中的id
-        rememberAccount: [] // 保存记住用户的信息
+        rememberAccount: [], // 保存记住用户的信息
+        verifyCodeImg: '', // 图形验证码
+        verifyCodeUrl: ''
       }
     },
     computed: {
@@ -167,7 +184,7 @@
           this.loading = true
           this.autoLogin = true
           this.account = USERINFO.account
-          this.password = DES.decryptByDESModeEBC(USERINFO.password)
+          this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
           this.isRember = true
           this.login(1)
         } else {
@@ -180,9 +197,15 @@
         this.account = loginInfo.account
         this.isRember = loginInfo.isRember
         if (loginInfo.isRember) {
-          this.password = DES.decryptByDESModeEBC(loginInfo.password)
+          this.password = DES.decryptByDESModeEBC(loginInfo.password, 2)
         }
       }
+      // 获取sessionId
+      Request.GetSessionId({}, (value) => {
+        this.verifyCodeUrlCtrl(value)
+      })
+      // 更新本地缓存secret
+      IndexedDB.getItem('userSecret', 1).then(data => data && this.$store.commit('updateCurrentUserSecret', data.secret)).catch(() => {})
     },
     methods: {
       keyToNext (e, type) {
@@ -235,7 +258,7 @@
       },
       selectAccount (item) {
         this.account = item.account
-        this.password = DES.decryptByDESModeEBC(item.password)
+        this.password = DES.decryptByDESModeEBC(item.password, 2)
         this.isRember = item.isRember
         this.showModal = false
         this.autoLogin = item.autoLogin
@@ -260,8 +283,8 @@
         // 设置新密码
         let params = {
           account: this.account,
-          password: DES.encryptByDES(this.newPassword),
-          confirmPassword: DES.encryptByDES(this.confirmPassword)
+          password: DES.encryptByDES(this.newPassword, 2),
+          confirmPassword: DES.encryptByDES(this.confirmPassword, 2)
         }
         Request.ResetPassword(params, this).then(ret => {
           if (ret) {
@@ -279,7 +302,7 @@
         if (this.errMsg) {
           this.errMsg = ''
         }
-        if (!(this.account && this.password)) return
+        if (!(this.account && this.password && this.verifyCodeImg)) return
         /**
          * type===1,直接密码登录，type===2,首次登录密码激活后登录
          *  */
@@ -300,12 +323,18 @@
         // 登录鉴权
         Request.LoginAuth({
           account: this.account,
-          password: DES.encryptByDES(this.password)
+          password: DES.encryptByDES(this.password, 2),
+          verifyCode: this.verifyCodeImg
         }, this).then(ret => {
+          // 动态密钥设置
           if (ret.type === 'setPassword') {
+            this.$store.commit('updateCurrentUserSecret', ret.secret)
+            IndexedDB.setItem('userSecret', { secret: ret.secret }, 1)
             this.type = 'setPassword'
             this.loading = false
           } else {
+            this.$store.commit('updateCurrentUserSecret', ret.secretKey)
+            IndexedDB.setItem('userSecret', { secret: ret.secretKey }, 1)
             localStorage.setItem('sessionToken', ret.token)
             this.loginPC(ret.userInfo)
           }
@@ -372,7 +401,7 @@
                 if (this.autoLogin && !localStorage.AUTOLOGIN) {
                   let USERINFO = {
                     account: this.account,
-                    password: DES.encryptByDES(this.password),
+                    password: DES.encryptByDES(this.password, 2),
                     dateTime: new Date().getTime()
                   }
                   this.isRember = true
@@ -381,7 +410,7 @@
                 // 记住账户
                 let loginInfo = {
                   account: this.account,
-                  password: DES.encryptByDES(this.password),
+                  password: DES.encryptByDES(this.password, 2),
                   isRember: this.isRember,
                   autoLogin: this.autoLogin
                 }
@@ -391,7 +420,7 @@
                   let accountInfo = {
                     id: ret.accid,
                     account: this.account,
-                    password: DES.encryptByDES(this.password),
+                    password: DES.encryptByDES(this.password, 2),
                     isRember: true,
                     autoLogin: this.autoLogin
                   }
@@ -443,6 +472,12 @@
         this.isForget = true
         this.isActive = false
         this.password = ''
+      },
+      verifyCodeUrlCtrl (sessionId) {
+        // 获取图形验证码
+        let currentDate = new Date().getTime()
+        sessionId = sessionId || localStorage.sessionId
+        this.verifyCodeUrl = config.postUrl + 'api/appPc/getVerifyCode?sessionId=' + sessionId + '&&time=' + currentDate
       }
     }
   }
@@ -479,8 +514,8 @@
   }
 
   .m-login-con .m-login-logo img {
-    width: 140px;
-    height: 140px;
+    width: 130px;
+    height: 130px;
   }
 
   .m-login-con .m-login-type {
