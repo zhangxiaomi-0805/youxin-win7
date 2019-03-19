@@ -11,9 +11,9 @@
       </transition>
       <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div>
-        <div class="nick" :title="userInfos.nick || userInfos.name"
-          @mouseup.stop="userInfos.nick || userInfos.name ? showListOptions($event, userInfos.nick || userInfos.name, 'copy_0') : null"
-        >{{userInfos.nick || userInfos.name}}</div>
+        <div class="nick" :title="userInfos.name"
+          @mouseup.stop="userInfos.name ? showListOptions($event, userInfos.name, 'copy_0') : null"
+        >{{userInfos.name}}</div>
         <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px"
           @mouseover="showPrompt = true"
           @mouseout="showPrompt = false"
@@ -39,10 +39,10 @@
       >{{userInfos.phone}}</span>
     </div>
     <div class="user-tel"><span>电话</span>
-      <span class="line" :title="userInfos.tel"
-        @mouseup.stop="userInfos.tel ? showListOptions($event, userInfos.tel, 'copy_4') : null"
+      <span class="line" :title="userInfos.telephone"
+        @mouseup.stop="userInfos.tel ? showListOptions($event, userInfos.telephone, 'copy_4') : null"
         ref="copy_4"
-      >{{userInfos.tel}}</span>
+      >{{userInfos.telephone}}</span>
     </div>
     <div class="user-tel"><span>邮箱</span>
       <span class="line" :title="userInfos.email"
@@ -91,6 +91,7 @@ export default {
         Request.GetUserInfo({}, this)
           .then(ret => {
             if (ret) {
+              console.log(ret)
               this.height = '439px'
               this.userInfos = ret
               this.isSelf = true
@@ -100,19 +101,24 @@ export default {
           }).catch(() => {
           })
       } else if (data.userInfos) {
-        this.userInfos = data.userInfos || {}
+        console.log('打开名片222222222======')
+        console.log(data.userInfos)
+        console.log(data.userInfos.accid || data.userInfos.account)
         // 打开他人名片
         let params = [
           {
             tag: data.userInfos.tag || 0,
-            accid: data.userInfos.account
+            accid: data.userInfos.accid || data.userInfos.account
           }
         ]
+        console.log(params)
         Request.PullUserInfo(params, this)
           .then(ret => {
             if (ret) {
+              console.log('请求结果==============')
+              console.log(ret)
               this.$store.commit('updateContactslist', {data: ret, type: 'update'})
-              this.userInfos = Object.assign(data.userInfos, ret.userList[0])
+              this.userInfos = Object.assign({}, ret.userList[0])
               if (!this.userInfos.avatar) {
                 this.userInfos.avatar = config.defaultUserIcon
               }

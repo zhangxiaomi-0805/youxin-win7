@@ -58,6 +58,7 @@
   import util from '../../utils'
   import SearchMember from '../search/SearchMember'
   import clickoutside from '../../utils/clickoutside.js'
+  import { getPinyin } from '../../utils/pinyin'
   export default {
     name: 'chat-notice',
     directives: {clickoutside},
@@ -122,31 +123,8 @@
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
-          // 用户名按字母大小排序
-          let compare = function (prop) {
-            return function (obj1, obj2) {
-              let val1 = obj1[prop].toLowerCase()
-              let val2 = obj2[prop].toLowerCase()
-              if (val1 < val2) {
-                return -1
-              } else if (val1 > val2) {
-                return 1
-              } else {
-                return 0
-              }
-            }
-          }
-          members.sort(compare('initial')) // 用户名按字母大小排序
-          let arr1 = members.filter(item => {
-            return item.type === 'owner'
-          })
-          let arr2 = members.filter(item => {
-            return item.type === 'manager'
-          })
-          let arr3 = members.filter(item => {
-            return item.type === 'normal'
-          })
-          members = arr1.concat(arr2, arr3) // 按身份排序（群主在最前面，其次是管理员）
+          console.log('初始值=============')
+          console.log(members)
           let needSearchAccounts = []
           if (members) {
             members = members.map(item => {
@@ -157,13 +135,16 @@
                 member.alias = '我'
                 member.avatar = this.$store.state.myInfo.avatar
                 member.isSelf = true
+                member.initial = getPinyin(member.alias, '').slice(0, 1)
               } else if (this.userInfos[member.accid] === undefined) {
                 needSearchAccounts.push(member.accid)
                 member.avatar = member.avatar || this.avatar
                 member.alias = member.nickInTeam || member.accid
+                member.initial = getPinyin(member.alias, '').slice(0, 1)
               } else {
                 member.avatar = this.userInfos[member.accid].avatar
                 member.alias = this.userInfos[member.accid].alias || member.nickInTeam || this.userInfos[member.accid].nick
+                member.initial = getPinyin(member.alias, '').slice(0, 1)
               }
               return member
             })
@@ -183,6 +164,7 @@
             })
             // 加上自己
             this.onlineMembers = onlineMembers.length + 1
+            members = this.memberListSort(members)
             return members
           }
         } else return []
@@ -217,6 +199,42 @@
       }
     },
     methods: {
+      memberListSort (members) {
+        // let teamMembers = this.$store.state.teamMembers
+        // let members = teamMembers && teamMembers[this.teamId]
+        console.log('用户名按字母大小排序--------------')
+        console.log(members)
+        // 用户名按字母大小排序
+        let compare = function (prop) {
+          return function (obj1, obj2) {
+            let val1 = obj1[prop].toLowerCase()
+            let val2 = obj2[prop].toLowerCase()
+            console.log(val1)
+            console.log(val2)
+            if (val1 < val2) {
+              console.log('111=============')
+              return -1
+            } else if (val1 > val2) {
+              console.log('222=============')
+              return 1
+            } else {
+              return 0
+            }
+          }
+        }
+        members.sort(compare('initial')) // 用户名按字母大小排序
+        let arr1 = members.filter(item => {
+          return item.type === 'owner'
+        })
+        let arr2 = members.filter(item => {
+          return item.type === 'manager'
+        })
+        let arr3 = members.filter(item => {
+          return item.type === 'normal'
+        })
+        members = arr1.concat(arr2, arr3) // 按身份排序（群主在最前面，其次是管理员）
+        return members
+      },
       searchUsers (Accounts) {
         this.$store.dispatch('searchUsers',
           {
