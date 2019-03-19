@@ -88,14 +88,12 @@
         // 监听子窗口通信方法
         window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
           if (params.eventName === 'createSession') {
-              let arg = params.data
-              Request.GetAccid({userName: arg.account}, this).then(ret => {
-                let accid = ret.accid
-                // 根据account 获取 accid 发起会话
-                this.createSession(accid)
-              })
-            // }
-            
+            let arg = params.data
+            Request.GetAccid({userName: arg.account}, this).then(ret => {
+              let accid = ret.accid
+              // 根据account 获取 accid 发起会话
+              this.createSession(accid)
+            })
           }
           if (params.eventName === 'childIsLoaded') {
             // 2、跨窗口通信,等子页面准备完成再发送事件
