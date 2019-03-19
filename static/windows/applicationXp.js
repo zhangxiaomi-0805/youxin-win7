@@ -9,11 +9,13 @@ var TabManage = function () {
 }
 
 TabManage.prototype.init = function () {
+  console.log('页面初始化===========')
   this.PreDef()
   // 监听主窗口通信方法
   window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
     if (params.eventName === 'asyncMessage') {
       let arg = JSON.parse(params.data)
+      console.log(arg)
       this.currentTab = arg.appCode
       let hasExit = false
       for (let i = 0; i < this.data.length; i++) {
@@ -93,6 +95,7 @@ TabManage.prototype.PreDef = function () {
     let iframe = this.getActiveDom(2)
     if (iframe) {
       iframe.contentWindow.history.back()
+      window.event.chancelBUbble = true
     }
   })
 }
@@ -105,6 +108,8 @@ TabManage.prototype.createDom = function (arg) {
   a.innerHTML = `<img class="appli-icon" src="${icon}"></span><span>${arg.title}</span>`
   a.setAttribute('value', arg.appCode)
   a.onclick = () => {
+    console.log(this.currentTab)
+    console.log(arg.appCode)
     if (this.currentTab === arg.appCode) return
     // 切换标签页
     this.currentTab = arg.appCode
@@ -283,16 +288,15 @@ window.onload = () => {
   
   /* 接收拦截到打开新链接的事件 */
   window.NimCefWebInstance && window.NimCefWebInstance.register('OnOpenNewLink', (params) => {
+    console.log('123=========')
+    console.log(params)
     // 窗口内链接跳转
     const iframe = tabManage.getActiveDom(2) // 找到当前活跃的iframe
     if (params.url.indexOf('yximcreatesession.telecomjs.com') > -1) { // 发起会话处理
       let account = params.url.split('?account=')[1]
       if (account) {
         // 跟主页面通信
-        let sendMsgToMain = () => {
-          tabManage.sendEvent('main', JSON.stringify({account}), 'createSession')
-        }
-        sendMsgToMain()
+        tabManage.sendEvent('main', JSON.stringify({account}), 'createSession')
       }
     } else { // 渲染新url
       iframe.src = params.url

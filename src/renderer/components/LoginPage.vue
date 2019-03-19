@@ -178,20 +178,20 @@
       }
       if (localStorage.AUTOLOGIN) {
         // 已开启自动登录(30天内)
-        let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
-        let nowDate = new Date().getTime()
-        if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
-          this.loading = true
-          this.autoLogin = true
-          this.account = USERINFO.account
-          this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
-          this.isRember = true
-          this.login(1)
-        } else {
-          localStorage.removeItem('AUTOLOGIN')
-          this.isRember = false
-        }
-      } else if (localStorage.LOGININFO) {
+      //   let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
+      //   let nowDate = new Date().getTime()
+      //   if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
+      //     this.loading = true
+      //     this.autoLogin = true
+      //     this.account = USERINFO.account
+      //     this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
+      //     this.isRember = true
+      //     this.login(1)
+      //   } else {
+      //     localStorage.removeItem('AUTOLOGIN')
+      //     this.isRember = false
+      //   }
+      // } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
         let loginInfo = JSON.parse(localStorage.LOGININFO)
         this.account = loginInfo.account
@@ -347,6 +347,8 @@
             this.isRember = false
             localStorage.removeItem('AUTOLOGIN')
           }
+          this.verifyCodeImg = ''
+          this.verifyCodeUrlCtrl()
         })
       },
       loginPC (userInfo) {

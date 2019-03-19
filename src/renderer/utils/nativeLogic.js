@@ -188,7 +188,7 @@ class NativeHandle {
     }
     let userName = localStorage.getItem('UserName')
     let logo1 = AppDirectory + '/dist/static/img/systry-logo.png'
-    let logo2 = AppDirectory + '/dist/static/img/systry-logo-a.png'
+    let logo2 = AppDirectory + '/dist/static/img/systry-logo-null.png'
     if (arg.unreadNums <= 0) {
       if (this.twinkle) {
         this.setTrayImage(logo1, userName)

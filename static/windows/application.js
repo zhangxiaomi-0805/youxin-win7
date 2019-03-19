@@ -1,9 +1,6 @@
 /**
  * 访客页初始化
  */
-const electron = require('electron')
-const ipcRenderer = electron.ipcRenderer
-
 var TabManage = function () {
   this.data = [] // 数据源
   this.currentTab = -1 // 当前活跃项
@@ -13,7 +10,8 @@ var TabManage = function () {
 
 TabManage.prototype.init = function () {
   this.PreDef()
-
+  let electron = require('electron')
+  let ipcRenderer = electron.ipcRenderer
   ipcRenderer.on('asynchronous-message', (event, arg) => {
     this.currentTab = arg.appCode
     let hasExit = false
@@ -23,7 +21,7 @@ TabManage.prototype.init = function () {
         this.data[i] = arg
         document.getElementsByClassName('tabs-item')[i].firstChild.innerHTML = arg.title
         const webview = document.getElementsByClassName('webview')[i]
-        webview.loadURL(arg.url)
+        webview.setAttribute('src', arg.url)
         this.resetClass()
         hasExit = true
       }
@@ -41,7 +39,7 @@ TabManage.prototype.init = function () {
             // 发起会话处理
             let account = e.url.split('?account=')[1]
             if (account) {
-              ipcRenderer.send('sendAccount', {account})
+              ipcRenderer.send('sendAccount',{account})
             }
           }
           webview.loadURL(e.url)
@@ -56,7 +54,7 @@ TabManage.prototype.init = function () {
           // 发起会话处理
           let account = e.validatedURL.split('?account=')[1]
           if (account) {
-            ipcRenderer.send('sendAccount', {account})
+            ipcRenderer.send('sendAccount',{account})
           }
         }
         webview.goBack()
@@ -103,18 +101,24 @@ TabManage.prototype.PreDef = function () {
   // 窗口缩小
   const minBtn = document.getElementById('appli-min')
   minBtn.addEventListener('click', () => {
+    let electron = require('electron')
+    let ipcRenderer = electron.ipcRenderer
     ipcRenderer.send('onMinimize', {window: 'aplWindow'})
   })
 
   // 窗口放大
   const minMax = document.getElementById('appli-max')
   minMax.addEventListener('click', () => {
+    let electron = require('electron')
+    let ipcRenderer = electron.ipcRenderer
     ipcRenderer.send('onMax', {window: 'aplWindow'})
   })
 
   // 窗口还原
   const minRestore = document.getElementById('appli-restore')
   minRestore.addEventListener('click', () => {
+    let electron = require('electron')
+    let ipcRenderer = electron.ipcRenderer
     ipcRenderer.send('onRestore', {window: 'aplWindow'})
   })
 
