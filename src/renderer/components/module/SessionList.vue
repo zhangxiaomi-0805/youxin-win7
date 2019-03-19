@@ -251,7 +251,9 @@ export default {
         if (item.updateTime) {
           item.updateTimeShow = util.formatDate(item.updateTime, true)
         }
-        return item
+        if (item.name && item.avatar) { // 避免显示空的现象
+          return item
+        }
       })
       let sessionlistTop = sessionlist.filter((item) => {
         if (item.localCustom && item.localCustom.topTime) {

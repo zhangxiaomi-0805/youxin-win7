@@ -122,13 +122,37 @@
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
+          // 用户名按字母大小排序
+          let compare = function (prop) {
+            return function (obj1, obj2) {
+              let val1 = obj1[prop].toLowerCase()
+              let val2 = obj2[prop].toLowerCase()
+              if (val1 < val2) {
+                return -1
+              } else if (val1 > val2) {
+                return 1
+              } else {
+                return 0
+              }
+            }
+          }
+          members.sort(compare('initial')) // 用户名按字母大小排序
+          let arr1 = members.filter(item => {
+            return item.type === 'owner'
+          })
+          let arr2 = members.filter(item => {
+            return item.type === 'manager'
+          })
+          let arr3 = members.filter(item => {
+            return item.type === 'normal'
+          })
+          members = arr1.concat(arr2, arr3) // 按身份排序（群主在最前面，其次是管理员）
           let needSearchAccounts = []
           if (members) {
             members = members.map(item => {
               var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
               member.valid = true // 被管理员移除后，标记为false
-              member.accid = member.accid || item.account
-
+              member.accid = member.accid || member.account
               if (member.accid === this.$store.state.userUID) {
                 member.alias = '我'
                 member.avatar = this.$store.state.myInfo.avatar
