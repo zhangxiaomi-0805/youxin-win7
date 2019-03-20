@@ -15,7 +15,7 @@
           @click="toggleSessin('p2p', item.accid)"
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
-          <div style="paddingLeft: 10px;">
+          <div style="paddingLeft: 10px;width: 80%">
             <div class="searchevent s-one-line"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
             <div class="s-name default searchevent">{{item.companyName}}</div>
           </div>
@@ -35,7 +35,7 @@
           @click="toggleSessin('team', item.teamId)"
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
-          <div style="paddingLeft: 10px;">
+          <div style="paddingLeft: 10px;width: 80%">
             <div class="searchevent s-one-line"><span :class="nameClass(text)" v-for="text in item.name" :key="text.id" :id="text.id">{{text}}</span></div>
             <div v-if="item.contain">
               <span class="s-name default searchevent">包含:</span>

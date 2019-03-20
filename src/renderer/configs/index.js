@@ -5,8 +5,8 @@ var config = {
   aplWinWidth: 899, // 内部子窗口初始宽
   aplWinHeight: 767, // 内部子窗口初始宽
   xpVersion: '1.0.0', // XP---app当前版本号
-  winVersion: '3.0.0', // windows---app当前版本号
-  env: 'test',
+  winVersion: '3.0.7', // windows---app当前版本号
+  env: 'selfOnline',
   sdk: 'NIM_Web_SDK_v5.7.0',
   // 用户自定义的登录注册地址
   loginUrl: '#/',
@@ -66,7 +66,7 @@ let appConfig = {
   },
   selfOnline: {
     appkey: 'b8614ab01186f2ad8925f1e05a6d243f',
-    postUrl: 'http://132.252.136.47:10581/',
+    postUrl: 'http://yxim.telecomjs.com:10581/',
     // 私有化配置文件
     privateConf: {
       lbs_web: 'http://yxim.telecomjs.com:10081/lbs/webconf.jsp',

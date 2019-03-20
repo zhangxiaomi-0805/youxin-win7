@@ -61,8 +61,8 @@ export function onCustomSysMsgs (customSysMsgs) {
       if (msg.content) {
         try {
           let content = JSON.parse(msg.content)
-          // 消息正在输入中
-          if ((content.id + '') === '1') {
+          if (content.status) {
+            remoteConnectCtrl(content, msg.from)
             return false
           }
         } catch (e) {}
@@ -165,4 +165,55 @@ export function deleteLocalSysMsg ({state}, idServer) {
     done: (_err, _obj) => {
     }
   })
+}
+
+/**
+ * 远程桌面相关
+ * @param {*} status    request-发起请求，response-接收响应，connect-连接中，dismiss-取消
+ * @param {*} account   用户accid
+ */
+function remoteConnectCtrl (content, account) {
+  const ipcRenderer = require('electron').ipcRenderer
+  // 拒绝提示
+  const warnPrompt = (nick) => {
+    store.commit('toastConfig', {
+      show: true,
+      type: 'fail',
+      toastText: `${nick}谢绝了您的远程控制的请求`
+    })
+  }
+
+  switch (content.status) {
+    case 'request':
+      if (content.type === 3) {
+        store.commit('updateRemoteConnectObj', { showModal: false })
+      } else {
+        store.commit('updateRemoteConnectObj', { showModal: true, ...content, account })
+      }
+      break
+    case 'response':
+      if (store.state.remoteWaitingObj.showModal) {
+        store.commit('updateRemoteWaitingObj', { showModal: false })
+        if (content.type === 2) {
+          warnPrompt(content.nick)
+          return false
+        }
+        if (content.type === 1) {
+          // 接受远程协助
+          store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account })
+        }
+      }
+      break
+    case 'connect':
+      store.commit('updateRemoteWaitingObj', { showModal: false })
+      ipcRenderer.send('remoteConnectionCreate', 'http://' + content.ipconfig)
+      break
+    case 'dismiss':
+      store.commit('updateRemoteWaitingObj', { showModal: false })
+      ipcRenderer.send('remoteConnectionDiss')
+      warnPrompt(content.nick)
+      break
+    default:
+      break
+  }
 }

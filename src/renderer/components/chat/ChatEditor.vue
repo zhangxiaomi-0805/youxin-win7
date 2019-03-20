@@ -72,11 +72,7 @@
           </div>
           <!-- 图片 -->
           <div v-if="!isRobot" class="u-editor-icon" @click="createInput" style="cursor: pointer">
-            <!-- <i class="u-icon-img">
-              <img :src="icon2"/>
-            </i> -->
-            <a class="b-common b-image" style="cursor: pointer;">
-            </a>
+            <a class="b-common b-image" style="cursor: pointer;"></a>
           </div>
           <!-- 文件 -->
           <div v-if="!isRobot" class="u-editor-icon" @click="handleClickOpenIp" >
@@ -84,8 +80,19 @@
             <input type="file" @change="onSendFlie($event)" style="display: none;" ref="fileIp" />
           </div>
           <!-- 远程协助 -->
-          <!-- <div v-if="!isRobot" class="u-editor-icon" @click.stop="showEmoji">
-            <a class="b-common b-remote"/>
+          <!-- <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
+            <a class="b-common b-remote" @click.stop="showRemote = true"/>
+
+            <transition name="fade">
+              <div 
+                v-if="showRemote && !isXP"
+                v-clickoutside="closeShowRemote"
+                class="show-hide-win"
+                style="display: inline-block; height: auto; width: 120px;">
+                <div class="bg-hover" @click="sendRemote(1)">控制对方电脑</div>
+                <div class="bg-hover" @click="sendRemote(2)">请求远程协助</div>
+              </div>
+            </transition>
           </div> -->
         </div>
         <!-- 短信发送 -->
@@ -266,7 +273,8 @@
         showHideWinCheck: localStorage.SHOWHIDEWINCHECK,
         isXP: config.environment === 'web',
         showShotPrompt: false,
-        cutCode: localStorage.CUTCODE || 'Alt + A'
+        cutCode: localStorage.CUTCODE || 'Alt + A',
+        showRemote: false
       }
     },
     computed: {
@@ -340,6 +348,11 @@
         let className = e.target.className
         if (className.indexOf('noevent') > -1) return
         this.showHideWin = false
+      },
+      closeShowRemote (el, e) {
+        let className = e.target.className
+        if (className.indexOf('noevent') > -1) return
+        this.showRemote = false
       },
       chooseQuickSet (index) {
         this.showQuickSet = false
@@ -1377,6 +1390,19 @@
       showShotPromptFn () {
         this.showShotPrompt = true
         this.cutCode = localStorage.CUTCODE || 'Alt + A'
+      },
+      sendRemote (type) {
+        this.showRemote = false
+        /**
+         * 发起远程协助
+         * @params type 1-控制对方电脑，2-请求远程协助
+         */
+        if (config.environment === 'electron') {
+          let userInfo = this.userInfos[this.to] || {}
+          let content = { status: 'request', type, nick: userInfo.nick || userInfo.alias || this.to, account: this.to }
+          this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content })
+          this.$store.dispatch('sendCustomSysMsg', {account: this.to, content: JSON.stringify(content)})
+        }
       }
     }
   }
@@ -1863,6 +1889,16 @@
     background-repeat: no-repeat;
     background-position: center center;
     transition: all .2s linear;
+  }
+
+  .show-hide-win .bg-hover {
+    text-align: center; 
+    padding: 5px;
+    transition: all .2s linear;
+  }
+
+  .show-hide-win .bg-hover:hover {
+    background-color: rgba(182, 176, 176, 0.14)
   }
 
 
