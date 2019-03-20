@@ -6,8 +6,39 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>外部接入系统</title>
   <link rel="stylesheet" href="../css/default.css">
+  <style>
+   #appli-back {
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-image: url('../../static/img/back-bg.png');
+      background-size: 16px 16px;
+      display: inline-block;
+      width:16px;
+      height: 16px;
+      margin-right:10px
+    }
+    #appli-back.disabled {
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-image: url('../../static/img/back-bg-gray.png');
+      background-size: 16px 16px;
+      display: inline-block;
+      width:16px;
+      height: 16px;
+      margin-right:10px
+    }
+    #appli-refresh {
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-image: url('../../static/img/refresh-bg.png');
+      background-size: 16px 16px;
+      display: inline-block;
+      width:16px;
+      height: 16px
+    }
+  </style>
 </head>
-<body>
+<body oncontextmenu="return false">
   <div class="g-window appli-window">
     <header>
       <div class="u-caption"><div class="u-sysbtn">
@@ -16,7 +47,7 @@
         <a id="appli-restore" class="btn-restore" style="display: none;"></a>
         <a id="appli-colse" class="btn-close"></a>
       </div></div>
-      <div class="nav"><a id="appli-back" class="disabled">后退</a><a id="appli-refresh">刷新</a></div>
+      <div class="nav"><a id="appli-back" class="disabled"></a><a id="appli-refresh"></a></div>
       <div id="appli-tabs" class="tabs"></div>
     </header>
     <div id="appli-webview" class="appli-container"><div class="appli-loading"></div></div>

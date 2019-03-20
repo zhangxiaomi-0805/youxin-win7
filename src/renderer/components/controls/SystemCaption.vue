@@ -49,7 +49,7 @@ export default {
   },
   methods: {
     onClose () {
-      if (localStorage.CLOSEMETHOD && (JSON.parse(localStorage.CLOSEMETHOD) === 2)) {
+      if (localStorage.CLOSEMETHOD && (JSON.parse(localStorage.CLOSEMETHOD) === 2)) { // 直接退出程序
         if (config.environment === 'web') { // web分支
           NativeLogic.native.setWinStatus('main', 4).then(res => {
           }).catch(err => console.log(err)) // params: 1.窗口名称 2.类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
@@ -60,8 +60,9 @@ export default {
         }
         return
       }
+      // 隐藏到任务栏
       if (config.environment === 'web') { // web分支
-        NativeLogic.native.setWinStatus('main', 4).then(res => {
+        NativeLogic.native.setWinStatus('main', 6).then(res => {
           console.log(res)
         }).catch(err => console.log(err)) // params: 1.窗口名称 2.类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
       } else { // electron分支

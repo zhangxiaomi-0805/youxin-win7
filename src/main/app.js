@@ -8,6 +8,7 @@ import AppMenu from './module/AppMenu.js'
 import { exec } from 'child_process'
 
 function APP () {
+  this.screenShoted = false
   this.logined = false
   this.mainWindow = null
   this.aplWindow = null
@@ -243,6 +244,8 @@ APP.prototype.initIPC = function () {
   })
 
   ipcMain.on('screenShot', (evt, arg) => {
+    if (this.screenShoted) return // 在截屏状态直接return
+    this.screenShoted = true
     if (arg.hideWin) {
       _this.mainWindow.hide()
     }
@@ -258,8 +261,11 @@ APP.prototype.initIPC = function () {
     var ssFile = process.platform === 'darwin' ? '/Screenshot.app/Contents/MacOS/Screenshot' : '/Screenshot'
     var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
     exec(testFile, {}, (error, stdout, stderr) => {
-      if (error) throw error
-      else {
+      if (error) {
+        this.screenShoted = false
+        throw error
+      } else {
+        this.screenShoted = false
         let isChange = 1
         let base64Str = getStrFn()
         if (bakBase64Str !== base64Str) {

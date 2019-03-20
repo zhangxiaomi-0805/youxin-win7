@@ -78,7 +78,7 @@
             <div
               class="update-img"
             >
-              <img style="width: 100%;height: 100%;" :src="logo">
+              <img style="width: 100%;height: 100%;" :src="isXp ? logoXp : logo">
             </div>
             <div style="margin-top: 15px;fontsize: 14px;color: #333;">
               当前优信版本 {{ 'V' + version}}
@@ -167,7 +167,9 @@ export default {
       phone: '',
       email: '',
       version: '',
+      isXp: false,
       logo: './static/img/logo.png',
+      logoXp: './static/img/logo-xp.png',
       menuList: [
         {
           title: '账号与安全',
@@ -217,6 +219,7 @@ export default {
       this.showGeneralSetting = data.show
       if (config.environment === 'web') {
         this.version = config.xpVersion
+        this.isXp = true
       } else {
         let { remote } = require('electron')
         this.version = remote.getGlobal('APPVERSION')

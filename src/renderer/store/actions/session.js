@@ -4,6 +4,7 @@
 
 import store from '../'
 import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
 // 如果会话对象不是好友，需要更新好友名片
 function updateSessionAccount (sessions) {
   sessions.forEach(session => {
@@ -146,7 +147,7 @@ export function onUpdateSession (session, callback) {
     //       NativeLogic.native.flashFrame(true)
     //     }
     //   })
-    // NativeLogic.native.receiveNewMsgs({ unreadNums })
+    NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('sessionUnreadNums', {unreadNums})
