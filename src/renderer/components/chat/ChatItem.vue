@@ -1365,6 +1365,7 @@
           for (let i in thirdUrls) {
             if (thirdUrls[i].url === domain) {
               Request.ThirdConnection({url: encodeURIComponent(url), appCode: thirdUrls[i].appCode}).then(res => {
+                res = decodeURIComponent(res)
                 if (openType && openType === 2) {
                   if (config.environment === 'web') {
                     this.webOpenOutWin(res)
