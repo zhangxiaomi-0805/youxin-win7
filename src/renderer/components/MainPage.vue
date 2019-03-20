@@ -91,6 +91,9 @@
             let arg = params.data
             Request.GetAccid({userName: arg.account}, this).then(ret => {
               let accid = ret.accid
+              // 发起会话前，最小化子窗口
+              NativeLogic.native.setWinStatus('营业精灵', 1).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
+              }).catch(err => console.log(err))
               // 根据account 获取 accid 发起会话
               this.createSession(accid)
             })
