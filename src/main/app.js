@@ -16,6 +16,8 @@ function APP () {
   this.ready = false
   this.shouldQuit = false
   this.fileTransferring = false
+  this.remoteWindow = null
+  this.remoteConnection = null
   this.sysTray = new SysTray({
     login: this.login.bind(this),
     logout: this.logout.bind(this),
@@ -194,6 +196,10 @@ APP.prototype.initIPC = function () {
       _this.aplWindow.maximize()
       return false
     }
+    if (arg && arg.window === 'remoteWindow') {
+      _this.remoteWindow.maximize()
+      return false
+    }
     _this.mainWindow.maximize()
   })
 
@@ -202,12 +208,20 @@ APP.prototype.initIPC = function () {
       _this.aplWindow.restore()
       return false
     }
+    if (arg && arg.window === 'remoteWindow') {
+      _this.remoteWindow.restore()
+      return false
+    }
     _this.mainWindow.restore()
   })
 
   ipcMain.on('onMinimize', (evt, arg) => {
     if (arg && arg.window === 'aplWindow') {
       _this.aplWindow.minimize()
+      return false
+    }
+    if (arg && arg.window === 'remoteWindow') {
+      _this.remoteWindow.minimize()
       return false
     }
     _this.mainWindow.minimize()
@@ -333,6 +347,32 @@ APP.prototype.initIPC = function () {
   ipcMain.on('registerShortcut', function (evt, arg) {
     _this.registerShortcut(arg.replace(/\s+/g, ''))
   })
+
+  // 发起远程协助
+  ipcMain.on('remoteConnection', function (evt, arg) {
+    _this.execProcess('jsmpeg-vnc.exe "desktop"', () => {
+      // 获取域名
+      const req = require('http').get({ host: 'nodejs.cn' })
+      req.end()
+      req.once('response', (res) => {
+        const ip = req.socket.localAddress
+        if (ip && _this.mainWindow) {
+          _this.mainWindow.sendRemoteConnection({content: ip + ':8080', account: arg})
+        }
+      })
+    })
+  })
+
+  // 关闭远程协助
+  ipcMain.on('remoteConnectionDiss', function (evt, arg) {
+    _this.remoteConnection = null
+    _this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
+  })
+
+  // 创建远程桌面
+  ipcMain.on('remoteConnectionCreate', function (evt, arg) {
+    _this.createRemoteWindow(arg)
+  })
 }
 
 APP.prototype.login = function () {
@@ -362,6 +402,7 @@ APP.prototype.afterlogout = function () {
   this.appMenu.enableMenuItem('status', false)
 
   this.closeAllWindows()
+  this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
   // 清空cookies
   // _this.clearCookies()
 }
@@ -431,6 +472,50 @@ APP.prototype.registerShortcut = function (arg) {
   globalShortcut.unregisterAll()
   globalShortcut.register(arg, () => {
     this.mainWindow.shortcutScreen()
+  })
+}
+
+APP.prototype.execProcess = function (cmd, callback) {
+  // 远程桌面执行程序
+  let testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/remote')
+  let workerProcess = exec(cmd, { cwd: testFile })
+
+  workerProcess.stdout.on('data', function (data) {
+    if (!this.remoteConnection) {
+      this.remoteConnection = true
+      callback && callback()
+    }
+  })
+}
+
+APP.prototype.createRemoteWindow = function (arg) {
+  if (this.remoteWindow) {
+    this.remoteWindow.show()
+    return
+  }
+  // 创建远程桌面窗口
+  this.remoteWindow = new BrowserWindow({
+    width: 899,
+    height: 767,
+    minWidth: 500,
+    minHeight: 300,
+    frame: false,
+    parent: this.mainWindow
+  })
+  const winURL = path.join('file://', __static, '/windows/remoteConnect.html')
+  this.remoteWindow.loadURL(winURL)
+  this.remoteWindow.on('maximize', () => {
+    this.remoteWindow.webContents.send('doMax')
+  })
+  this.remoteWindow.on('restore', () => {
+    this.remoteWindow.webContents.send('doRestore')
+  })
+  this.remoteWindow.on('unmaximize', () => {
+    this.remoteWindow.webContents.send('doRestore')
+  })
+  this.remoteWindow.on('closed', () => { this.remoteWindow = null })
+  this.remoteWindow.webContents.once('did-finish-load', () => {
+    this.remoteWindow.webContents.send('asynchronous-message', arg)
   })
 }
 

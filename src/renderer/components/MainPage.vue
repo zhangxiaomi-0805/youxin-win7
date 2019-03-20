@@ -31,6 +31,8 @@
       <update-app/>
       <group-invite/>
       <cut-code/>
+      <remote-waiting/>
+      <remote-connect/>
     </div>
   </div>
 </template>
@@ -64,11 +66,41 @@
   import UpdateApp from './float/UpdateApp.vue'
   import GroupInvite from './float/groupInvite.vue'
   import CutCode from './float/CutCode.vue'
+  import RemoteWaiting from './float/RemoteWaiting.vue'
+  import RemoteConnect from './float/RemoteConnect.vue'
   import config from '../configs'
   import NativeLogic from '../utils/nativeLogic.js'
   export default {
     name: 'main-page',
-    components: {MyInfo, NavBar, SelectUser, FindX, ImgModal, CheckUser, ListOptions, SelectContact, SelectOrgnize, ClearRecord, EditNotice, Toast, DismissTeam, GeneralSetting, SettingDetail, UnreadModal, Logout, ForwordFail, SettingName, DownLine, TeamCode, MsgRecord, UpdateApp, GroupInvite, CutCode},
+    components: {
+      MyInfo,
+      NavBar,
+      SelectUser,
+      FindX,
+      ImgModal,
+      CheckUser,
+      ListOptions,
+      SelectContact,
+      SelectOrgnize,
+      ClearRecord,
+      EditNotice,
+      Toast,
+      DismissTeam,
+      GeneralSetting,
+      SettingDetail,
+      UnreadModal,
+      Logout,
+      ForwordFail,
+      SettingName,
+      DownLine,
+      TeamCode,
+      MsgRecord,
+      UpdateApp,
+      GroupInvite,
+      CutCode,
+      RemoteWaiting,
+      RemoteConnect
+    },
     mounted () {
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
@@ -154,6 +186,12 @@
         })
         // 注册快捷键
         ipcRenderer.send('registerShortcut', localStorage.CUTCODE || 'Alt+A')
+        // 发起远程协助
+        ipcRenderer.on('sendRemoteConnection', (evt, arg) => {
+          let content = { status: 'connect', ipconfig: arg.content }
+          this.$store.dispatch('sendCustomSysMsg', {account: arg.account, content: JSON.stringify(content)})
+          this.$store.commit('updateRemoteWaitingObj', { showModal: false })
+        })
       }
       // 检查更新
       if (localStorage.APPVERSIONS) {
@@ -161,9 +199,9 @@
         if (APPVERSIONS.ignore) return false
         let nowDate = new Date().getTime()
         if (nowDate - APPVERSIONS.dateTime > 24 * 3600 * 1000) {
-          Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
+          Request.AppVersions().then(res => res && this.eventBus.$emit('updateApp', res)).catch(() => {})
         }
-      } else Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
+      } else Request.AppVersions().then(res => res && this.eventBus.$emit('updateApp', res)).catch(() => {})
     },
     watch: {
       incomingMsg (newMsg, oldMsg) {

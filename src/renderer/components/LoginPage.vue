@@ -176,22 +176,7 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      if (localStorage.AUTOLOGIN) {
-        // 已开启自动登录(30天内)
-      //   let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
-      //   let nowDate = new Date().getTime()
-      //   if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
-      //     this.loading = true
-      //     this.autoLogin = true
-      //     this.account = USERINFO.account
-      //     this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
-      //     this.isRember = true
-      //     this.login(1)
-      //   } else {
-      //     localStorage.removeItem('AUTOLOGIN')
-      //     this.isRember = false
-      //   }
-      // } else if (localStorage.LOGININFO) {
+      if (localStorage.LOGININFO) {
         // 退出登录记住账号
         let loginInfo = JSON.parse(localStorage.LOGININFO)
         this.account = loginInfo.account
@@ -204,8 +189,6 @@
       Request.GetSessionId({}, (value) => {
         this.verifyCodeUrlCtrl(value)
       })
-      // 更新本地缓存secret
-      IndexedDB.getItem('userSecret', 1).then(data => data && this.$store.commit('updateCurrentUserSecret', data.secret)).catch(() => {})
     },
     methods: {
       keyToNext (e, type) {
@@ -347,22 +330,26 @@
             this.isRember = false
             localStorage.removeItem('AUTOLOGIN')
           }
+          // 更新图形验证码
           this.verifyCodeImg = ''
           this.verifyCodeUrlCtrl()
         })
       },
       loginPC (userInfo) {
+        LocalStorage.setItem('uid', userInfo.accid)
+        LocalStorage.setItem('sdktoken', userInfo.token)
+        // 更新本地缓存secret
+        IndexedDB.getItem('userSecret', 1).then(data => data && this.$store.commit('updateCurrentUserSecret', data.secret)).catch(() => {})
         // 获取用户基本信息
         Request.GetUserInfo({accid: userInfo.accid}, this).then(ret => {
           if (ret) {
-            // 登录sdk
-            LocalStorage.setItem('uid', userInfo.accid)
-            LocalStorage.setItem('sdktoken', userInfo.token)
             this.$store.commit('updatePersonInfos', userInfo)
             Request.getContactUserList({tag: 0}, this).then(ret => {
               this.$store.commit('updateContactsToplist', {type: 'update', data: ret})
             }).catch(() => {})
             Request.ThirdUrls()
+
+            // 登录sdk
             this.$store.dispatch('connect', {
               force: true,
               done: (error) => {

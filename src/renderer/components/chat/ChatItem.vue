@@ -206,8 +206,9 @@
             return item.id === msg.idClientFake
           })
           if (curProgress) {
-            const percentage = curProgress.percentage >= 99 ? 99 : curProgress.percentage
-            return percentage
+            // const percentage = curProgress.percentage >= 99 ? 99 : curProgress.percentage
+            // return percentage
+            return curProgress.percentage
           } else {
             return 100
           }

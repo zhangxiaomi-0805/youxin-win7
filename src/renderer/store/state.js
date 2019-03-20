@@ -173,5 +173,8 @@ export default {
   // 当前会话云端历史消息
   currSessionHistoryMsgs: [],
   // 当前用户对应的密钥
-  currentUserSecret: 'asdasdhhq192hd1f'
+  currentUserSecret: 'asdasdhhq192hd1f',
+  // 远程桌面相关
+  remoteWaitingObj: {},
+  remoteConnectObj: {}
 }

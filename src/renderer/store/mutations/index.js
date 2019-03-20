@@ -1273,5 +1273,13 @@ export default {
   updateCurrentUserSecret (state, secret) {
     // 更新当前登录用户密钥
     state.currentUserSecret = secret
+  },
+  updateRemoteWaitingObj (state, obj) {
+    // 远程桌面控制
+    state.remoteWaitingObj = obj
+  },
+  updateRemoteConnectObj (state, obj) {
+    // 远程桌面控制
+    state.remoteConnectObj = obj
   }
 }

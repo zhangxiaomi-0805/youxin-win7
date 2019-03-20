@@ -212,4 +212,8 @@ MainWindow.prototype.shortcutScreen = function (arg) {
   this.mainWindow && this.mainWindow.webContents.send('shortcutScreen', arg)
 }
 
+MainWindow.prototype.sendRemoteConnection = function (arg) {
+  this.mainWindow.webContents.send('sendRemoteConnection', arg)
+}
+
 export default MainWindow

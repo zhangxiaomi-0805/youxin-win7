@@ -82,7 +82,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
       switch (respResult.code) {
         case 200: // 成功
           if (respResult.retJson) {
-            let retJson = DES.decryptByDESModeEBC(respResult.retJson, url === 'api/appPc/login/auth' ? 1 : 3)
+            let retJson = DES.decryptByDESModeEBC(respResult.retJson, !needToken ? 1 : 3)
             try {
               retJson = JSON.parse(retJson)
             } catch (error) { console.log(error) }
@@ -92,7 +92,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
           }
           break
         case 412: // 账号未激活---去设置新密码
-          resolve({ type: 'setPassword', secret: respResult.ret })
+          resolve({ type: 'setPassword', secret: DES.decryptByDESModeEBC(respResult.retJson, 3) })
           break
         case 404: // 请求资源不存在
           resolve({ msg: '请求资源不存在' })

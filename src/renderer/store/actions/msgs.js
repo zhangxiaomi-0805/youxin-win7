@@ -788,3 +788,20 @@ export function updateLocalMsg ({ state }, obj) {
     }
   })
 }
+
+// 自定义系统通知
+export function sendCustomSysMsg ({ state }, msg) {
+  let { account, content } = msg
+  state.nim.sendCustomSysMsg({
+    scene: 'p2p',
+    to: account,
+    content: content,
+    sendToOnlineUsersOnly: true,
+    apnsText: content,
+    done: (error, newMsg) => {
+      if (!error) {
+        console.log('发送成功！')
+      }
+    }
+  })
+}

@@ -4,15 +4,15 @@
   <div class="m-selectcontact-contain" v-if="showUpdateApp">
     <div class="m-selectcontact-cover"></div>
     <div class="m-clear-body update-app">
-      <div class="drag"><div class="u-sysbtn close"><a class="btn-close" @click="closeModal" v-if="content && content.forceUpdate !== 1"/></div></div>
+      <div class="drag"><div class="u-sysbtn close"><a class="btn-close" @click="closeModal" v-if="content.forceUpdate !== 1"/></div></div>
       <div class="content">
         <img class="logo" :src="logo">
-        <div class="version">{{`优信${content && (content.versionNum || content.appVersion)}`}}</div>
+        <div class="version">{{`优信${content.versionNum || content.appVersion || ''}`}}</div>
         <div class="update-content" v-html="content.updateContent"></div>
       </div>
       <div class="update-footer">
         <div class="btn confirm" @click="goUpdate"><span>立即升级</span></div>
-        <div v-if="content && content.forceUpdate !== 1" class="btn cancel" @click="Ignore">忽略</div>
+        <div v-if="content.forceUpdate !== 1" class="btn cancel" @click="Ignore">忽略</div>
       </div>
     </div>
   </div>
@@ -27,7 +27,7 @@ export default {
   mounted () {
     this.eventBus.$on('updateApp', (data) => {
       this.showUpdateApp = true
-      this.content = data
+      this.content = data || {}
       this.updateLocalVersion()
     })
   },
