@@ -196,9 +196,9 @@
         if (APPVERSIONS.ignore) return false
         let nowDate = new Date().getTime()
         if (nowDate - APPVERSIONS.dateTime > 24 * 3600 * 1000) {
-          Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
+          Request.AppVersions().then(res => res && this.eventBus.$emit('updateApp', res)).catch(() => {})
         }
-      } else Request.AppVersions().then(res => this.eventBus.$emit('updateApp', res)).catch(() => {})
+      } else Request.AppVersions().then(res => res && this.eventBus.$emit('updateApp', res)).catch(() => {})
     },
     watch: {
       incomingMsg (newMsg, oldMsg) {
