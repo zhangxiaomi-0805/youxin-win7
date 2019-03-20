@@ -462,7 +462,7 @@ APP.prototype.tryTwinkle = function (arg) {
     if (count % 2 === 0) {
       this.sysTray.setImage(`${__static}/img/systry-logo.png`)
     } else {
-      this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
+      this.sysTray.setImage(`${__static}/img/systry-logo-null.png`)
     }
   }, 600)
 }
