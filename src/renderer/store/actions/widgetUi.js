@@ -345,21 +345,25 @@ export async function showListOptions ({state, commit}, obj) {
       if (obj.key === 'team-notTop') {
         if (muteNotiType === 1) {
           items = [
-            event7, event36, event8, event35
+            event7, event36, event8
+            // , event35    用户反馈易误操作,bugId:11508
           ]
         } else {
           items = [
-            event7, event21, event8, event35
+            event7, event21, event8
+            // , event35
           ]
         }
       } else {
         if (muteNotiType === 1) {
           items = [
-            event9, event36, event8, event35
+            event9, event36, event8
+            // , event35
           ]
         } else {
           items = [
-            event9, event21, event8, event35
+            event9, event21, event8
+            // , event35
           ]
         }
       }
@@ -396,11 +400,13 @@ export async function showListOptions ({state, commit}, obj) {
           if (userType === 'normal') {
             if (muteNotiType === 1) {
               items = [
-                event7, event36, event8, event33
+                event7, event36, event8
+                // , event33
               ]
             } else {
               items = [
-                event7, event21, event8, event33
+                event7, event21, event8
+                // , event33
               ]
             }
           }
@@ -418,11 +424,13 @@ export async function showListOptions ({state, commit}, obj) {
           if (userType === 'manager') {
             if (muteNotiType === 1) {
               items = [
-                event7, event36, event8, event33, event17
+                event7, event36, event8, event17
+                // , event33
               ]
             } else {
               items = [
-                event7, event21, event8, event33, event17
+                event7, event21, event8, event17
+                // , event33
               ]
             }
           }
@@ -432,11 +440,13 @@ export async function showListOptions ({state, commit}, obj) {
           if (userType === 'normal') {
             if (muteNotiType === 1) {
               items = [
-                event9, event36, event8, event33
+                event9, event36, event8
+                // , event33
               ]
             } else {
               items = [
-                event9, event21, event8, event33
+                event9, event21, event8
+                // , event33
               ]
             }
           }
@@ -454,11 +464,13 @@ export async function showListOptions ({state, commit}, obj) {
           if (userType === 'manager') {
             if (muteNotiType === 1) {
               items = [
-                event9, event36, event8, event33, event17
+                event9, event36, event8, event17
+                // , event33
               ]
             } else {
               items = [
-                event9, event21, event8, event33, event17
+                event9, event21, event8, event17
+                // , event33
               ]
             }
           }
