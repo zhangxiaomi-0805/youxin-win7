@@ -262,9 +262,15 @@ APP.prototype.initIPC = function () {
     var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
     exec(testFile, {}, (error, stdout, stderr) => {
       if (error) {
+        if (arg.hideWin) {
+          _this.mainWindow.show()
+        }
         this.screenShoted = false
         throw error
       } else {
+        if (arg.hideWin) {
+          _this.mainWindow.show()
+        }
         this.screenShoted = false
         let isChange = 1
         let base64Str = getStrFn()

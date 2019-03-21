@@ -143,8 +143,15 @@ class NativeHandle {
    * 5.截屏:
    * **/
   screenShot = () => {
-    window.NimCefWebInstance && window.NimCefWebInstance.call('screenShot', {}, () => {
-      // code: 200 // 截屏状态（200-成功，400-取消截屏）
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('screenShot', {}, (error, result) => {
+        // code: 200 // 截屏状态（200-成功，400-取消截屏
+        if (result) {
+          resolve(result)
+        } else {
+          reject(error)
+        }
+      })
     })
   }
 
