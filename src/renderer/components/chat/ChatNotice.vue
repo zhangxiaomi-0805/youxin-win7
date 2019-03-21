@@ -199,30 +199,12 @@
       }
     },
     methods: {
-      memberListSort (members) {
-        // let teamMembers = this.$store.state.teamMembers
-        // let members = teamMembers && teamMembers[this.teamId]
-        console.log('用户名按字母大小排序--------------')
-        console.log(members)
-        // 用户名按字母大小排序
-        let compare = function (prop) {
-          return function (obj1, obj2) {
-            let val1 = obj1[prop].toLowerCase()
-            let val2 = obj2[prop].toLowerCase()
-            console.log(val1)
-            console.log(val2)
-            if (val1 < val2) {
-              console.log('111=============')
-              return -1
-            } else if (val1 > val2) {
-              console.log('222=============')
-              return 1
-            } else {
-              return 0
-            }
-          }
-        }
-        members.sort(compare('initial')) // 用户名按字母大小排序
+      memberListSort (initMembers) {
+        // 按用户名拼音排序
+        let members = initMembers.sort(function (obj1, obj2) {
+          return obj1.alias.localeCompare(obj2.alias, 'zh')
+        })
+        // 按身份排序（群主在最前面，其次是管理员）
         let arr1 = members.filter(item => {
           return item.type === 'owner'
         })
@@ -232,7 +214,7 @@
         let arr3 = members.filter(item => {
           return item.type === 'normal'
         })
-        members = arr1.concat(arr2, arr3) // 按身份排序（群主在最前面，其次是管理员）
+        members = arr1.concat(arr2, arr3)
         return members
       },
       searchUsers (Accounts) {

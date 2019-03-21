@@ -101,9 +101,6 @@ export default {
           }).catch(() => {
           })
       } else if (data.userInfos) {
-        console.log('打开名片222222222======')
-        console.log(data.userInfos)
-        console.log(data.userInfos.accid || data.userInfos.account)
         // 打开他人名片
         let params = [
           {
@@ -115,8 +112,6 @@ export default {
         Request.PullUserInfo(params, this)
           .then(ret => {
             if (ret) {
-              console.log('请求结果==============')
-              console.log(ret)
               this.$store.commit('updateContactslist', {data: ret, type: 'update'})
               this.userInfos = Object.assign({}, ret.userList[0])
               if (!this.userInfos.avatar) {
