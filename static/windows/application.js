@@ -41,9 +41,10 @@ TabManage.prototype.init = function () {
             if (account) {
               ipcRenderer.send('sendAccount',{account})
             }
+          } else {
+            webview.loadURL(e.url)
+            this.canGoBack()
           }
-          webview.loadURL(e.url)
-          this.canGoBack()
         }
       })
       webview.addEventListener('load-commit', (e) => {

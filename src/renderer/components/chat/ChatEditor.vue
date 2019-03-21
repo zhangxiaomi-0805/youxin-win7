@@ -399,11 +399,19 @@
       screenShot () {
         if (config.environment === 'web') { // web分支
           if (localStorage.SHOWHIDEWINCHECK) {
-            NativeLogic.native.setWinStatus('main', 6).then(res => {
-              NativeLogic.native.screenShot()
+            NativeLogic.native.setWinStatus('main', 6).then(() => { // 设置窗口状态： 类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
+              NativeLogic.native.screenShot().then(() => {
+                NativeLogic.native.setWinStatus('main', 7)
+              }).catch(() => {
+                NativeLogic.native.setWinStatus('main', 7)
+              })
             }) // 截屏前隐藏该窗口
           } else {
-            NativeLogic.native.screenShot()
+            NativeLogic.native.screenShot().then(() => {
+              NativeLogic.native.setWinStatus('main', 7)
+            }).catch(() => {
+              NativeLogic.native.setWinStatus('main', 7)
+            })
           }
         } else { // electron分支
           let { ipcRenderer } = require('electron')

@@ -262,9 +262,15 @@ APP.prototype.initIPC = function () {
     var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
     exec(testFile, {}, (error, stdout, stderr) => {
       if (error) {
+        if (arg.hideWin) {
+          _this.mainWindow.show()
+        }
         this.screenShoted = false
         throw error
       } else {
+        if (arg.hideWin) {
+          _this.mainWindow.show()
+        }
         this.screenShoted = false
         let isChange = 1
         let base64Str = getStrFn()
@@ -462,7 +468,7 @@ APP.prototype.tryTwinkle = function (arg) {
     if (count % 2 === 0) {
       this.sysTray.setImage(`${__static}/img/systry-logo.png`)
     } else {
-      this.sysTray.setImage(`${__static}/img/systry-logo-a.png`)
+      this.sysTray.setImage(`${__static}/img/systry-logo-null.png`)
     }
   }, 600)
 }
