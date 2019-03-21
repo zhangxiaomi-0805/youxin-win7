@@ -123,8 +123,6 @@
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
-          console.log('初始值=============')
-          console.log(members)
           let needSearchAccounts = []
           if (members) {
             members = members.map(item => {
@@ -202,20 +200,14 @@
       memberListSort (members) {
         // let teamMembers = this.$store.state.teamMembers
         // let members = teamMembers && teamMembers[this.teamId]
-        console.log('用户名按字母大小排序--------------')
-        console.log(members)
         // 用户名按字母大小排序
         let compare = function (prop) {
           return function (obj1, obj2) {
             let val1 = obj1[prop].toLowerCase()
             let val2 = obj2[prop].toLowerCase()
-            console.log(val1)
-            console.log(val2)
             if (val1 < val2) {
-              console.log('111=============')
               return -1
             } else if (val1 > val2) {
-              console.log('222=============')
               return 1
             } else {
               return 0

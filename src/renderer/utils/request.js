@@ -283,6 +283,18 @@ function GetSessionId (params, callback) {
   }).catch(() => {})
 }
 
+function SendMsg (params, $this) {
+  /**
+   * 短信发送
+   * @params msgId      消息Id
+   * @params sendType   发送类型：1.群组 2.个人
+   * @params receiveId  接收人：发送类型为群组，传群组tid；发送类型为个人，传用户accid
+   * @params content    短信发送内容
+   */
+  params = ParamsManage(params)
+  Fetch.post('api/appPc/sendMsg', params || {}).then(() => {}).catch(() => {})
+}
+
 /**
  * 参数加密处理
  * @param {*} params
@@ -325,5 +337,6 @@ export default {
   ThirdConnection,
   ThirdUrls,
   AppVersions,
-  GetSessionId
+  GetSessionId,
+  SendMsg
 }

@@ -1,7 +1,7 @@
 import store from '../'
 import config from '../../configs'
 import util from '../../utils'
-import Fetch from '../../utils/fetch'
+import Request from '../../utils/request'
 import NativeLogic from '../../utils/nativeLogic.js'
 export function formatMsg (msg) {
   const nim = store.state.nim
@@ -214,20 +214,15 @@ function onMsg (msg) {
 function onSendMsgDone (error, msg) {
   if (msg.custom) {
     let isSmsMsg = JSON.parse(msg.custom).isSmsMsg
-    if (isSmsMsg) {
-      /**
-       * 短信发送
-       * @params msgId      消息Id
-       * @params sendType   发送类型：1.群组 2.个人
-       * @params receiveId  接收人：发送类型为群组，传群组tid；发送类型为个人，传用户accid
-       * @params content    短信发送内容
-       */
-      Fetch.post('api/appPc/sendMsg', {
+    if (isSmsMsg && msg.status === 'success') {
+      // 短信发送
+      let params = {
         msgId: msg.idClient,
         sendType: msg.scene === 'team' ? 1 : 2,
         receiveId: msg.to,
         content: msg.text
-      }).then(() => {}).catch((error) => console.log(error))
+      }
+      Request.SendMsg(params)
     }
   }
   store.dispatch('hideLoading')

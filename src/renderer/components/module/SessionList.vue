@@ -104,13 +104,6 @@ export default {
         ul.scrollTop = 68 * length
       }
     })
-    // 默认加载第一个会话
-    this.$nextTick(() => {
-      setTimeout(() => {
-        let session = this.sessionlist[0]
-        session && this.$refs[session.id][0].click()
-      }, 200)
-    })
   },
   watch: {
     sessionlist (newData, oldData) {
@@ -126,7 +119,7 @@ export default {
             if (this.$refs[newData[0].id]) {
               this.$refs[newData[0].id][0].click()
             }
-          }, 200)
+          }, 250)
         })
       }
     }

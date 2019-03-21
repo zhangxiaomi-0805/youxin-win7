@@ -169,8 +169,11 @@ export function deleteLocalSysMsg ({state}, idServer) {
 
 /**
  * 远程桌面相关
- * @param {*} status    request-发起请求，response-接收响应，connect-连接中，dismiss-取消
+ * @param {*} status    request-发起请求，response-接收响应，connect-已连接，dismiss-取消，
+ * @param {*} type      1-接受，2-拒绝，3-取消
+ * @param {*} reqType   1-控制对方电脑，2-请求远程协助
  * @param {*} account   用户accid
+ * @param {*} nick      用户昵称
  */
 function remoteConnectCtrl (content, account) {
   const ipcRenderer = require('electron').ipcRenderer
@@ -201,6 +204,9 @@ function remoteConnectCtrl (content, account) {
         if (content.type === 1) {
           // 接受远程协助
           store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account })
+          if (content.reqType === 2) {
+            ipcRenderer.send('remoteConnection', account)
+          }
         }
       }
       break
