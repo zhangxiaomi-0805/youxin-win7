@@ -363,9 +363,8 @@ export default {
       this.eventBus.$emit('checkUser', {})
       // 通知主进程
       if (config.environment === 'web') { // web分支
-        // NativeLogic.native.sendEvent({ appCode: session.id }, 'toggleSession', () =>{
-        //   console.log('111')
-        // })
+        let data = JSON.stringify({appCode: session.id})
+        NativeLogic.native.sendEvent('营业精灵', data, 'toggleSession')
       } else { // electron分支
         const ipcRenderer = require('electron').ipcRenderer
         ipcRenderer.send('toggleSession', {appCode: session.id})

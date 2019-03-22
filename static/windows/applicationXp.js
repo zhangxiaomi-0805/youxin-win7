@@ -33,6 +33,15 @@ TabManage.prototype.init = function () {
         this.data.push(arg)
         this.createDom(arg)
       }
+    } else if (params.eventName === 'toggleSession') {
+      let arg = JSON.parse(params.data)
+      for (let i in this.data) {
+        if (this.data[i].appCode === arg.appCode) {
+          this.currentTab = arg.appCode
+          this.resetClass()
+          break
+        }
+      }
     }
   })
 }
@@ -187,8 +196,6 @@ TabManage.prototype.removeChild = function (appCode) {
   this.iframeContain.removeChild(this.getActiveDom(2, appCode))
 }
 
-
-
 // 获取当前活跃状态dom
 TabManage.prototype.getActiveDom = function (type, appCode) {
   let className = ''
@@ -266,6 +273,9 @@ TabManage.prototype.setWindowIcon = () => {
     iconPath
   }, () => {})
 } 
+
+
+
 
 let tabManage = new TabManage()
 tabManage.init()
