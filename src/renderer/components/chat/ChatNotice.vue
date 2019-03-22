@@ -29,6 +29,7 @@
       :userInfos="userInfos"
       :myInfo="myInfo"
       :clearStatus="clearStatus"/>
+    <div v-if="!memberList || memberList.length === 0" style="padding: 5px 0; font-size: 12px; color: #ccc; text-align: center">正在同步...</div>
     <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px', bottom: '31px'}">
       <li
         class="m-u-list-item"
@@ -43,7 +44,6 @@
         <div class="m-left">
           <div class="t-img">
             <img style="width: 24px;height: 24px;border-radius: 50%;" :src="member.avatar">
-            <!-- <div v-if="member.status !== 0 && !member.isSelf" style="position: absolute;left: 0;top: 0;z-index: 10;width: 100%;height: 100%;background: rgba(255, 255, 255, 0.4);" /> -->
           </div>
           <span class="t-style">{{member.alias || member.accid}}</span>
         </div>
@@ -91,7 +91,6 @@
         settingIcon: './static/img/nav/icon-plus.png',
         showSearch: false,
         searchValue: '',
-        onlineMembers: 0,
         timer: ''
       }
     },
@@ -156,12 +155,6 @@
                 item.status = this.$store.state.friendsStatusList[item.account]
               }
             })
-            // 统计在线人数
-            let onlineMembers = members.filter(item => {
-              return item.status === 0
-            })
-            // 加上自己
-            this.onlineMembers = onlineMembers.length + 1
             members = this.memberListSort(members)
             return members
           }

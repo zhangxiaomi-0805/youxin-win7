@@ -508,6 +508,8 @@ APP.prototype.createRemoteWindow = function (arg) {
     frame: false,
     parent: this.mainWindow
   })
+  // 创建全局远程窗口变量
+  global.HASREMOTE = true
   const winURL = path.join('file://', __static, '/windows/remoteConnect.html')
   this.remoteWindow.loadURL(winURL)
   this.remoteWindow.on('maximize', () => {

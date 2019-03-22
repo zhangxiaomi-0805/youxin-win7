@@ -80,7 +80,7 @@
             <input type="file" @change="onSendFlie($event)" style="display: none;" ref="fileIp" />
           </div>
           <!-- 远程协助 -->
-          <!-- <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
+          <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
             <a class="b-common b-remote" @click.stop="showRemote = true"/>
 
             <transition name="fade">
@@ -93,7 +93,7 @@
                 <div class="bg-hover" @click="sendRemote(2)">请求远程协助</div>
               </div>
             </transition>
-          </div> -->
+          </div>
         </div>
         <!-- 短信发送 -->
         <div
@@ -1406,6 +1406,15 @@
          * @params type 1-控制对方电脑，2-请求远程协助
          */
         if (config.environment === 'electron') {
+          const remote = require('electron').remote
+          if (remote.getGlobal('HASREMOTE')) {
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '已有一个远程桌面正在进行。'
+            })
+            return
+          }
           let userInfo = this.userInfos[this.to] || {}
           let content = { status: 'request', type, nick: userInfo.nick || userInfo.alias || this.to, account: this.to }
           this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content })

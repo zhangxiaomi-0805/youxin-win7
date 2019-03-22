@@ -169,7 +169,7 @@ export function deleteLocalSysMsg ({state}, idServer) {
 
 /**
  * 远程桌面相关
- * @param {*} status    request-发起请求，response-接收响应，connect-已连接，dismiss-取消，
+ * @param {*} status    request-发起请求，response-接收响应，connect-已连接，dismiss-取消，refuse-拒绝（对方正忙）
  * @param {*} type      1-接受，2-拒绝，3-取消
  * @param {*} reqType   1-控制对方电脑，2-请求远程协助
  * @param {*} account   用户accid
@@ -178,16 +178,19 @@ export function deleteLocalSysMsg ({state}, idServer) {
 function remoteConnectCtrl (content, account) {
   const ipcRenderer = require('electron').ipcRenderer
   // 拒绝提示
-  const warnPrompt = (nick) => {
-    store.commit('toastConfig', {
-      show: true,
-      type: 'fail',
-      toastText: `${nick}谢绝了您的远程控制的请求`
-    })
+  const warnPrompt = (toastText) => {
+    store.commit('toastConfig', { show: true, type: 'fail', toastText })
   }
 
   switch (content.status) {
     case 'request':
+      const remote = require('electron').remote
+      if (remote.getGlobal('HASREMOTE')) {
+        // 已在进行远程通信
+        let content = { status: 'refuse' }
+        store.dispatch('sendCustomSysMsg', {account, content: JSON.stringify(content)})
+        return
+      }
       if (content.type === 3) {
         store.commit('updateRemoteConnectObj', { showModal: false })
       } else {
@@ -198,7 +201,7 @@ function remoteConnectCtrl (content, account) {
       if (store.state.remoteWaitingObj.showModal) {
         store.commit('updateRemoteWaitingObj', { showModal: false })
         if (content.type === 2) {
-          warnPrompt(content.nick)
+          warnPrompt(`${content.nick}谢绝了您的远程控制的请求`)
           return false
         }
         if (content.type === 1) {
@@ -217,7 +220,10 @@ function remoteConnectCtrl (content, account) {
     case 'dismiss':
       store.commit('updateRemoteWaitingObj', { showModal: false })
       ipcRenderer.send('remoteConnectionDiss')
-      warnPrompt(content.nick)
+      warnPrompt(`${content.nick}谢绝了您的远程控制的请求`)
+      break
+    case 'refuse':
+      warnPrompt('对方正忙。')
       break
     default:
       break

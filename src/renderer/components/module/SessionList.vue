@@ -370,6 +370,12 @@ export default {
         const ipcRenderer = require('electron').ipcRenderer
         ipcRenderer.send('toggleSession', {appCode: session.id})
       }
+      // 临时清空群组数据
+      if (/^team-/.test(this.curSessionId)) {
+        if (this.$store.state.teamMembers[this.curSessionId.split('-')[1]]) {
+          delete this.$store.state.teamMembers[this.curSessionId.split('-')[1]]
+        }
+      }
     },
     enterMyChat () {
       // 我的手机页面
