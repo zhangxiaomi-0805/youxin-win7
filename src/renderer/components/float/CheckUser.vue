@@ -13,6 +13,7 @@
       <div>
         <div class="nick" :title="userInfos.name"
           @mouseup.stop="userInfos.name ? showListOptions($event, userInfos.name, 'copy_0') : null"
+          ref="copy_0"
         >{{userInfos.name}}</div>
         <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px"
           @mouseover="showPrompt = true"
@@ -350,6 +351,7 @@ export default {
     text-overflow:ellipsis;
     white-space:nowrap;
     cursor: default;
+    -webkit-user-select: text;
   }
 
   .m-checkuser-con .m-modify .remarks {

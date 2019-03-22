@@ -681,7 +681,7 @@
       },
       // 键盘输入
       changeMsg (e) {
-        if (this.msgTransform().textLen > 5000 && e.data && e.data.indexOf('\'') === -1) {
+        if (this.msgTransform().textLen > 5000 && ((e.data && e.data.indexOf('\'') === -1) || (e.target.textContent && e.target.textContent.indexOf('\'') === -1))) {
           let selection = window.getSelection()
           let lastRange = selection.getRangeAt(0)
           let range = document.createRange()
@@ -697,12 +697,15 @@
           return false
         }
         let data = ''
-        if (config.environment === 'web') {
+        if (config.environment === 'web') { // XP系统通过e.target.textContent获取数据
           data = e.target.textContent
         } else {
           data = e.data
         }
         if (data && (data[data.length - 1].indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
+          if (config.environment === 'web' && data.length > 1) { // xp系统的data单独处理，每次都会带上@，但是electron不会带上，不处理的话会走不同分支
+            data = data.slice(1)
+          }
           let textComputed = () => {
             if (data.indexOf('@') > -1) {
               // 根据光标位置获取@后面字符串
@@ -1306,6 +1309,7 @@
       },
       resetMemberList () {
         let allMembers = this.getMemberList()
+        console.log('this.inAtText====' + this.inAtText)
         if (this.inAtText) {
           let lowerAtText = this.inAtText.toLowerCase()
           let curMembers = allMembers.filter((item, index) => {
