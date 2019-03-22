@@ -297,24 +297,29 @@ export default {
           if (msg.idClient === currMsg.idClient || (msg.idClientFake && currMsg.idClientFake && msg.idClientFake === currMsg.idClientFake)) {
             needReplace = true
             state.msgs[sessionId].splice(i, 1, msg)
+            console.log('length==' + state.msgs[sessionId] + ',i=' + i)
+            console.log(Object.assign(msg))
             break
           }
         }
       }
       if (!needReplace) {
-        if (msg.time > tempMsgs[lastMsgIndex].time) {
-          tempMsgs.push(msg)
-        } else {
-          for (let i = lastMsgIndex; i >= 0; i--) {
-            let currMsg = tempMsgs[i]
-            if (msg.time >= currMsg.time) {
-              state.msgs[sessionId].splice(i, 0, msg)
-              break
-            }
-          }
-        }
+        tempMsgs.push(msg)
+        // if (msg.time > tempMsgs[lastMsgIndex].time) {
+        //   tempMsgs.push(msg)
+        // } else {
+        //   for (let i = lastMsgIndex; i >= 0; i--) {
+        //     let currMsg = tempMsgs[i]
+        //     if (msg.time >= currMsg.time) {
+        //       state.msgs[sessionId].splice(i, 0, msg)
+        //       break
+        //     }
+        //   }
+        // }
       }
     }
+    console.log('=====put msg==sessionId' + sessionId)
+    console.log(Object.assign(state.msgs[sessionId]))
   },
   // 删除消息列表消息
   deleteMsg (state, msg) {
@@ -407,6 +412,8 @@ export default {
       if (state.currSessionId) {
         let sessionId = state.currSessionId
         let currSessionMsgs = [].concat(state.msgs[sessionId] || [])
+        console.log('====init==sessionId:' + sessionId)
+        console.log(currSessionMsgs)
         // 做消息截断
         let limit = config.localMsglimit
         let msgLen = currSessionMsgs.length

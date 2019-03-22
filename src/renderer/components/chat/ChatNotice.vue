@@ -123,8 +123,6 @@
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
-          console.log('初始值=============')
-          console.log(members)
           let needSearchAccounts = []
           if (members) {
             members = members.map(item => {

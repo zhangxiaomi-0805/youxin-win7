@@ -63,14 +63,12 @@ class NativeHandle {
       showSaveDlg
     }, (error, result) => {
       if (error) {
-        console.log('下载文件失败', result)
       } else {
         if (result.isReady) {
-          console.log('任务开始， 任务 Id', result.id)
           // status 1 -下载中 2 -暂停
           this.downList[id] = {id: result.id, status: 1}
         } else if (result.isInProgress) {
-          console.log('下载中', result.currentSpeed, result.totalBytes, result.receiveBytes, result.percentComplete)
+          // console.log('下载中', result.currentSpeed, result.totalBytes, result.receiveBytes, result.percentComplete)
           if (this.downList[id].status === 1) {
             store.commit('updateDownloadFileList', {
               type: 1,
@@ -80,7 +78,7 @@ class NativeHandle {
             })
           }
         } else if (result.isComplete) {
-          console.log('下载完成', result.totalBytes, result.receiveBytes)
+          // console.log('下载完成', result.totalBytes, result.receiveBytes)
           let newMsg = Object.assign({}, msg)
           if (newMsg.localCustom) {
             newMsg.localCustom.downloadUrl = result.fullPath
@@ -113,7 +111,7 @@ class NativeHandle {
             }
           })
         } else if (result.isCanceled) {
-          console.log('取消下载中', result.totalBytes, result.receiveBytes)
+          // console.log('取消下载中', result.totalBytes, result.receiveBytes)
           store.commit('updateDownloadFileList', {
             type: 3,
             id: id
@@ -178,7 +176,6 @@ class NativeHandle {
    * **/
   setTrayImage = (iconPath, tooltip) => {
     tooltip = `优信(${tooltip})`
-    console.log(iconPath)
     iconPath = decodeURI(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setTrayImage', {
       iconPath,
@@ -211,7 +208,6 @@ class NativeHandle {
     }
     let count = 0
     this.twinkle = setInterval(() => {
-      console.log('登录用户====' + userName)
       count++
       if (count % 2 === 0) {
         this.setTrayImage(logo1, userName)
@@ -313,7 +309,6 @@ class NativeHandle {
    * @params:  iconPath icon的绝对路径
    * **/
   setWindowIcon = (iconPath) => {
-    console.log(iconPath)
     iconPath = decodeURI(iconPath)
     window.NimCefWebInstance && window.NimCefWebInstance.call('setWindowIcon', {
       iconPath
@@ -357,8 +352,6 @@ class NativeHandle {
         alt: isAlt,
         virtualKey
       }, (error, result) => {
-        console.log(error)
-        console.log(result)
         if (error) {
           resolve('')
         } else {
