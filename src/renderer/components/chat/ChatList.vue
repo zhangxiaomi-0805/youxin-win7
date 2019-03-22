@@ -24,9 +24,6 @@
   </ul>
 </template>
 <script>
-  // import util from '../../utils'
-  // import config from '../../configs'
-  // import emojiObj from '../../configs/emoji'
   import ChatItem from './ChatItem'
   import pageUtil from '../../utils/page'
 
@@ -70,12 +67,6 @@
           return false
         }
       }
-      // robotInfos: {
-      //   type: Object,
-      //   default () {
-      //     return {}
-      //   }
-      // }
     },
     data () {
       return {

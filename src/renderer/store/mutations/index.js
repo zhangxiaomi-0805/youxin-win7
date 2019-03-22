@@ -4,7 +4,7 @@
 import store from '../'
 // import cookie from '../../utils/cookie'
 import util from '../../utils'
-import listSort from '../../utils/listSort.js'
+// import listSort from '../../utils/listSort.js'
 import config from '../../configs'
 import Vue from 'Vue'
 import LocalStorage from 'localStorage'
@@ -157,27 +157,7 @@ export default {
       sessions = sessions.sessions
     }
     const nim = state.nim
-    const oldListLength = state.sessionlist.length
     state.sessionlist = nim.mergeSessions(state.sessionlist, sessions)
-    const newListLength = state.sessionlist.length
-    // 当sessions数量发生变化
-    if (oldListLength !== newListLength && sessions[0].scene === 'p2p') {
-      // state.nim.subscribeEvent({
-      //   // type 1 为登录事件，用于同步多端登录状态
-      //   type: 1,
-      //   accounts: [sessions[0].to],
-      //   subscribeTime: 3600 * 24 * 30,
-      //   // 同步订阅事件，保证每次登录时会收到推送消息
-      //   sync: true,
-      //   done: function (err, res) {
-      //     if (err) {
-      //       console.error('订阅好友事件失败', err)
-      //     } else {
-      //       // console.log(res)
-      //     }
-      //   }
-      // })
-    }
     state.sessionlist.sort((a, b) => {
       return b.updateTime - a.updateTime
     })
@@ -409,8 +389,6 @@ export default {
       if (state.currSessionId) {
         let sessionId = state.currSessionId
         let currSessionMsgs = [].concat(state.msgs[sessionId] || [])
-        console.log('====init==sessionId:' + sessionId)
-        console.log(currSessionMsgs)
         // 做消息截断
         let limit = config.localMsglimit
         let msgLen = currSessionMsgs.length
@@ -748,17 +726,17 @@ export default {
       }
       return member
     })
-    state.teamMembers[teamId] = listSort(state.teamMembers[teamId])
-    state.teamMembers[teamId].sort((a, b) => {
-      // 将群主和管理员排在队列前方
-      if (a.type === 'owner' || b.type === 'owner') {
-        return a.type === 'owner' ? -1 : 1
-      }
-      if (a.type === 'manager' || b.type === 'manager') {
-        return a.type === 'manager' ? -1 : b.type === 'manager' ? 1 : 0
-      }
-      return -1
-    })
+    // state.teamMembers[teamId] = listSort(state.teamMembers[teamId])
+    // state.teamMembers[teamId].sort((a, b) => {
+    //   // 将群主和管理员排在队列前方
+    //   if (a.type === 'owner' || b.type === 'owner') {
+    //     return a.type === 'owner' ? -1 : 1
+    //   }
+    //   if (a.type === 'manager' || b.type === 'manager') {
+    //     return a.type === 'manager' ? -1 : b.type === 'manager' ? 1 : 0
+    //   }
+    //   return -1
+    // })
     state.teamMembers = Object.assign({}, state.teamMembers)
   },
   removeTeamMembersByAccounts (state, obj) {
@@ -902,7 +880,6 @@ export default {
       } else {
         Vue.set(state, 'orgnizeObj', obj.data || {})
       }
-      // console.log(state.myDeptObj)
       return
     }
     let curStateObj = ''
