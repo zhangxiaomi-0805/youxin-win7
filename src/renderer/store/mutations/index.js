@@ -297,13 +297,12 @@ export default {
           if (msg.idClient === currMsg.idClient || (msg.idClientFake && currMsg.idClientFake && msg.idClientFake === currMsg.idClientFake)) {
             needReplace = true
             state.msgs[sessionId].splice(i, 1, msg)
-            console.log('length==' + state.msgs[sessionId] + ',i=' + i)
-            console.log(Object.assign(msg))
             break
           }
         }
       }
       if (!needReplace) {
+        // xp系统消息列表显示错乱（获取的消息时间有误差）
         tempMsgs.push(msg)
         // if (msg.time > tempMsgs[lastMsgIndex].time) {
         //   tempMsgs.push(msg)
@@ -318,8 +317,6 @@ export default {
         // }
       }
     }
-    console.log('=====put msg==sessionId' + sessionId)
-    console.log(Object.assign(state.msgs[sessionId]))
   },
   // 删除消息列表消息
   deleteMsg (state, msg) {
