@@ -502,7 +502,7 @@ APP.prototype.createRemoteWindow = function (arg) {
   // 创建远程桌面窗口
   this.remoteWindow = new BrowserWindow({
     width: 899,
-    height: 767,
+    height: 505,
     minWidth: 500,
     minHeight: 300,
     frame: false,
