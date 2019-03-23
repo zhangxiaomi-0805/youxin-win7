@@ -78,6 +78,10 @@ export default {
   mounted () {
     this.setDragArea() // 设置可拖拽高度
     var _this = this
+    // 定位会话列表
+    this.eventBus.$on('positionSession', function () {
+      _this.positionSession()
+    })
     this.eventBus.$on('locationMainListItem', function (data) {
       if (data.listType === 'session') {
         setTimeout(() => {
@@ -272,6 +276,18 @@ export default {
     }
   },
   methods: {
+    // 点击系统托盘定位会话列表---有未读消息时
+    positionSession() {
+      let unreadSessionlist = _this.sessionlist && _this.sessionlist.filter(session => {
+        return session.unread > 0
+      })
+      if (unreadSessionlist && unreadSessionlist.length > 0) {
+        _this.activeId = unreadSessionlist[unreadSessionlist.length - 1].id
+        _this.toggleSelect(_this.activeId)
+        _this.scrollToSession()
+        _this.toggleChat(unreadSessionlist[unreadSessionlist.length - 1])
+      }
+    },
     setDragArea () {
       let leftDom = document.getElementById('resize-side-lf')
       let leftWidth = (leftDom.style.width).split('px')[0]
