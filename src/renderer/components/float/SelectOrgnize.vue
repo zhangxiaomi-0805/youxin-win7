@@ -260,7 +260,7 @@ export default {
           })
           return false
         }
-        if (this.isNormal) {
+        if (this.isNormal && !this.isDiscussGroup) {
           // 普通成员邀请人入群
           this.sendCustomMsg()
           return false
