@@ -58,7 +58,7 @@
   import util from '../../utils'
   import SearchMember from '../search/SearchMember'
   import clickoutside from '../../utils/clickoutside.js'
-  import { getPinyin } from '../../utils/pinyin'
+  // import { getPinyin } from '../../utils/pinyin'
   export default {
     name: 'chat-notice',
     directives: {clickoutside},
@@ -132,16 +132,13 @@
                 member.alias = '我'
                 member.avatar = this.$store.state.myInfo.avatar
                 member.isSelf = true
-                member.initial = getPinyin(member.alias, '').slice(0, 1)
               } else if (this.userInfos[member.accid] === undefined) {
                 needSearchAccounts.push(member.accid)
                 member.avatar = member.avatar || this.avatar
                 member.alias = member.nickInTeam || member.accid
-                member.initial = getPinyin(member.alias, '').slice(0, 1)
               } else {
                 member.avatar = this.userInfos[member.accid].avatar
                 member.alias = this.userInfos[member.accid].alias || member.nickInTeam || this.userInfos[member.accid].nick
-                member.initial = getPinyin(member.alias, '').slice(0, 1)
               }
               return member
             })
@@ -150,11 +147,6 @@
                 this.searchUsers(needSearchAccounts.splice(0, 150))
               }
             }
-            members.forEach(item => {
-              if (this.$store.state.friendsStatusList[item.account] > -1) {
-                item.status = this.$store.state.friendsStatusList[item.account]
-              }
-            })
             members = this.memberListSort(members)
             return members
           }

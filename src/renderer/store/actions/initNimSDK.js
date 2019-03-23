@@ -41,23 +41,13 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           loginInfo.done(200)
         }
         commit('connectStatus', { networkStatus: 200 })
-        if (config.environment === 'web') { // web分支
-          // let AppDirectory = window.location.pathname.slice(1) // 應用所在目錄
-          // if (AppDirectory.indexOf('dist') > -1) {
-          //   let urlArr = AppDirectory.split('dist')
-          //   AppDirectory = urlArr[0]
-          // }
-          // // 設置系統托盤應用圖標
-          // NativeLogic.native.setTrayImage(AppDirectory + '/dist/static/img/systry-logo.png')
-        } else { // electron分支
+        if (config.environment === 'electron') {
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('logined', null)
         }
       }
     },
     onerror: function onError (evt) {
-      // let str = JSON.stringify(event)
-      // if (str.indexOf('msg::handleMsg') !== 0) return
       switch (evt.event) {
         case 'HEARTBEAT_ERROR':
           commit('toastConfig', {
@@ -69,9 +59,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           break
       }
     },
-    onwillreconnect: function onWillReconnect () {
-      // console.log(event)
-    },
+    onwillreconnect: function onWillReconnect () {},
     ondisconnect: function onDisconnect (error) {
       switch (error.code) {
         // 账号或者密码错误, 请跳转到登录页面并提示错误
@@ -88,9 +76,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
           break
         case 'logout':
           if (config.environment === 'web') { // web分支
-            NativeLogic.native.sendEvent(null, 'logout', () => {
-              console.log('111')
-            })
+            NativeLogic.native.sendEvent(null, 'logout', () => {})
           } else { // electron分支
             let { ipcRenderer } = require('electron')
             ipcRenderer.send('logout', null)
