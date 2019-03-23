@@ -277,7 +277,8 @@ export default {
   },
   methods: {
     // 点击系统托盘定位会话列表---有未读消息时
-    positionSession() {
+    positionSession () {
+      let _this = this
       let unreadSessionlist = _this.sessionlist && _this.sessionlist.filter(session => {
         return session.unread > 0
       })

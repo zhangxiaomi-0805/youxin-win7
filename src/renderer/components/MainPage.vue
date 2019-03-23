@@ -114,10 +114,7 @@
 
         // 点击系统托盘图标 ---- 定位会话列表
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnClickedTrayIcon', (params) => {
-          console.log('点击系统托盘图标 ---- 定位会话列表')
-          console.log(params)
           if (params.button === 'left') { // 左击
-            console.log('123============')
             this.eventBus.$emit('positionSession')
           }
         })
@@ -202,6 +199,10 @@
           let content = { status: 'connect', ipconfig: arg.content }
           this.$store.dispatch('sendCustomSysMsg', {account: arg.account, content: JSON.stringify(content)})
           this.$store.commit('updateRemoteWaitingObj', { showModal: false })
+        })
+        // 点击系统托盘图标 ---- 定位会话列表
+        ipcRenderer.on('positionSession', (evt, arg) => {
+          this.eventBus.$emit('positionSession')
         })
       }
       // 检查更新
