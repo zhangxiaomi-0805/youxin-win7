@@ -73,7 +73,7 @@
       },
       scrollEndLoad (e) {
         let { scrollTop, clientHeight, scrollHeight } = e.target
-        if (scrollTop + clientHeight === scrollHeight) {
+        if ((parseInt(scrollTop + clientHeight)) === scrollHeight) {
           this.renderRecordlist()
         }
       },

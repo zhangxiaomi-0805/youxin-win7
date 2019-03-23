@@ -726,17 +726,19 @@ export default {
       }
       return member
     })
-    // state.teamMembers[teamId] = listSort(state.teamMembers[teamId])
-    // state.teamMembers[teamId].sort((a, b) => {
-    //   // 将群主和管理员排在队列前方
-    //   if (a.type === 'owner' || b.type === 'owner') {
-    //     return a.type === 'owner' ? -1 : 1
-    //   }
-    //   if (a.type === 'manager' || b.type === 'manager') {
-    //     return a.type === 'manager' ? -1 : b.type === 'manager' ? 1 : 0
-    //   }
-    //   return -1
-    // })
+    state.teamMembers[teamId] = state.teamMembers[teamId].sort(function (obj1, obj2) {
+      return obj1.alias.localeCompare(obj2.alias, 'zh')
+    })
+    state.teamMembers[teamId].sort((a, b) => {
+      // 将群主和管理员排在队列前方
+      if (a.type === 'owner' || b.type === 'owner') {
+        return a.type === 'owner' ? -1 : 1
+      }
+      if (a.type === 'manager' || b.type === 'manager') {
+        return a.type === 'manager' ? -1 : b.type === 'manager' ? 1 : 0
+      }
+      return -1
+    })
     state.teamMembers = Object.assign({}, state.teamMembers)
   },
   removeTeamMembersByAccounts (state, obj) {

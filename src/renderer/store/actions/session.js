@@ -135,23 +135,36 @@ export function onUpdateSession (session, callback) {
   } else {
     store.commit('updateSessions', sessions)
   }
+  // 是否进行消息通知
+  if (IsMute(session)) return false
   // 通知主进程
   let unreadNums = 0
   store.state.sessionlist.forEach(session => {
-    unreadNums += session.unread
+    if (!IsMute(session)) {
+      unreadNums += session.unread
+    }
   })
   if (config.environment === 'web') { // web分支
-    // NativeLogic.native.getWinStatus()
-    //   .then(res => {
-    //     if (!res.isFocused) {
-    //       NativeLogic.native.flashFrame(true)
-    //     }
-    //   })
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('sessionUnreadNums', {unreadNums})
   }
+}
+
+function IsMute (session) {
+  // 是否进行消息通知
+  let isMute = false
+  if (session.scene === 'p2p') {
+    isMute = store.state.mutelist.find(item => {
+      return item.account === session.to
+    })
+  } else {
+    isMute = store.state.muteTeamIds.find(team => {
+      return team === session.to
+    })
+  }
+  return isMute
 }
 
 // 置顶聊天

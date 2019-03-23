@@ -25,12 +25,12 @@
       v-if="showSearch"
       :isDiscussGroup="isDiscussGroup"
       :value="searchValue"
-      :memberList="memberList"
+      :memberList="memberData"
       :userInfos="userInfos"
       :myInfo="myInfo"
       :clearStatus="clearStatus"/>
     <div v-if="!memberList || memberList.length === 0" style="padding: 5px 0; font-size: 12px; color: #ccc; text-align: center">正在同步...</div>
-    <ul class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px', bottom: '31px'}">
+    <ul ref="memberList" class="m-u-list" :style="{top: isDiscussGroup ? '34px' : '185px', bottom: '31px'}" @scroll="scrollEndLoad($event)">
       <li
         class="m-u-list-item"
         v-for="member in memberList"
@@ -58,7 +58,6 @@
   import util from '../../utils'
   import SearchMember from '../search/SearchMember'
   import clickoutside from '../../utils/clickoutside.js'
-  // import { getPinyin } from '../../utils/pinyin'
   export default {
     name: 'chat-notice',
     directives: {clickoutside},
@@ -91,7 +90,9 @@
         settingIcon: './static/img/nav/icon-plus.png',
         showSearch: false,
         searchValue: '',
-        timer: ''
+        timer: '',
+        memberData: [], // 群成员缓存
+        memberloadNum: 20 // 初始加载长度
       }
     },
     computed: {
@@ -147,8 +148,8 @@
                 this.searchUsers(needSearchAccounts.splice(0, 150))
               }
             }
-            members = this.memberListSort(members)
-            return members
+            this.memberData = members
+            return members.filter((item, index) => index < this.memberloadNum)
           }
         } else return []
       },
@@ -179,26 +180,20 @@
       jurisdiction (newPromiss, oldPromiss) {
         if (newPromiss === oldPromiss) return
         this.eventBus.$emit('editNoticePromiss', {jurisdiction: !newPromiss})
+      },
+      $route () {
+        if (this.$refs.memberList) {
+          this.$refs.memberList.scrollTop = 0
+        }
+        this.memberloadNum = 20
       }
     },
     methods: {
-      memberListSort (initMembers) {
-        // 按用户名拼音排序
-        let members = initMembers.sort(function (obj1, obj2) {
-          return obj1.alias.localeCompare(obj2.alias, 'zh')
-        })
-        // 按身份排序（群主在最前面，其次是管理员）
-        let arr1 = members.filter(item => {
-          return item.type === 'owner'
-        })
-        let arr2 = members.filter(item => {
-          return item.type === 'manager'
-        })
-        let arr3 = members.filter(item => {
-          return item.type === 'normal'
-        })
-        members = arr1.concat(arr2, arr3)
-        return members
+      scrollEndLoad (e) {
+        let { scrollTop, clientHeight, scrollHeight } = e.target
+        if ((parseInt(scrollTop + clientHeight)) === scrollHeight) {
+          this.memberloadNum += 20
+        }
       },
       searchUsers (Accounts) {
         this.$store.dispatch('searchUsers',

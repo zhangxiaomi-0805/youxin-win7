@@ -32,7 +32,7 @@ var config = {
   // 我的手机图标
   myPhoneIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/my-phone.png',
   // 本地消息显示数量，会影响性能
-  localMsglimit: 36
+  localMsglimit: 24
 }
 
 let appConfig = {
