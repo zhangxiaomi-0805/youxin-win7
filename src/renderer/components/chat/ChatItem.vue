@@ -20,7 +20,10 @@
       :type="msg.type"
       style="overflow: hidden;"
     >
-      <a class="msg-head noevent" v-if="msg.avatar" @click="showCheckUser($event, msg)">
+      <a class="msg-head noevent" v-if="msg.avatar" 
+        @click.stop="showCheckUser($event, msg)"
+        @dblclick.stop="msg.scene === 'team' && msg.flow==='in' && sendMsg(msg)"
+      >
         <img class="icon u-circle" :src="msg.avatar">
       </a>
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
@@ -33,7 +36,11 @@
         <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
         <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
       </span>
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)" @mouseup.stop="showListOptions($event, msg.type)">
+      <!-- 群邀请消息 -->
+      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box"
+        @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)"
+        @mouseup.stop="showListOptions($event, msg.type)"
+      >
         <span class="custom-type8-title">邀请你加入群聊</span>
         <span class="custom-type8-content-box">
           <span class="custom-type8-content">{{msg.showText.description}}</span>
@@ -686,6 +693,31 @@
       }
     },
     methods: {
+      sendMsg (msg) {
+        this.timer && clearTimeout(this.timer)
+        // 发消息
+        let sessionId = ''
+        let sessionlist = this.$store.state.sessionlist
+        for (let i in sessionlist) {
+          if (sessionlist[i].to === msg.from) {
+            sessionId = sessionlist[i].id
+            break
+          }
+        }
+        if (sessionId) {
+          this.eventBus.$emit('toggleSelect', {sessionId})
+          this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+        } else {
+          this.$store.dispatch('insertLocalSession', {
+            scene: 'p2p',
+            account: msg.from,
+            callback: (sessionId) => {
+              this.eventBus.$emit('toggleSelect', {sessionId})
+              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
+            }
+          })
+        }
+      },
       bindEvent (element, eventName, eventHandler) {
         if (element.addEventListener) {
           element.addEventListener(eventName, eventHandler, false)
