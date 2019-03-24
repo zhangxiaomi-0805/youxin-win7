@@ -216,4 +216,8 @@ MainWindow.prototype.sendRemoteConnection = function (arg) {
   this.mainWindow.webContents.send('sendRemoteConnection', arg)
 }
 
+MainWindow.prototype.positionSession = function (arg) {
+  this.mainWindow.webContents.send('positionSession', arg)
+}
+
 export default MainWindow

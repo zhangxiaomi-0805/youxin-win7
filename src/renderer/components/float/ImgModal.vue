@@ -367,8 +367,10 @@ export default {
     },
     positionReset () {
       let dom = document.getElementById('imgModalDrag')
-      dom.parentNode.style.left = '50%'
-      dom.parentNode.style.top = '50%'
+      if (dom && dom.parentNode) {
+        dom.parentNode.style.left = '50%'
+        dom.parentNode.style.top = '50%'
+      }
     },
     resizeModal () {
       if (this.modalWidth === 624 && this.modalHeight === 468) {

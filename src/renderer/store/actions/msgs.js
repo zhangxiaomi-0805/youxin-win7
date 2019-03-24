@@ -52,6 +52,17 @@ export function onNewMsg (msg) {
 
 async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
+  let isMute = false
+  if (msg.scene === 'p2p') {
+    isMute = store.state.mutelist.find(item => {
+      return item.account === msg.from
+    })
+  } else {
+    let map = await notifyForNewTeamMsg(msg.to)
+    let muteNotiType = Number(map[msg.to])
+    if (muteNotiType === 1) isMute = true
+  }
+  if (isMute) return false
   // 通知主进程
   let unreadNums = 0
   store.state.sessionlist.forEach(session => {
@@ -70,21 +81,9 @@ async function systemNewMsgsManage (msg) {
     ipcRenderer.send('receiveNewMsgs', {unreadNums})
   }
   // 发送音频
-  let isMute = false
-  if (msg.scene === 'p2p') {
-    isMute = store.state.mutelist.find(item => {
-      return item.account === msg.from
-    })
-  } else {
-    let map = await notifyForNewTeamMsg(msg.to)
-    let muteNotiType = Number(map[msg.to])
-    if (muteNotiType === 1) isMute = true
-  }
-  if (!isMute) {
-    let audio = new Audio(`./static/img/msg.wav`)
-    audio.play()
-    setTimeout(() => audio.pause(), 800)
-  }
+  let audio = new Audio(`./static/img/msg.wav`)
+  audio.play()
+  setTimeout(() => audio.pause(), 800)
 }
 
 function notifyForNewTeamMsg (teamId) {

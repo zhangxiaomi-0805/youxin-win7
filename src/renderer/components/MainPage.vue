@@ -111,6 +111,14 @@
           AppDirectory = urlArr[0]
         }
         NativeLogic.native.setWindowIcon(AppDirectory + '/dist/static/img/systry-logo.png') // 设置窗口图标
+
+        // 点击系统托盘图标 ---- 定位会话列表
+        window.NimCefWebInstance && window.NimCefWebInstance.register('OnClickedTrayIcon', (params) => {
+          if (params.button === 'left') { // 左击
+            this.eventBus.$emit('positionSession')
+          }
+        })
+
         // 点击右下角退出按钮时的通知--这里是隐藏
         window.NimCefWebInstance && window.NimCefWebInstance.register('OnAppExit', (params) => {
           NativeLogic.native.setWinStatus('main', 6).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
@@ -191,6 +199,10 @@
           let content = { status: 'connect', ipconfig: arg.content }
           this.$store.dispatch('sendCustomSysMsg', {account: arg.account, content: JSON.stringify(content)})
           this.$store.commit('updateRemoteWaitingObj', { showModal: false })
+        })
+        // 点击系统托盘图标 ---- 定位会话列表
+        ipcRenderer.on('positionSession', (evt, arg) => {
+          this.eventBus.$emit('positionSession')
         })
       }
       // 检查更新

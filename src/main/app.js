@@ -429,7 +429,10 @@ APP.prototype.createMainWindow = function () {
 }
 
 APP.prototype.showMainWindow = function () {
-  if (this.mainWindow) this.mainWindow.show()
+  if (this.mainWindow) {
+    this.mainWindow.show()
+    this.mainWindow.positionSession()
+  }
 }
 
 APP.prototype.modifyFilePath = function () {
