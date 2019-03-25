@@ -704,8 +704,8 @@
         }
         if (data && (data[data.length - 1].indexOf('@') > -1 || this.showAtList) && this.scene === 'team') {
           if (config.environment === 'web' && data.length > 1) { // xp系统的data单独处理，每次都会带上@，但是electron不会带上，不处理的话会走不同分支
-            for (let  i = 1; i< data.length; i++) {
-              if (data[i-1] === '@' && data[i] !== '@') {
+            for (let i = 1; i < data.length; i++) {
+              if (data[i - 1] === '@' && data[i] !== '@') {
                 data = data.slice(i)
               }
             }
