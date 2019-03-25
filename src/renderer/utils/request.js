@@ -117,9 +117,13 @@ function ModifyPassword (params, $this) {
   /*
    * 登录成功修改密码
    * @param password: 修改密码的内容 (需要使用DES进行加密,秘钥:8fgt6jhk45frgt5k)
+   * @param oldPassword 老密码
+   * @param confirmPassword 确认新密码
    */
   return new Promise((resolve, reject) => {
     params.password = DES.encryptByDES(params.password)
+    params.oldPassword = DES.encryptByDES(params.oldPassword)
+    params.confirmPassword = DES.encryptByDES(params.confirmPassword)
     Fetch.post('api/appPc/modifyPassword', params || {}, $this).then(res => resolve(res)).catch(err => reject(err))
   })
 }
