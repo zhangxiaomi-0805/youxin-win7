@@ -20,12 +20,12 @@
       :type="msg.type"
       style="overflow: hidden;"
     >
-      <a class="msg-head noevent" v-if="msg.avatar" 
+      <div class="msg-head noevent" v-if="msg.avatar" 
         @click.stop="showCheckUser($event, msg)"
-        @dblclick.stop="msg.scene === 'team' && msg.flow==='in' && sendMsg(msg)"
+        @dblclick.stop="msg.scene === 'team' && msg.flow==='in' && sendMsg($event, msg)"
       >
         <img class="icon u-circle" :src="msg.avatar">
-      </a>
+      </div>
       <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
       <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
@@ -693,7 +693,8 @@
       }
     },
     methods: {
-      sendMsg (msg) {
+      sendMsg (event, msg) {
+        event.preventDefault()
         this.timer && clearTimeout(this.timer)
         // 发消息
         let sessionId = ''
@@ -1334,6 +1335,8 @@
         return text
       },
       showCheckUser (event, msg) {
+        this.timer && clearTimeout(this.timer)
+        event.preventDefault()
         let userInfos = this.userInfos[msg.from]
         if (!userInfos) {
           if (msg.from === this.myInfo.account) {
@@ -1341,11 +1344,13 @@
           } else return
         }
         // 查看个人资料
-        if (userInfos === 1) {
-          this.eventBus.$emit('showMyInfo', {event, userInfos})
-        } else {
-          this.eventBus.$emit('checkUser', {event, userInfos})
-        }
+        this.timer = setTimeout(() => {
+          if (userInfos === 1) {
+            this.eventBus.$emit('showMyInfo', {event, userInfos})
+          } else {
+            this.eventBus.$emit('checkUser', {event, userInfos})
+          }
+        }, 500)
       },
       getSelectedText () {
         let sel = window.getSelection && window.getSelection()
