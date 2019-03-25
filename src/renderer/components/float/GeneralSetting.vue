@@ -38,8 +38,9 @@
           <div
             v-if="curPanelKey === 2"
             class="set-sys"
+            style="justify-content: flex-start"
           >
-            <div>
+            <div style="margin-bottom: 20px">
               <div style="font-size: 14px;color: #999;">
                 关闭主面板时
               </div>
@@ -57,19 +58,15 @@
                 </div>
               </div>
             </div>
-            <!-- <div
-              style="display: flex;justify-content: center;width: 100%;"
-            >
-              <div
-                class="set-block logout"
-                style="height: 29px;margin: 0 36px 0 0;"
-              >
-                <a>确定</a>
+            <div>
+              <div style="font-size: 14px;color: #999;">
+                声音提醒
               </div>
-              <div class="set-block" style="margin-bottom: 0;">
-                <a class="toggle" style="width: 77px;height: 29px;color: #999;">取消</a>
+              <div class="sys-item" @click="audioSettCtrl">
+                <span :class="!audioSett ? 'radio active' : 'radio'"/>
+                <span style="fontSize: 13px;">{{!audioSett ? '开启新消息提醒声音' : '关闭新消息提醒声音'}}</span>
               </div>
-            </div> -->
+            </div>
           </div>
           <div
             class="set-update"
@@ -211,7 +208,8 @@ export default {
       needUpdate: true,
       myGroupIcon: config.defaultGroupIcon,
       choseSessionList: [],
-      cutCode: localStorage.CUTCODE || 'Alt + A'
+      cutCode: localStorage.CUTCODE || 'Alt + A',
+      audioSett: localStorage.AUDIOSETT || false
     }
   },
   mounted () {
@@ -404,6 +402,16 @@ export default {
             toastText: '截屏快捷键设置失败！'
           })
         })
+      }
+    },
+    audioSettCtrl () {
+      // 设置新消息提醒
+      if (this.audioSett) {
+        this.audioSett = false
+        localStorage.removeItem('AUDIOSETT')
+      } else {
+        this.audioSett = true
+        localStorage.setItem('AUDIOSETT', true)
       }
     }
   }

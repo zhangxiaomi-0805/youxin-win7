@@ -256,7 +256,7 @@ export default {
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
-            toastText: '无法操作，群人数已达上限200人'
+            toastText: `无法操作，群人数已达上限${this.teamMaxNum}人`
           })
           return false
         }

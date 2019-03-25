@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, globalShortcut } from 'electron'
 
 var MainWindow = function () {
   this.init()
@@ -25,7 +25,7 @@ MainWindow.prototype.init = function () {
     zoomToPageWidth: false,
     webPreferences: {
       webSecurity: false
-      // devTools: false
+      // devTools: true
     }
   }
 
@@ -109,6 +109,11 @@ MainWindow.prototype.createWindow = function () {
       }
     })
   })
+
+  // globalShortcut.register('CommandOrControl+F12', () => {
+  //   // Do stuff when Y and either Command/Control is pressed.
+  //   this.mainWindow.webContents.openDevTools()
+  // })
 }
 
 MainWindow.prototype.show = function () {

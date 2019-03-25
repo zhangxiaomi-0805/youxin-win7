@@ -709,36 +709,68 @@ export default {
       }
     }
   },
-  updateTeamMembers (state, obj) {
+  async updateTeamMembers (state, obj) {
     const nim = state.nim
     var teamId = obj.teamId
     var members = obj.members
     state.teamMembers = state.teamMembers || {}
     state.teamMembers[teamId] = nim.mergeTeamMembers(state.teamMembers[teamId], members)
     state.teamMembers[teamId] = nim.cutTeamMembers(state.teamMembers[teamId], members.invalid)
+    let needSearchAccounts = []
     state.teamMembers[teamId] = state.teamMembers[teamId].map((member) => {
       if (member.account === state.userUID) {
         member.alias = '我'
       } else if (state.userInfos[member.account] === undefined) {
+        needSearchAccounts.push(member.account)
         member.alias = member.nickInTeam || member.account
       } else {
         member.alias = state.userInfos[member.account].alias || member.nickInTeam || state.userInfos[member.account].nick
       }
       return member
     })
+    // 更新群成员头像、昵称
+    const searchUsers = (Accounts) => {
+      return new Promise((resolve, reject) => {
+        store.dispatch('searchUsers',
+          {
+            accounts: Accounts,
+            done: (users) => {
+              resolve(users)
+            }
+          }
+        )
+      })
+    }
+    if (needSearchAccounts.length > 0) {
+      while (needSearchAccounts.length > 0) {
+        try {
+          let users = await searchUsers(needSearchAccounts.splice(0, 150))
+          users.forEach(user => {
+            let member = state.teamMembers[teamId].find(member => {
+              return member.account === user.account
+            })
+            if (member) {
+              member.avatar = user.avatar
+              member.alias = member.nickInTeam || user.nick
+            }
+          })
+        } catch (error) {}
+      }
+    }
     state.teamMembers[teamId] = state.teamMembers[teamId].sort(function (obj1, obj2) {
       return obj1.alias.localeCompare(obj2.alias, 'zh')
     })
-    state.teamMembers[teamId].sort((a, b) => {
-      // 将群主和管理员排在队列前方
-      if (a.type === 'owner' || b.type === 'owner') {
-        return a.type === 'owner' ? -1 : 1
-      }
-      if (a.type === 'manager' || b.type === 'manager') {
-        return a.type === 'manager' ? -1 : b.type === 'manager' ? 1 : 0
-      }
-      return -1
+    // 按身份排序（群主在最前面，其次是管理员）
+    let arr1 = state.teamMembers[teamId].filter(item => {
+      return item.type === 'owner'
     })
+    let arr2 = state.teamMembers[teamId].filter(item => {
+      return item.type === 'manager'
+    })
+    let arr3 = state.teamMembers[teamId].filter(item => {
+      return item.type === 'normal'
+    })
+    state.teamMembers[teamId] = arr1.concat(arr2, arr3)
     state.teamMembers = Object.assign({}, state.teamMembers)
   },
   removeTeamMembersByAccounts (state, obj) {

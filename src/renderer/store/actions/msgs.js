@@ -81,6 +81,7 @@ async function systemNewMsgsManage (msg) {
     ipcRenderer.send('receiveNewMsgs', {unreadNums})
   }
   // 发送音频
+  if (localStorage.AUDIOSETT) return
   let audio = new Audio(`./static/img/msg.wav`)
   audio.play()
   setTimeout(() => audio.pause(), 800)

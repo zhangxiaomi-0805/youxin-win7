@@ -123,7 +123,6 @@
         if (this.teamInfo && this.teamInfo.valid && this.teamInfo.validToCurrentUser) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
-          let needSearchAccounts = []
           if (members) {
             members = members.map(item => {
               var member = Object.assign({}, item) // 重新创建一个对象，用于存储展示数据，避免对vuex数据源的修改
@@ -134,7 +133,6 @@
                 member.avatar = this.$store.state.myInfo.avatar
                 member.isSelf = true
               } else if (this.userInfos[member.accid] === undefined) {
-                needSearchAccounts.push(member.accid)
                 member.avatar = member.avatar || this.avatar
                 member.alias = member.nickInTeam || member.accid
               } else {
@@ -143,11 +141,6 @@
               }
               return member
             })
-            if (needSearchAccounts.length > 0) {
-              while (needSearchAccounts.length > 0) {
-                this.searchUsers(needSearchAccounts.splice(0, 150))
-              }
-            }
             this.memberData = members
             return members.filter((item, index) => index < this.memberloadNum)
           }
@@ -194,26 +187,6 @@
         if ((parseInt(scrollTop + clientHeight)) === scrollHeight) {
           this.memberloadNum += 20
         }
-      },
-      searchUsers (Accounts) {
-        this.$store.dispatch('searchUsers',
-          {
-            accounts: Accounts,
-            done: (users) => {
-              this.updateTeamMember(users)
-            }
-          })
-      },
-      updateTeamMember (users) {
-        users.forEach(user => {
-          var member = this.memberList && this.memberList.find(member => {
-            return member.accid === user.account
-          })
-          if (member) {
-            member.avatar = user.avatar
-            member.alias = member.nickInTeam || user.nick
-          }
-        })
       },
       showEditNotice (type) {
         this.eventBus.$emit('editNotice', {

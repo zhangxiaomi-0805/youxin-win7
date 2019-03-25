@@ -408,6 +408,7 @@ APP.prototype.afterlogout = function () {
   this.appMenu.enableMenuItem('status', false)
 
   this.closeAllWindows()
+  this.tryTwinkle({unreadNums: 0})
   this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
   // 清空cookies
   // _this.clearCookies()

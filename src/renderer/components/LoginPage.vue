@@ -51,7 +51,7 @@
           <!-- 图形验证码 -->
           <div :class="verifyCodeImg ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'">
             <input
-              type="password"
+              type="text"
               class="ipt"
               style="fontSize: 19px;letterSpacing: 2px;width: 60%"
               maxlength="4"
