@@ -48,6 +48,7 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
       }
     },
     onerror: function onError (evt) {
+      console.log(evt)
       switch (evt.event) {
         case 'HEARTBEAT_ERROR':
           commit('toastConfig', {
@@ -56,6 +57,13 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
             toastText: '网络连接状态异常，请检查网络连接'
           })
           commit('connectStatus', { networkStatus: 500 })
+          break
+        case 'Error_Connection_Socket_State_not_Match':
+          commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: '网络连接状态异常，请检查网络连接'
+          })
           break
       }
     },
