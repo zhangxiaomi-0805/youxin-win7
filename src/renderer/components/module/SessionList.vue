@@ -115,17 +115,17 @@ export default {
         this.$router.push({name: 'session-default'})
         return false
       }
-      if (this.activeId) return
+      // if (this.activeId) return
       // 默认加载第一个会话
-      if (newData[0]) {
-        this.$nextTick(() => {
-          setTimeout(() => {
-            if (this.$refs[newData[0].id]) {
-              this.$refs[newData[0].id][0].click()
-            }
-          }, 250)
-        })
-      }
+      // if (newData[0]) {
+      //   this.$nextTick(() => {
+      //     setTimeout(() => {
+      //       if (this.$refs[newData[0].id]) {
+      //         this.$refs[newData[0].id][0].click()
+      //       }
+      //     }, 250)
+      //   })
+      // }
     }
   },
   activated () {
