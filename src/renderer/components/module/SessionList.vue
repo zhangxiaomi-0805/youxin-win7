@@ -116,7 +116,7 @@ export default {
         return false
       }
       // if (this.activeId) return
-      // 默认加载第一个会话
+      // // 默认加载第一个会话
       // if (newData[0]) {
       //   this.$nextTick(() => {
       //     setTimeout(() => {
@@ -128,20 +128,20 @@ export default {
       // }
     }
   },
-  activated () {
-    // 重新加载聊天页
-    let activeId = this.activeId
-    let dom = this.$refs[activeId]
-    this.$nextTick(() => {
-      if (dom && dom[0] && dom[0].click) {
-        dom[0].click()
-      } else {
-        this.$router.push({name: 'session-default'})
-      }
-    })
-    // 处理滚动条位置
-    this.$refs.sessionList.scrollTop = this.scrollTop
-  },
+  // activated () {
+  //   // 重新加载聊天页
+  //   let activeId = this.activeId
+  //   let dom = this.$refs[activeId]
+  //   this.$nextTick(() => {
+  //     if (dom && dom[0] && dom[0].click) {
+  //       dom[0].click()
+  //     } else {
+  //       this.$router.push({name: 'session-default'})
+  //     }
+  //   })
+  //   // 处理滚动条位置
+  //   this.$refs.sessionList.scrollTop = this.scrollTop
+  // },
   data () {
     return {
       activeId: '',
@@ -280,8 +280,9 @@ export default {
     positionSession () {
       let _this = this
       let unreadSessionlist = _this.sessionlist && _this.sessionlist.filter(session => {
-        return session.unread > 0
+        return (session.unread > 0 && !_this.isMute(session)) // 未读数大于0 且 未设置免打扰
       })
+      console.log(unreadSessionlist)
       if (unreadSessionlist && unreadSessionlist.length > 0) {
         _this.activeId = unreadSessionlist[unreadSessionlist.length - 1].id
         _this.toggleSelect(_this.activeId)
