@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, globalShortcut } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 
 var MainWindow = function () {
   this.init()
