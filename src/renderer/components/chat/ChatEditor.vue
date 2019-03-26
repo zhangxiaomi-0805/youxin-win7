@@ -1,7 +1,7 @@
 <template>
   <div class="m-chat-editor">
     <div class="u-editor-contants" v-if="showAtList && members.length !== 0" ref="atList" :style="{left: atListPos.left + 'px', top: atListPos.top + 'px', height: members.length * 24 + 'px', maxHeight: '160px' }" >
-      <div v-for="(member, index) in members" :key="index" v-if="member.account !== $store.state.userUID" :class="index === atListIndex ? 'z-sel' : ''" @mouseenter="changeAtListIndex(index)" @click.stop="selectAtItem">
+      <div v-for="(member, index) in members" :key="index" :class="index === atListIndex ? 'z-sel' : ''" @mouseenter="changeAtListIndex(index)" @click.stop="selectAtItem">
         <span>{{member.alias}}</span>
       </div>
     </div>
@@ -1306,7 +1306,9 @@
               account: '@',
               allMatch: '所有人suoyouren'
             })
-            this.members = resultMembers
+            this.members = resultMembers.filter(member => {
+              return member.account !== this.$store.state.userUID
+            })
             return resultMembers
           }
         } else return []

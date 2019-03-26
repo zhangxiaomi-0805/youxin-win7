@@ -58,6 +58,7 @@
   import util from '../../utils'
   import SearchMember from '../search/SearchMember'
   import clickoutside from '../../utils/clickoutside.js'
+  const MemberloadNum = 30 // 初始群成员分页条数
   export default {
     name: 'chat-notice',
     directives: {clickoutside},
@@ -92,7 +93,7 @@
         searchValue: '',
         timer: '',
         memberData: [], // 群成员缓存
-        memberloadNum: 20 // 初始加载长度
+        memberloadNum: MemberloadNum
       }
     },
     computed: {
@@ -178,14 +179,14 @@
         if (this.$refs.memberList) {
           this.$refs.memberList.scrollTop = 0
         }
-        this.memberloadNum = 20
+        this.memberloadNum = MemberloadNum
       }
     },
     methods: {
       scrollEndLoad (e) {
         let { scrollTop, clientHeight, scrollHeight } = e.target
         if ((parseInt(scrollTop + clientHeight)) === scrollHeight) {
-          this.memberloadNum += 20
+          this.memberloadNum += MemberloadNum
         }
       },
       showEditNotice (type) {
@@ -305,7 +306,7 @@
           isNormal: this.power === 'normal',
           memberNum: this.memberData.length
         }
-        let custom = this.teamInfo.custom
+        let custom = this.teamInfo.serverCustom
         if (custom) {
           custom = JSON.parse(custom)
           if (custom.teamMaxNum) {
