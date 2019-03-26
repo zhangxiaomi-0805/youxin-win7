@@ -9,9 +9,10 @@
       'session-chat': type==='session',
       'high-bg': msgHighBgIdClient === msg.idClient
     }">
-    <div v-if="msg.type==='timeTag'" class="u-msg-time">{{msg.showText}}</div>
-    <div v-else-if="msg.type==='tip'" class="tip">{{msg.showText}}</div>
+    <!-- <div v-if="msg.type==='timeTag'" class="u-msg-time">{{msg.showText}}</div> -->
+    <div v-if="msg.type==='tip'" class="tip">{{msg.showText}}</div>
     <div v-else-if="msg.type==='notification' && msg.scene==='team'" class="notification">{{msg.showText}}</div>
+    
     <div
       v-else-if="msg.flow==='in' || msg.flow==='out'"
       :idClient="msg.idClient"
@@ -26,8 +27,12 @@
       >
         <img class="icon u-circle" :src="msg.avatar">
       </div>
-      <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p>
-      <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right', color: '#333', fontSize: '12px', marginBottom: '3px'}">{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</p>
+      <!-- 时间 -->
+      <p v-if="msg.time && scene === 'p2p'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right'}" class="msg-time-name">{{manageTime(msg.time)}}</p>
+      <!-- <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p> -->
+      <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right'}" class="msg-time-name">
+        {{(msg.nickInTeam ? msg.nickInTeam : msg.fromNick) + ' ' + ' ' + manageTime(msg.time)}}
+      </p>
       <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
       <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
       <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
@@ -90,6 +95,7 @@
       <span v-if="msg.status==='fail'" class="msg-failed" @click="resendMsg(msg)"><i class="weui-icon-warn"></i></span>
       <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
     </div>
+    
     <div v-if="msg.status !== 'fail'" :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
       <span v-if="teamMsgUnRead >= 0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
     </div>
@@ -693,6 +699,10 @@
       }
     },
     methods: {
+      manageTime (time) {
+        return util.DateFormat(time)
+        // util.formatDate(time, true)
+      },
       sendMsg (event, msg) {
         event.preventDefault()
         this.timer && clearTimeout(this.timer)
@@ -1595,6 +1605,15 @@
 
     height: inherit;
 }
+/* 用户名 && 后面的时间 */
+.g-window .u-msg .msg-time-name {
+    color: #A5A5A5;
+    font-size: 12px;
+    margin-bottom: 3px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
 .g-window .u-msg .msg-user {
 
     font-style: italic;
@@ -1811,7 +1830,6 @@
 
     max-width: 80%;
     overflow: hidden;
-
     text-overflow:ellipsis;
     white-space:nowrap;
     margin: 0 auto;
@@ -1902,6 +1920,9 @@
     border-left: 0.4rem solid #e5f4ff;
 } */
 .g-window .u-msg.item-time {
+  padding: 0;
+  margin: 0;
+  height: 0;
   font-size: 0.8rem;
   text-align: center;
   color: #ccc;
@@ -2084,7 +2105,7 @@
 .u-msg .isRemoteRead {
   margin: 2px 62px 0 0;
   float: right;
-  height: 20px;
+  height: auto;
 }
 
 .u-msg .isRemoteRead span{
