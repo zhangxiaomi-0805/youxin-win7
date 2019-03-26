@@ -48,7 +48,6 @@ export function initNimSDK ({ state, commit, dispatch }, loginInfo) {
       }
     },
     onerror: function onError (evt) {
-      console.log(evt)
       switch (evt.event) {
         case 'HEARTBEAT_ERROR':
           commit('toastConfig', {
