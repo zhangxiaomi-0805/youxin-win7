@@ -230,7 +230,6 @@ function onSendMsgDone (error, msg) {
     // 被拉黑
     if (error.code === 7101) {
       msg.status = 'success'
-      console.log(error.message)
     } else if (error.code === 'Error_Internet_Disconnected' || error.code === 'Error_Connection_Socket_State_not_Match') {
       store.commit('toastConfig', {
         show: true,
@@ -239,9 +238,7 @@ function onSendMsgDone (error, msg) {
       })
       store.commit('connectStatus', { networkStatus: 500 })
       return
-    }else {
-      console.log(error.message)
-    }
+    } else {}
   }
   onMsg(msg)
 }
