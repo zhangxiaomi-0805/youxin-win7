@@ -128,20 +128,20 @@ export default {
       // }
     }
   },
-  // activated () {
-  //   // 重新加载聊天页
-  //   let activeId = this.activeId
-  //   let dom = this.$refs[activeId]
-  //   this.$nextTick(() => {
-  //     if (dom && dom[0] && dom[0].click) {
-  //       dom[0].click()
-  //     } else {
-  //       this.$router.push({name: 'session-default'})
-  //     }
-  //   })
-  //   // 处理滚动条位置
-  //   this.$refs.sessionList.scrollTop = this.scrollTop
-  // },
+  activated () {
+    // 重新加载聊天页
+    let activeId = this.activeId
+    let dom = this.$refs[activeId]
+    this.$nextTick(() => {
+      if (dom && dom[0] && dom[0].click) {
+        dom[0].click()
+      } else {
+        this.$router.push({name: 'session-default'})
+      }
+    })
+    // 处理滚动条位置
+    this.$refs.sessionList.scrollTop = this.scrollTop
+  },
   data () {
     return {
       activeId: '',
