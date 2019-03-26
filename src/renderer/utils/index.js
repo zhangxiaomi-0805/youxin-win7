@@ -131,6 +131,23 @@ Utils.stringifyDate = function (datetime, simple = false) {
   }
 }
 
+/* 时间戳转换为 年-月-日  时-分-秒 */
+Utils.DateFormat = function (inputTime) {
+  let date = new Date(inputTime)
+  let y = date.getFullYear()
+  let m = date.getMonth() + 1
+  m = m < 10 ? ('0' + m) : m
+  let d = date.getDate()
+  d = d < 10 ? ('0' + d) : d
+  let h = date.getHours()
+  h = h < 10 ? ('0' + h) : h
+  let minute = date.getMinutes()
+  let second = date.getSeconds()
+  minute = minute < 10 ? ('0' + minute) : minute
+  second = second < 10 ? ('0' + second) : second
+  return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second
+}
+
 /* 格式化日期 */
 Utils.formatDate = function (datetime, simple = false) {
   let tempDate = (new Date()).getTime()
