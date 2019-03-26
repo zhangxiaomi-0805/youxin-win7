@@ -58,7 +58,7 @@ export default {
     updateLocalVersion (ignore) {
       // 更新本地存储
       let APPVERSIONS = localStorage.APPVERSIONS ? JSON.parse(localStorage.APPVERSIONS) : {}
-      APPVERSIONS.dateTime = new Date().getTime()
+      APPVERSIONS.versionNum = this.content.versionNum
       if (ignore) APPVERSIONS.ignore = ignore
       localStorage.setItem('APPVERSIONS', JSON.stringify(APPVERSIONS))
     }

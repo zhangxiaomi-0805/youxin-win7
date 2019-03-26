@@ -148,10 +148,10 @@
       },
       power () {
         let type = 'normal'
-        if (this.memberList) {
-          for (let i = 0; i < this.memberList.length; i++) {
-            if (this.memberList[i].account === this.myInfo.account) {
-              type = this.memberList[i].type
+        if (this.memberData) {
+          for (let i = 0; i < this.memberData.length; i++) {
+            if (this.memberData[i].account === this.myInfo.account) {
+              type = this.memberData[i].type
               break
             }
           }
@@ -283,7 +283,7 @@
                   break
                 case 7:
                   // 移出本群
-                  if (this.memberList.length === 1) return
+                  if (this.memberData.length === 1) return
                   this.$store.dispatch('removeTeamMembers', {accounts: [member.accid], teamId: this.teamId})
                   break
                 default:
@@ -295,7 +295,7 @@
       },
       addTeamMember () {
         // 添加成员
-        this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList})
+        this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberData})
         let params = {
           type: 3,
           teamId: this.teamId,
@@ -303,7 +303,7 @@
           teamName: this.teamInfo.name,
           isDiscussGroup: this.isDiscussGroup,
           isNormal: this.power === 'normal',
-          memberNum: this.memberList.length
+          memberNum: this.memberData.length
         }
         let custom = this.teamInfo.custom
         if (custom) {
@@ -316,7 +316,7 @@
       },
       removeTeamMember () {
         // 移出成员
-        let sidelist = Object.assign([], this.memberList)
+        let sidelist = Object.assign([], this.memberData)
         if (this.power === 'owner') {
           for (let key in sidelist) {
             if (sidelist[key].account === this.myInfo.account) {

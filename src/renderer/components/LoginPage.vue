@@ -331,7 +331,6 @@
             localStorage.removeItem('AUTOLOGIN')
           }
           // 更新图形验证码
-          this.verifyCodeImg = ''
           this.verifyCodeUrlCtrl()
         })
       },
@@ -356,6 +355,8 @@
                 if (error !== 200) {
                   this.errMsg = error
                   this.loading = false
+                  // 更新图形验证码
+                  this.verifyCodeUrlCtrl()
                   return
                 }
                 // 初始化组织架构、我的部门、联系、常用联系人列表（是否清除组织数据 (clearOrg：2-清除)）
@@ -464,6 +465,7 @@
       },
       verifyCodeUrlCtrl (sessionId) {
         // 获取图形验证码
+        this.verifyCodeImg = ''
         let currentDate = new Date().getTime()
         sessionId = sessionId || localStorage.sessionId
         this.verifyCodeUrl = config.postUrl + 'api/appPc/getVerifyCode?sessionId=' + sessionId + '&&time=' + currentDate
