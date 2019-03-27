@@ -11,8 +11,19 @@
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
   <search v-if="showSearch" type="all" :value="searchValue" :clearStatus="clearStatus"/>
   <ul class="u-list" id="nsession-list" :style="{top: networkStatus !== 200 ? '92px' : mobileOnline ? '92px' : '56px'}" ref="sessionList" @scroll="scrollTop = $event.target.scrollTop">
-    <li class="u-list-item" @click="toggleSelect(session.id)" @mouseup.stop="onShowMenu($event, session)" :style="hasBorder && session.id === acSessionId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}" :class="session.id === activeId ? 'u-list-item-active' : ''" v-for="session in sessionlist" :key="session.id" :id="session.id">
-      <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link">
+    <li 
+      class="u-list-item"
+      @click="toggleSelect(session.id)"
+      @mouseup.stop="onShowMenu($event, session)"
+      :style="hasBorder && session.id === acSessionId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}"
+      :class="session.id === activeId ? 'u-list-item-active' : ''"
+      v-for="session in sessionlist"
+      :key="session.id" :id="session.id"
+    >
+      <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link"
+        @mouseover="selectedId = session.id, showDelete = true"
+        @mouseout="selectedId = -1, showDelete = false"
+      >
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">
           <div style="display: flex; align-items: center;width:70%;">
             <div
@@ -45,15 +56,19 @@
               </div>
             </div>
           </div>
-          <div style="margin-right:0.75rem;display:list-item;height: 40px;">
+          <div style="margin-right:0.75rem;display:flex;flex-direction:column;height: 40px;align-items:flex-end;justify-content:space-between">
             <div style="color:#AFB2B1;overflow:hidden;white-space:nowrap;font-size: 12px;">{{session.updateTimeShow}}</div>
-            <div v-if="isMute(session)" class="mute-contain">
+            <!-- 删除按钮 -->
+            <div v-if="session.id === selectedId && showDelete" class="delete-btn" @click.stop="deleteSessionFast(session)"></div>
+
+            <!-- 消息免打扰 -->
+            <div v-if="!(session.id === selectedId && showDelete) && isMute(session)" class="mute-contain">
               <span class="mute"></span>
               <span v-if="session.unread > 0" class="nomsg"></span>
             </div>
-            <span v-else-if="lastMsgStatus(session)" class="u-unread">1</span>
-            <span v-else-if="session.unread > 0" class="u-unread">{{session.unread > 99 ? "99+" : session.unread}}</span>
-            <div v-else style="width: 15px;height: 15px;"></div>
+            <span v-else-if="!(session.id === selectedId && showDelete) && lastMsgStatus(session)" class="u-unread">1</span>
+            <span v-else-if="!(session.id === selectedId && showDelete) && session.unread > 0" class="u-unread">{{session.unread > 99 ? "99+" : session.unread}}</span>
+            <!-- <div v-else style="width: 15px;height: 15px;"></div> -->
           </div>
         </div>
       </a>
@@ -153,7 +168,9 @@ export default {
       myGroupIcon: config.defaultGroupIcon,
       myAdvancedIcon: config.defaultAdvancedIcon,
       menuId: '',
-      newSessionlistTopLength: 0
+      newSessionlistTopLength: 0,
+      showDelete: false, // 快捷删除按钮
+      selectedId: -1 // 当前鼠标移入的会话id
     }
   },
   computed: {
@@ -276,6 +293,10 @@ export default {
     }
   },
   methods: {
+    // 快捷删除会话
+    deleteSessionFast (session) {
+      this.$store.dispatch('deleteSession', {id: session.id, that: this})
+    },
     // 点击系统托盘定位会话列表---有未读消息时
     positionSession () {
       let _this = this
@@ -835,5 +856,15 @@ export default {
     width: 100%;
     font-size: 14px;
     color: #C4C4C4;
+  }
+  .delete-btn {
+    width: 16px;
+    height: 16px;
+    background-image: url('../../../../static/img/setting/delete.png');
+    background-size: 16px 16px;
+  }
+  .delete-btn:hover {
+    background-image: url('../../../../static/img/setting/delete-c.png');
+    background-size: 16px 16px;
   }
 </style>
