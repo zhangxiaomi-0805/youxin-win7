@@ -43,7 +43,16 @@
           <span>{{' ' + manageTime(msg.time)}}</span>
         </p>
         <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-        <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="!isCheckMore && showListOptions($event, msg.type, msg.showText)" @mouseup.stop="!isCheckMore && itemMouseUp($event)" @click="!isCheckMore && openAplWindow($event)"></span>
+        <span :ref="`copy_${idClient}`"
+          style="-webkit-user-select: text;"
+          v-if="msg.type==='text'"
+          class="msg-text"
+          v-html="msg.showText"
+          @mousedown.stop="!isCheckMore && showListOptions($event, msg.type, msg.showText)"
+          @mouseup.stop="!isCheckMore && itemMouseUp($event)"
+          @click="!isCheckMore && openAplWindow($event)"
+        >
+        </span>
         <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
         <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
         <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)">
@@ -1380,7 +1389,8 @@
             dom = e.target
           }
         }
-        [...dom.childNodes].forEach((item, index) => {
+        let childNodesArr = [...dom.childNodes]
+        childNodesArr.forEach((item, index) => {
           if (item.nodeType === 3) {
             text += item.data
           } else if (item.nodeType === 1) {
@@ -1389,7 +1399,7 @@
               if (dataKey) {
                 text += '[' + dataKey + ']'
               }
-            } else if (item.tagName === 'SPAN' || item.tagName === 'A') {
+            } else if (item.tagName === 'SPAN' || item.tagName === 'A' || item.tagName === 'BR') { // 复制换行符也要算进去
               text += item.innerText
             }
           }
