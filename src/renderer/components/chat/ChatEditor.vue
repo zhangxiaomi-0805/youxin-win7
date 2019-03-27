@@ -300,15 +300,6 @@
             e.target.files[0].path = params.file
           })
         }
-        if (e.target.files[0].size > 100 * 1024 * 1024) {
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: '文件不能大于100M'
-          })
-          e.target.value = ''
-          return
-        }
         this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: e.target.files[0]})
           .then(() => {
             e.target.value = ''
@@ -324,17 +315,8 @@
         if (key === 'drop') {
           const file = e.dataTransfer.files[0]
           if (file.type.indexOf('image') > -1) {
-            // const newFile = await getFile(file.path)
             this.sendImgMsg(file)
           } else {
-            if (file.size > 100 * 1024 * 1024) {
-              this.$store.commit('toastConfig', {
-                show: true,
-                type: 'fail',
-                toastText: '文件不能大于100M'
-              })
-              return
-            }
             this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
           }
         }
@@ -564,6 +546,8 @@
         } else if (file && file.type.match('^image/')) {
           // 图片粘贴
           this.sendImgMsg(file)
+        } else if (file) {
+          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
         }
       },
       _readHTML (html) {

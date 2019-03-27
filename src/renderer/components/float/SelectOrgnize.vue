@@ -251,21 +251,6 @@ export default {
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
     },
     addTeamMember () {
-      if (this.type === 3) {
-        if ((this.chooselist.length + this.memberNum) > this.teamMaxNum) {
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'fail',
-            toastText: `无法操作，群人数已达上限${this.teamMaxNum}人`
-          })
-          return false
-        }
-        if (this.isNormal && !this.isDiscussGroup) {
-          // 普通成员邀请人入群
-          this.sendCustomMsg()
-          return false
-        }
-      }
       if (this.isDiscussGroup) {
         let orgDisabledlist = this.$store.state.orgDisabledlist
         if ((orgDisabledlist.length + this.chooselist.length) > 199) {
@@ -274,6 +259,20 @@ export default {
             type: 'fail',
             toastText: '无法操作，讨论组人数已达上限200人'
           })
+          return false
+        }
+      } else {
+        if ((this.chooselist.length + this.memberNum) > this.teamMaxNum) {
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'fail',
+            toastText: `无法操作，群人数已达上限${this.teamMaxNum}人`
+          })
+          return false
+        }
+        if (this.isNormal) {
+          // 普通成员邀请人入群
+          this.sendCustomMsg()
           return false
         }
       }

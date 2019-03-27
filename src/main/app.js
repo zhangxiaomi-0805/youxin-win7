@@ -257,29 +257,30 @@ APP.prototype.initIPC = function () {
       }
       return ''
     }
-    let bakBase64Str = getStrFn()
-    var ssFile = process.platform === 'darwin' ? '/Screenshot.app/Contents/MacOS/Screenshot' : '/Screenshot'
-    var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, ssFile)
-    exec(testFile, {}, (error, stdout, stderr) => {
-      if (error) {
-        if (arg.hideWin) {
-          _this.mainWindow.show()
+    setTimeout(() => {
+      let bakBase64Str = getStrFn()
+      var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, '/QQPYSnapshot')
+      exec(testFile, {}, (error, stdout, stderr) => {
+        if (error) {
+          if (arg.hideWin) {
+            _this.mainWindow.show()
+          }
+          this.screenShoted = false
+          throw error
+        } else {
+          if (arg.hideWin) {
+            _this.mainWindow.show()
+          }
+          this.screenShoted = false
+          let isChange = 1
+          let base64Str = getStrFn()
+          if (bakBase64Str !== base64Str) {
+            isChange = 2
+          }
+          _this.mainWindow.screenShot({isChange})
         }
-        this.screenShoted = false
-        throw error
-      } else {
-        if (arg.hideWin) {
-          _this.mainWindow.show()
-        }
-        this.screenShoted = false
-        let isChange = 1
-        let base64Str = getStrFn()
-        if (bakBase64Str !== base64Str) {
-          isChange = 2
-        }
-        _this.mainWindow.screenShot({isChange})
-      }
-    })
+      })
+    }, 150)
   })
 
   ipcMain.on('onReset', (evt, arg) => {
