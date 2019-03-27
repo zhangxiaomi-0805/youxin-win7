@@ -139,7 +139,7 @@
   import ChatEmoji from './ChatEmoji'
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
-  import { getPinyin } from '../../utils/pinyin'
+  // import { getPinyin } from '../../utils/pinyin'
   import util from '../../utils'
   import getFile from '../../utils/getFile'
   import pageUtil from '../../utils/page'
@@ -1289,18 +1289,19 @@
                   // 因群成员列表已经更新过userInfos了
                   let userInfo = this.userInfos[item.account]
                   item.nick = userInfo.nick
-                  item.nickPy = getPinyin(item.nick, '')
+                  // item.nickPy = getPinyin(item.nick, '')
                   item.alias = item.nickInTeam || userInfo.nick
                   item.showAlias = item.nickInTeam || item.nick
                 }
                 item.nickInTeam = item.nickInTeam ? item.nickInTeam : ''
-                item.nickInTeamPy = item.nickInTeam ? getPinyin(item.nickInTeam, '') : ''
+                // item.nickInTeamPy = item.nickInTeam ? getPinyin(item.nickInTeam, '') : ''
                 let userInfo = this.userInfos[item.account]
                 if (userInfo && userInfo.alias) {
                   item.alias = userInfo.alias
-                  item.aliasPy = getPinyin(userInfo.alias, '')
+                  // item.aliasPy = getPinyin(userInfo.alias, '')
                 }
-                item.allMatch = item.nick + item.nickPy + item.nickInTeam + item.nickInTeamPy + item.alias || '' + item.aliasPy || ''
+                item.allMatch = item.nick + item.alias + item.nickInTeam
+                // item.allMatch = item.nick + item.nickPy + item.nickInTeam + item.nickInTeamPy + item.alias || '' + item.aliasPy || ''
                 return item
               }
               return false
@@ -1319,8 +1320,8 @@
         } else return []
       },
       resetMemberList () {
+        // @搜索列表最多展示20人
         let allMembers = this.getMemberList()
-        console.log('this.inAtText====' + this.inAtText)
         if (this.inAtText) {
           let lowerAtText = this.inAtText.toLowerCase()
           let curMembers = allMembers.filter((item, index) => {
@@ -1328,9 +1329,17 @@
               return item
             }
           })
-          this.members = curMembers
+          if (curMembers.length > 20) {
+            this.members = curMembers.slice(0, 21)
+          } else {
+            this.members = curMembers
+          }
         } else {
-          this.members = allMembers
+          if (allMembers.length > 20) {
+            this.members = allMembers.slice(0, 21)
+          } else {
+            this.members = allMembers
+          }
         }
         this.atListIndex = 0
         return this.members
