@@ -503,7 +503,7 @@
     line-height: 17px;
     text-align: left;
     font-size: 12px;
-    color: rgba(148,153,150,1);
+    color: #333;
     display:-webkit-box;
     -webkit-line-clamp:6;
     -webkit-box-orient:vertical;

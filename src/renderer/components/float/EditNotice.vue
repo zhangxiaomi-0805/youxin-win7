@@ -258,10 +258,11 @@ export default {
     resize: none;
     background-color: rgba(250,250,250,1);
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 15px;
     font-family: "PingFangSC", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
     line-height: 20px;
     color: #333;
+    font-weight: bold;
   }
   .m-editnotice .m-body > span {
     color: #7D807E;
