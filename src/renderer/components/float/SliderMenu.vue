@@ -37,7 +37,7 @@
         <div
           style="position: relative;overflow: hidden;"
           v-if="teamInfo.updateTeamMode === 'all' || power !== 'normal'">
-          <a class="b-edit">编辑</a>
+          <a class="b-edit">修改头像</a>
           <input @change="previewFile($event.target)" class="b-input" type="file" ref="imgToSent" accept="" title=" " />
         </div>
       </div>

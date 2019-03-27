@@ -12,91 +12,102 @@
     <!-- <div v-if="msg.type==='timeTag'" class="u-msg-time">{{msg.showText}}</div> -->
     <div v-if="msg.type==='tip'" class="tip">{{msg.showText}}</div>
     <div v-else-if="msg.type==='notification' && msg.scene==='team'" class="notification">{{msg.showText}}</div>
-    
     <div
       v-else-if="msg.flow==='in' || msg.flow==='out'"
       :idClient="msg.idClient"
       :time="msg.time"
       :flow="msg.flow"
       :type="msg.type"
-      style="overflow: hidden;"
+      style="flex:row;overflow: hidden"
+      :class="msg.flow==='in'?'inMsgBox msgBox':'outMsgBox msgBox'"
+      @click.stop="isCheckMore ? checkItemFn(msg) : null"
     >
-      <div class="msg-head noevent" v-if="msg.avatar" 
-        @click.stop="showCheckUser($event, msg)"
-        @dblclick.stop="msg.scene === 'team' && msg.flow==='in' && sendMsg($event, msg)"
+      <!-- 选择框 -->
+      <span v-show="isCheckMore" :class="checkBoxClassName(msg)"></span>
+      <!-- 消息体 -->
+      <div
+        style="overflow: hidden;flex:1"
       >
-        <img class="icon u-circle" :src="msg.avatar">
-      </div>
-      <!-- 时间 -->
-      <p v-if="msg.time && scene === 'p2p'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right'}" class="msg-time-name">{{manageTime(msg.time)}}</p>
-      <!-- <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p> -->
-      <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right'}" class="msg-time-name">
-        {{(msg.nickInTeam ? msg.nickInTeam : msg.fromNick) + ' ' + ' ' + manageTime(msg.time)}}
-      </p>
-      <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
-      <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="showListOptions($event, msg.type, msg.showText)" @mouseup.stop="itemMouseUp($event)" @click="openAplWindow($event)"></span>
-      <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
-      <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
-      <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="showListOptions($event, msg.type)">
-        <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-        <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
-      </span>
-      <!-- 群邀请消息 -->
-      <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box"
-        @click.stop ="msg.flow==='in' && showGroupInvite(msg.showText)"
-        @mouseup.stop="showListOptions($event, msg.type)"
-      >
-        <span class="custom-type8-title">邀请你加入群聊</span>
-        <span class="custom-type8-content-box">
-          <span class="custom-type8-content">{{msg.showText.description}}</span>
-          <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
+        <!-- 头像 -->
+        <div class="msg-head noevent" v-if="msg.avatar" 
+          @click.stop="!isCheckMore && showCheckUser($event, msg)"
+          @dblclick.stop="!isCheckMore && msg.scene === 'team' && msg.flow==='in' && sendMsg($event, msg)"
+        >
+          <img class="icon u-circle" :src="msg.avatar">
+        </div>
+        <!-- 时间 -->
+        <p v-if="msg.time && scene === 'p2p'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right'}" class="msg-time-name">{{manageTime(msg.time)}}</p>
+        <!-- <p class="msg-user" v-else-if="msg.type!=='notification'"><em>{{msg.showTime}}</em>{{msg.from}}</p> -->
+        <p v-if="scene === 'team'" :style="{textAlign: msg.flow==='in' ? 'left' : 'right'}" class="msg-time-name">
+          <span>{{msg.nickInTeam ? msg.nickInTeam : msg.fromNick}}</span>
+          <span>{{' ' + manageTime(msg.time)}}</span>
+        </p>
+        <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
+        <span :ref="`copy_${idClient}`" style="-webkit-user-select: text;" v-if="msg.type==='text'" class="msg-text" v-html="msg.showText" @mousedown.stop="!isCheckMore && showListOptions($event, msg.type, msg.showText)" @mouseup.stop="!isCheckMore && itemMouseUp($event)" @click="!isCheckMore && openAplWindow($event)"></span>
+        <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
+        <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
+        <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)">
+          <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
+          <iframe ref="iframe" @load="!isCheckMore && sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
         </span>
-      </span>
-      <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="showImgModal(msg.originLink)" @mouseup.stop="showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
-      <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
-      <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="currentMsgPlay.idClient === msg.idClient && currentMsgPlay.isPlay ? 'zel-play' : ''" @click="playAudio(msg.audioSrc, msg)" @mouseup.stop="showListOptions($event, 'audio')">
-        <span v-if="!msg.localCustom || !msg.localCustom.isPlayed" class="nomsg" style="top: 0;right: -22px;width: 8px;height: 8px;"></span>
-        <span>{{msg.showText.split(' ')[0]}}</span>
-      </span>
-      <span v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg.type)" @click="openItemFile" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
-        <!-- <img :src="" alt=""> -->
-        <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
-        <span class="file-content">
-          <span class="file-title">
-            {{msg.file.name}}
+        <!-- 群邀请消息 -->
+        <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box"
+          @click.stop ="!isCheckMore && msg.flow==='in' && showGroupInvite(msg.showText)"
+          @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)"
+        >
+          <span class="custom-type8-title">邀请你加入群聊</span>
+          <span class="custom-type8-content-box">
+            <span class="custom-type8-content">{{msg.showText.description}}</span>
+            <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
           </span>
-          <span class="file-bottom">
-            <span class="file-size">
-              {{fileSize}}
+        </span>
+        <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="!isCheckMore && showImgModal(msg.originLink)" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
+        <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
+        <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="currentMsgPlay.idClient === msg.idClient && currentMsgPlay.isPlay ? 'zel-play' : ''" @click="!isCheckMore && playAudio(msg.audioSrc, msg)" @mouseup.stop="!isCheckMore && showListOptions($event, 'audio')">
+          <span v-if="!msg.localCustom || !msg.localCustom.isPlayed" class="nomsg" style="top: 0;right: -22px;width: 8px;height: 8px;"></span>
+          <span>{{msg.showText.split(' ')[0]}}</span>
+        </span>
+        <span v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" @click="openItemFile" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
+          <!-- <img :src="" alt=""> -->
+          <span class="file-icon" :style="{backgroundImage: `url(${fileIcon})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
+          <span class="file-content">
+            <span class="file-title">
+              {{msg.file.name}}
             </span>
-            <span v-if="msg.status === 'fail'" style="color: red;font-size: 12px;">
-              发送失败
-            </span>
-            <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click.stop="handleDownloadFile">
-            </span>
-            <span class="circle-bar" v-else-if="curProgress < 100">
-              <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
-              <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
-              <!-- 遮罩层，显示百分比 -->
-              <span class="mask">
-                <span :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click.stop="handleCancelLoad"></span>
+            <span class="file-bottom">
+              <span class="file-size">
+                {{fileSize}}
               </span>
+              <span v-if="msg.status === 'fail'" style="color: red;font-size: 12px;">
+                发送失败
+              </span>
+              <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click.stop="handleDownloadFile">
+              </span>
+              <span class="circle-bar" v-else-if="curProgress < 100">
+                <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
+                <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
+                <!-- 遮罩层，显示百分比 -->
+                <span class="mask">
+                  <span :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click.stop="handleCancelLoad"></span>
+                </span>
+              </span>
+              <span v-else style="color: #999;font-size: 12px;">
+                {{msg.flow === 'out' ? '已发送' : '已下载'}}
+              </span>
+              <span style="display: none;">{{downloadProgress}}</span>
             </span>
-            <span v-else style="color: #999;font-size: 12px;">
-              {{msg.flow === 'out' ? '已发送' : '已下载'}}
-            </span>
-            <span style="display: none;">{{downloadProgress}}</span>
           </span>
         </span>
-      </span>
-      <span v-else-if="msg.type==='notification'" class="msg-text notify">{{msg.showText}}</span>
-      <span v-else class="msg-text" v-html="msg.showText"></span>
-      <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
-      <span v-if="msg.status==='fail'" class="msg-failed" @click="resendMsg(msg)"><i class="weui-icon-warn"></i></span>
-      <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
+        <span v-else-if="msg.type==='notification'" class="msg-text notify">{{msg.showText}}</span>
+        <span v-else class="msg-text" v-html="msg.showText"></span>
+        <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
+        <span v-if="msg.status==='fail'" class="msg-failed" @click="!isCheckMore && resendMsg(msg)"><i class="weui-icon-warn"></i></span>
+        <span v-else-if="msg.status==='sending'" class="msg-failed"><i class="weui-icon-sending"></i></span>
+      </div>
     </div>
     
-    <div v-if="msg.status !== 'fail'" :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
+    
+    <div v-if="msg.status !== 'fail'" :class="teamMsgUnRead>0 ? 'isRemoteRead team-unread' : 'isRemoteRead'" @click="!isCheckMore && teamMsgUnRead > 0 ? showUnreadModal($event) : ''">
       <span v-if="teamMsgUnRead >= 0">{{teamMsgUnRead>0 ? `${teamMsgUnRead}人未读`: '全部已读'}}</span>
     </div>
     <div style="-webkit-user-select: none;margin-right: 0px;" class="isRemoteRead" v-if="!toMyPhone && msg.scene === 'p2p' && msg.flow === 'out' && msg.type !== 'tip' && msg.status !== 'fail'">
@@ -115,6 +126,7 @@
   import NativeLogic from '../../utils/nativeLogic.js'
   export default {
     props: {
+      isCheckMore: Boolean,
       type: String, // 类型，chatroom, session
       scene: String,
       to: String,
@@ -162,6 +174,14 @@
       }
     },
     computed: {
+      checkedMsgList () {
+        // 多选时选中的消息
+        if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
+          return this.$store.state.checkedMsgs
+        } else {
+          return []
+        }
+      },
       curDownloadStatus () {
         const list = this.$store.state.downloadFileList
         let status = 0
@@ -698,9 +718,22 @@
       }
     },
     methods: {
+      // 选择狂样式
+      checkBoxClassName (msg) {
+        // 选择框样式
+        let className = 'check common'
+        for (let i in this.checkedMsgList) {
+          let idClient = this.checkedMsgList[i].idClient
+          if (idClient === msg.idClient) {
+            className = 'checked common'
+            break
+          }
+        }
+        return className
+      },
+      // 消息时间戳处理 --- 年-月-日 时-分-秒
       manageTime (time) {
         return util.DateFormat(time)
-        // util.formatDate(time, true)
       },
       sendMsg (event, msg) {
         event.preventDefault()
@@ -1014,6 +1047,22 @@
         const list = document.querySelector('#chat-list')
         return {left: totalLeft, top: totalTop - list.scrollTop}
       },
+      checkMoreFn (msg) {
+        this.$emit('checkMoreMsg')
+        this.isCheckMore = true
+        this.$store.commit('updateCheckedMsgs', [msg])
+      },
+      checkItemFn (msg) {
+        const index = this.checkedMsgList.findIndex(item => {
+          return item.idClient === msg.idClient
+        })
+        if (index === -1) {
+          this.checkedMsgList.push(msg)
+        } else {
+          this.checkedMsgList.splice(index, 1)
+        }
+        this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
+      },
       showListOptions (e, type, isIframe) {
         let offset = {
           x: e.clientX,
@@ -1077,13 +1126,16 @@
             msg: this.msg,
             callBack: (type) => {
               switch (type) {
+                // case 0: // 多选
+                //   this.checkMoreFn(this.msg)
+                //   break
                 case 1:
                   this.$store.dispatch('revocateMsg', {msg: this.msg, that: this})
                   break
-                case 2:
+                case 2: // 转发
                   this.forwordMsg()
                   break
-                case 3:
+                case 3: // 复制
                   this.$refs.clipboard.innerText = this.getCopyText(e)
                   this.$refs.clipboard.select()
                   document.execCommand('Copy')
@@ -1563,27 +1615,15 @@
 }
 /* 用户头像 */
 .g-window .u-msg .msg-head {
-
     position: relative;
-
     display: inline-block;
-
     /* top: 0.1rem; */
 
-    margin: 0;
-
-    margin-right: 10px;
-
-    margin-left: 20px;
-
+    margin: 16px 10px 0 20px;
     padding: 0;
-
     width: 32px;
-
     height: 32px;
-
     vertical-align: top;
-
     cursor: pointer;
 }
 
@@ -1608,7 +1648,7 @@
 .g-window .u-msg .msg-time-name {
     color: #A5A5A5;
     font-size: 12px;
-    margin-bottom: 3px;
+    margin-bottom: 5px;
     overflow: hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -2177,5 +2217,34 @@
   background: center center url(../../../../static/img/setting/file-pause.png) no-repeat;
   background-size: 12px;
 }
-
+.g-window .u-msg .common {
+  display: inline-block;
+  width: 15px;
+  height: 32px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  transition: all .2s linear;
+  margin: 15px 0 0 25px;
+}
+.g-window .u-msg .check {
+  background-image: url('../../../../static/img/setting/checkboxborder.png');
+  background-size: 15px 15px;
+}
+.g-window .u-msg .checked {
+  background-image: url('../../../../static/img/setting/checkbox-c.png');
+  background-size: 15px 15px;
+}
+.g-window .u-msg .msgBox {
+  width:100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: row;
+}
+.g-window .u-msg .inMsgBox {
+  justify-content: flex-start;
+}
+.g-window .u-msg .outMsgBox {
+  justify-content: space-between;
+}
 </style>
