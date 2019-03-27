@@ -581,6 +581,7 @@
         return imgArr[0]
       },
       inputMsg (e) {
+        console.log(e)
         if (this.showAtList && this.members.length !== 0) {
           switch (e.keyCode) {
             case 13: // 回车选中at列表
@@ -602,6 +603,10 @@
               }
               break
           }
+        } else if (e.altKey && e.keyCode === 83) {
+          // 默认Alt + s 快捷键发送消息
+          e.preventDefault()
+          this.sendBlendMsg()
         } else if (this.quickIndex === 0 && !e.ctrlKey && e.keyCode === 13) {
           // 回车发送消息
           e.preventDefault()
