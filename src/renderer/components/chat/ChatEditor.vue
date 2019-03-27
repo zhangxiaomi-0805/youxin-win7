@@ -116,7 +116,7 @@
       </div>
 
       <div  class="u-positive-btn btn-send-box">
-        <a @click.stop="sendBlendMsg" class="btn-send">发送</a>
+        <a @click.stop="sendBlendMsg" class="btn-send">发送(S)</a>
         <div class="btn-send-quickSet noevent" @click.stop="showQuickSet = true">
           <a class="quick-send noevent"></a>
         </div>
