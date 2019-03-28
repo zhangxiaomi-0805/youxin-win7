@@ -35,6 +35,7 @@
           />
         </div>
       </div>
+      <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
       <div class="u-editor-icons">
         <div style="display: flex, flex-direction: row, align-items: center, ">
           <!-- 表情 -->
@@ -566,6 +567,39 @@
         }
         return imgArr[0]
       },
+      getCopyText (e) {
+        let text = ''
+        let dom = null
+        if (this.getSelectedText().childNodes && this.getSelectedText().childNodes.length > 0) {
+          let range = this.getSelectedText()
+          let container = document.createElement('div')
+          container.appendChild(range)
+          dom = container
+        }
+        if (dom === null) {
+          if (e.target.tagName === 'IMG') {
+            dom = e.target.parentNode
+          } else {
+            dom = e.target
+          }
+        }
+        let childNodesArr = [...dom.childNodes]
+        childNodesArr.forEach((item, index) => {
+          if (item.nodeType === 3) {
+            text += item.data
+          } else if (item.nodeType === 1) {
+            if (item.tagName === 'IMG') {
+              let dataKey = item.getAttribute('data-key')
+              if (dataKey) {
+                text += '[' + dataKey + ']'
+              }
+            } else if (item.tagName === 'SPAN' || item.tagName === 'A' || item.tagName === 'BR') { // 复制换行符也要算进去
+              text += item.innerText
+            }
+          }
+        })
+        return text
+      },
       inputMsg (e) {
         if (this.showAtList && this.members.length !== 0) {
           switch (e.keyCode) {
@@ -588,6 +622,10 @@
               }
               break
           }
+        } else if (e.ctrlKey && e.keyCode === 67) {
+          this.$refs.clipboard.innerText = this.getCopyText(e)
+          this.$refs.clipboard.select()
+          document.execCommand('Copy')
         } else if (e.altKey && e.keyCode === 83) {
           // 默认Alt + s 快捷键发送消息
           e.preventDefault()
@@ -1267,6 +1305,7 @@
         if (this.teamInfo) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
+          console.log(members)
           if (members) {
             let resultMembers = members.filter(item => {
               if (item.account !== this.$store.state.userUID) {

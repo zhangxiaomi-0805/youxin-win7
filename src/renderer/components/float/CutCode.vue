@@ -72,6 +72,15 @@ export default {
         } else if (ctrlKey) {
           setCutCode = 'Ctrl + ' + this.keyCodeObj[keyCode]
         } else if (altKey) {
+          console.log(this.keyCodeObj[keyCode])
+          if (Number(keyCode) === 83) {
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '截屏快捷键被占用！'
+            })
+            return
+          }
           setCutCode = 'Alt + ' + this.keyCodeObj[keyCode]
         } else if (shiftKey) {
           setCutCode = 'Shift + ' + this.keyCodeObj[keyCode]
