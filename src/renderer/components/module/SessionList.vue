@@ -657,7 +657,7 @@ export default {
   .g-window .u-unread {
     display: inline-block;
     float: right;
-    margin: 2px auto 0;
+    margin-top: 2px;
     padding: 0 4px;
     min-width: 7px;
     height: 15px;
