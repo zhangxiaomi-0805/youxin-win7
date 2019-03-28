@@ -127,7 +127,7 @@ function getTeamInfo (teamId) {
   })
 }
 
-export function onUpdateSession (session, callback) {
+export async function onUpdateSession (session, callback) {
   let sessions = [session]
   updateSessionAccount(sessions)
   if (callback) {
@@ -135,15 +135,23 @@ export function onUpdateSession (session, callback) {
   } else {
     store.commit('updateSessions', sessions)
   }
-  // 是否进行消息通知
-  if (IsMute(session)) return false
   // 通知主进程
   let unreadNums = 0
-  store.state.sessionlist.forEach(session => {
-    console.log(IsMute(session))
-    if (!IsMute(session)) {
-      unreadNums += session.unread
+  // 获取静音列表
+  let mutelist = await getRelationsDone()
+  let newSessionList = JSON.parse(JSON.stringify(store.state.sessionlist))
+  if (mutelist.length > 0 && newSessionList.length > 0) { // 过滤掉静音列表，不计入未读消息列表
+    for (let k = 0; k < newSessionList.length; k++) {
+      for (let i = 0; i < mutelist.length; i++) {
+        console.log(newSessionList[k])
+        if (newSessionList[k] && newSessionList[k].to === mutelist[i].account) {
+          newSessionList.splice(k, 1)
+        }
+      }
     }
+  }
+  newSessionList.forEach(session => {
+    unreadNums += session.unread
   })
   if (config.environment === 'web') { // web分支
     NativeLogic.native.receiveNewMsgs({ unreadNums })
@@ -151,35 +159,6 @@ export function onUpdateSession (session, callback) {
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('sessionUnreadNums', {unreadNums})
   }
-}
-
-async function IsMute (session) {
-  // 是否进行消息通知
-  let isMute = false
-  if (session.scene === 'p2p') {
-    let mutelist = await getRelationsDone()
-    isMute = mutelist.find(item => {
-      return item.account === session.to
-    })
-  } else {
-    let map = await notifyForNewTeamMsg(session.to)
-    let muteNotiType = Number(map[session.to])
-    if (muteNotiType === 1) isMute = true
-  }
-  return isMute
-}
-
-function notifyForNewTeamMsg (teamId) {
-  // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
-  return new Promise((resolve, reject) => {
-    store.state.nim.notifyForNewTeamMsg({
-      teamIds: [teamId],
-      done: (error, map) => {
-        if (error) reject(error)
-        else resolve(map)
-      }
-    })
-  })
 }
 
 // 获取静音列表
