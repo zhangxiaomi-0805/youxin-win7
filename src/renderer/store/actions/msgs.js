@@ -54,7 +54,8 @@ async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   let isMute = false
   if (msg.scene === 'p2p') {
-    isMute = store.state.mutelist.find(item => {
+    let mutelist = await getRelationsDone()
+    isMute = mutelist.find(item => {
       return item.account === msg.from
     })
   } else {
@@ -97,6 +98,18 @@ function notifyForNewTeamMsg (teamId) {
       done: (error, map) => {
         if (error) reject(error)
         else resolve(map)
+      }
+    })
+  })
+}
+
+// 获取静音列表
+function getRelationsDone () {
+  return new Promise((resolve, reject) => {
+    store.state.nim.getRelations({
+      done: (error, obj) => {
+        if (error) reject(error)
+        else resolve(obj.mutelist)
       }
     })
   })

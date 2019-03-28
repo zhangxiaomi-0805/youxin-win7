@@ -140,6 +140,7 @@ export function onUpdateSession (session, callback) {
   // 通知主进程
   let unreadNums = 0
   store.state.sessionlist.forEach(session => {
+    console.log(IsMute(session))
     if (!IsMute(session)) {
       unreadNums += session.unread
     }
@@ -152,19 +153,45 @@ export function onUpdateSession (session, callback) {
   }
 }
 
-function IsMute (session) {
+async function IsMute (session) {
   // 是否进行消息通知
   let isMute = false
   if (session.scene === 'p2p') {
-    isMute = store.state.mutelist.find(item => {
+    let mutelist = await getRelationsDone()
+    isMute = mutelist.find(item => {
       return item.account === session.to
     })
   } else {
-    isMute = store.state.muteTeamIds.find(team => {
-      return team === session.to
-    })
+    let map = await notifyForNewTeamMsg(session.to)
+    let muteNotiType = Number(map[session.to])
+    if (muteNotiType === 1) isMute = true
   }
   return isMute
+}
+
+function notifyForNewTeamMsg (teamId) {
+  // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
+  return new Promise((resolve, reject) => {
+    store.state.nim.notifyForNewTeamMsg({
+      teamIds: [teamId],
+      done: (error, map) => {
+        if (error) reject(error)
+        else resolve(map)
+      }
+    })
+  })
+}
+
+// 获取静音列表
+function getRelationsDone () {
+  return new Promise((resolve, reject) => {
+    store.state.nim.getRelations({
+      done: (error, obj) => {
+        if (error) reject(error)
+        else resolve(obj.mutelist)
+      }
+    })
+  })
 }
 
 // 置顶聊天

@@ -92,7 +92,7 @@ export default {
   mounted () {
     this.eventBus.$on('selectContact', (data) => {
       this.showSelectContact = true
-      if (configs.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
+      if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
         this.isXp = true
       }
       this.type = data.type
