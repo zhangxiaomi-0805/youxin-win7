@@ -44,13 +44,15 @@
         </p>
         <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
         <span :ref="`copy_${idClient}`"
-          style="-webkit-user-select: text;"
+          style="-webkit-user-select: text;outline: 0;"
           v-if="msg.type==='text'"
           class="msg-text"
           v-html="msg.showText"
           @mousedown.stop="!isCheckMore && showListOptions($event, msg.type, msg.showText)"
           @mouseup.stop="!isCheckMore && itemMouseUp($event)"
           @click="!isCheckMore && openAplWindow($event)"
+          @keydown.stop="shearBoard($event)"
+          tabindex="1"
         >
         </span>
         <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
@@ -1360,12 +1362,14 @@
       },
       itemMouseUp (e) {
         if (this.selectInfo) {
-          let range = document.createRange()
-          range.setStart(this.selectInfo.anchorNode, this.selectInfo.startOffset)
-          range.setEnd(this.selectInfo.focusNode, this.selectInfo.endOffset)
-          let selection = window.getSelection()
-          selection.removeAllRanges()
-          selection.addRange(range)
+          try {
+            let range = document.createRange()
+            range.setStart(this.selectInfo.anchorNode, this.selectInfo.startOffset)
+            range.setEnd(this.selectInfo.focusNode, this.selectInfo.endOffset)
+            let selection = window.getSelection()
+            selection.removeAllRanges()
+            selection.addRange(range)
+          } catch (error) {}
         }
         // 处理拖拽窗口事件移除
         document.onmousemove = null
@@ -1569,6 +1573,16 @@
           })
         })
         return httpArr
+      },
+      shearBoard (e) {
+        // Ctrl + C写入剪切版
+        let keyCode = e.keyCode || e.which || e.charCode
+        let ctrlKey = e.ctrlKey || e.metaKey
+        if (ctrlKey && keyCode === 67) {
+          this.$refs.clipboard.innerText = this.getCopyText(e)
+          this.$refs.clipboard.select()
+          document.execCommand('Copy')
+        }
       }
     }
   }

@@ -461,13 +461,15 @@
           const { clipboard } = require('electron')
           let imgPath = this._readHTML(clipboard.readHTML())
           if (imgPath) {
-            file = await getFile(imgPath.split('file:///')[1])
-            let image = new Image()
-            image.onload = () => {
-              file.w = image.width
-              file.h = image.height
-            }
-            image.src = imgPath
+            try {
+              file = await getFile(imgPath.split('file:///')[1])
+              let image = new Image()
+              image.onload = () => {
+                file.w = image.width
+                file.h = image.height
+              }
+              image.src = imgPath
+            } catch (error) {}
           } else if (clipboard.readText() && !clipboard.read('public.file-url')) {
             text = clipboard.readText()
           } else if (clipboard.read('FileNameW') || clipboard.read('public.file-url')) {
@@ -565,7 +567,6 @@
         return imgArr[0]
       },
       inputMsg (e) {
-        console.log(e)
         if (this.showAtList && this.members.length !== 0) {
           switch (e.keyCode) {
             case 13: // 回车选中at列表
