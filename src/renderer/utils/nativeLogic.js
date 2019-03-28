@@ -353,7 +353,7 @@ class NativeHandle {
         virtualKey
       }, (error, result) => {
         if (error) {
-          resolve('')
+          reject(error)
         } else {
           if (result) {
             resolve(result)

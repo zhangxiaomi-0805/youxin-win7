@@ -1,7 +1,7 @@
 <template>
 <!-- 选择联系人 -->
 <transition name="fade">
-  <div id="modal-box" class="m-selectcontact-contain" style="top: 0" v-if="showSelectContact">
+  <div id="modal-box"  :class="isXp ? 'm-selectcontact-contain contain-top' : 'm-selectcontact-contain'" v-if="showSelectContact">
     <div class="m-selectcontact-cover" @click="closeCover"></div>
     <div class="m-selectcontact" style="width:600px;height:502px;">
       <div class="drag" id="selectContactDrag">
@@ -92,6 +92,9 @@ export default {
   mounted () {
     this.eventBus.$on('selectContact', (data) => {
       this.showSelectContact = true
+      if (configs.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
+        this.isXp = true
+      }
       this.type = data.type
       this.sidelist = Object.assign([], data.sidelist)
       this.sidelistCopy = Object.assign([], data.sidelist)
@@ -110,6 +113,7 @@ export default {
   },
   data () {
     return {
+      isXp: false,
       showBorder: false,
       showSelectContact: false,
       showConfirmCover: false,
@@ -832,7 +836,9 @@ export default {
     width: 100%;
     height: 100%;
   }
-
+  .contain-top {
+    top: 30px;
+  }
   .m-selectcontact .m-confirm-cover {
     position: absolute;
     top: 0;
