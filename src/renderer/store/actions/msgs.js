@@ -66,7 +66,9 @@ async function systemNewMsgsManage (msg) {
   // 通知主进程
   let unreadNums = 0
   store.state.sessionlist.forEach(session => {
-    unreadNums += session.unread
+    if (!isMute) {
+      unreadNums += session.unread
+    }
   })
   if (config.environment === 'web') { // web分支
     NativeLogic.native.getWinStatus()

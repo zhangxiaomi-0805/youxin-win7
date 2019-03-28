@@ -227,7 +227,7 @@ export function deleteSession ({state, commit}, obj) {
               if (arrLength - 1 <= 0) {
                 queryId = null
               } else if (curIndex < arrLength - 1) {
-                queryId = sessionIdArr[curIndex + 1]
+                queryId = sessionIdArr[curIndex]
               } else {
                 queryId = sessionIdArr[curIndex - 1]
               }
