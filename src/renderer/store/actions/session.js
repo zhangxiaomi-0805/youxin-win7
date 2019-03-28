@@ -143,7 +143,6 @@ export async function onUpdateSession (session, callback) {
   if (mutelist.length > 0 && newSessionList.length > 0) { // 过滤掉静音列表，不计入未读消息列表
     for (let k = 0; k < newSessionList.length; k++) {
       for (let i = 0; i < mutelist.length; i++) {
-        console.log(newSessionList[k])
         if (newSessionList[k] && newSessionList[k].to === mutelist[i].account) {
           newSessionList.splice(k, 1)
         }
