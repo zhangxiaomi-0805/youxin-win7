@@ -93,7 +93,7 @@ export default {
   mounted () {
     this.setDragArea() // 设置可拖拽高度
     var _this = this
-    // 定位会话列表
+    // 定位会话列表 --- 系统托盘闪烁时，点击系统托盘
     this.eventBus.$on('positionSession', function () {
       _this.positionSession()
     })
@@ -303,7 +303,6 @@ export default {
       let unreadSessionlist = _this.sessionlist && _this.sessionlist.filter(session => {
         return (session.unread > 0 && !_this.isMute(session)) // 未读数大于0 且 未设置免打扰
       })
-      console.log(unreadSessionlist)
       if (unreadSessionlist && unreadSessionlist.length > 0) {
         _this.activeId = unreadSessionlist[unreadSessionlist.length - 1].id
         _this.toggleSelect(_this.activeId)
@@ -336,12 +335,15 @@ export default {
     scrollToSession () {
       // 定位到当前会话
       let key = 0
+      console.log(this.activeId)
+      console.log(this.sessionlist)
       for (let i in this.sessionlist) {
         if (this.sessionlist[i].id === this.activeId) {
           key = i
           break
         }
       }
+      console.log('key=====' + key)
       this.$nextTick(() => {
         let ul = document.getElementById('nsession-list')
         if (ul) {
