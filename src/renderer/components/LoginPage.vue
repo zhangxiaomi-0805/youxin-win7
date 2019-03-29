@@ -186,9 +186,7 @@
         }
       }
       // 获取sessionId
-      Request.GetSessionId({}, (value) => {
-        this.verifyCodeUrlCtrl(value)
-      })
+      Request.GetSessionId({}, (value) => this.verifyCodeUrlCtrl(value))
     },
     methods: {
       keyToNext (e, type) {
@@ -281,7 +279,7 @@
           if (err) this.errMsg = err.msg
         })
       },
-      login (type) {
+      async login (type) {
         if (this.errMsg) {
           this.errMsg = ''
         }
@@ -303,25 +301,26 @@
           this.loading = false
           return
         }
+
         // 登录鉴权
-        Request.LoginAuth({
-          account: this.account,
-          password: DES.encryptByDES(this.password, 2),
-          verifyCode: this.verifyCodeImg
-        }, this).then(ret => {
-          // 动态密钥设置
+        try {
+          let ret = await Request.LoginAuth({
+            account: this.account,
+            password: DES.encryptByDES(this.password, 2),
+            verifyCode: this.verifyCodeImg
+          }, this)
           if (ret.type === 'setPassword') {
             this.$store.commit('updateCurrentUserSecret', ret.secret)
-            IndexedDB.setItem('userSecret', { secret: ret.secret }, 1)
+            await IndexedDB.setItem('userSecret', { secret: ret.secret }, 1)
             this.type = 'setPassword'
             this.loading = false
           } else {
             this.$store.commit('updateCurrentUserSecret', ret.secretKey)
-            IndexedDB.setItem('userSecret', { secret: ret.secretKey }, 1)
+            await IndexedDB.setItem('userSecret', { secret: ret.secretKey }, 1)
             localStorage.setItem('sessionToken', ret.token)
             this.loginPC(ret.userInfo)
           }
-        }).catch(err => {
+        } catch (err) {
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
@@ -332,13 +331,18 @@
           }
           // 更新图形验证码
           this.verifyCodeUrlCtrl()
-        })
+        }
       },
-      loginPC (userInfo) {
-        LocalStorage.setItem('uid', userInfo.accid)
-        LocalStorage.setItem('sdktoken', userInfo.token)
-        // 更新本地缓存secret
-        IndexedDB.getItem('userSecret', 1).then(data => data && this.$store.commit('updateCurrentUserSecret', data.secret)).catch(() => {})
+      async loginPC (userInfo) {
+        try {
+          LocalStorage.setItem('uid', userInfo.accid)
+          LocalStorage.setItem('sdktoken', userInfo.token)
+          // 更新本地缓存secret
+          let data = await IndexedDB.getItem('userSecret', 1)
+          if (data) {
+            this.$store.commit('updateCurrentUserSecret', data.secret)
+          }
+        } catch (error) {}
         // 获取用户基本信息
         Request.GetUserInfo({accid: userInfo.accid}, this).then(ret => {
           if (ret) {
