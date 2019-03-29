@@ -62,9 +62,9 @@
         <a class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(0)">
           <a :class="remindMsgType === 0 ? 'radio-active' : 'radio'"></a><span>提醒所有消息</span>
         </a>
-        <a v-if="!isDiscussGroup" class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(2)">
+        <!-- <a v-if="!isDiscussGroup" class="t-btn" style="margin-bottom: 5px;" @click="toggleRemindType(2)">
           <a :class="remindMsgType === 2 ? 'radio-active' : 'radio'"></a><span>只提醒管理员消息</span>
-        </a>
+        </a> -->
         <a class="t-btn" @click="toggleRemindType(1)">
           <a :class="remindMsgType === 1 ? 'radio-active' : 'radio'"></a><span>不提醒任何消息</span>
         </a>
