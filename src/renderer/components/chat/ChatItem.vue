@@ -185,7 +185,7 @@
       }
     },
     computed: {
-      checkedMsgList () {
+      checkedChatList () {
         // 多选时选中的消息
         if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
           return this.$store.state.checkedMsgs
@@ -733,8 +733,8 @@
       checkBoxClassName (msg) {
         // 选择框样式
         let className = 'check common'
-        for (let i in this.checkedMsgList) {
-          let idClient = this.checkedMsgList[i].idClient
+        for (let i in this.checkedChatList) {
+          let idClient = this.checkedChatList[i].idClient
           if (idClient === msg.idClient) {
             className = 'checked common'
             break
@@ -1058,21 +1058,21 @@
         const list = document.querySelector('#chat-list')
         return {left: totalLeft, top: totalTop - list.scrollTop}
       },
-      checkMoreFn (msg) {
-        this.$emit('checkMoreMsg')
+      checkMoreChatFn (msg) {
+        this.eventBus.$emit('checkMoreChat', {})
         this.isCheckMore = true
-        this.$store.commit('updateCheckedMsgs', [msg])
+        this.$store.commit('updateCheckedChatList', [msg])
       },
       checkItemFn (msg) {
-        const index = this.checkedMsgList.findIndex(item => {
+        const index = this.checkedChatList.findIndex(item => {
           return item.idClient === msg.idClient
         })
         if (index === -1) {
-          this.checkedMsgList.push(msg)
+          this.checkedChatList.push(msg)
         } else {
-          this.checkedMsgList.splice(index, 1)
+          this.checkedChatList.splice(index, 1)
         }
-        this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
+        this.$store.commit('updateCheckedChatList', this.checkedChatList)
       },
       showListOptions (e, type, isIframe) {
         let offset = {
@@ -1137,9 +1137,9 @@
             msg: this.msg,
             callBack: (type) => {
               switch (type) {
-                // case 0: // 多选
-                //   this.checkMoreFn(this.msg)
-                //   break
+                case 0: // 多选
+                  this.checkMoreChatFn(this.msg)
+                  break
                 case 1:
                   this.$store.dispatch('revocateMsg', {msg: this.msg, that: this})
                   break

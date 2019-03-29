@@ -282,23 +282,23 @@ export async function showListOptions ({state, commit}, obj) {
   // 自定义消息 --- 贴图表情 && 富文本
   if (obj.key === 'custom-out') {
     items = [
-      event1, event2, event4
+      event0, event1, event2, event4
     ]
   }
   if (obj.key === 'custom-in' || obj.key === 'custom-out-timeout') {
     items = [
-      event2, event4
+      event0, event2, event4
     ]
   }
   // 自定义消息 --- 邀请入群消息
   if (obj.key === 'custom-type8-out') {
     items = [
-      event1, event4
+      event0, event1, event4
     ]
   }
   if (obj.key === 'custom-type8-in' || obj.key === 'custom-type8-out-timeout') {
     items = [
-      event4
+      event0, event4
     ]
   }
   // 选择会话
@@ -481,52 +481,52 @@ export async function showListOptions ({state, commit}, obj) {
   // 选择自己的text
   if (obj.key === 'text-out') {
     items = [
-      event1, event3, event2, event4
+      event0, event1, event3, event2, event4
     ]
   }
   if (obj.key === 'text-out-fail' || obj.key === 'text-out-timeout') { // 时间超过五分钟，不能撤回
     items = [
-      event3, event2, event4
+      event0, event3, event2, event4
     ]
   }
   // 选择他人的text
   if (obj.key === 'text-in') {
     items = [
-      event3, event2, event4
+      event0, event3, event2, event4
     ]
   }
   // 选择自己的image
   if (obj.key === 'image-out') {
     items = [
-      event1, event2, event6, event4
+      event0, event1, event2, event6, event4
     ]
   }
   if (obj.key === 'image-out-fail' || obj.key === 'image-out-timeout') {
     items = [
-      event2, event6, event4
+      event0, event2, event6, event4
     ]
   }
   // 选择他人的image
   if (obj.key === 'image-in') {
     items = [
-      event2, event6, event4
+      event0, event2, event6, event4
     ]
   }
   // 选择自己的audio
   if (obj.key === 'audio-out') {
     items = [
-      event1, event4
+      event0, event1, event4
     ]
   }
   if (obj.key === 'audio-out-fail' || obj.key === 'audio-out-timeout') {
     items = [
-      event4
+      event0, event4
     ]
   }
   // 选择他人的audio
   if (obj.key === 'audio-in') {
     items = [
-      event4
+      event0, event4
     ]
   }
   // 群设置（搜索、添加、移出成员）

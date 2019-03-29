@@ -20,8 +20,8 @@
       :idClient="msg.idClient"
       :isHistory='isHistory'
       @msg-loaded="msgLoaded"
-      @checkMoreMsg="checkMoreFn"
-      :isCheckMore="isCheckMore"
+      @checkMoreChat="checkMoreChatFn"
+      :isChatSelectMore="isChatSelectMore"
     ></chat-item>
   </ul>
 </template>
@@ -74,12 +74,12 @@
       return {
         isFullImgShow: false,
         msgLoadedTimer: null,
-        isCheckMore: false
+        isChatSelectMore: false
       }
     },
     methods: {
-      checkMoreFn () {
-        this.isCheckMore = true
+      checkMoreChatFn () {
+        this.isChatSelectMore = true
       },
       scrollToBottom () {
         pageUtil.scrollChatListDown()

@@ -34,7 +34,13 @@
       </div>
       <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
         <div class="border" id="resize-ns"></div>
+        <!-- 消息列表多选弹框 -->
+        <chat-select-more
+          v-if="isChatSelectMore"
+        />
+        <!-- 消息发送框 -->
         <chat-editor
+          v-else
           ref="chatEditor"
           type="session"
           :scene="scene"
@@ -74,13 +80,15 @@
   import pageUtil from '../../utils/page'
   import SliderMenu from '../float/SliderMenu'
   import Resize from '../../utils/resize.js'
+  import ChatSelectMore from './ChatSelectMore'
   export default {
     name: 'chat',
     components: {
       ChatEditor,
       ChatList,
       SliderMenu,
-      ChatNotice
+      ChatNotice,
+      ChatSelectMore
     },
     // 进入该页面，文档被挂载
     mounted () {
@@ -136,7 +144,8 @@
         showInvitMsgTip: false,
         unreadCount: 0,
         atCount: 0,
-        logo: './static/img/no-msg.png'
+        logo: './static/img/no-msg.png',
+        isChatSelectMore: false
       }
     },
     computed: {
