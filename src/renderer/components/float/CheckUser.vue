@@ -92,7 +92,6 @@ export default {
         Request.GetUserInfo({}, this)
           .then(ret => {
             if (ret) {
-              console.log(ret)
               this.height = '439px'
               this.userInfos = ret
               this.isSelf = true

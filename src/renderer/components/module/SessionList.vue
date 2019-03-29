@@ -335,15 +335,12 @@ export default {
     scrollToSession () {
       // 定位到当前会话
       let key = 0
-      console.log(this.activeId)
-      console.log(this.sessionlist)
       for (let i in this.sessionlist) {
         if (this.sessionlist[i].id === this.activeId) {
           key = i
           break
         }
       }
-      console.log('key=====' + key)
       this.$nextTick(() => {
         let ul = document.getElementById('nsession-list')
         if (ul) {

@@ -445,6 +445,7 @@
       },
       // 粘贴事件
       async onPaste (e) {
+        console.log('粘贴==========')
         e && e.preventDefault()
         let text = null
         let file = null
@@ -1305,7 +1306,6 @@
         if (this.teamInfo) {
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
-          console.log(members)
           if (members) {
             let resultMembers = members.filter(item => {
               if (item.account !== this.$store.state.userUID) {

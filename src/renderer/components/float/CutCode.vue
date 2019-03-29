@@ -72,7 +72,6 @@ export default {
         } else if (ctrlKey) {
           setCutCode = 'Ctrl + ' + this.keyCodeObj[keyCode]
         } else if (altKey) {
-          console.log(this.keyCodeObj[keyCode])
           if (Number(keyCode) === 83) {
             this.$store.commit('toastConfig', {
               show: true,
