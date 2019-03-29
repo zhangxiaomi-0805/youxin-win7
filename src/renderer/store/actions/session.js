@@ -143,16 +143,24 @@ export async function onUpdateSession (session, callback) {
   if (mutelist.length > 0 && newSessionList.length > 0) { // 过滤掉静音列表，不计入未读消息列表
     for (let k = 0; k < newSessionList.length; k++) {
       for (let i = 0; i < mutelist.length; i++) {
-        console.log(newSessionList[k])
         if (newSessionList[k] && newSessionList[k].to === mutelist[i].account) {
           newSessionList.splice(k, 1)
         }
       }
     }
   }
-  newSessionList.forEach(session => {
-    unreadNums += session.unread
-  })
+  // 群是否设置消息免打扰
+  for (let i = 0; i < newSessionList.length; i++) {
+    let isMute = false
+    if (session.scene !== 'p2p') {
+      let map = await notifyForNewTeamMsg(session.to)
+      let muteNotiType = Number(map[session.to])
+      if (muteNotiType === 1) isMute = true
+    }
+    if (!isMute) {
+      unreadNums += session.unread
+    }
+  }
   if (config.environment === 'web') { // web分支
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
@@ -168,6 +176,19 @@ function getRelationsDone () {
       done: (error, obj) => {
         if (error) reject(error)
         else resolve(obj.mutelist)
+      }
+    })
+  })
+}
+
+function notifyForNewTeamMsg (teamId) {
+  // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
+  return new Promise((resolve, reject) => {
+    store.state.nim.notifyForNewTeamMsg({
+      teamIds: [teamId],
+      done: (error, map) => {
+        if (error) reject(error)
+        else resolve(map)
       }
     })
   })

@@ -66,8 +66,17 @@ async function systemNewMsgsManage (msg) {
       }
     }
   }
+  // 群是否设置消息免打扰
+  let isMute = false
+  if (msg.scene !== 'p2p') {
+    let map = await notifyForNewTeamMsg(msg.to)
+    let muteNotiType = Number(map[msg.to])
+    if (muteNotiType === 1) isMute = true
+  }
   newSessionList.forEach(session => {
-    unreadNums += session.unread
+    if (!isMute) {
+      unreadNums += session.unread
+    }
   })
   if (config.environment === 'web') { // web分支
     NativeLogic.native.getWinStatus()
@@ -95,6 +104,19 @@ function getRelationsDone () {
       done: (error, obj) => {
         if (error) reject(error)
         else resolve(obj.mutelist)
+      }
+    })
+  })
+}
+
+function notifyForNewTeamMsg (teamId) {
+  // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
+  return new Promise((resolve, reject) => {
+    store.state.nim.notifyForNewTeamMsg({
+      teamIds: [teamId],
+      done: (error, map) => {
+        if (error) reject(error)
+        else resolve(map)
       }
     })
   })
