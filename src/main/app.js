@@ -501,7 +501,7 @@ APP.prototype.execProcess = function (cmd, callback) {
   })
 }
 
-APP.prototype.createRemoteWindow = function (arg) {
+APP.prototype.createRemoteWindow = function ({url, account}) {
   if (this.remoteWindow) {
     this.remoteWindow.show()
     return
@@ -532,10 +532,10 @@ APP.prototype.createRemoteWindow = function (arg) {
     this.remoteWindow = null
     global.HASREMOTE = null
     // 通知对方已关闭远程协助
-    this.mainWindow.closeRemoteWindow()
+    this.mainWindow.closeRemoteWindow(account)
   })
   this.remoteWindow.webContents.once('did-finish-load', () => {
-    this.remoteWindow.webContents.send('asynchronous-message', arg)
+    this.remoteWindow.webContents.send('asynchronous-message', url)
   })
 }
 

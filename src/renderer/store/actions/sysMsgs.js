@@ -169,7 +169,7 @@ export function deleteLocalSysMsg ({state}, idServer) {
 
 /**
  * 远程桌面相关
- * @param {*} status    request-发起请求，response-接收响应，connect-已连接，dismiss-取消，refuse-拒绝（对方正忙）
+ * @param {*} status    request-发起请求，response-接收响应，connect-已连接，dismiss-取消，refuse-拒绝（对方正忙），disConnect-已断开
  * @param {*} type      1-接受，2-拒绝，3-取消
  * @param {*} reqType   1-控制对方电脑，2-请求远程协助
  * @param {*} account   用户accid
@@ -206,7 +206,7 @@ function remoteConnectCtrl (content, account) {
         }
         if (content.type === 1) {
           // 接受远程协助
-          store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account })
+          store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, ...content, account })
           if (content.reqType === 2) {
             ipcRenderer.send('remoteConnection', account)
           }
@@ -215,7 +215,7 @@ function remoteConnectCtrl (content, account) {
       break
     case 'connect':
       store.commit('updateRemoteWaitingObj', { showModal: false })
-      ipcRenderer.send('remoteConnectionCreate', 'http://' + content.ipconfig)
+      ipcRenderer.send('remoteConnectionCreate', { url: 'http://' + content.ipconfig, account })
       break
     case 'dismiss':
       store.commit('updateRemoteWaitingObj', { showModal: false })
@@ -224,6 +224,10 @@ function remoteConnectCtrl (content, account) {
       break
     case 'refuse':
       warnPrompt('对方正忙。')
+      break
+    case 'disConnect':
+      ipcRenderer.send('remoteConnectionDiss')
+      warnPrompt('对方断开了远程连接。')
       break
     default:
       break
