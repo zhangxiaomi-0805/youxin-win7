@@ -253,6 +253,7 @@ function onSendMsgDone (error, msg) {
     if (error.code === 7101) {
       msg.status = 'success'
     } else if (error.code === 'Error_Internet_Disconnected' || error.code === 'Error_Connection_Socket_State_not_Match') {
+      msg.status = 'fail'
       store.commit('toastConfig', {
         show: true,
         type: 'fail',
@@ -260,7 +261,9 @@ function onSendMsgDone (error, msg) {
       })
       store.commit('connectStatus', { networkStatus: 500 })
       return
-    } else {}
+    } else {
+      store.commit('connectStatus', { networkStatus: 200 })
+    }
   }
   onMsg(msg)
 }
@@ -449,6 +452,7 @@ export function sendMsg ({state, commit}, obj) {
 }
 // 发送文件消息
 export function sendFileMsg ({ state, commit }, obj) {
+  console.log(obj)
   const nim = state.nim
   let type = 'file'
   const { scene, to, file } = obj
@@ -474,6 +478,7 @@ export function sendFileMsg ({ state, commit }, obj) {
       ext
     }
   }
+  console.log(msgFake)
   onSendMsgDone(null, msgFake)
   const id = msgFake.idClientFake
   return new Promise((resolve, reject) => {

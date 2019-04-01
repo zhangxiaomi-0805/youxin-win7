@@ -1,11 +1,12 @@
 <template>
   <!-- 个人名片 -->
-  <div class="m-chat-nt" v-if="scene === 'p2p'">
-    <textarea style="width: 1px;height: 1px;position: absolute;left: 0px" id="clipboard">aaa</textarea>
+  <div class="m-chat-user-card" v-if="scene === 'p2p'">
+    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard">aaa</textarea>
     <div class="m-modify">
-      <div class="user-info"><img :src="userInfos.avatar || defaultUserIcon"></div>
+      <div><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div class="nick" :title="userInfos.name"
         ref="copy_0"
+        @mouseup.stop="userInfos.account ? showListOptions($event, userInfos.account, 'copy_0') : null"
       >{{userInfos.name}}</div>
     </div>
     <div class="user-tel">
@@ -37,7 +38,7 @@
       >{{userInfos.email}}</span>
     </div>
 
-    <div class="user-tel" style="margin-top: 24px"><span>性别</span>
+    <div class="user-tel"><span>性别</span>
       <span class="line"
         @mouseup.stop="userInfos.sex ? showListOptions($event, userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密', 'copy_6') : null"
         ref="copy_6"
@@ -55,6 +56,12 @@
         ref="copy_8"
       >{{userInfos.companyName || "-"}}</span>
     </div>
+    <div class="user-tel"><span>签名</span>
+      <span class="line" :title="userInfos.signature"
+        @mouseup.stop="userInfos.signature ? showListOptions($event, userInfos.signature, 'copy_9') : null"
+        ref="copy_9"
+      >{{userInfos.signature || "-"}}</span>
+    </div>
   </div>
 </template>
 
@@ -71,8 +78,8 @@
           return {}
         }
       },
-      scene: String,
-      to: String
+      scene: String
+      // to: String
     },
     data () {
       return {
@@ -80,38 +87,36 @@
         defaultUserIcon: config.defaultUserIcon
       }
     },
-    computed: {
-      // userInfos () {
-      //   this.getUserInfo()
-      // }
+    computed () {
+      this.getUserInfo()
     },
     mounted () {
-      this.userInfos = this.getUserInfo()
+      this.eventBus.$on('updateUserInfos', (data) => {
+        this.getUserInfo(data.to)
+      })
     },
     methods: {
-      getUserInfo () {
-        let Info = this.otherUserInfos[this.to]
+      getUserInfo (to) {
+        console.log(to)
+        let Info = this.otherUserInfos[to]
+        console.log(Info)
         let params = [
           {
             tag: Info.tag || 0,
             accid: Info.accid || Info.account
           }
         ]
-        return new Promise((resolve, reject) => {
-          Request.PullUserInfo(params, this)
-            .then(ret => {
-              console.log(ret)
-              if (ret) {
-                if (!ret.userList[0].avatar) {
-                  ret.userList[0].avatar = config.defaultUserIcon
-                }
-                resolve(Object.assign({}, ret.userList[0]))
-              } else {
-                resolve({})
+        Request.PullUserInfo(params, this)
+          .then(ret => {
+            if (ret) {
+              if (!ret.userList[0].avatar) {
+                ret.userList[0].avatar = config.defaultUserIcon
               }
-            }).catch(() => {
-            })
-        })
+              console.log(ret)
+              this.userInfos = Object.assign({}, ret.userList[0])
+            }
+          }).catch(() => {
+          })
       },
       showListOptions (e, msg, ref) {
         let target = this.$refs[ref]
@@ -155,7 +160,7 @@
 </script>
 
 <style>
-  .m-chat-nt {
+  .m-chat-user-card {
     position: absolute;
     top: 31px;
     right: 0;
@@ -173,7 +178,7 @@
     opacity: 0;
   }
 
-  .m-chat-nt .m-modify {
+  .m-chat-user-card .m-modify {
     width: 150;
     position: relative;
     display: flex;
@@ -183,18 +188,19 @@
     margin: 20px auto;
   }
 
-  .m-chat-nt .m-modify .user-info img {
+  .m-chat-user-card .m-modify img {
     vertical-align: middle;
     width: 44px;
     height: 44px;
     border-radius: 50%;
   }
 
-  .m-chat-nt .m-modify .nick {
+  .m-chat-user-card .m-modify .nick {
     width: 100%;
     text-align: center;
-    font-size: 18px;
-    color: #000;
+    font-size: 14px;
+    margin-top: 3px;
+    color: #333;
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -202,7 +208,7 @@
     -webkit-user-select: text;
   }
 
-  .m-chat-nt .m-modify .remarks {
+  .m-chat-user-card .m-modify .remarks {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -210,15 +216,7 @@
     color: #999;
     margin-top: 8px;
   }
-
-  .m-chat-nt .m-modify img {
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    margin-right: 10px;
-  }
-
-  .m-chat-nt .user-tel, .m-chat-nt .user-email {
+  .m-chat-user-card .user-tel, .m-chat-user-card .user-email {
     display: flex;
     padding: 0 10px;
     align-items: flex-start;
@@ -227,11 +225,11 @@
     margin-bottom: 15px;
   }
 
-  .m-chat-nt .user-email {
+  .m-chat-user-card .user-email {
     margin-bottom: 31px;
   }
 
-  .m-chat-nt .sendmsg {
+  .m-chat-user-card .sendmsg {
     width: 100%;
     height: 36px;
     line-height: 36px;
@@ -244,7 +242,7 @@
     cursor: pointer;
   }
 
-  .m-chat-nt .call {
+  .m-chat-user-card .call {
     box-sizing: border-box;
     width: 100%;
     height: 36px;
@@ -256,7 +254,7 @@
     cursor: pointer;
   }
 
-  .m-chat-nt .line {
+  .m-chat-user-card .line {
     display: inline-block;
     width: 75%;
     font-size: 12px;

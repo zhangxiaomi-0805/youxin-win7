@@ -688,22 +688,22 @@ export async function showListOptions ({state, commit}, obj) {
   // 文件消息右键处理
   if (obj.key === 'file-out') {
     items = [
-      event38, event2, event6, event4, event1, event37
+      event0, event38, event2, event6, event4, event1, event37
     ]
   }
   if (obj.key === 'file-out-timeout') {
     items = [
-      event38, event2, event6, event4, event37
+      event0, event38, event2, event6, event4, event37
     ]
   }
   if (obj.key === 'file-in') {
     items = [
-      event2, event6, event4
+      event0, event2, event6, event4
     ]
   }
   if (obj.key === 'file-in-isDownloaded') {
     items = [
-      event38, event2, event6, event4, event37
+      event0, event38, event2, event6, event4, event37
     ]
   }
 

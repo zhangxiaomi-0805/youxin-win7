@@ -367,6 +367,10 @@ export default {
       }
     },
     toggleChat (session) {
+      // 切换会话更新个人信息
+      if (session.scene === 'p2p') {
+        this.eventBus.$emit('updateUserInfos', {to: session.to})
+      }
       // 切换会话时重置消息列表多选状态
       this.$store.commit('updateCheckedMsgs', [])
       this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false})
