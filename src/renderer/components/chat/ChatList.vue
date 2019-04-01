@@ -119,6 +119,7 @@
     height: 100%;
     padding-top: 11px;
     transition: all .3s;
+    transform: translate3d(0, 0, 0)
   }
 
   .p-chat-list .u-icon {

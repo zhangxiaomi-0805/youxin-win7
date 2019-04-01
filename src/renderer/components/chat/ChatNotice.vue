@@ -436,6 +436,7 @@
     width: 100%;
     height: auto;
     overflow-y: auto;
+    transform: translate3d(0, 0, 0)
   }
 
   .m-chat-nt .m-u-list .m-u-list-item {

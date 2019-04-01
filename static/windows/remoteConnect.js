@@ -62,7 +62,6 @@ TabManage.prototype.PreDef = function () {
   // 窗口关闭
   const closeBtn = document.getElementById('appli-colse')
   closeBtn.addEventListener('click', () => {
-    ipcRenderer.send('remoteConnectionDiss')
     window.close()
   })
 }

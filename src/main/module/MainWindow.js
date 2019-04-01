@@ -156,7 +156,7 @@ MainWindow.prototype.restore = function () {
 MainWindow.prototype.getSize = function () {
   let size = this.mainWindow.getSize()
   let isLogin = false
-  if (size[0] === this.loginOpts.width && size[1] === this.loginOpts.height) {
+  if (size[0] === this.loginOpts.width) {
     // 当前在登录页
     isLogin = true
   }

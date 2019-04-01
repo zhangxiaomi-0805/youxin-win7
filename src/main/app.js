@@ -42,7 +42,7 @@ APP.prototype.init = function () {
 APP.prototype.catchMainProcessError = function () {
   var relaunch = function () {
     app.relaunch()
-    app.exit(0)
+    app.quit()
   }
   process.on('uncaughtException', function (err) {
     if (process.env.NODE_ENV !== 'development') {
@@ -112,6 +112,8 @@ APP.prototype.initApp = function () {
     if (_this.isLogined) {
       // _this.mainWindow.setSizeToSetting()
     }
+
+    _this.initRemoteConnect()
 
     if (!_this.fileTransferring) {
       setTimeout(function () {
@@ -290,7 +292,7 @@ APP.prototype.initIPC = function () {
 
   ipcMain.on('relaunch-app', () => {
     app.relaunch()
-    app.exit(0)
+    app.quit()
   })
 
   ipcMain.on('onClose', () => {
@@ -364,7 +366,7 @@ APP.prototype.initIPC = function () {
       req.once('response', (res) => {
         const ip = req.socket.localAddress
         if (ip && _this.mainWindow) {
-          global.HASREMOTE = true
+          global.HASREMOTE = arg
           _this.mainWindow.sendRemoteConnection({content: ip + ':8080', account: arg})
         }
       })
@@ -374,7 +376,9 @@ APP.prototype.initIPC = function () {
   // 关闭远程协助
   ipcMain.on('remoteConnectionDiss', function (evt, arg) {
     _this.remoteConnection = null
-    _this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"', () => { global.HASREMOTE = null })
+    global.HASREMOTE = null
+    _this.remoteWindow && _this.remoteWindow.close()
+    _this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
   })
 
   // 创建远程桌面
@@ -410,9 +414,6 @@ APP.prototype.afterlogout = function () {
   this.appMenu.enableMenuItem('status', false)
 
   this.closeAllWindows()
-  this.tryTwinkle({unreadNums: 0})
-  this.remoteConnection = null
-  this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"', () => { global.HASREMOTE = null })
   // 清空cookies
   // _this.clearCookies()
 }
@@ -516,7 +517,7 @@ APP.prototype.createRemoteWindow = function ({url, account}) {
     parent: this.mainWindow
   })
   // 创建全局远程窗口变量
-  global.HASREMOTE = true
+  global.HASREMOTE = account
   const winURL = path.join('file://', __static, '/windows/remoteConnect.html')
   this.remoteWindow.loadURL(winURL)
   this.remoteWindow.on('maximize', () => {
@@ -537,6 +538,16 @@ APP.prototype.createRemoteWindow = function ({url, account}) {
   this.remoteWindow.webContents.once('did-finish-load', () => {
     this.remoteWindow.webContents.send('asynchronous-message', url)
   })
+}
+
+APP.prototype.initRemoteConnect = function () {
+  if (global.HASREMOTE) {
+    // 当前有正在进行的远程通信
+    this.remoteConnection = null
+    this.mainWindow.closeRemoteWindow(global.HASREMOTE)
+    global.HASREMOTE = null
+    this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
+  }
 }
 
 export default APP

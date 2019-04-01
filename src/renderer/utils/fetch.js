@@ -33,7 +33,13 @@ Fetch.post = async function (url, params, $this, ContentType) {
       break
     }
   }
-  let headers = { 'Content-Type': ContentType, 'platformType': 2, 'Access-Control-Allow-Origin': '*', osType: configs.environment === 'web' ? 4 : 3, version: configs.environment === 'web' ? configs.xpVersion : configs.winVersion}
+  let headers = {
+    'Content-Type': ContentType,
+    'platformType': 2,
+    'Access-Control-Allow-Origin': '*',
+    osType: configs.environment === 'web' ? 4 : 3,
+    version: configs.environment === 'web' ? configs.xpVersion : configs.winVersion
+  }
   if (localStorage.sessionId) {
     headers['sessionId'] = localStorage.sessionId + ''
   }

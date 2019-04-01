@@ -1488,7 +1488,12 @@
           }
           let userInfo = this.userInfos[this.to] || {}
           let content = { status: 'request', type, nick: userInfo.nick || userInfo.alias || this.to, account: this.to }
-          this.eventBus.$emit('remoteConfirm', content)
+          if (localStorage.IGNOREREMOTE) {
+            this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content })
+            this.$store.dispatch('sendCustomSysMsg', {account: content.account, content: JSON.stringify(content)})
+          } else {
+            this.eventBus.$emit('remoteConfirm', content)
+          }
         }
       }
     }

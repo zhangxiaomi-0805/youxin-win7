@@ -223,6 +223,7 @@ function remoteConnectCtrl (content, account) {
       warnPrompt(`${content.nick}谢绝了您的远程控制的请求`)
       break
     case 'refuse':
+      store.commit('updateRemoteWaitingObj', { showModal: false })
       warnPrompt('对方正忙。')
       break
     case 'disConnect':

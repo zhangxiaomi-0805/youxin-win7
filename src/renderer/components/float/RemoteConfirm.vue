@@ -3,7 +3,7 @@
 <transition name="fade">
   <div class="m-selectcontact-contain" v-if="showRemoteConfirm">
     <div class="m-selectcontact-cover"></div>
-    <div class="m-clear-body m-dismiss-body">
+    <div class="m-clear-body m-dismiss-body" style="width: 380px;height: 230px;">
       <div class="drag" id="remoteConfirmDrag">
         <span class="title">远程桌面</span>
         <div class="u-sysbtn close"><a class="btn-close" @click="closeModal"/></div>
@@ -13,8 +13,9 @@
           <div style="width: 88%">
             <div>确定发起远程连接吗？</div>
             <div style="color: #999;font-size: 13px;margin-top: 10px">远程连接仅支持双方再内网环境下使用，请确认双方的网络环境。</div>
-            <div style="margin-top: 10px">
-              <span style="color: #333;font-size: 12px;">以后不再提示</span>
+            <div style="margin-top: 10px; display: flex;align-items: center;">
+              <span :class="checked ? 'checked common' : 'check common'" @click="checkBoxCtrl"></span>
+              <span style="color: #333;font-size: 12px;margin-left: 5px">以后不再提示</span>
             </div>
           </div>
       </div>
@@ -34,6 +35,7 @@ export default {
   data () {
     return {
       showRemoteConfirm: false,
+      checked: false,
       content: {}
     }
   },
@@ -52,8 +54,14 @@ export default {
     },
     confirm () {
       this.showRemoteConfirm = false
+      if (this.checked) {
+        localStorage.setItem('IGNOREREMOTE', true)
+      }
       this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...this.content })
       this.$store.dispatch('sendCustomSysMsg', {account: this.content.account, content: JSON.stringify(this.content)})
+    },
+    checkBoxCtrl () {
+      this.checked = !this.checked
     }
   }
 }
@@ -66,7 +74,7 @@ export default {
     top: 50%;
     z-index: 1010;
     width: 380px;
-    height: 220px;
+    height: 230px;
     transform: translate(-50%, -50%);
     background: #fff;
     border: 0.5px solid #ccc;
@@ -154,5 +162,27 @@ export default {
   }
   .m-clear-body .footer .b-cancel:hover {
     background-color: rgba(223, 219, 219, 1);
+  }
+
+  .m-dismiss-body .content .common {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    background-repeat: no-repeat;
+    background-position: center center;
+    transition: all .2s linear;
+  }
+
+  .m-dismiss-body .content .check {
+    background-image: url('../../../../static/img/setting/checkboxborder.png');
+    background-size: 100% 100%;
+  }
+  .m-dismiss-body .content .check:hover, .check:focus {
+    background-image: url('../../../../static/img/setting/checkboxborder-p.png');
+  }
+
+  .m-dismiss-body .content .checked {
+    background-image: url('../../../../static/img/setting/checkbox-c.png');
+    background-size: 100% 100%;
   }
 </style>
