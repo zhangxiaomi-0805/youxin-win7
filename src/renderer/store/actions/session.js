@@ -152,9 +152,9 @@ export async function onUpdateSession (session, callback) {
   // 群是否设置消息免打扰
   for (let i = 0; i < newSessionList.length; i++) {
     let isMute = false
-    if (session.scene !== 'p2p') {
-      let map = await notifyForNewTeamMsg(session.to)
-      let muteNotiType = Number(map[session.to])
+    if (newSessionList[i].scene !== 'p2p') {
+      let map = await notifyForNewTeamMsg(newSessionList[i].to)
+      let muteNotiType = Number(map[newSessionList[i].to])
       if (muteNotiType === 1) isMute = true
       if (!isMute) {
         unreadNums += newSessionList[i].unread
