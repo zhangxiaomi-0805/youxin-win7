@@ -12,7 +12,7 @@
     </div>
     <div style="display: none;">{{teamInfo}}</div>
     <div style="display: none;">{{applyTeamPer}}</div>
-    <div class="m-body-contain" :style="{right: scene === 'team' ? '152px' : 0}">
+    <div class="m-body-contain" style="right: 152px">
       <div class="g-hbf-body m-body" id="resize-chat-tp" style="bottom:150px;">
         <div class="u-position-btn" v-if="showPositionBtn" @click="scrollToUnread(unreadCount, 'click')">
           <div><span>{{unreadCount}}条新消息</span><span v-if="atCount">，{{atCount}}条@消息</span></div><i></i>
@@ -55,6 +55,11 @@
         />
       </div>
     </div>
+    <chat-user-card
+      :otherUserInfos="userInfos"
+      :scene="scene"
+      :to="to"
+    />
     <chat-notice
       :userInfos="userInfos"
       :myInfo="myInfo"
@@ -81,6 +86,7 @@
   import SliderMenu from '../float/SliderMenu'
   import Resize from '../../utils/resize.js'
   import ChatSelectMore from './ChatSelectMore'
+  import ChatUserCard from './ChatUserCard'
   export default {
     name: 'chat',
     components: {
@@ -88,7 +94,8 @@
       ChatList,
       SliderMenu,
       ChatNotice,
-      ChatSelectMore
+      ChatSelectMore,
+      ChatUserCard
     },
     // 进入该页面，文档被挂载
     mounted () {
