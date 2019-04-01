@@ -156,9 +156,11 @@ export async function onUpdateSession (session, callback) {
       let map = await notifyForNewTeamMsg(session.to)
       let muteNotiType = Number(map[session.to])
       if (muteNotiType === 1) isMute = true
-    }
-    if (!isMute) {
-      unreadNums += session.unread
+      if (!isMute) {
+        unreadNums += newSessionList[i].unread
+      }
+    } else {
+      unreadNums += newSessionList[i].unread
     }
   }
   if (config.environment === 'web') { // web分支
@@ -254,7 +256,7 @@ export function deleteSession ({state, commit}, obj) {
               if (arrLength - 1 <= 0) {
                 queryId = null
               } else if (curIndex < arrLength - 1) {
-                queryId = sessionIdArr[curIndex]
+                queryId = sessionIdArr[curIndex + 1]
               } else {
                 queryId = sessionIdArr[curIndex - 1]
               }

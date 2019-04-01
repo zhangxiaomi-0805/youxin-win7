@@ -67,17 +67,19 @@ async function systemNewMsgsManage (msg) {
     }
   }
   // 群是否设置消息免打扰
-  let isMute = false
-  if (msg.scene !== 'p2p') {
-    let map = await notifyForNewTeamMsg(msg.to)
-    let muteNotiType = Number(map[msg.to])
-    if (muteNotiType === 1) isMute = true
-  }
-  newSessionList.forEach(session => {
-    if (!isMute) {
-      unreadNums += session.unread
+  for (let i = 0; i < newSessionList.length; i++) {
+    let isMute = false
+    if (msg.scene !== 'p2p') {
+      let map = await notifyForNewTeamMsg(msg.to)
+      let muteNotiType = Number(map[msg.to])
+      if (muteNotiType === 1) isMute = true
+      if (!isMute) {
+        unreadNums += newSessionList[i].unread
+      }
+    } else {
+      unreadNums += newSessionList[i].unread
     }
-  })
+  }
   if (config.environment === 'web') { // web分支
     NativeLogic.native.getWinStatus()
       .then(res => {
