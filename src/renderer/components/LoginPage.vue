@@ -269,8 +269,9 @@
         }
         Request.ResetPassword(params, this).then(ret => {
           if (ret) {
+            this.$store.commit('updateCurrentUserSecret', ret.secretKey)
             localStorage.setItem('sessionToken', ret.token)
-            this.loginPC(ret.userInfo)
+            this.loginPC(ret)
           } else {
             this.loading = false
           }
@@ -303,24 +304,21 @@
         }
 
         // 登录鉴权
-        try {
-          let ret = await Request.LoginAuth({
-            account: this.account,
-            password: DES.encryptByDES(this.password, 2),
-            verifyCode: this.verifyCodeImg
-          }, this)
+        Request.LoginAuth({
+          account: this.account,
+          password: DES.encryptByDES(this.password, 2),
+          verifyCode: this.verifyCodeImg
+        }, this).then(ret => {
           if (ret.type === 'setPassword') {
             this.$store.commit('updateCurrentUserSecret', ret.secret)
-            await IndexedDB.setItem('userSecret', { secret: ret.secret }, 1)
             this.type = 'setPassword'
             this.loading = false
           } else {
             this.$store.commit('updateCurrentUserSecret', ret.secretKey)
-            await IndexedDB.setItem('userSecret', { secret: ret.secretKey }, 1)
             localStorage.setItem('sessionToken', ret.token)
-            this.loginPC(ret.userInfo)
+            this.loginPC(ret)
           }
-        } catch (err) {
+        }).catch(err => {
           this.loading = false
           if (err) this.errMsg = err.msg
           // 自动登录情况且密码错误
@@ -331,9 +329,10 @@
           }
           // 更新图形验证码
           this.verifyCodeUrlCtrl()
-        }
+        })
       },
-      async loginPC (userInfo) {
+      async loginPC (ret) {
+        let {userInfo, secretKey} = ret
         try {
           LocalStorage.setItem('uid', userInfo.accid)
           LocalStorage.setItem('sdktoken', userInfo.token)
@@ -341,6 +340,8 @@
           let data = await IndexedDB.getItem('userSecret', 1)
           if (data) {
             this.$store.commit('updateCurrentUserSecret', data.secret)
+          } else {
+            secretKey && await IndexedDB.setItem('userSecret', { secret: secretKey }, 1)
           }
         } catch (error) {}
         // 获取用户基本信息

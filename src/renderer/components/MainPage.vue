@@ -204,6 +204,10 @@
         ipcRenderer.on('positionSession', (evt, arg) => {
           this.eventBus.$emit('positionSession')
         })
+        // 收到关闭远程通信通知
+        ipcRenderer.on('closeRemoteWindow', (evt, arg) => {
+          console.log(arg)
+        })
       }
       // 检查更新
       Request.AppVersions().then(res => {

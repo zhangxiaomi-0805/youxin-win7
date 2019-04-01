@@ -364,6 +364,7 @@ APP.prototype.initIPC = function () {
       req.once('response', (res) => {
         const ip = req.socket.localAddress
         if (ip && _this.mainWindow) {
+          global.HASREMOTE = true
           _this.mainWindow.sendRemoteConnection({content: ip + ':8080', account: arg})
         }
       })
@@ -373,7 +374,7 @@ APP.prototype.initIPC = function () {
   // 关闭远程协助
   ipcMain.on('remoteConnectionDiss', function (evt, arg) {
     _this.remoteConnection = null
-    _this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
+    _this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"', () => { global.HASREMOTE = null })
   })
 
   // 创建远程桌面
@@ -410,7 +411,8 @@ APP.prototype.afterlogout = function () {
 
   this.closeAllWindows()
   this.tryTwinkle({unreadNums: 0})
-  this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
+  this.remoteConnection = null
+  this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"', () => { global.HASREMOTE = null })
   // 清空cookies
   // _this.clearCookies()
 }
@@ -526,7 +528,12 @@ APP.prototype.createRemoteWindow = function (arg) {
   this.remoteWindow.on('unmaximize', () => {
     this.remoteWindow.webContents.send('doRestore')
   })
-  this.remoteWindow.on('closed', () => { this.remoteWindow = null })
+  this.remoteWindow.on('closed', () => {
+    this.remoteWindow = null
+    global.HASREMOTE = null
+    // 通知对方已关闭远程协助
+    this.mainWindow.closeRemoteWindow()
+  })
   this.remoteWindow.webContents.once('did-finish-load', () => {
     this.remoteWindow.webContents.send('asynchronous-message', arg)
   })

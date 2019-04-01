@@ -225,4 +225,8 @@ MainWindow.prototype.positionSession = function (arg) {
   this.mainWindow.webContents.send('positionSession', arg)
 }
 
+MainWindow.prototype.closeRemoteWindow = function (arg) {
+  this.mainWindow.webContents.send('closeRemoteWindow', arg)
+}
+
 export default MainWindow
