@@ -20,8 +20,7 @@
       :idClient="msg.idClient"
       :isHistory='isHistory'
       @msg-loaded="msgLoaded"
-      @checkMoreChat="checkMoreChatFn"
-      :isChatSelectMore="isChatSelectMore"
+      :isCheckMore="isChatCheckMore"
     ></chat-item>
   </ul>
 </template>
@@ -74,13 +73,16 @@
       return {
         isFullImgShow: false,
         msgLoadedTimer: null,
-        isChatSelectMore: false
+        isChatCheckMore: false
       }
     },
+    mounted () {
+      // 消息列表是否多选
+      this.eventBus.$on('updateIsCheckMoreChat', (data) => {
+        this.isChatCheckMore = data.isMore
+      })
+    },
     methods: {
-      checkMoreChatFn () {
-        this.isChatSelectMore = true
-      },
       scrollToBottom () {
         pageUtil.scrollChatListDown()
         this.showNewMsgTip = false

@@ -20,7 +20,7 @@
       :type="msg.type"
       style="flex:row;overflow: hidden"
       :class="msg.flow==='in'?'inMsgBox msgBox':'outMsgBox msgBox'"
-      @click.stop="isCheckMore ? checkItemFn(msg) : null"
+      @click.stop="isCheckMore ? checkChatItemFn(msg) : null"
     >
       <!-- 选择框 -->
       <span v-show="isCheckMore" :class="checkBoxClassName(msg)"></span>
@@ -182,6 +182,7 @@
         vioceToText: '',
         myGroupIcon: config.defaultGroupIcon,
         downloadUrl: ''
+        // isCheckMore: this.isChatCheckMore
       }
     },
     computed: {
@@ -1059,11 +1060,13 @@
         return {left: totalLeft, top: totalTop - list.scrollTop}
       },
       checkMoreChatFn (msg) {
-        this.eventBus.$emit('checkMoreChat', {})
+        this.eventBus.$emit('updateIsCheckMoreChat', {isMore: true}) // 底部输入框显示为多选操作按钮
         this.isCheckMore = true
-        this.$store.commit('updateCheckedChatList', [msg])
+        this.$store.commit('updateCheckedMsgs', [msg])
       },
-      checkItemFn (msg) {
+      checkChatItemFn (msg) {
+        console.log('哈哈哈==========')
+        console.log(this.checkedChatList)
         const index = this.checkedChatList.findIndex(item => {
           return item.idClient === msg.idClient
         })
@@ -1072,7 +1075,7 @@
         } else {
           this.checkedChatList.splice(index, 1)
         }
-        this.$store.commit('updateCheckedChatList', this.checkedChatList)
+        this.$store.commit('updateCheckedMsgs', this.checkedChatList)
       },
       showListOptions (e, type, isIframe) {
         let offset = {
@@ -2248,7 +2251,7 @@
   background-repeat: no-repeat;
   background-position: center center;
   transition: all .2s linear;
-  margin: 15px 0 0 25px;
+  margin: 15px 0 0 15px;
 }
 .g-window .u-msg .check {
   background-image: url('../../../../static/img/setting/checkboxborder.png');

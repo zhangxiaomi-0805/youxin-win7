@@ -1,19 +1,20 @@
 <template>
   <div class="m-chat-select-more">
+    <!-- 关闭按钮 -->
     <div style='width:100%;height:30px;position:relative'>
-      <a class="close-btn" @click="closeModal"/>
+      <a class="close-btn" @click="reset"/>
     </div>
 
     <div class="m-chat-select-more-main">
       <div>
-        <div class="btn-box">
+        <div class="btn-box"  @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">
           <span class="btn-forward"/>
         </div>
         <p>转发</p>
       </div>
 
       <div>
-        <div class="btn-box">
+        <div class="btn-box"  @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('copy') : null">
           <span class="btn-copy"/>
         </div>
         <p>复制</p>
@@ -23,19 +24,60 @@
 </template>
 
 <script>
-  import clickoutside from '../../utils/clickoutside.js'
+  import MsgRecordFn from '../msgRecord/msgRecord.js'
+  import config from '../../configs'
   export default {
-    directives: {clickoutside},
     mounted () {
+      this.eventBus.$on('resetCheckMoreStatus', () => { // 转发 || 复制完成后重置多选状态
+        this.reset()
+      })
     },
     watch: {
     },
     data () {
-      return {}
+      return {
+        myGroupIcon: config.defaultGroupIcon,
+        checkFunc: '' // forword---转发; copy---复制
+      }
     },
     computed: {
+      myPhoneId () {
+        return `${this.$store.state.userUID}`
+      },
+      userInfos () {
+        return this.$store.state.userInfos
+      },
+      myInfo () {
+        return this.$store.state.myInfo
+      },
+      checkedMsgList () {
+        // 多选时选中的消息
+        if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
+          return this.$store.state.checkedMsgs
+        } else {
+          return []
+        }
+      }
     },
     methods: {
+      toggleFunc (value) {
+        if (this.checkFunc === value) return
+        this.checkFunc = value
+        switch (value) {
+          case 'forword':
+            let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+            this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
+            // 状态重置
+            // this.reset()
+            break
+          case 'copy':
+            break
+        }
+      },
+      reset () {
+        this.$store.commit('updateCheckedMsgs', [])
+        this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false}) // 关闭底部多选操作按钮，显示为输入框
+      }
     }
   }
 </script>

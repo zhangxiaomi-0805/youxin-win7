@@ -36,7 +36,7 @@
         <div class="border" id="resize-ns"></div>
         <!-- 消息列表多选弹框 -->
         <chat-select-more
-          v-if="isChatSelectMore"
+          v-if="isChatCheckMore"
         />
         <!-- 消息发送框 -->
         <chat-editor
@@ -99,6 +99,10 @@
     },
     // 进入该页面，文档被挂载
     mounted () {
+      // 消息列表是否多选
+      this.eventBus.$on('updateIsCheckMoreChat', (data) => {
+        this.isChatCheckMore = data.isMore
+      })
       Resize.changeChatRange({max: 250, min: 90})
       // 此时设置当前会话
       this.sessionInit()
@@ -152,7 +156,7 @@
         unreadCount: 0,
         atCount: 0,
         logo: './static/img/no-msg.png',
-        isChatSelectMore: false
+        isChatCheckMore: false
       }
     },
     computed: {
