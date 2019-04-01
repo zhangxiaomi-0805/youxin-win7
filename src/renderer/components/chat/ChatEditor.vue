@@ -1488,8 +1488,7 @@
           }
           let userInfo = this.userInfos[this.to] || {}
           let content = { status: 'request', type, nick: userInfo.nick || userInfo.alias || this.to, account: this.to }
-          this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content })
-          this.$store.dispatch('sendCustomSysMsg', {account: this.to, content: JSON.stringify(content)})
+          this.eventBus.$emit('remoteConfirm', content)
         }
       }
     }

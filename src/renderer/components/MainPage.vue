@@ -33,6 +33,7 @@
       <cut-code/>
       <remote-waiting/>
       <remote-connect/>
+      <remote-confirm/>
     </div>
   </div>
 </template>
@@ -68,6 +69,7 @@
   import CutCode from './float/CutCode.vue'
   import RemoteWaiting from './float/RemoteWaiting.vue'
   import RemoteConnect from './float/RemoteConnect.vue'
+  import RemoteConfirm from './float/RemoteConfirm.vue'
   import config from '../configs'
   import NativeLogic from '../utils/nativeLogic.js'
   export default {
@@ -99,7 +101,8 @@
       GroupInvite,
       CutCode,
       RemoteWaiting,
-      RemoteConnect
+      RemoteConnect,
+      RemoteConfirm
     },
     mounted () {
       // 初始化窗口拖拽函数
@@ -194,19 +197,24 @@
         })
         // 注册快捷键
         ipcRenderer.send('registerShortcut', localStorage.CUTCODE || 'Alt+A')
-        // 发起远程协助
+        // 点击系统托盘图标 ---- 定位会话列表
+        ipcRenderer.on('positionSession', (evt, arg) => {
+          this.eventBus.$emit('positionSession')
+        })
+
+        /**
+         * 远程协助
+         */
+        // 发起远程协助通知
         ipcRenderer.on('sendRemoteConnection', (evt, arg) => {
           let content = { status: 'connect', ipconfig: arg.content }
           this.$store.dispatch('sendCustomSysMsg', {account: arg.account, content: JSON.stringify(content)})
           this.$store.commit('updateRemoteWaitingObj', { showModal: false })
         })
-        // 点击系统托盘图标 ---- 定位会话列表
-        ipcRenderer.on('positionSession', (evt, arg) => {
-          this.eventBus.$emit('positionSession')
-        })
-        // 收到关闭远程通信通知
+        // 关闭远程通信通知
         ipcRenderer.on('closeRemoteWindow', (evt, arg) => {
-          console.log(arg)
+          let content = { status: 'disConnect' }
+          this.$store.dispatch('sendCustomSysMsg', {account: arg, content: JSON.stringify(content)})
         })
       }
       // 检查更新
