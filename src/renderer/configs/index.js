@@ -4,7 +4,7 @@ var config = {
   mainWinHeight: 645, // 主窗口初始高
   aplWinWidth: 899, // 内部子窗口初始宽
   aplWinHeight: 767, // 内部子窗口初始宽
-  xpVersion: '1.0.0', // XP---app当前版本号
+  xpVersion: '3.0.9', // XP---app当前版本号
   winVersion: '3.0.9', // windows---app当前版本号
   env: 'test',
   sdk: 'NIM_Web_SDK_v6.2.0',

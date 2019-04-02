@@ -179,7 +179,7 @@
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
-            toastText: '截屏快捷键设置失败！'
+            toastText: '截屏快捷键与其他软件冲突，请重新设置！'
           })
         })
         // 监听截屏快捷键方法
