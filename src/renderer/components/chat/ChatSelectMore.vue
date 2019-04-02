@@ -93,7 +93,7 @@
             let newMsg = JSON.parse(JSON.stringify(msg))
             newMsg.time = this.manageTime(newMsg.time)
             if (newMsg.type === 'text') {
-              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}  ${newMsg.text} \n`
+              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}\n${newMsg.text}\n\n`
               allCopyText += singgleCopyText
             }
           })
@@ -167,7 +167,15 @@
   .m-chat-select-more-main .btn-box:hover {
     background-color: #F9F9F9
   }
-  .m-chat-select-more-main .btn-box .btn-forward{
+  .m-chat-select-more-main .btn-box .btn-forward:hover {
+    background: url('../../../../static/img/setting/forward-icon-gray.png') no-repeat center center;
+    background-size: 26px 21px;
+  }
+  .m-chat-select-more-main .btn-box .btn-copy:hover {
+    background: url('../../../../static/img/setting/copy-icon-gray.png') no-repeat center center;
+    background-size: 22px 22px;
+  }
+  .m-chat-select-more-main .btn-box .btn-forward {
     display: block;
     width: 100%;
     height: 100%;
