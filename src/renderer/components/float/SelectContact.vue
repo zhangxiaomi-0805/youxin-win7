@@ -510,6 +510,7 @@ export default {
     },
     // 转发消息
     async forwordMsgList (type) {
+      this.eventBus.$emit('resetCheckMoreStatus') // 转发后重置多选状态
       this.loading = true
       let failAccount = []
       for (let i = 0; i < this.chooselist.length; i++) {

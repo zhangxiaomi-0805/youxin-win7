@@ -12,7 +12,7 @@
     </div>
     <div style="display: none;">{{teamInfo}}</div>
     <div style="display: none;">{{applyTeamPer}}</div>
-    <div class="m-body-contain" :style="{right: scene === 'team' ? '152px' : 0}">
+    <div class="m-body-contain" style="right: 152px">
       <div class="g-hbf-body m-body" id="resize-chat-tp" style="bottom:150px;">
         <div class="u-position-btn" v-if="showPositionBtn" @click="scrollToUnread(unreadCount, 'click')">
           <div><span>{{unreadCount}}条新消息</span><span v-if="atCount">，{{atCount}}条@消息</span></div><i></i>
@@ -34,7 +34,13 @@
       </div>
       <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
         <div class="border" id="resize-ns"></div>
+        <!-- 消息列表多选弹框 -->
+        <chat-select-more
+          v-if="isChatCheckMore"
+        />
+        <!-- 消息发送框 -->
         <chat-editor
+          v-else
           ref="chatEditor"
           type="session"
           :scene="scene"
@@ -49,6 +55,11 @@
         />
       </div>
     </div>
+    <chat-user-card
+      :otherUserInfos="userInfos"
+      :scene="scene"
+      :to="to"
+    />
     <chat-notice
       :userInfos="userInfos"
       :myInfo="myInfo"
@@ -74,16 +85,24 @@
   import pageUtil from '../../utils/page'
   import SliderMenu from '../float/SliderMenu'
   import Resize from '../../utils/resize.js'
+  import ChatSelectMore from './ChatSelectMore'
+  import ChatUserCard from './ChatUserCard'
   export default {
     name: 'chat',
     components: {
       ChatEditor,
       ChatList,
       SliderMenu,
-      ChatNotice
+      ChatNotice,
+      ChatSelectMore,
+      ChatUserCard
     },
     // 进入该页面，文档被挂载
     mounted () {
+      // 消息列表是否多选
+      this.eventBus.$on('updateIsCheckMoreChat', (data) => {
+        this.isChatCheckMore = data.isMore
+      })
       Resize.changeChatRange({max: 250, min: 90})
       // 此时设置当前会话
       this.sessionInit()
@@ -136,7 +155,8 @@
         showInvitMsgTip: false,
         unreadCount: 0,
         atCount: 0,
-        logo: './static/img/no-msg.png'
+        logo: './static/img/no-msg.png',
+        isChatCheckMore: false
       }
     },
     computed: {

@@ -20,7 +20,7 @@
       :type="msg.type"
       style="flex:row;overflow: hidden"
       :class="msg.flow==='in'?'inMsgBox msgBox':'outMsgBox msgBox'"
-      @click.stop="isCheckMore ? checkItemFn(msg) : null"
+      @click.stop="isCheckMore ? checkChatItemFn(msg) : null"
     >
       <!-- 选择框 -->
       <span v-show="isCheckMore" :class="checkBoxClassName(msg)"></span>
@@ -182,10 +182,11 @@
         vioceToText: '',
         myGroupIcon: config.defaultGroupIcon,
         downloadUrl: ''
+        // isCheckMore: this.isChatCheckMore
       }
     },
     computed: {
-      checkedMsgList () {
+      checkedChatList () {
         // 多选时选中的消息
         if (this.$store.state.checkedMsgs && this.$store.state.checkedMsgs.length > 0) {
           return this.$store.state.checkedMsgs
@@ -733,8 +734,8 @@
       checkBoxClassName (msg) {
         // 选择框样式
         let className = 'check common'
-        for (let i in this.checkedMsgList) {
-          let idClient = this.checkedMsgList[i].idClient
+        for (let i in this.checkedChatList) {
+          let idClient = this.checkedChatList[i].idClient
           if (idClient === msg.idClient) {
             className = 'checked common'
             break
@@ -1058,21 +1059,23 @@
         const list = document.querySelector('#chat-list')
         return {left: totalLeft, top: totalTop - list.scrollTop}
       },
-      checkMoreFn (msg) {
-        this.$emit('checkMoreMsg')
+      checkMoreChatFn (msg) {
+        this.eventBus.$emit('updateIsCheckMoreChat', {isMore: true}) // 底部输入框显示为多选操作按钮
         this.isCheckMore = true
         this.$store.commit('updateCheckedMsgs', [msg])
       },
-      checkItemFn (msg) {
-        const index = this.checkedMsgList.findIndex(item => {
+      checkChatItemFn (msg) {
+        console.log('哈哈哈==========')
+        console.log(this.checkedChatList)
+        const index = this.checkedChatList.findIndex(item => {
           return item.idClient === msg.idClient
         })
         if (index === -1) {
-          this.checkedMsgList.push(msg)
+          this.checkedChatList.push(msg)
         } else {
-          this.checkedMsgList.splice(index, 1)
+          this.checkedChatList.splice(index, 1)
         }
-        this.$store.commit('updateCheckedMsgs', this.checkedMsgList)
+        this.$store.commit('updateCheckedMsgs', this.checkedChatList)
       },
       showListOptions (e, type, isIframe) {
         let offset = {
@@ -1137,9 +1140,9 @@
             msg: this.msg,
             callBack: (type) => {
               switch (type) {
-                // case 0: // 多选
-                //   this.checkMoreFn(this.msg)
-                //   break
+                case 0: // 多选
+                  this.checkMoreChatFn(this.msg)
+                  break
                 case 1:
                   this.$store.dispatch('revocateMsg', {msg: this.msg, that: this})
                   break
@@ -1148,6 +1151,7 @@
                   break
                 case 3: // 复制
                   this.$refs.clipboard.innerText = this.getCopyText(e)
+                  console.log(this.$refs.clipboard.innerText)
                   this.$refs.clipboard.select()
                   document.execCommand('Copy')
                   break
@@ -2248,7 +2252,7 @@
   background-repeat: no-repeat;
   background-position: center center;
   transition: all .2s linear;
-  margin: 15px 0 0 25px;
+  margin: 15px 0 0 15px;
 }
 .g-window .u-msg .check {
   background-image: url('../../../../static/img/setting/checkboxborder.png');

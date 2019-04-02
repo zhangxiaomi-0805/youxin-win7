@@ -7,7 +7,7 @@ var config = {
   xpVersion: '3.0.9', // XP---app当前版本号
   winVersion: '3.0.9', // windows---app当前版本号
   env: 'test',
-  sdk: 'NIM_Web_SDK_v6.2.0',
+  sdk: 'NIM_Web_SDK_v6.2.1',
   // 用户自定义的登录注册地址
   loginUrl: '#/',
   registUrl: '/webdemo/h5/regist.html',

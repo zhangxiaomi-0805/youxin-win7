@@ -356,6 +356,9 @@ export default {
       }
     },
     toggleChat (session) {
+      // 切换会话时重置消息列表多选状态
+      this.$store.commit('updateCheckedMsgs', [])
+      this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false})
       // 会话切换(不采用router-link方式是为了避免鼠标中键对a标签的默认行为)
       let sessionId = session.id
       if (sessionId === this.curSessionId) {

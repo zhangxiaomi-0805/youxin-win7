@@ -1438,7 +1438,7 @@
         let session = this.$store.state.sessionlist.find(item => {
           return item.id === sessionId
         })
-        if (session.localCustom && session.localCustom.draftInner) {
+        if (session && session.localCustom && session.localCustom.draftInner) {
           let {draftInner, draftMsg} = session.localCustom
           this.$refs.editDiv.innerHTML = draftInner
           // 同步草稿数据（图片、文件）
