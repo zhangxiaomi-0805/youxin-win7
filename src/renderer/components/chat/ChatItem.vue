@@ -1151,6 +1151,7 @@
                   break
                 case 3: // 复制
                   this.$refs.clipboard.innerText = this.getCopyText(e)
+                  console.log(this.$refs.clipboard.innerText)
                   this.$refs.clipboard.select()
                   document.execCommand('Copy')
                   break

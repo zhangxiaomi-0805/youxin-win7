@@ -79,16 +79,12 @@
         }
       },
       scene: String
-      // to: String
     },
     data () {
       return {
         userInfos: {},
         defaultUserIcon: config.defaultUserIcon
       }
-    },
-    computed () {
-      this.getUserInfo()
     },
     mounted () {
       this.eventBus.$on('updateUserInfos', (data) => {
@@ -97,9 +93,7 @@
     },
     methods: {
       getUserInfo (to) {
-        console.log(to)
         let Info = this.otherUserInfos[to]
-        console.log(Info)
         let params = [
           {
             tag: Info.tag || 0,
@@ -112,7 +106,6 @@
               if (!ret.userList[0].avatar) {
                 ret.userList[0].avatar = config.defaultUserIcon
               }
-              console.log(ret)
               this.userInfos = Object.assign({}, ret.userList[0])
             }
           }).catch(() => {
