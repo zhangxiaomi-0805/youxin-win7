@@ -105,7 +105,7 @@
             let newMsg = JSON.parse(JSON.stringify(msg))
             newMsg.time = this.manageTime(newMsg.time)
             if (newMsg.type === 'text') {
-              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}${newMsg.text}`
+              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}\n${newMsg.text}\n\n`
               allCopyText += singgleCopyText
             }
           })
