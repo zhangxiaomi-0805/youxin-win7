@@ -103,22 +103,24 @@
           return false
         }
         let Info = this.otherUserInfos[to]
-        let params = [
-          {
-            tag: Info.tag || 0,
-            accid: Info.accid || Info.account
-          }
-        ]
-        Request.PullUserInfo(params, this)
-          .then(ret => {
-            if (ret) {
-              if (!ret.userList[0].avatar) {
-                ret.userList[0].avatar = config.defaultUserIcon
-              }
-              this.userInfos = Object.assign({}, ret.userList[0])
+        if (Info) {
+          let params = [
+            {
+              tag: Info.tag || 0,
+              accid: Info.accid || Info.account
             }
-          }).catch(() => {
-          })
+          ]
+          Request.PullUserInfo(params, this)
+            .then(ret => {
+              if (ret) {
+                if (!ret.userList[0].avatar) {
+                  ret.userList[0].avatar = config.defaultUserIcon
+                }
+                this.userInfos = Object.assign({}, ret.userList[0])
+              }
+            }).catch(() => {
+            })
+        }
       },
       showListOptions (e, msg, ref) {
         let target = this.$refs[ref]

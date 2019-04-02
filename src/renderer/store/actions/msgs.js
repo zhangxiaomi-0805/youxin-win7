@@ -54,32 +54,9 @@ async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   // 通知主进程
   let unreadNums = 0
-  // 获取静音列表
-  let mutelist = await getRelationsDone()
-  let newSessionList = JSON.parse(JSON.stringify(store.state.sessionlist))
-  if (mutelist.length > 0 && newSessionList.length > 0) { // 过滤掉静音列表，不计入未读消息列表
-    for (let k = 0; k < newSessionList.length; k++) {
-      for (let i = 0; i < mutelist.length; i++) {
-        if (newSessionList[k].to === mutelist[i].account) {
-          newSessionList.splice(k, 1)
-        }
-      }
-    }
-  }
-  // 群是否设置消息免打扰
-  for (let i = 0; i < newSessionList.length; i++) {
-    let isMute = false
-    if (newSessionList[i].scene !== 'p2p') {
-      let map = await notifyForNewTeamMsg(newSessionList[i].to)
-      let muteNotiType = Number(map[newSessionList[i].to])
-      if (muteNotiType === 1) isMute = true
-      if (!isMute) {
-        unreadNums += newSessionList[i].unread
-      }
-    } else {
-      unreadNums += newSessionList[i].unread
-    }
-  }
+  store.state.sessionlist.forEach(session => {
+    unreadNums += session.unread
+  })
   if (config.environment === 'web') { // web分支
     NativeLogic.native.getWinStatus()
       .then(res => {
@@ -93,22 +70,21 @@ async function systemNewMsgsManage (msg) {
     ipcRenderer.send('receiveNewMsgs', {unreadNums})
   }
   // 发送音频
-  if (localStorage.AUDIOSETT) return
-  let audio = new Audio(`./static/img/msg.wav`)
-  audio.play()
-  setTimeout(() => audio.pause(), 800)
-}
-
-// 获取静音列表
-function getRelationsDone () {
-  return new Promise((resolve, reject) => {
-    store.state.nim.getRelations({
-      done: (error, obj) => {
-        if (error) reject(error)
-        else resolve(obj.mutelist)
-      }
+  let isMute = false
+  if (msg.scene === 'p2p') {
+    isMute = store.state.mutelist.find(item => {
+      return item.account === msg.from
     })
-  })
+  } else {
+    let map = await notifyForNewTeamMsg(msg.to)
+    let muteNotiType = Number(map[msg.to])
+    if (muteNotiType === 1) isMute = true
+  }
+  if (!isMute) {
+    let audio = new Audio(`./static/img/msg.wav`)
+    audio.play()
+    setTimeout(() => audio.pause(), 800)
+  }
 }
 
 function notifyForNewTeamMsg (teamId) {
@@ -254,17 +230,9 @@ function onSendMsgDone (error, msg) {
     // 被拉黑
     if (error.code === 7101) {
       msg.status = 'success'
-    } else if (error.code === 'Error_Internet_Disconnected' || error.code === 'Error_Connection_Socket_State_not_Match') {
-      msg.status = 'fail'
-      store.commit('toastConfig', {
-        show: true,
-        type: 'fail',
-        toastText: '网络连接状态异常，请检查网络连接'
-      })
-      store.commit('connectStatus', { networkStatus: 500 })
-      return
+      console.log(error.message)
     } else {
-      store.commit('connectStatus', { networkStatus: 200 })
+      console.log(error.message)
     }
   }
   onMsg(msg)
@@ -454,7 +422,6 @@ export function sendMsg ({state, commit}, obj) {
 }
 // 发送文件消息
 export function sendFileMsg ({ state, commit }, obj) {
-  console.log(obj)
   const nim = state.nim
   let type = 'file'
   const { scene, to, file } = obj
@@ -480,7 +447,6 @@ export function sendFileMsg ({ state, commit }, obj) {
       ext
     }
   }
-  console.log(msgFake)
   onSendMsgDone(null, msgFake)
   const id = msgFake.idClientFake
   return new Promise((resolve, reject) => {
