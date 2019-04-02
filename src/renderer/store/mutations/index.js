@@ -710,6 +710,7 @@ export default {
     }
   },
   async updateTeamMembers (state, obj) {
+    const pinyin = require('tiny-pinyin')
     const nim = state.nim
     var teamId = obj.teamId
     var members = obj.members
@@ -725,6 +726,9 @@ export default {
         member.alias = member.nickInTeam || member.account
       } else {
         member.alias = state.userInfos[member.account].alias || member.nickInTeam || state.userInfos[member.account].nick
+      }
+      if (pinyin.isSupported()) {
+        member.pinyinStr = pinyin.convertToPinyin(member.alias, '', true)
       }
       return member
     })
