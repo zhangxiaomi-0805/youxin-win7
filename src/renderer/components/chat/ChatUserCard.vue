@@ -78,7 +78,8 @@
           return {}
         }
       },
-      scene: String
+      scene: String,
+      to: String
     },
     data () {
       return {
@@ -86,13 +87,22 @@
         defaultUserIcon: config.defaultUserIcon
       }
     },
+    watch: {
+      to (newValue, oldValue) {
+        if (newValue !== oldValue) {
+          this.getUserInfo(newValue)
+        }
+      }
+    },
     mounted () {
-      this.eventBus.$on('updateUserInfos', (data) => {
-        this.getUserInfo(data.to)
-      })
+      this.getUserInfo(this.to)
     },
     methods: {
       getUserInfo (to) {
+        console.log(to)
+        if (!to) {
+          return false
+        }
         let Info = this.otherUserInfos[to]
         let params = [
           {
