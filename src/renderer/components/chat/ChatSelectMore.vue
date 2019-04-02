@@ -75,6 +75,9 @@
                 this.checkedMsgList.splice(i, 1)
               }
             }
+            this.checkedMsgList.sort(function (obj1, obj2) {
+              return obj1.time - obj2.time
+            })
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
             break
           case 'copy':
@@ -94,16 +97,19 @@
       copyText () {
         let resTarget = document.getElementById('clipboard')
         let allCopyText = ''
+        this.checkedMsgList.sort(function (obj1, obj2) {
+          return obj1.time - obj2.time
+        })
         if (this.checkedMsgList && this.checkedMsgList.length > 0) {
           this.checkedMsgList.forEach(msg => {
             let newMsg = JSON.parse(JSON.stringify(msg))
             newMsg.time = this.manageTime(newMsg.time)
             if (newMsg.type === 'text') {
-              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}\n${newMsg.text}\n\n`
+              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}${newMsg.text}`
               allCopyText += singgleCopyText
             }
           })
-          resTarget.innerText = allCopyText
+          resTarget.innerText = allCopyText.slice(0, allCopyText.length - 2)
           resTarget.select()
           document.execCommand('Copy')
         }

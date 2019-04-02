@@ -1,7 +1,7 @@
 <template>
   <!-- 个人名片 -->
   <div class="m-chat-user-card" v-if="scene === 'p2p'">
-    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard">aaa</textarea>
+    <textarea style="width: 1px;height: 1px;position: absolute;right: -3px;overflow:hidden" id="clipboard">aaa</textarea>
     <div class="m-modify">
       <div><img :src="userInfos.avatar || defaultUserIcon"></div>
       <div class="nick" :title="userInfos.name"
@@ -99,7 +99,6 @@
     },
     methods: {
       getUserInfo (to) {
-        console.log(to)
         if (!to) {
           return false
         }

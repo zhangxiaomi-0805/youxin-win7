@@ -108,7 +108,6 @@ export default {
             accid: data.userInfos.accid || data.userInfos.account
           }
         ]
-        console.log(params)
         Request.PullUserInfo(params, this)
           .then(ret => {
             if (ret) {

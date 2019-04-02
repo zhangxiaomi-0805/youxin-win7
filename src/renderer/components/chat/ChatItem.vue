@@ -1065,8 +1065,6 @@
         this.$store.commit('updateCheckedMsgs', [msg])
       },
       checkChatItemFn (msg) {
-        console.log('哈哈哈==========')
-        console.log(this.checkedChatList)
         const index = this.checkedChatList.findIndex(item => {
           return item.idClient === msg.idClient
         })
@@ -1151,7 +1149,6 @@
                   break
                 case 3: // 复制
                   this.$refs.clipboard.innerText = this.getCopyText(e)
-                  console.log(this.$refs.clipboard.innerText)
                   this.$refs.clipboard.select()
                   document.execCommand('Copy')
                   break

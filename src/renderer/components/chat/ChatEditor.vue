@@ -372,7 +372,6 @@
               return
             }
           }
-          console.log(input.files[0])
           this.sendImgMsg(input.files[0])
           this.$refs.editDiv.focus()
           setTimeout(() => {
@@ -468,7 +467,6 @@
       },
       // 粘贴事件
       async onPaste (e) {
-        console.log('粘贴==========')
         e && e.preventDefault()
         let text = null
         let file = null
