@@ -69,6 +69,12 @@
         switch (value) {
           case 'forword':
             let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
+            // 自定义邀请入群消息不允许转发
+            for (let i = 0; i < this.checkedMsgList.length; i++) {
+              if (this.checkedMsgList[i].type === 'custom-type8') {
+                this.checkedMsgList.splice(i, 1)
+              }
+            }
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
             break
           case 'copy':
