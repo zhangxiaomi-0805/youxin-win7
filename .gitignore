@@ -12,5 +12,6 @@ youxin-darwin-x64/
 youxin-win32-ia32/
 youxin-win32-x64/
 Netease/
+images/
 app.asar
 *.rar

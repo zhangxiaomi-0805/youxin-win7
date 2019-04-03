@@ -72,6 +72,7 @@
   import RemoteConfirm from './float/RemoteConfirm.vue'
   import config from '../configs'
   import NativeLogic from '../utils/nativeLogic.js'
+  import operateFs from '../utils/operateFs'
   export default {
     name: 'main-page',
     components: {
@@ -216,6 +217,9 @@
           let content = { status: 'disConnect' }
           this.$store.dispatch('sendCustomSysMsg', {account: arg, content: JSON.stringify(content)})
         })
+
+        // 创建默认图片存储文件夹
+        operateFs.createDefaltDir({})
       }
       // 检查更新
       Request.AppVersions().then(res => {

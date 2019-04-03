@@ -64,15 +64,14 @@
         <!-- 群邀请消息 -->
         <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box"
           @click.stop ="!isCheckMore && msg.flow==='in' && showGroupInvite(msg.showText)"
-          @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)"
-        >
+          @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)">
           <span class="custom-type8-title">邀请你加入群聊</span>
           <span class="custom-type8-content-box">
             <span class="custom-type8-content">{{msg.showText.description}}</span>
             <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
           </span>
         </span>
-        <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="!isCheckMore && showImgModal(msg.originLink)" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
+        <span v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @click.stop="msg.status === 'success' && !isCheckMore && showImgModal(msg.originLink)" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"></span>
         <span v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg"></span>
         <span v-else-if="msg.type==='audio'" class="msg-text msg-audio" :class="currentMsgPlay.idClient === msg.idClient && currentMsgPlay.isPlay ? 'zel-play' : ''" @click="!isCheckMore && playAudio(msg.audioSrc, msg)" @mouseup.stop="!isCheckMore && showListOptions($event, 'audio')">
           <span v-if="!msg.localCustom || !msg.localCustom.isPlayed" class="nomsg" style="top: 0;right: -22px;width: 8px;height: 8px;"></span>
@@ -135,6 +134,7 @@
   import Request from '../../utils/request.js'
   import getFile from '../../utils/getFile.js'
   import NativeLogic from '../../utils/nativeLogic.js'
+  import operateFs from '../../utils/operateFs'
   export default {
     props: {
       isCheckMore: Boolean,
@@ -588,6 +588,16 @@
           if (item.status !== 'sending') {
             // 图片消息缩略图
             media.src = item.file.url + '?imageView&thumbnail=180x0&quality=85'
+            if (item.localCustom && item.localCustom.imageLocalDir) {
+              media.src = item.localCustom.imageLocalDir
+            }
+            media.onerror = () => {
+              media.src = config.defaultErrorImg
+            }
+            // 下载图片到本地存储
+            this.downloadImg(item)
+          } else if (item.status === 'fail') {
+            media.src = config.defaultErrorImg
           }
         } else if (item.type === 'custom-type1') {
           // 猜拳消息
@@ -1583,6 +1593,21 @@
           this.$refs.clipboard.innerText = this.getCopyText(e)
           this.$refs.clipboard.select()
           document.execCommand('Copy')
+        }
+      },
+      downloadImg (item) {
+        // 本地存储图片
+        if (config.environment === 'electron') {
+          operateFs.createDefaltDir({
+            name: item.idClient,
+            msg: item,
+            done: (fileDir, msg) => {
+              // 更新消息本地扩展字段
+              let localCustom = msg.localCustom || {}
+              localCustom.imageLocalDir = 'file://' + fileDir
+              this.$store.dispatch('updateLocalMsg', { idClient: msg.idClient, localCustom })
+            }
+          })
         }
       }
     }

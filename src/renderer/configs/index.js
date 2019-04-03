@@ -25,6 +25,8 @@ var config = {
   defaultGroupIcon: `./static/img/team/group-default.png`,
   // 默认讨论组头像
   defaultDiscussGroupIcon: `./static/img/team/discuss-group-default.png`,
+  // 默认图片加载失败图片
+  defaultErrorImg: `./static/img/err_img.png`,
   // 默认高级群头像
   defaultAdvancedIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-advanced.png',
   // 系统通知图标
