@@ -8,7 +8,9 @@ npm-debug.log
 npm-debug.log.*
 thumbs.db
 !.gitkeep
-nice-darwin-x64/
-nice-win32-ia32/
-nice-win32-x64/
+youxin-darwin-x64/
+youxin-win32-ia32/
+youxin-win32-x64/
+Netease/
+app.asar
 *.rar

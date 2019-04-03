@@ -140,7 +140,6 @@
   import ChatEmoji from './ChatEmoji'
   import config from '../../configs'
   import emojiObj from '../../configs/emoji'
-  // import { getPinyin } from '../../utils/pinyin'
   import util from '../../utils'
   import getFile from '../../utils/getFile'
   import pageUtil from '../../utils/page'
@@ -1328,25 +1327,25 @@
           let teamMembers = this.$store.state.teamMembers
           let members = teamMembers && teamMembers[this.teamId]
           if (members) {
+            const pinyin = require('tiny-pinyin')
             let resultMembers = members.filter(item => {
               if (item.account !== this.$store.state.userUID) {
                 if (this.userInfos[item.account]) {
                   // 因群成员列表已经更新过userInfos了
                   let userInfo = this.userInfos[item.account]
                   item.nick = userInfo.nick
-                  // item.nickPy = getPinyin(item.nick, '')
                   item.alias = item.nickInTeam || userInfo.nick
                   item.showAlias = item.nickInTeam || item.nick
                 }
                 item.nickInTeam = item.nickInTeam ? item.nickInTeam : ''
-                // item.nickInTeamPy = item.nickInTeam ? getPinyin(item.nickInTeam, '') : ''
                 let userInfo = this.userInfos[item.account]
                 if (userInfo && userInfo.alias) {
                   item.alias = userInfo.alias
-                  // item.aliasPy = getPinyin(userInfo.alias, '')
                 }
-                item.allMatch = item.nick + item.alias + item.nickInTeam
-                // item.allMatch = item.nick + item.nickPy + item.nickInTeam + item.nickInTeamPy + item.alias || '' + item.aliasPy || ''
+                if (pinyin.isSupported()) {
+                  item.pinyinStr = pinyin.convertToPinyin(item.alias, '', true)
+                }
+                item.allMatch = item.nick + item.pinyinStr + item.alias + item.nickInTeam
                 return item
               }
               return false
@@ -1485,9 +1484,10 @@
             return
           }
           let userInfo = this.userInfos[this.to] || {}
-          let content = { status: 'request', type, nick: userInfo.nick || userInfo.alias || this.to, account: this.to }
+          let myInfo = this.$store.state.myInfo
+          let content = { status: 'request', type, nick: myInfo.nick || myInfo.account, account: this.to }
           if (localStorage.IGNOREREMOTE) {
-            this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content })
+            this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content, nick: userInfo.nick || userInfo.alias || this.to })
             this.$store.dispatch('sendCustomSysMsg', {account: content.account, content: JSON.stringify(content)})
           } else {
             this.eventBus.$emit('remoteConfirm', content)

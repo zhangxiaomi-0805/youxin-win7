@@ -12,7 +12,7 @@
         @dblclick.stop="sendMsg(item)"
       >
         <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
-        <div class="text-con"><span :class="nameClass(text)" v-for="text in (item.alias || item.nick)" :key="text.id" :id="text.id">{{text}}</span></div>
+        <div class="text-con"><span :class="nameClass(text)" v-for="text in (item.alias || item.nick || item.pinyinStr)" :key="text.id" :id="text.id">{{text}}</span></div>
       </li>
     </ul>
   </div>
@@ -68,11 +68,8 @@
           return
         }
         let searchlist = []
-        // if (this.myInfo.nick.indexOf(value) > -1) {
-        //   searchlist.push(this.myInfo)
-        // }
         for (let i in this.memberList) {
-          if (this.memberList[i].alias !== '我' && this.memberList[i].alias.indexOf(value) > -1) {
+          if (this.memberList[i].alias !== '我' && (this.memberList[i].alias.indexOf(value) > -1 || this.memberList[i].pinyinStr.indexOf(value) > -1)) {
             searchlist.push(this.memberList[i])
           }
         }
