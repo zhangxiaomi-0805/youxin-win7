@@ -54,11 +54,12 @@ export default {
       // type  1-接受，2-拒绝
       let account = this.account
       let reqType = this.type
-      let content = { status: 'response', type, reqType, nick: this.nick }
+      let myInfo = this.$store.state.myInfo
+      let content = { status: 'response', type, reqType, nick: myInfo.nick || myInfo.account }
       this.$store.dispatch('sendCustomSysMsg', {account, content: JSON.stringify(content)})
       this.closeModal()
       if (type === 1) {
-        this.$store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account })
+        this.$store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account, role: 'Initiator' })
         if (reqType === 1) {
           let ipcRenderer = require('electron').ipcRenderer
           ipcRenderer.send('remoteConnection', account)

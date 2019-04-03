@@ -22,7 +22,7 @@ export function showImgModal ({state, commit}, obj) {
   let msgs = state.currSessionMsgs
   let imgArr = []
   msgs.forEach(item => {
-    if (item.type === 'image') {
+    if (item.type === 'image' && item.status === 'success') {
       imgArr[ imgArr.length ] = Object.assign({}, item)
     }
   })
