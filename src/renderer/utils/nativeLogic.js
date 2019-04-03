@@ -36,10 +36,17 @@ class NativeHandle {
    * 2、打开文件、打开文件所在目录、打开外部浏览器
    * @params: type   // 打开类型（1-文件，2-文件所在目录，3-外部浏览器）
    * @params: path   // 文件对应的为本地路径，浏览器对应的是url
+   * @params: params   // 调用程序附加的参数
+   * @params: is_show   // 是否显示调用窗口
    * **/
   openShell = (type, path) => {
     return new Promise((resolve, reject) => {
-      window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', { type, path }, (error, result) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', {
+        type,
+        path,
+        params: '',
+        is_show: true
+      }, (error, result) => {
         if (error) {
           reject(error)
         } else {
@@ -50,9 +57,9 @@ class NativeHandle {
   }
 
   /**
-   * 3、文件下载: 提供文件下载功能，需要将文件下载的进度、是否下载完成以及下载失败提供给h5（需要支持断点续传）
+   * 3、文件下载: (1)提供文件下载功能，需要将文件下载的进度、是否下载完成以及下载失败提供给h5（需要支持断点续传）(2)图片静默下载
    * @params: url   // 文件下载地址
-   * @params: savePath   // 默认保存路径
+   * @params: savePath   // 默认保存路径（注：图片静默下载时必传，savePath---相对运行程序的某个路径）
    * @params: showSaveDlg   // 是否显示保存对话框
    * **/
   fileDownload = (url, savePath, showSaveDlg, msg, session) => {
