@@ -12,7 +12,7 @@
           :key="item.id"
           :id="item.id"
           :title="item.company"
-          @click="toggleSessin('p2p', item.accid)"
+          @dblclick.stop="toggleSessin('p2p', item.accid)"
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;width: 80%">
@@ -32,7 +32,7 @@
           v-for="item in teamlist"
           :key="item.id"
           :id="item.id"
-          @click="toggleSessin('team', item.teamId)"
+          @dblclick.stop="toggleSessin('team', item.teamId)"
         >
           <img :src="item.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;width: 80%">
@@ -55,7 +55,7 @@
           v-for="record in recordlist"
           :key="record.id"
           :id="record.id"
-          @click="toggleSessin(record.scene, record.to, record.name)"
+          @dblclick.stop="toggleSessin(record.scene, record.to, record.name)"
         >
           <img :src="record.avatar || myGroupIcon" class="s-img searchevent">
           <div style="paddingLeft: 10px;width: 80%;">
