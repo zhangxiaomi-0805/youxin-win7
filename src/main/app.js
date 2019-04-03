@@ -56,6 +56,15 @@ APP.prototype.catchMainProcessError = function () {
 
 APP.prototype.initApp = function () {
   var _this = this
+
+  if (process.platform === 'win32') {
+    // 修改数据存储位置（包含应用和db数据、日志）
+    // let filePath = path.join(process.cwd(), 'Netease')
+    // app.setPath('appData', filePath)
+    // app.setPath('userData', filePath)
+    // app.setPath('logs', filePath)
+  }
+
   // 更新App版本号
   global.APPVERSION = app.getVersion()
   app.on('ready', function () {
@@ -437,22 +446,6 @@ APP.prototype.showMainWindow = function () {
   if (this.mainWindow) {
     this.mainWindow.show()
     this.mainWindow.positionSession()
-  }
-}
-
-APP.prototype.modifyFilePath = function () {
-  // 修改数据存储位置（包含应用和db数据、日志）
-  let FilePath = ''
-  let configPath = path.join(process.env.npm_package_author_name, app.getName().toUpperCase())
-  if (process.platform === 'win32') {
-    FilePath = path.join(process.env.LOCALAPPDATA, configPath)
-  } else if (process.platform === 'darwin') {
-    FilePath = path.join(app.getPath('home'), 'Library', 'Application Support', configPath)
-  }
-  if (FilePath) {
-    app.setPath('appData', FilePath)
-    app.setPath('userData', FilePath)
-    app.setPath('logs', FilePath)
   }
 }
 

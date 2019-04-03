@@ -220,7 +220,11 @@ function remoteConnectCtrl (content, account) {
     case 'dismiss':
       store.commit('updateRemoteWaitingObj', { showModal: false })
       ipcRenderer.send('remoteConnectionDiss')
-      warnPrompt(`${content.nick}谢绝了您的远程控制的请求`)
+      if (content.role) {
+        warnPrompt(`${content.nick}谢绝了您的远程控制的请求`)
+      } else {
+        warnPrompt('对方断开了远程连接。')
+      }
       break
     case 'refuse':
       store.commit('updateRemoteWaitingObj', { showModal: false })

@@ -24,6 +24,9 @@ export default {
     type () {
       return this.$store.state.remoteWaitingObj.type
     },
+    role () {
+      return this.$store.state.remoteWaitingObj.role
+    },
     account () {
       return this.$store.state.remoteWaitingObj.account
     },
@@ -53,9 +56,10 @@ export default {
   },
   methods: {
     cancel () {
-      let content = { status: 'request', type: 3 }
+      let myInfo = this.$store.state.myInfo
+      let content = { status: 'request', type: 3, nick: myInfo.nick || myInfo.account, role: this.role }
       if (this.noCancel) {
-        content = { status: 'dismiss', nick: this.nick }
+        content = { status: 'dismiss', nick: myInfo.nick || myInfo.account, role: this.role }
       }
       this.$store.dispatch('sendCustomSysMsg', {account: this.account, content: JSON.stringify(content)})
       this.$store.commit('updateRemoteWaitingObj', { showModal: false })
