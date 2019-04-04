@@ -21,7 +21,7 @@
       :key="session.id" :id="session.id"
     >
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link"
-        @mouseover="selectedId = session.id, showDelete = true"
+        @mouseover="selectedId = session.id, showDelete = session.unread <= 0"
         @mouseout="selectedId = -1, showDelete = false"
       >
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">

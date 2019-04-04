@@ -136,6 +136,10 @@ export async function onUpdateSession (session, callback) {
     store.commit('updateSessions', sessions)
   }
   // 通知主进程
+  updateTwinkle()
+}
+
+async function updateTwinkle () {
   let unreadNums = 0
   // 获取静音列表
   let mutelist = await getRelationsDone()
@@ -242,6 +246,7 @@ export function deleteSession ({state, commit}, obj) {
             if (error) {
               return
             }
+            updateTwinkle()
             // type为1是则删除所有
             let { that, type } = obj
             if (type === 1) {

@@ -99,7 +99,6 @@ OperateFs.prototype.readFile = (fileDir) => {
  * 写文件
  */
 OperateFs.prototype.writeFile = ({file, fileDir, msg, done}) => {
-  console.log(fileDir)
   let writeStream = fs.createWriteStream(fileDir)
   let readStream = request(file.url)
   readStream.pipe(writeStream)
