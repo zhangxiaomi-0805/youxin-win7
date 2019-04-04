@@ -54,9 +54,32 @@ async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   // 通知主进程
   let unreadNums = 0
-  store.state.sessionlist.forEach(session => {
-    unreadNums += session.unread
-  })
+  // 获取静音列表
+  let mutelist = await getRelationsDone()
+  let newSessionList = JSON.parse(JSON.stringify(store.state.sessionlist))
+  if (mutelist.length > 0 && newSessionList.length > 0) { // 过滤掉静音列表，不计入未读消息列表
+    for (let k = 0; k < newSessionList.length; k++) {
+      for (let i = 0; i < mutelist.length; i++) {
+        if (newSessionList[k] && newSessionList[k].to === mutelist[i].account) {
+          newSessionList.splice(k, 1)
+        }
+      }
+    }
+  }
+  // 群是否设置消息免打扰
+  for (let i = 0; i < newSessionList.length; i++) {
+    let isMute = false
+    if (newSessionList[i].scene && newSessionList[i].scene !== 'p2p') {
+      let map = await notifyForNewTeamMsg(newSessionList[i].to)
+      let muteNotiType = Number(map[newSessionList[i].to])
+      if (muteNotiType === 1) isMute = true
+      if (!isMute) {
+        unreadNums += newSessionList[i].unread
+      }
+    } else {
+      unreadNums += newSessionList[i].unread
+    }
+  }
   if (config.environment === 'web') { // web分支
     NativeLogic.native.getWinStatus()
       .then(res => {
@@ -85,6 +108,18 @@ async function systemNewMsgsManage (msg) {
     audio.play()
     setTimeout(() => audio.pause(), 800)
   }
+}
+
+// 获取静音列表
+function getRelationsDone () {
+  return new Promise((resolve, reject) => {
+    store.state.nim.getRelations({
+      done: (error, obj) => {
+        if (error) reject(error)
+        else resolve(obj.mutelist)
+      }
+    })
+  })
 }
 
 function notifyForNewTeamMsg (teamId) {

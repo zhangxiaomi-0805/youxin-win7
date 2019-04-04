@@ -20,7 +20,7 @@ export function searchUsers ({state, commit}, obj) {
   }
   nim.getUsers({
     accounts,
-    sync: false,
+    sync: true,
     done: function searchUsersDone (error, users) {
       if (error) {
         console.log(error)
