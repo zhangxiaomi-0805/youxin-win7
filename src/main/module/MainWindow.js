@@ -93,14 +93,12 @@ MainWindow.prototype.createWindow = function () {
       const strArr = item.getURL().split('#')
       const id = strArr[strArr.length - 1]
       if (state === 'completed') {
-        console.log('Download successfully')
         webContents.send(`downloaded`, {
           list: this.downList,
           id,
           url: item.getSavePath()
         })
       } else {
-        console.log(`Download failed: ${state}`)
         webContents.send(`downloading`, {
           id,
           progressing: 0,
