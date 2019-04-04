@@ -269,7 +269,6 @@
         }
         Request.ResetPassword(params, this).then(ret => {
           if (ret) {
-            this.$store.commit('updateCurrentUserSecret', ret.secretKey)
             localStorage.setItem('sessionToken', ret.token)
             this.loginPC(ret)
           } else {
@@ -332,17 +331,10 @@
         })
       },
       async loginPC (ret) {
-        let {userInfo, secretKey} = ret
+        let {userInfo} = ret
         try {
           LocalStorage.setItem('uid', userInfo.accid)
           LocalStorage.setItem('sdktoken', userInfo.token)
-          // 更新本地缓存secret
-          let data = await IndexedDB.getItem('userSecret', 1)
-          if (data) {
-            this.$store.commit('updateCurrentUserSecret', data.secret)
-          } else {
-            secretKey && await IndexedDB.setItem('userSecret', { secret: secretKey }, 1)
-          }
         } catch (error) {}
         // 获取用户基本信息
         Request.GetUserInfo({accid: userInfo.accid}, this).then(ret => {
