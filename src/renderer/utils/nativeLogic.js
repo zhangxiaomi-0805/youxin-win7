@@ -63,8 +63,9 @@ class NativeHandle {
    * @params: showSaveDlg   // 是否显示保存对话框
    * **/
   fileDownload = (url, savePath, showSaveDlg, msg, session) => {
+    console.log(url)
     const id = msg.idClient
-    window.NimCefWebInstance.call('fileDownload', {
+    window.NimCefWebInstance && window.NimCefWebInstance.call('fileDownload', {
       url,
       savePath,
       showSaveDlg
@@ -75,7 +76,7 @@ class NativeHandle {
           // status 1 -下载中 2 -暂停
           this.downList[id] = {id: result.id, status: 1}
         } else if (result.isInProgress) {
-          // console.log('下载中', result.currentSpeed, result.totalBytes, result.receiveBytes, result.percentComplete)
+          console.log('下载中', result.currentSpeed, result.totalBytes, result.receiveBytes, result.percentComplete)
           if (this.downList[id].status === 1) {
             store.commit('updateDownloadFileList', {
               type: 1,
@@ -85,7 +86,7 @@ class NativeHandle {
             })
           }
         } else if (result.isComplete) {
-          // console.log('下载完成', result.totalBytes, result.receiveBytes)
+          console.log('下载完成', result.totalBytes, result.receiveBytes)
           let newMsg = Object.assign({}, msg)
           if (newMsg.localCustom) {
             newMsg.localCustom.downloadUrl = result.fullPath
@@ -118,13 +119,33 @@ class NativeHandle {
             }
           })
         } else if (result.isCanceled) {
-          // console.log('取消下载中', result.totalBytes, result.receiveBytes)
+          console.log('取消下载中', result.totalBytes, result.receiveBytes)
           store.commit('updateDownloadFileList', {
             type: 3,
             id: id
           })
         }
       }
+    })
+  }
+
+  // 图片静默下载
+  imgDownload = (url, savePath, showSaveDlg) => {
+    console.log(url)
+    console.log(savePath)
+    console.log(showSaveDlg)
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('fileDownload', {
+        url,
+        savePath,
+        showSaveDlg
+      }, (error, result) => {
+        if (error) {
+          reject(error)
+        } else if (result && result.isComplete && result.fullPath) {
+          resolve(result)
+        }
+      })
     })
   }
 

@@ -1608,6 +1608,33 @@
               this.$store.dispatch('updateLocalMsg', { idClient: msg.idClient, localCustom })
             }
           })
+        } else if (config.environment === 'web') {
+          let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+          if (AppDirectory.indexOf('dist') > -1) {
+            let urlArr = AppDirectory.split('dist')
+            AppDirectory = urlArr[0]
+          }
+          // 设置图片默认存储路径
+          let fileExtension = item.file && item.file.name.split('.')[1] // 后缀名
+          let fileName = item.idClient +'.' + fileExtension // 文件名
+          let accid = localStorage.getItem('uid')
+          let savePath = AppDirectory + `/images/${accid}/${fileName}`
+          let downloadUrl = item.originLink.split('?')[0] // 文件原始路径
+          /**
+           * 3、文件下载: (1)提供文件下载功能，需要将文件下载的进度、是否下载完成以及下载失败提供给h5（需要支持断点续传）(2)图片静默下载
+           * @params: url   // 文件下载地址
+           * @params: savePath   // 默认保存路径（注：图片静默下载时必传，savePath---相对运行程序的某个路径）
+           * @params: showSaveDlg   // 是否显示保存对话框
+           * **/
+          NativeLogic.native.imgDownload(downloadUrl, savePath, false).then(res => {
+            if (res && res.fullPath) {
+              let fullPath = res.fullPath
+              // 更新消息本地扩展字段
+              let localCustom = item.localCustom || {}
+              localCustom.imageLocalDir = 'file://' + fullPath
+              this.$store.dispatch('updateLocalMsg', { idClient: item.idClient, localCustom })
+            }
+          }).catch(err => console.log(err))
         }
       }
     }
