@@ -111,6 +111,9 @@ export function onSessions (sessions) {
         }
       }
     }
+
+    // 通知主进程
+    updateTwinkle()
   }, 100)
 }
 
