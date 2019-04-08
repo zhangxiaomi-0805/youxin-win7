@@ -67,7 +67,7 @@
               <span v-if="session.unread > 0" class="nomsg"></span>
             </div>
             <span v-else-if="!(session.id === selectedId && showDelete) && lastMsgStatus(session)" class="u-unread">1</span>
-            <span v-else-if="!(session.id === selectedId && showDelete) && session.unread > 0" class="u-unread">{{session.unread > 99 ? "99+" : session.unread}}</span>
+            <span v-else-if="!(session.id === selectedId && showDelete) && session.unread > 0" class="u-unread unread-num">{{session.unread > 99 ? "99+" : session.unread}}</span>
             <!-- <div v-else style="width: 15px;height: 15px;"></div> -->
           </div>
         </div>
@@ -204,6 +204,15 @@ export default {
       return this.$store.state.currSessionId
     },
     sessionlist () {
+      let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
+      if (unreadList.length < 1) {
+        if (config.environment === 'web') { // web分支
+          NativeLogic.native.receiveNewMsgs({ unreadNums: 0 })
+        } else { // electron分支
+          let { ipcRenderer } = require('electron')
+          ipcRenderer.send('receiveNewMsgs', {unreadNums: 0})
+        }
+      }
       let sessionlist = this.$store.state.sessionlist.filter(item => {
         item.name = ''
         item.avatar = ''
@@ -390,7 +399,7 @@ export default {
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
       // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocus')
+      this.eventBus.$emit('getFocusFn')
       // 通知主进程
       if (config.environment === 'web') { // web分支
         let data = JSON.stringify({appCode: session.id})
