@@ -368,7 +368,7 @@ body,
     background: rgba(242,242,242,1);
 }
 .g-window .u-list-item-active {
-    background: #F7F7F7;
+    background: #E0E0E0;
     transition: all .2s;
 }
 .g-window .u-list-item .u-list-item-container {

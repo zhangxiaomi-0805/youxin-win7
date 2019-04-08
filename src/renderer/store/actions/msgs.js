@@ -103,7 +103,7 @@ async function systemNewMsgsManage (msg) {
     let muteNotiType = Number(map[msg.to])
     if (muteNotiType === 1) isMute = true
   }
-  if (!isMute) {
+  if (!isMute && !localStorage.getItem('AUDIOSETT')) {
     let audio = new Audio(`./static/img/msg.wav`)
     audio.play()
     setTimeout(() => audio.pause(), 800)

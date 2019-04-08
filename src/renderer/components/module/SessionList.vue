@@ -152,10 +152,8 @@ export default {
       scrollTop: 0,
       showSearch: false,
       searchValue: '',
-      noticeIcon: config.noticeIcon,
       myPhoneIcon: config.myPhoneIcon,
       myGroupIcon: config.defaultGroupIcon,
-      myAdvancedIcon: config.defaultAdvancedIcon,
       menuId: '',
       newSessionlistTopLength: 0,
       showDelete: false, // 快捷删除按钮
@@ -391,6 +389,8 @@ export default {
       }
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
+      // 通知chatEditor获取焦点
+      this.eventBus.$emit('getFocus')
       // 通知主进程
       if (config.environment === 'web') { // web分支
         let data = JSON.stringify({appCode: session.id})

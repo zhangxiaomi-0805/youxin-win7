@@ -194,6 +194,10 @@
       }
     },
     mounted () {
+      // 切换会话时，chatEditor获取焦点
+      this.eventBus.$on('getFocus', () => {
+        this.$refs.editDiv.focus()
+      })
       if (config.environment === 'web') { // web分支
         this.eventBus.$on('screenShot', () => {
           this.screenShot()

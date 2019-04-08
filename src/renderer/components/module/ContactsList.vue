@@ -80,7 +80,6 @@
         activeId: '',
         showSearch: false,
         searchValue: '',
-        noticeIcon: config.noticeIcon,
         defaultUserIcon: config.defaultUserIcon
       }
     },

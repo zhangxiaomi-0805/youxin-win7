@@ -64,7 +64,7 @@
               </div>
               <div class="sys-item" @click="audioSettCtrl">
                 <span :class="!audioSett ? 'radio active' : 'radio'"/>
-                <span style="fontSize: 13px;">{{!audioSett ? '开启新消息提醒声音' : '关闭新消息提醒声音'}}</span>
+                <span style="fontSize: 13px;">{{'开启新消息提醒声音'}}</span>
               </div>
             </div>
           </div>

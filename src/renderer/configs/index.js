@@ -17,20 +17,14 @@ var config = {
   // defaultIcon: `${__static}/default.png`,
   // 资源路径根目录，为了方便用户部署在二级以上URL路径上yy
   resourceUrl: 'http://yx-web.nos.netease.com/webdoc/h5',
-  // 用户logo地址
-  logo: 'http://yx-web.nos.netease.com/webdoc/h5/im/logo.png',
   // 默认用户头像
-  defaultUserIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-icon.png',
+  defaultUserIcon: `./static/img/p2p-default.png`,
   // 默认普通群头像
   defaultGroupIcon: `./static/img/team/group-default.png`,
   // 默认讨论组头像
   defaultDiscussGroupIcon: `./static/img/team/discuss-group-default.png`,
   // 默认图片加载失败图片
   defaultErrorImg: `./static/img/err_img.png`,
-  // 默认高级群头像
-  defaultAdvancedIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/default-advanced.png',
-  // 系统通知图标
-  noticeIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/notice-icon.png',
   // 我的手机图标
   myPhoneIcon: 'http://yx-web.nos.netease.com/webdoc/h5/im/my-phone.png',
   // 本地消息显示数量，会影响性能
