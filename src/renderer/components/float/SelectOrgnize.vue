@@ -88,7 +88,7 @@ export default {
       showBorder: false,
       teamId: -1,
       teamAvatarUrl: configs.defaultGroupIcon, // 群头像
-      type: 1, // 1-创建群，2-添加成员（创建讨论组），3-添加群成员，4-创建讨论组，5-转发到新聊天
+      type: 1, // 1-创建群，2-创建讨论组，3-添加群成员，4-创建讨论组，5-转发到新聊天
       searchValue: '',
       msg: '',
       isDiscussGroup: false,
@@ -173,7 +173,7 @@ export default {
         return
       }
       if (this.type < 5) {
-        let limit = this.type === 2 ? 199 : 200
+        let limit = 199 // type ===1 (创建群) 2（创建讨论组
         if (this.chooselist.length > limit) {
           let toast = this.type === 1 ? '群' : '讨论组'
           this.$store.commit('toastConfig', {
@@ -253,7 +253,7 @@ export default {
     addTeamMember () {
       if (this.isDiscussGroup) {
         let orgDisabledlist = this.$store.state.orgDisabledlist
-        if ((orgDisabledlist.length + this.chooselist.length) > 199) {
+        if ((orgDisabledlist.length + this.chooselist.length) > 200) {
           this.$store.commit('toastConfig', {
             show: true,
             type: 'fail',
