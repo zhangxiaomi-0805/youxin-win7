@@ -88,7 +88,7 @@ export default {
       showBorder: false,
       teamId: -1,
       teamAvatarUrl: configs.defaultGroupIcon, // 群头像
-      type: 1, // 1-创建群，2-创建讨论组，3-添加群成员，4-创建讨论组，5-转发到新聊天
+      type: 1, // 0-个人聊天页添加成员创建讨论组， 1-左侧tab处创建群，2-左侧tab处创建讨论组，3-添加成员（讨论组/群右侧列表处添加），4-创建讨论组，5-转发到新聊天
       searchValue: '',
       msg: '',
       isDiscussGroup: false,
@@ -139,6 +139,9 @@ export default {
       if (this.loading) return
       if (this.isDisabled()) return
       switch (this.type) {
+        case 0:
+          this.eventBus.$emit('settingName', {type: 0, callBack: this.createTeam})
+          break
         case 1:
           this.eventBus.$emit('settingName', {type: 1, callBack: this.createTeam})
           break
@@ -173,7 +176,7 @@ export default {
         return
       }
       if (this.type < 5) {
-        let limit = 199 // type ===1 (创建群) 2（创建讨论组
+        let limit = this.type === 0 ? 198 : 199 // type ===1 (创建群（包含自己）) type ===2（创建讨论组（包含自己）) type === 0(个人聊天页创建讨论组（包含自己和该用户）)
         if (this.chooselist.length > limit) {
           let toast = this.type === 1 ? '群' : '讨论组'
           this.$store.commit('toastConfig', {

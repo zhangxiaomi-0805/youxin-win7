@@ -113,7 +113,7 @@ export function onSessions (sessions) {
     }
 
     // 通知主进程
-    updateTwinkle()
+    updateTwinkle('isInit')
   }, 100)
 }
 
@@ -142,7 +142,7 @@ export async function onUpdateSession (session, callback) {
   updateTwinkle()
 }
 
-async function updateTwinkle () {
+async function updateTwinkle (type) {
   let unreadNums = 0
   // 获取静音列表
   let mutelist = await getRelationsDone()
@@ -170,7 +170,18 @@ async function updateTwinkle () {
       unreadNums += newSessionList[i].unread
     }
   }
+  if (type && type === 'isInit' && unreadNums > 0 && !localStorage.getItem('AUDIOSETT')) {
+    let audio = new Audio(`./static/img/msg.wav`)
+    audio.play()
+    setTimeout(() => audio.pause(), 800)
+  }
   if (config.environment === 'web') { // web分支
+    NativeLogic.native.getWinStatus()
+      .then(res => {
+        if (!res.isFocused) {
+          NativeLogic.native.flashFrame(true)
+        }
+      })
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')

@@ -144,6 +144,9 @@
           }
         }
         return nickInTeam
+      },
+      userInfos () {
+        return this.$store.state.userInfos
       }
     },
     mounted () {
@@ -153,6 +156,18 @@
       })
     },
     methods: {
+      memberList (teamId) {
+        let teamMembers = this.$store.state.teamMembers
+        let members = teamMembers && teamMembers[teamId]
+        if (members && members.length > 0) {
+          for (let i = 0; i < members.length; i++) {
+            members[i].accid = members[i].accid || members[i].account
+          }
+          return members
+        } else {
+          return []
+        }
+      },
       setDragArea () {
         let leftDom = document.getElementById('resize-side-lf')
         let leftWidth = (leftDom.style.width).split('px')[0]
@@ -212,6 +227,7 @@
                     })
                     break
                   case 1:
+                    this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList(info.teamId)})
                     this.eventBus.$emit('selectOrgnize', {type: 3, teamId: info.teamId})
                     break
                   case 8:
@@ -293,6 +309,7 @@
                     })
                     break
                   case 1:
+                    this.$store.commit('updateOrgDisabledlist', {type: 'concat', userlist: this.memberList(info.teamId)})
                     this.eventBus.$emit('selectOrgnize', {type: 3, teamId: info.teamId})
                     break
                   case 9:

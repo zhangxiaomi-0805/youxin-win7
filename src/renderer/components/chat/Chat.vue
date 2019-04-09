@@ -535,7 +535,7 @@
       },
       createTeam () {
         this.$store.commit('updateOrgDisabledlist', {type: 'put', accid: this.to})
-        this.eventBus.$emit('selectOrgnize', {type: 2})
+        this.eventBus.$emit('selectOrgnize', {type: 0}) // 创建讨论组（此时包含自己和该用户，所以其他人最多选198人）
       },
       showLastText () {
         if (this.lastMsg && this.lastMsg.attach) {

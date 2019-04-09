@@ -194,10 +194,11 @@
       }
     },
     mounted () {
+      this.$refs.editDiv.focus()
       // 切换会话时，chatEditor获取焦点
       this.eventBus.$on('getFocusFn', () => {
         if (this.$refs.editDiv) {
-          this.$refs.editDiv.focus()
+          this.keepLastIndex(this.$refs.editDiv)
         }
       })
       if (config.environment === 'web') { // web分支
@@ -1465,8 +1466,23 @@
             }
           }
           setTimeout(() => {
+            this.keepLastIndex(this.$refs.editDiv)
             this.$refs.editDiv.scrollTop = this.$refs.editDiv.scrollHeight
           }, 0)
+        }
+      },
+      // 光标显示在最后
+      keepLastIndex (obj) {
+        if (window.getSelection) { // ie11 10 9 ff safari
+          obj.focus() // 解决ff不获取焦点无法定位问题
+          var range1 = window.getSelection() // 创建range
+          range1.selectAllChildren(obj) // range 选择obj下所有子内容
+          range1.collapseToEnd() // 光标移至最后
+        } else if (document.selection) { // ie10 9 8 7 6 5
+          var range = document.selection.createRange() // 创建选择对象
+          range.moveToElementText(obj) // range定位到obj
+          range.collapse(false) // 光标移至最后
+          range.select()
         }
       },
       showShotPromptFn () {

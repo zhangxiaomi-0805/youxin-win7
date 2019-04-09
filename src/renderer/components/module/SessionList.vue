@@ -292,6 +292,8 @@ export default {
     // 快捷删除会话
     deleteSessionFast (session) {
       this.$store.dispatch('deleteSession', {id: session.id, that: this})
+      // 通知chatEditor获取焦点
+      this.eventBus.$emit('getFocusFn')
     },
     // 点击系统托盘定位会话列表---有未读消息时
     positionSession () {
@@ -363,6 +365,8 @@ export default {
       }
     },
     toggleChat (session) {
+      // 通知chatEditor获取焦点
+      this.eventBus.$emit('getFocusFn')
       // 切换会话时重置消息列表多选状态
       this.$store.commit('updateCheckedMsgs', [])
       this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false})
@@ -398,8 +402,6 @@ export default {
       }
       this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
-      // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocusFn')
       // 通知主进程
       if (config.environment === 'web') { // web分支
         let data = JSON.stringify({appCode: session.id})
