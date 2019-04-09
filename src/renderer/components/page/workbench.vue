@@ -3,7 +3,7 @@
   <system-caption/>
   <div class="third-box">
     <div class="body" style="backgroundColor: #fff;">
-      <div class="title webkit-drag" style="borderBottom: 0;">外部接入系统</div>
+      <div class="title webkit-drag" style="borderBottom: 0;">工作台</div>
 
       <ul class="list-box">
         <li

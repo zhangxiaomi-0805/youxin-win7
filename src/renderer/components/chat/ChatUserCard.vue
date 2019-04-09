@@ -97,8 +97,38 @@
     mounted () {
       this.getUserInfo(this.to)
     },
+    computed: {
+      myInfo () {
+        return this.$store.state.myInfo
+      }
+    },
     methods: {
+      // 获取用户基本信息
       getUserInfo (to) {
+        if (!to) {
+          return false
+        }
+        if (to === (this.myInfo.accid || this.myInfo.account)) {
+          this.getMyInfo()
+        } else {
+          this.getOtherInfo(to)
+        }
+      },
+      // 获取自己的个人信息
+      getMyInfo () {
+        Request.GetUserInfo({}, this)
+          .then(ret => {
+            if (ret) {
+              if (!ret.avatar) {
+                ret.avatar = config.defaultUserIcon
+              }
+              this.userInfos = Object.assign({}, ret)
+            }
+          }).catch(() => {
+          })
+      },
+      // 获取他人的信息
+      getOtherInfo (to) {
         if (!to) {
           return false
         }

@@ -588,14 +588,15 @@
           if (item.status !== 'sending') {
             // 图片消息缩略图
             media.src = item.file.url + '?imageView&thumbnail=180x0&quality=85'
-            // if (item.localCustom && item.localCustom.imageLocalDir) {
-            //   media.src = item.localCustom.imageLocalDir
-            // }
+            if (item.localCustom && item.localCustom.imageLocalDir) {
+              media.src = item.localCustom.imageLocalDir
+            } else {
+              // 下载图片到本地存储
+              this.downloadImg(item)
+            }
             media.onerror = () => {
               media.src = config.defaultErrorImg
             }
-            // 下载图片到本地存储
-            // this.downloadImg(item)
           } else if (item.status === 'fail') {
             media.src = config.defaultErrorImg
           }
