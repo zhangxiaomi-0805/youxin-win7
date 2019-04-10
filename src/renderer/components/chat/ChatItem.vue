@@ -613,7 +613,11 @@
         } else if (item.type === 'video') {
           if (/(mov|mp4|ogg|webm)/i.test(item.file.ext)) {
             media = document.createElement('video')
-            media.src = item.file.url
+            let videoSrc = item.file.url
+            if (videoSrc.indexOf('http://') > -1) { // 安卓发来的音视频，域名中https被转为了http，导致音频无法播放，强制转回来（前端做一下转换，以免再次出错）
+              videoSrc = videoSrc.replace('http', 'https')
+            }
+            media.src = videoSrc
             media.width = 640
             media.height = 480
             media.style.width = '100%'
@@ -1004,6 +1008,9 @@
         }
         if (this.currentAudio) {
           this.currentAudio = null
+        }
+        if (src.indexOf('http://') > -1) { // 域名中https被转为了http，导致音频无法播放，强制转回来
+          src = src.replace('http', 'https')
         }
         if (!this.currentAudio) {
           this.currentAudio = new Audio(src)

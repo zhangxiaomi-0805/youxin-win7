@@ -131,9 +131,7 @@ class NativeHandle {
 
   // 图片静默下载
   imgDownload = (url, savePath, showSaveDlg) => {
-    console.log(url)
-    console.log(savePath)
-    console.log(showSaveDlg)
+    savePath = decodeURI(savePath) // 解码一下，否则中文文件夹下不能创建images文件夹
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('fileDownload', {
         url,
