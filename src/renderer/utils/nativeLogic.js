@@ -63,7 +63,6 @@ class NativeHandle {
    * @params: showSaveDlg   // 是否显示保存对话框
    * **/
   fileDownload = (url, savePath, showSaveDlg, msg, session) => {
-    console.log(url)
     const id = msg.idClient
     window.NimCefWebInstance && window.NimCefWebInstance.call('fileDownload', {
       url,
