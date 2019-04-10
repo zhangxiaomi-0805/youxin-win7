@@ -89,6 +89,8 @@
     },
     watch: {
       to (newValue, oldValue) {
+        console.log('newValue === ' + newValue)
+        console.log('oldValue === ' + oldValue)
         if (newValue !== oldValue) {
           this.getUserInfo(newValue)
         }
@@ -105,6 +107,7 @@
     methods: {
       // 获取用户基本信息
       getUserInfo (to) {
+        console.log('to === ' + to)
         if (!to) {
           return false
         }
@@ -133,24 +136,33 @@
           return false
         }
         let Info = this.otherUserInfos[to]
+        let params = null
         if (Info) {
-          let params = [
+          params = [
             {
               tag: Info.tag || 0,
               accid: Info.accid || Info.account
             }
           ]
-          Request.PullUserInfo(params, this)
-            .then(ret => {
-              if (ret) {
-                if (!ret.userList[0].avatar) {
-                  ret.userList[0].avatar = config.defaultUserIcon
-                }
-                this.userInfos = Object.assign({}, ret.userList[0])
-              }
-            }).catch(() => {
-            })
+        } else {
+          params = [
+            {
+              tag: 0,
+              accid: to
+            }
+          ]
         }
+        Request.PullUserInfo(params, this)
+          .then(ret => {
+            console.log(ret)
+            if (ret) {
+              if (!ret.userList[0].avatar) {
+                ret.userList[0].avatar = config.defaultUserIcon
+              }
+              this.userInfos = Object.assign({}, ret.userList[0])
+            }
+          }).catch(() => {
+          })
       },
       showListOptions (e, msg, ref) {
         let target = this.$refs[ref]
