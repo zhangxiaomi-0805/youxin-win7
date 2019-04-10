@@ -160,7 +160,14 @@ async function updateTwinkle (type) {
   for (let i = 0; i < newSessionList.length; i++) {
     let isMute = false
     if (newSessionList[i].scene && newSessionList[i].scene !== 'p2p') {
-      let map = await notifyForNewTeamMsg(newSessionList[i].to)
+      let map = ''
+      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead === 1) {
+        newSessionList.splice(i, 1)
+      } else {
+        if (newSessionList[i].to) {
+          map = await notifyForNewTeamMsg(newSessionList[i].to)
+        }
+      }
       let muteNotiType = Number(map[newSessionList[i].to])
       if (muteNotiType === 1) isMute = true
       if (!isMute) {
@@ -176,6 +183,12 @@ async function updateTwinkle (type) {
     setTimeout(() => audio.pause(), 800)
   }
   if (config.environment === 'web') { // web分支
+    NativeLogic.native.getWinStatus()
+      .then(res => {
+        if (!res.isFocused) {
+          NativeLogic.native.flashFrame(true)
+        }
+      })
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')

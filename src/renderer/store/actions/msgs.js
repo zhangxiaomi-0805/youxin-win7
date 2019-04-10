@@ -70,7 +70,14 @@ async function systemNewMsgsManage (msg) {
   for (let i = 0; i < newSessionList.length; i++) {
     let isMute = false
     if (newSessionList[i].scene && newSessionList[i].scene !== 'p2p') {
-      let map = await notifyForNewTeamMsg(newSessionList[i].to)
+      let map = ''
+      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead === 1) { // 已解散的群过滤掉，否则notifyForNewTeamMsg异常
+        newSessionList.splice(i, 1)
+      } else {
+        if (newSessionList[i].to) {
+          map = await notifyForNewTeamMsg(newSessionList[i].to)
+        }
+      }
       let muteNotiType = Number(map[newSessionList[i].to])
       if (muteNotiType === 1) isMute = true
       if (!isMute) {
