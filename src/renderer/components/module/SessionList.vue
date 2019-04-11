@@ -66,7 +66,7 @@
               <span class="mute"></span>
               <span v-if="session.unread > 0" class="nomsg"></span>
             </div>
-            <span v-else-if="!(session.id === selectedId && showDelete) && lastMsgStatus(session)" class="u-unread unread-num">1</span>
+            <!-- <span v-else-if="!(session.id === selectedId && showDelete) && lastMsgStatus(session)" class="u-unread unread-num">1</span> -->
             <span v-else-if="!(session.id === selectedId && showDelete) && session.unread > 0" class="u-unread unread-num">{{session.unread > 99 ? "99+" : session.unread}}</span>
             <!-- <div v-else style="width: 15px;height: 15px;"></div> -->
           </div>
