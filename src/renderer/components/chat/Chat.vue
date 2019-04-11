@@ -369,6 +369,8 @@
         }
       },
       $route (newRoute, oldRoute) {
+        // 通知chatEditor获取焦点
+        this.eventBus.$emit('getFocusFn')
         if (document.querySelector('#newMsgTip')) {
           document.querySelector('#chat-list').removeChild(document.querySelector('#newMsgTip'))
         }

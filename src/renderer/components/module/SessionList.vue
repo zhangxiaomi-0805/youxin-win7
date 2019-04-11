@@ -283,8 +283,6 @@ export default {
     // 快捷删除会话
     deleteSessionFast (session) {
       this.$store.dispatch('deleteSession', {id: session.id, that: this})
-      // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocusFn')
     },
     // 点击系统托盘定位会话列表---有未读消息时
     positionSession () {
@@ -322,8 +320,6 @@ export default {
       return len - isTip
     },
     scrollToSession () {
-      // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocusFn')
       // 定位到当前会话
       let key = 0
       for (let i in this.sessionlist) {
@@ -358,8 +354,6 @@ export default {
       }
     },
     toggleChat (session) {
-      // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocusFn')
       // 切换会话时重置消息列表多选状态
       this.$store.commit('updateCheckedMsgs', [])
       this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false})

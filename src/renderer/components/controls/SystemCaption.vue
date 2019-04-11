@@ -31,6 +31,14 @@ export default {
   },
   mounted () {
     if (config.environment === 'web') { // web分支
+      window.NimCefWebInstance && window.NimCefWebInstance.register('onWindowSizeChanged', (result) => {
+        console.log(result)
+        if (result && result.isMaximized) {
+          this.$store.commit('updateWindowMax', true)
+        } else {
+          this.$store.commit('updateWindowMax', false)
+        }
+      })
     } else { // electron分支
       let electron = require('electron')
       let ipcRenderer = electron.ipcRenderer
