@@ -183,12 +183,6 @@ async function updateTwinkle (type) {
     setTimeout(() => audio.pause(), 800)
   }
   if (config.environment === 'web') { // web分支
-    NativeLogic.native.getWinStatus()
-      .then(res => {
-        if (!res.isFocused) {
-          NativeLogic.native.flashFrame(true)
-        }
-      })
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
