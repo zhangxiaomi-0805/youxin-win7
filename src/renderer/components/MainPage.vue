@@ -106,6 +106,10 @@
       RemoteConfirm
     },
     mounted () {
+      this.$nextTick(() => { // 页面加载完成后执行
+        console.log('setInterval start ==== ')
+        window.setInterval(() => this.updateTwinkle(), 2000)
+      })
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
       if (config.environment === 'web') { // web分支
@@ -269,6 +273,22 @@
       }
     },
     methods: {
+      updateTwinkle () {
+        let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
+        console.log('unreadList.length =====' + unreadList.length)
+        let unreadNums = 0
+        if (unreadList.length < 1) {
+          unreadNums = 0
+        } else {
+          unreadNums = 1
+        }
+        if (config.environment === 'web') { // web分支
+          NativeLogic.native.receiveNewMsgs({ unreadNums })
+        } else { // electron分支
+          let { ipcRenderer } = require('electron')
+          ipcRenderer.send('receiveNewMsgs', {unreadNums})
+        }
+      },
       onCloseListOptions () {
         if (this.$store.state.showListOptions) {
           this.$store.dispatch('showListOptions', {
