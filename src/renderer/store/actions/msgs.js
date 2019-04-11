@@ -66,12 +66,14 @@ async function systemNewMsgsManage (msg) {
       }
     }
   }
+  console.log('newSessionList === ')
+  console.log(newSessionList)
   // 群是否设置消息免打扰
   for (let i = 0; i < newSessionList.length; i++) {
     let isMute = false
     if (newSessionList[i].scene && newSessionList[i].scene !== 'p2p') {
       let map = ''
-      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead === 1) { // 已解散的群过滤掉，否则notifyForNewTeamMsg异常
+      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead > 0) { // 已解散的群过滤掉，否则notifyForNewTeamMsg异常
         newSessionList.splice(i, 1)
       } else {
         if (newSessionList[i].to) {
@@ -87,14 +89,15 @@ async function systemNewMsgsManage (msg) {
       unreadNums += newSessionList[i].unread
     }
   }
+  console.log('unreadNums === ' + unreadNums)
   if (config.environment === 'web') { // web分支
-    NativeLogic.native.getWinStatus()
+    NativeLogic.native.receiveNewMsgs({ unreadNums })
+    NativeLogic.native.getWinStatus('main')
       .then(res => {
         if (!res.isFocused) {
           NativeLogic.native.flashFrame(true)
         }
       })
-    NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('receiveNewMsgs', {unreadNums})

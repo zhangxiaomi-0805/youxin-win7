@@ -161,7 +161,7 @@ async function updateTwinkle (type) {
     let isMute = false
     if (newSessionList[i].scene && newSessionList[i].scene !== 'p2p') {
       let map = ''
-      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead === 1) {
+      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead > 0) {
         newSessionList.splice(i, 1)
       } else {
         if (newSessionList[i].to) {

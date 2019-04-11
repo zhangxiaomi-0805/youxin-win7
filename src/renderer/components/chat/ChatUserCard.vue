@@ -89,8 +89,6 @@
     },
     watch: {
       to (newValue, oldValue) {
-        console.log('newValue === ' + newValue)
-        console.log('oldValue === ' + oldValue)
         if (newValue !== oldValue) {
           this.getUserInfo(newValue)
         }
@@ -107,7 +105,6 @@
     methods: {
       // 获取用户基本信息
       getUserInfo (to) {
-        console.log('to === ' + to)
         if (!to) {
           return false
         }
@@ -154,7 +151,6 @@
         }
         Request.PullUserInfo(params, this)
           .then(ret => {
-            console.log(ret)
             if (ret) {
               if (!ret.userList[0].avatar) {
                 ret.userList[0].avatar = config.defaultUserIcon

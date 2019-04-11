@@ -331,6 +331,8 @@ export default {
       return len - isTip
     },
     scrollToSession () {
+      // 通知chatEditor获取焦点
+      this.eventBus.$emit('getFocusFn')
       // 定位到当前会话
       let key = 0
       for (let i in this.sessionlist) {

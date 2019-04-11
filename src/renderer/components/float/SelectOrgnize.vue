@@ -163,7 +163,7 @@ export default {
       // 创建群、讨论组
       this.loading = true
       var accounts = []
-      if (this.type === 2) {
+      if (this.type === 0 || this.type === 2) {
         this.orgDisabledlist.map(item => {
           accounts.push(item)
         })

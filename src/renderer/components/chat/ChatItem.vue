@@ -582,6 +582,11 @@
       this.$nextTick(() => {
         let media = null
         if (item.type === 'image') {
+          // 图片加载失败时显示默认图
+          function loadError (img) {
+            img.src = config.defaultErrorImg
+            img.onerror = null // 控制不要一直跳动
+          }
           media = new Image()
           media.src = item.file.url
           media.style = 'width:auto;height:auto;max-width:100%;max-height:100%;vertical-align: bottom;'
@@ -594,11 +599,11 @@
               // 下载图片到本地存储
               this.downloadImg(item)
             }
-            media.onerror = () => {
-              media.src = config.defaultErrorImg
-            }
+            // 图片加载失败时显示默认图
+            media.onerror = loadError(media)
           } else if (item.status === 'fail') {
-            media.src = config.defaultErrorImg
+            // 图片加载失败时显示默认图
+            media.onerror = loadError(media)
           }
         } else if (item.type === 'custom-type1') {
           // 猜拳消息
