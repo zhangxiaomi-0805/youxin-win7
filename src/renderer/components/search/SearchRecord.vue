@@ -8,13 +8,23 @@
         :key="msg.id"
         :id="msg.id"
         @click="locationToMsg(msg, true)"
+        @mouseenter="idClient = msg.idClient"
+        @mouseleave="idClient = ''"
       >
         <img :src="msg.avatar || myUserIcon" class="s-img">
         <div class="s-contain">
-          <div>{{msg.name}}</div>
-          <div class="s-btm"><span class="s-name" v-html="msg.searchText"></span></div>
+          <div style="display: flex;flex-direction:row">
+            <span class="s-name">{{msg.name || mag.fromNick}}</span>
+            <!-- 时间 -->
+            <div class="s-time">{{manageTime(msg.time)}}</div>
+          </div>
+          
+          <div
+            class="s-btm"
+            v-html="msg.searchText"
+          ></div>
+          <a v-if="msg.idClient === idClient" class="check-more" @click.stop="locationToMsg(msg, true)">查看上下文</a>
         </div>
-        <div class="s-time">{{msg.updateTimeShow}}</div>
       </li>
       <li v-if="noMoreData" class="n-data">已无更多记录...</li>
     </ul>
@@ -24,6 +34,7 @@
 <script>
   import config from '../../configs'
   import SearchData from './search.js'
+  import util from '../../utils'
   export default {
     name: 'search-record',
     data () {
@@ -31,7 +42,8 @@
         noMoreData: false,
         recordlist: [],
         msgsTemp: [],
-        myUserIcon: config.defaultUserIcon
+        myUserIcon: config.defaultUserIcon,
+        idClient: ''
       }
     },
     computed: {
@@ -60,6 +72,10 @@
       }
     },
     methods: {
+      // 消息时间戳处理 --- 年-月-日 时-分-秒
+      manageTime (time) {
+        return util.DateFormat(time)
+      },
       async renderRecordlist () {
         let end = ''
         if (this.recordlist.length > 0) end = this.recordlist[this.recordlist.length - 1].time
@@ -67,6 +83,7 @@
         let recordlist = []
         try {
           recordlist = await SearchData.getRecordsDetailData(obj, this.searchValue, this.sessionId)
+          console.log(recordlist)
         } catch (error) {}
         this.recordlist = this.recordlist.concat(recordlist)
         if (recordlist.length <= 0) this.noMoreData = true
@@ -111,7 +128,6 @@
     bottom: 0;
     right: 0;
   }
-
   .m-chat .m-header {
     box-sizing: border-box;
     display: flex;
@@ -135,47 +151,47 @@
     position: relative;
     display: flex;
     flex-direction: row;
-    align-items: center;
-    height: 56px;
+    /* align-items: center; */
+    height: 70px;
     box-sizing: border-box;
     padding: 10px 16px;
     cursor: default;
   }
+  .s-list-item:hover {
+    background-color: #e0e0e0
+  }
 
   .s-img {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
   }
-
   .s-list-item .s-name {
-    color: #999;
-    font-size: 12px;
+    font-size:12px;
+    color:#999;
+    margin-right:10px
   }
-  .s-list-item .s-name.active {
-    color: rgb(0, 162, 255);
-  }
-
   .s-contain {
-    width: 70%;
-    padding-left: 10px;
-    font-size: 13px;
+    padding:0 8px;
+    width:85%;
   }
-
   .s-contain .s-btm {
+    font-size:14px;
+    color:#333;
+    line-height:18px;
+    padding-top:2px;
+    -webkit-user-select: text;
+    word-wrap: break-word;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient: vertical;
   }
-
   .s-time {
-    position: absolute;
-    right: 16px;
-    top: 20px;
-    font-size: 11px;
-    color: #999;
+    font-size:12px;
+    color:#b6b6b6;
   }
-
   .n-data {
     display: flex;
     justify-content: center;
@@ -183,6 +199,13 @@
     padding: 5px 0;
     font-size: 12px;
     color: #999;
+  }
+  .check-more {
+    position: absolute;
+    right: 16px;
+    top: 6px;
+    font-size: 12px;
+    color: #3F6D8C;
   }
 </style>
 
