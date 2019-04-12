@@ -201,7 +201,9 @@
           if (APPVERSIONS && APPVERSIONS.ignore && (APPVERSIONS.versionNum === res.versionNum)) {
             return false
           }
-          this.eventBus.$emit('updateAppFirst', res)
+          if (res && Number(res.forceUpdate) === 1) {
+            this.eventBus.$emit('updateAppFirst', res)
+          }
         }).catch((err) => { console.log(err) })
       },
       keyToNext (e, type) {

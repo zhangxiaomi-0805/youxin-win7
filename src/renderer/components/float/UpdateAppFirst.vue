@@ -4,7 +4,6 @@
   <div class="m-selectcontact-contain" v-if="showUpdateApp">
     <div class="m-selectcontact-cover"></div>
     <div class="m-clear-body update-app">
-      <div class="drag"><div class="u-sysbtn close"><a class="btn-close" @click="closeModal" v-if="content.forceUpdate !== 1"/></div></div>
       <div class="content">
         <img class="logo" :src="logo">
         <div class="version">{{`优信${content.versionNum || content.appVersion || ''}`}}</div>
@@ -12,7 +11,6 @@
       </div>
       <div class="update-footer">
         <div class="btn confirm" @click="goUpdate"><span>立即升级</span></div>
-        <div v-if="content.forceUpdate !== 1" class="btn cancel" @click="Ignore">忽略</div>
       </div>
     </div>
   </div>
@@ -51,16 +49,10 @@ export default {
         this.content && shell.openExternal(this.content.downloadUrl)
       }
     },
-    Ignore () {
-      // 忽略更新
-      this.updateLocalVersion(true)
-      this.closeModal()
-    },
-    updateLocalVersion (ignore) {
+    updateLocalVersion () {
       // 更新本地存储
       let APPVERSIONS = localStorage.APPVERSIONS ? JSON.parse(localStorage.APPVERSIONS) : {}
       APPVERSIONS.versionNum = this.content.versionNum
-      if (ignore) APPVERSIONS.ignore = ignore
       localStorage.setItem('APPVERSIONS', JSON.stringify(APPVERSIONS))
     }
   }
@@ -128,7 +120,7 @@ export default {
 
   .update-app .update-content {
     text-align: left;
-    height: 80px;
+    height: 100px;
     overflow-y: auto;
     font-size: 14px;
     line-height: 22px;
