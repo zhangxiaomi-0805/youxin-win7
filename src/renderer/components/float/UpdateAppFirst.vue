@@ -7,7 +7,7 @@
       <div class="drag"><div class="u-sysbtn close"><a class="btn-close" @click="closeModal" v-if="content.forceUpdate !== 1"/></div></div>
       <div class="content">
         <img class="logo" :src="logo">
-        <div class="version">{{`优信2.0${content.versionNum || content.appVersion || ''}`}}</div>
+        <div class="version">{{`优信${content.versionNum || content.appVersion || ''}`}}</div>
         <div class="update-content" v-html="content.updateContent"></div>
       </div>
       <div class="update-footer">
@@ -26,6 +26,7 @@ export default {
   name: 'update-app-first',
   mounted () {
     this.eventBus.$on('updateAppFirst', (data) => {
+      console.log(data)
       this.showUpdateApp = true
       this.content = data || {}
       this.updateLocalVersion()
