@@ -275,6 +275,8 @@ class NativeHandle {
   getWinStatus = (windowName) => {
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('getWinStatus', { windowName }, (error, result) => {
+        console.log(error)
+        console.log(result)
         if (error) {
           resolve('')
         } else {

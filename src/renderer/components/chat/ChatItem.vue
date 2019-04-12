@@ -592,13 +592,18 @@
               media.src = item.localCustom.imageLocalDir
             } else {
               // 下载图片到本地存储
-              this.downloadImg(item)
+              // this.downloadImg(item)
             }
             media.onerror = () => {
               media.src = config.defaultErrorImg
+              media.onerror = null // 控制不要一直跳动
             }
-          } else if (item.status === 'fail') {
-            media.src = config.defaultErrorImg
+          } else {
+            // 图片加载失败时显示默认图
+            media.onerror = () => {
+              media.src = config.defaultErrorImg
+              media.onerror = null // 控制不要一直跳动
+            }
           }
         } else if (item.type === 'custom-type1') {
           // 猜拳消息
@@ -636,9 +641,9 @@
           media.onload = () => {
             this.$emit('msg-loaded')
           }
-          media.onerror = () => {
-            this.$emit('msg-loaded')
-          }
+          // media.onerror = () => {
+          //   this.$emit('msg-loaded')
+          // }
         } else {
           this.$emit('msg-loaded')
         }
@@ -742,6 +747,12 @@
       }
     },
     methods: {
+      // 图片加载失败时显示默认图
+      // loadError (img) {
+      //   img.src = config.defaultErrorImg
+      //   img.onerror = null // 控制不要一直跳动
+      //   return img
+      // },
       // 选择狂样式
       checkBoxClassName (msg) {
         // 选择框样式

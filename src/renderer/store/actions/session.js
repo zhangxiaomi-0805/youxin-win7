@@ -139,86 +139,23 @@ export async function onUpdateSession (session, callback) {
     store.commit('updateSessions', sessions)
   }
   // 通知主进程
-  updateTwinkle()
+  setTimeout(() => updateTwinkle('onUpdateSession'), 50)
 }
 
 async function updateTwinkle (type) {
+  let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
   let unreadNums = 0
-  // 获取静音列表
-  let mutelist = await getRelationsDone()
-  let newSessionList = JSON.parse(JSON.stringify(store.state.sessionlist))
-  if (mutelist.length > 0 && newSessionList.length > 0) { // 过滤掉静音列表，不计入未读消息列表
-    for (let k = 0; k < newSessionList.length; k++) {
-      for (let i = 0; i < mutelist.length; i++) {
-        if (newSessionList[k] && newSessionList[k].to === mutelist[i].account) {
-          newSessionList.splice(k, 1)
-        }
-      }
-    }
-  }
-  // 群是否设置消息免打扰
-  for (let i = 0; i < newSessionList.length; i++) {
-    let isMute = false
-    if (newSessionList[i].scene && newSessionList[i].scene !== 'p2p') {
-      let map = ''
-      if (newSessionList[i].localCustom && newSessionList[i].localCustom.isTeamDismissRead === 1) {
-        newSessionList.splice(i, 1)
-      } else {
-        if (newSessionList[i].to) {
-          map = await notifyForNewTeamMsg(newSessionList[i].to)
-        }
-      }
-      let muteNotiType = Number(map[newSessionList[i].to])
-      if (muteNotiType === 1) isMute = true
-      if (!isMute) {
-        unreadNums += newSessionList[i].unread
-      }
-    } else {
-      unreadNums += newSessionList[i].unread
-    }
-  }
-  if (type && type === 'isInit' && unreadNums > 0 && !localStorage.getItem('AUDIOSETT')) {
-    let audio = new Audio(`./static/img/msg.wav`)
-    audio.play()
-    setTimeout(() => audio.pause(), 800)
+  if (unreadList.length < 1) {
+    unreadNums = 0
+  } else {
+    unreadNums = 1
   }
   if (config.environment === 'web') { // web分支
-    NativeLogic.native.getWinStatus()
-      .then(res => {
-        if (!res.isFocused) {
-          NativeLogic.native.flashFrame(true)
-        }
-      })
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
     ipcRenderer.send('sessionUnreadNums', {unreadNums})
   }
-}
-
-// 获取静音列表
-function getRelationsDone () {
-  return new Promise((resolve, reject) => {
-    store.state.nim.getRelations({
-      done: (error, obj) => {
-        if (error) reject(error)
-        else resolve(obj.mutelist)
-      }
-    })
-  })
-}
-
-function notifyForNewTeamMsg (teamId) {
-  // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
-  return new Promise((resolve, reject) => {
-    store.state.nim.notifyForNewTeamMsg({
-      teamIds: [teamId],
-      done: (error, map) => {
-        if (error) reject(error)
-        else resolve(map)
-      }
-    })
-  })
 }
 
 // 置顶聊天

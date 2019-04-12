@@ -66,7 +66,7 @@
               <span class="mute"></span>
               <span v-if="session.unread > 0" class="nomsg"></span>
             </div>
-            <span v-else-if="!(session.id === selectedId && showDelete) && lastMsgStatus(session)" class="u-unread">1</span>
+            <!-- <span v-else-if="!(session.id === selectedId && showDelete) && lastMsgStatus(session)" class="u-unread unread-num">1</span> -->
             <span v-else-if="!(session.id === selectedId && showDelete) && session.unread > 0" class="u-unread unread-num">{{session.unread > 99 ? "99+" : session.unread}}</span>
             <!-- <div v-else style="width: 15px;height: 15px;"></div> -->
           </div>
@@ -204,15 +204,6 @@ export default {
       return this.$store.state.currSessionId
     },
     sessionlist () {
-      let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
-      if (unreadList.length < 1) {
-        if (config.environment === 'web') { // web分支
-          NativeLogic.native.receiveNewMsgs({ unreadNums: 0 })
-        } else { // electron分支
-          let { ipcRenderer } = require('electron')
-          ipcRenderer.send('receiveNewMsgs', {unreadNums: 0})
-        }
-      }
       let sessionlist = this.$store.state.sessionlist.filter(item => {
         item.name = ''
         item.avatar = ''
@@ -292,8 +283,6 @@ export default {
     // 快捷删除会话
     deleteSessionFast (session) {
       this.$store.dispatch('deleteSession', {id: session.id, that: this})
-      // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocusFn')
     },
     // 点击系统托盘定位会话列表---有未读消息时
     positionSession () {
@@ -365,8 +354,6 @@ export default {
       }
     },
     toggleChat (session) {
-      // 通知chatEditor获取焦点
-      this.eventBus.$emit('getFocusFn')
       // 切换会话时重置消息列表多选状态
       this.$store.commit('updateCheckedMsgs', [])
       this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false})

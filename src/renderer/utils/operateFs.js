@@ -49,7 +49,8 @@ OperateFs.prototype.createDefaltDir = async function ({name, msg, done}) {
 
     // 存在该目录
     if (name) {
-      fileDir = path.join(fileDir, name + '.' + file.name.split('.')[1])
+      let suffixName = file.name.split('.')[1] || 'jpg'
+      fileDir = path.join(fileDir, name + '.' + suffixName)
       let readFileRes = await this.readFile(fileDir)
       if (readFileRes === 1) {
         // 无此文件

@@ -163,7 +163,7 @@ export default {
       // 创建群、讨论组
       this.loading = true
       var accounts = []
-      if (this.type === 2) {
+      if (this.type === 0 || this.type === 2) {
         this.orgDisabledlist.map(item => {
           accounts.push(item)
         })
@@ -213,7 +213,7 @@ export default {
               this.eventBus.$emit('forwordFail', {type: 2})
             } else if (error.code === 414) {
               let toast = '群'
-              if (this.type === 2 || this.type === 4) {
+              if (this.type === 0 || this.type === 2 || this.type === 4) {
                 toast = '讨论组'
               }
               this.$store.commit('toastConfig', {
@@ -225,7 +225,7 @@ export default {
           }
         }
       }
-      if (this.type === 2 || this.type === 4) {
+      if (this.type === 0 || this.type === 2 || this.type === 4) {
         options.custom = JSON.stringify({isDiscussGroup: true})
         options.updateTeamMode = 'all'
         options.inviteMode = 'all'
