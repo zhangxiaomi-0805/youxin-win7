@@ -144,7 +144,6 @@ export async function onUpdateSession (session, callback) {
 
 async function updateTwinkle (type) {
   let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
-  console.log(type + '=====' + unreadList.length)
   let unreadNums = 0
   if (unreadList.length < 1) {
     unreadNums = 0
@@ -155,34 +154,9 @@ async function updateTwinkle (type) {
     NativeLogic.native.receiveNewMsgs({ unreadNums })
   } else { // electron分支
     let { ipcRenderer } = require('electron')
-    ipcRenderer.send('receiveNewMsgs', {unreadNums})
+    ipcRenderer.send('sessionUnreadNums', {unreadNums})
   }
 }
-
-// 获取静音列表
-// function getRelationsDone () {
-//   return new Promise((resolve, reject) => {
-//     store.state.nim.getRelations({
-//       done: (error, obj) => {
-//         if (error) reject(error)
-//         else resolve(obj.mutelist)
-//       }
-//     })
-//   })
-// }
-
-// function notifyForNewTeamMsg (teamId) {
-//   // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
-//   return new Promise((resolve, reject) => {
-//     store.state.nim.notifyForNewTeamMsg({
-//       teamIds: [teamId],
-//       done: (error, map) => {
-//         if (error) reject(error)
-//         else resolve(map)
-//       }
-//     })
-//   })
-// }
 
 // 置顶聊天
 export function setTopSession ({state}, obj) {

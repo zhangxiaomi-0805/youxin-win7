@@ -592,17 +592,15 @@
               media.src = item.localCustom.imageLocalDir
             } else {
               // 下载图片到本地存储
-              this.downloadImg(item)
+              // this.downloadImg(item)
             }
             media.onerror = () => {
-              console.log('图片加载失败 ==== ')
               media.src = config.defaultErrorImg
               media.onerror = null // 控制不要一直跳动
             }
           } else {
             // 图片加载失败时显示默认图
             media.onerror = () => {
-              console.log('图片加载失败 ==== ')
               media.src = config.defaultErrorImg
               media.onerror = null // 控制不要一直跳动
             }

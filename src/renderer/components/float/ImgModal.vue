@@ -45,6 +45,7 @@
 
 <script>
 import drag from '../../utils/drag.js'
+import config from '../../configs'
 export default {
   name: 'img-modal',
   data () {
@@ -101,6 +102,9 @@ export default {
         }
         this.canManage = true
       }
+      this.$refs.curImgDom.onerror = () => {
+        this.$refs.curImgDom.src = config.defaultErrorImg
+      }
     },
     width: function () {
       if (this.isReverse) {
@@ -141,7 +145,11 @@ export default {
     curImg () {
       if (this.imgList && this.currentIndex >= 0) {
         if (this.canManage) {
-          return this.imgList[this.currentIndex].file.url.split('?')[0]
+          let item = this.imgList[this.currentIndex]
+          if (item.localCustom && item.localCustom.imageLocalDir) {
+            return item.localCustom.imageLocalDir
+          }
+          return item.file.url.split('?')[0]
         } else {
           return './static/img/setting/loading-b.gif'
         }

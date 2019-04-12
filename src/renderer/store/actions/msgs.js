@@ -53,7 +53,6 @@ export function onNewMsg (msg) {
 async function systemNewMsgsManage (msg) {
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
-  console.log('unreadList.length === ' + unreadList.length)
   let unreadNums = 0
   if (unreadList.length > 0) {
     unreadNums = 1
@@ -89,18 +88,6 @@ async function systemNewMsgsManage (msg) {
     setTimeout(() => audio.pause(), 800)
   }
 }
-
-// 获取静音列表
-// function getRelationsDone () {
-//   return new Promise((resolve, reject) => {
-//     store.state.nim.getRelations({
-//       done: (error, obj) => {
-//         if (error) reject(error)
-//         else resolve(obj.mutelist)
-//       }
-//     })
-//   })
-// }
 
 function notifyForNewTeamMsg (teamId) {
   // 是否需要群消息提醒 0表示接收提醒，1表示关闭提醒，2表示仅接收管理员提醒
