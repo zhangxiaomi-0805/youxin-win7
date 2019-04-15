@@ -43,6 +43,9 @@ export default {
       this.sessionId = data.sessionId
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('clearRecord')
+  },
   data () {
     return {
       showClearRecord: false,

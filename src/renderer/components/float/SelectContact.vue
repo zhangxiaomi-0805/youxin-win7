@@ -111,6 +111,9 @@ export default {
       }, 0)
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('selectContact')
+  },
   data () {
     return {
       isXp: false,

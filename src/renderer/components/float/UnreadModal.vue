@@ -48,6 +48,9 @@ export default {
       this.top = obj.pos.y + 220 >= document.body.clientHeight ? obj.pos.y - 220 : obj.pos.y
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('showUnreadModal')
+  },
   computed: {
     unreadList () {
       return this.$store.state.curUnreadList

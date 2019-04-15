@@ -69,6 +69,9 @@
         })
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('showGroupInvite')
+    },
     updated () {
       drag.dragPosition('historyMsgDrag', 1)
     },

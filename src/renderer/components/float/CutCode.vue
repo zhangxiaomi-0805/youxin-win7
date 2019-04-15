@@ -37,6 +37,9 @@ export default {
       this.renderKeyCodeObj()
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('cutCode')
+  },
   methods: {
     closeModal () {
       this.showCutCodeModal = false

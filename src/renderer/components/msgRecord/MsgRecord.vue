@@ -192,6 +192,9 @@
         this.to = data.to
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('checkHistoryMsg')
+    },
     watch: {
       searchValue (newValue, oldValue) {
         this.beforeValue = newValue

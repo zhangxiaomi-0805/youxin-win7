@@ -69,6 +69,9 @@ export default {
       _this.existX = false
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('findX')
+  },
   data () {
     return {
       findXMode: 'team',

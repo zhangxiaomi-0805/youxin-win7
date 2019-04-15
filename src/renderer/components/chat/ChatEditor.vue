@@ -218,6 +218,10 @@
       }
       this.syncDraft()
     },
+    beforeDestroy () {
+      this.eventBus.$off('getFocusFn')
+      this.eventBus.$off('screenShot')
+    },
     watch: {
       continueRobotAccid (curVal, oldVal) {
         if (curVal && this.robotInfos[curVal]) {

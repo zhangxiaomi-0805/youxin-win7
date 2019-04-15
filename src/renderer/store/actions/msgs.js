@@ -688,7 +688,12 @@ export function getHistoryMsgs ({state, commit}, obj) {
 }
 
 // 拉取本地历史记录
+var loadRepeat = {}
 export function getLocalMsgs ({state, commit}, obj) {
+  if (loadRepeat[obj.sessionId]) {
+    return false
+  }
+  loadRepeat[obj.sessionId] = true
   const nim = state.nim
   if (nim) {
     let callback = obj.callBack
@@ -696,6 +701,7 @@ export function getLocalMsgs ({state, commit}, obj) {
       limit: config.localMsglimit || 20,
       sessionId: obj.sessionId,
       done: function getHistoryMsgsDone (_error, obj) {
+        loadRepeat[obj.sessionId] = null
         if (obj.msgs) {
           if (options.limit > obj.msgs.length) {
             commit('setNoMoreHistoryMsgs')
@@ -707,7 +713,8 @@ export function getLocalMsgs ({state, commit}, obj) {
             })
             commit('updateCurrSessionMsgs', {
               type: 'concat',
-              msgs: msgs
+              msgs: msgs,
+              sessionId: obj.sessionId
             })
             if (callback) callback(msgs)
           }
@@ -715,10 +722,13 @@ export function getLocalMsgs ({state, commit}, obj) {
         store.dispatch('hideLoading')
       }
     }
-    if (state.currSessionLastMsg) {
+    if (state.currSessionLastMsg && state.currSessionLastMsg.time) {
       options = Object.assign(options, {
         end: state.currSessionLastMsg.time
       })
+    }
+    if (obj.end) {
+      options.end = obj.end.time
     }
     store.dispatch('showLoading')
     nim.getLocalMsgs(options)

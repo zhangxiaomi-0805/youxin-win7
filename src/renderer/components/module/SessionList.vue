@@ -124,6 +124,12 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('positionSession')
+    this.eventBus.$off('locationMainListItem')
+    this.eventBus.$off('toggleSelect')
+    this.eventBus.$off('toggleSession')
+  },
   watch: {
     sessionlist (newData, oldData) {
       if (newData.length === 0) {
@@ -387,7 +393,6 @@ export default {
           sessionId: session.id, localCustom
         })
       }
-      this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
       this.eventBus.$emit('checkUser', {})
       // 通知主进程
       if (config.environment === 'web') { // web分支
@@ -397,6 +402,8 @@ export default {
         const ipcRenderer = require('electron').ipcRenderer
         ipcRenderer.send('toggleSession', {appCode: session.id})
       }
+
+      this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
     },
     enterMyChat () {
       // 我的手机页面

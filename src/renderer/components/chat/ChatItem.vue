@@ -573,10 +573,12 @@
       }
     },
     mounted () {
-      this.eventBus.$on('sendMsgToChild', () => { // 监听到子窗口加载完成，向子窗口发送数据
-        this.sendMsgToChild()
-      })
       this.iframe = this.$refs.iframe
+      if (this.iframe) {
+        this.eventBus.$on('sendMsgToChild', () => { // 监听到子窗口加载完成，向子窗口发送数据
+          this.sendMsgToChild()
+        })
+      }
       let item = this.msg
       // 有时序问题的操作
       this.$nextTick(() => {
@@ -745,6 +747,8 @@
         this.$store.commit('updateCurrentMsgPlay', {idClient: this.msg.idClient, isPlay: false})
         this.updateMsgCustom(this.msg)
       }
+      this.iframe = null
+      this.eventBus.$off('sendMsgToChild')
     },
     methods: {
       // 图片加载失败时显示默认图

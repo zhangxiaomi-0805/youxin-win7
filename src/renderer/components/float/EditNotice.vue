@@ -82,6 +82,10 @@ export default {
       this.jurisdiction = data.jurisdiction
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('editNotice')
+    this.eventBus.$off('editNoticePromiss')
+  },
   data () {
     return {
       showEditNotice: false,

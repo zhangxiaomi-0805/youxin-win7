@@ -41,6 +41,9 @@ export default {
       this.showLogout = true
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('logout')
+  },
   data () {
     return {
       showLogout: false,

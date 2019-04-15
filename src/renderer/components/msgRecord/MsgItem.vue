@@ -161,6 +161,9 @@ export default {
       })
     }
   },
+  beforeDestroy () {
+    this.eventBus.$off('sendMsgToChild')
+  },
   methods: {
     bindEvent (element, eventName, eventHandler) {
       if (element.addEventListener) {

@@ -144,6 +144,10 @@
         })
       }
     },
+    beforeDestroy () {
+      this.eventBus.$off('updateIsCheckMoreChat')
+      this.eventBus.$off('showPositionBtn')
+    },
     // 离开该页面，此时重置当前会话
     destroyed () {
       this.$store.dispatch('resetCurrSession')
@@ -437,10 +441,19 @@
       },
       getHistoryMsgs (callBack) {
         if (this.canLoadMore) {
+          let endMsg = null
+          for (let key in this.msglist) {
+            let msg = this.msglist[key]
+            if (msg.type !== 'timeTag' && msg.time) {
+              endMsg = msg
+              break
+            }
+          }
           this.$store.dispatch('getLocalMsgs', {
             scene: this.scene,
             to: this.to,
             sessionId: this.$store.state.currSessionId,
+            end: endMsg,
             callBack: callBack
           })
         }

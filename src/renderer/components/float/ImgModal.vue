@@ -92,6 +92,9 @@ export default {
   mounted () {
     this.eventBus.$on('imgModalSizeCtrl', () => this.onRestore())
   },
+  beforeDestroy () {
+    this.eventBus.$off('imgModalSizeCtrl')
+  },
   watch: {
     currentIndex: function () {
       this.canManage = false

@@ -451,6 +451,10 @@ export default {
         store.dispatch('checkTeamMsgReceipt', [newMsg])
       }
     } else if (type === 'concat') {
+      if (obj.sessionId !== state.currSessionId) {
+        // 避免会话快速切换导致消息异常
+        return false
+      }
       // 一般用于历史消息拼接
       let currSessionMsgs = []
       let lastMsgTime = 0
@@ -474,6 +478,7 @@ export default {
       if (obj.msgs[0]) {
         state.currSessionLastMsg = obj.msgs[0]
       }
+      state.msgs[state.currSessionId] = state.currSessionMsgs
       store.dispatch('checkTeamMsgReceipt', currSessionMsgs)
     } else if (type === 'replace') {
       let msgLen = state.currSessionMsgs.length

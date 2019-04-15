@@ -149,6 +149,9 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('settingDetail')
+  },
   computed: {
     personInfos () {
       return this.$store.state.personInfos

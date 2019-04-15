@@ -32,6 +32,9 @@ export default {
       this.isShow = data.isShow
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('showAccountModal')
+  },
   methods: {
     onMouseenter (id) {
       this.selectedId = id

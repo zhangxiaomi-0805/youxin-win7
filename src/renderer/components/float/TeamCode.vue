@@ -29,6 +29,9 @@
         this.showTeamCode = true
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('teamCode')
+    },
     updated () {
       window.document.body.addEventListener('click', () => {
         this.showPasteBtn = false

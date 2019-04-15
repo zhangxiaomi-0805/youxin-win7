@@ -71,6 +71,9 @@ export default {
       _this.teamInfo = {name: '1', intro: ''}
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('openSelect')
+  },
   data () {
     return {
       step: 'select',

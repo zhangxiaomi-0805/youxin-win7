@@ -40,6 +40,9 @@ export default {
       this.showSettingName = true
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('settingName')
+  },
   data () {
     return {
       showSettingName: false,

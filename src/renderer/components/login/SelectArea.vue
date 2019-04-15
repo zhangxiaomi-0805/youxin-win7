@@ -46,6 +46,9 @@
         $this.callback = data.callback
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('selectArea')
+    },
     methods: {
       className () {
         if (this.showSelectArea === 1 && !this.modify) {

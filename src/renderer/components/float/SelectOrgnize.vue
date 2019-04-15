@@ -80,6 +80,9 @@ export default {
       else this.isDiscussGroup = false
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('selectOrgnize')
+  },
   data () {
     return {
       defaultUserIcon: configs.defaultUserIcon,

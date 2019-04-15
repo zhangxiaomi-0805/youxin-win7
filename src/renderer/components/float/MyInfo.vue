@@ -91,6 +91,9 @@ export default {
       this.managePosition(data.event, data.pageType)
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('showMyInfo')
+  },
   data () {
     return {
       defaultUserIcon: config.defaultUserIcon,

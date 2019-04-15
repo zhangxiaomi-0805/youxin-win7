@@ -82,6 +82,9 @@
         this.isChatCheckMore = data.isMore
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('updateIsCheckMoreChat')
+    },
     methods: {
       scrollToBottom () {
         pageUtil.scrollChatListDown()

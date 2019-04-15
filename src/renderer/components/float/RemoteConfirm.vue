@@ -48,6 +48,9 @@ export default {
       this.content = data
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('remoteConfirm')
+  },
   methods: {
     closeModal () {
       this.showRemoteConfirm = false

@@ -68,6 +68,9 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('dismissTeam')
+  },
   data () {
     return {
       showDismissTeam: false,

@@ -38,6 +38,9 @@
         this.reset()
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('resetCheckMoreStatus')
+    },
     watch: {
     },
     data () {

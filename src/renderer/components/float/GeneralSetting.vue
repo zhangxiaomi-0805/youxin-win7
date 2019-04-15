@@ -224,6 +224,9 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('generalSetting')
+  },
   computed: {
     personInfos () {
       return this.$store.state.personInfos

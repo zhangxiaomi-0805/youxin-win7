@@ -54,6 +54,9 @@ export default {
       this.sendMsgToChild()
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('sendMsgToChild')
+  },
   methods: {
     getThirdList () {
       // 获取接入系统列表

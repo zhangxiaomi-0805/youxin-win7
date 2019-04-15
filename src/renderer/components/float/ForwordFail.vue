@@ -57,6 +57,9 @@ export default {
       _this.type = data.type
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('forwordFail')
+  },
   data () {
     return {
       showForwordFail: false,

@@ -42,6 +42,9 @@ export default {
       this.selectedItem = data.navTo
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('updateNavBar')
+  },
   watch: {
     $route () {
       let rotueName = this.$route.name

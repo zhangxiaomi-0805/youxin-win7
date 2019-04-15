@@ -136,6 +136,9 @@ export default {
       }
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('checkUser')
+  },
   data () {
     return {
       defaultUserIcon: config.defaultUserIcon,

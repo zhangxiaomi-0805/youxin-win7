@@ -31,6 +31,9 @@ export default {
       this.updateLocalVersion()
     })
   },
+  beforeDestroy () {
+    this.eventBus.$off('updateApp')
+  },
   data () {
     return {
       showUpdateApp: false,
