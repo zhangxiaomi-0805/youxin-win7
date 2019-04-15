@@ -11,10 +11,11 @@
     }
   </style>
 </head>
-<body  oncontextmenu="return false">
-  <div id="iframe" style="height: 100%;width: 100%;"></div>
+<body oncontextmenu="return false" style="margin: 0">
+  <div id="iframe" style="height: 100%;width: 80%;"></div>
 
   <script type="text/javascript">
+    let idClient = '';
     // addEventListener support for IE8
     function bindEvent(element, eventName, eventHandler) {
       if (element.addEventListener) {
@@ -24,21 +25,38 @@
       }
     }
 
-     // 接收父页面传递来的数据
-     bindEvent(window, 'message', function (e) {
+    // 接收父页面传递来的数据
+    bindEvent(window, 'message', function (e) {
       var iframe = document.getElementById('iframe')
       iframe.innerHTML = e.data.params.showText
+      idClient = e.data.params.idClient
     });
     
-    // 向父vue页面发送信息
-    setTimeout(() => {
-      var iframe = document.getElementById('iframe')
-      let contentHeight = iframe.scrollHeight
-      window.parent.postMessage({
+    function sendMsg() {
+      // 向父vue页面发送信息
+      setTimeout(() => {
+        var iframe = document.getElementById('iframe')
+        let contentHeight = iframe.scrollHeight
+        window.parent.postMessage({
         cmd: 'returnHeight',
-        params: {contentHeight}
-      }, '*');
-    }, 20)
+        params:{contentHeight, idClient}
+        },'*');
+      }, 20)
+    }
+
+    window.onload = () => {
+      sendMsg()
+    }
+    window.onresize = () => {
+      sendMsg()
+    }
+    // setTimeout(() => {
+    //   var url = window.location.href
+    //   window.parent.postMessage({
+    //     cmd: 'returnUrl',
+    //     params:{url}
+    //   },'*');
+    // }, 100);
     // var electron = require('electron')
     // electron.ipcRenderer.on('executeJavaScript', (evt, arg) => {
     //   document.getElementById('iframe').innerHTML = arg

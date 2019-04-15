@@ -1175,7 +1175,7 @@
                   this.forwordMsg()
                   break
                 case 3: // 复制
-                  this.$refs.clipboard.innerText = this.getCopyText(e)
+                  this.$refs.clipboard.value = this.getCopyText(e)
                   this.$refs.clipboard.select()
                   document.execCommand('Copy')
                   break
@@ -1677,18 +1677,18 @@
     color: rgba(175,178,177,1);
   }
 
-    .u-msg .msg-link {
-        display: none;
-    }
-    .u-msg .msg-text {
-      max-width: 80%;
-      word-wrap:break-word;
-    }
-    .u-msg .msg-link {
-        bottom: 0;
-        right: -4rem;
-        font-size: 0.9rem;
-    }
+  .u-msg .msg-link {
+      display: none;
+  }
+  .u-msg .msg-text {
+    max-width: 80%;
+    word-wrap:break-word;
+  }
+  .u-msg .msg-link {
+      bottom: 0;
+      right: -4rem;
+      font-size: 0.9rem;
+  }
 
   .msg-unread {
     position: relative;
@@ -1765,7 +1765,7 @@
 
     display: inline-block;
 
-    max-width: 54%;
+    max-width: 56%;
 
     min-height: 1.2rem;
 
