@@ -196,12 +196,11 @@
       checkUpdate () {
         // 检查更新
         Request.AppVersions().then(res => {
-          console.log(res)
           let APPVERSIONS = localStorage.APPVERSIONS ? JSON.parse(localStorage.APPVERSIONS) : null
           if (APPVERSIONS && APPVERSIONS.ignore && (APPVERSIONS.versionNum === res.versionNum)) {
             return false
           }
-          if (res && Number(res.forceUpdate) === 1) {
+          if (res && Number(res.forceUpdate) === 1) { // 强制升级时才弹出升级弹框
             this.eventBus.$emit('updateAppFirst', res)
           }
         }).catch((err) => { console.log(err) })
