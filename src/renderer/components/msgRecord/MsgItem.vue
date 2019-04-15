@@ -71,7 +71,7 @@
         </div>
       </div>
       <!-- 时间 -->
-      <div style="font-size:12px; color:#999">{{manageTime(msg.time)}}</div>
+      <div class="time">{{manageTime(msg.time)}}</div>
     </div>
         
   </li>
@@ -323,8 +323,9 @@ export default {
       }
       return className
     },
+    // 消息时间戳处理 --- 年-月-日 时-分-秒
     manageTime (time) {
-      return util.formatDate(time, true)
+      return util.DateFormat(time)
     },
     playAudio (src, msg) {
       if (!this.currentAudio) {
@@ -528,6 +529,7 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     padding: 0 16px 10px 0;
+    position: relative
   }
   .list-item .left{
       display: flex;
@@ -685,5 +687,12 @@ export default {
     border-radius: 50%;
     background: center center url(../../../../static/img/setting/arrow-bot.png) no-repeat;
     background-size: 14px;
+  }
+  .list-item .time{
+      font-size: 12px;
+      color: #999;
+      position: absolute;
+      top: 0;
+      right: 0
   }
 </style>

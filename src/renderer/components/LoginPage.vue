@@ -172,7 +172,7 @@
       }
     },
     mounted () {
-      this.checkUpdate() // 检查版本更新
+      // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
         NativeLogic.native.setDraggableArea(0, 30, 30, 70)
