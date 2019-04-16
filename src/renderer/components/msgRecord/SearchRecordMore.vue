@@ -1,31 +1,37 @@
 <template>
-  <!-- 历史消息记录搜索 -->
-  <div class="s-cont" style="top: 125px;">
-    <div v-if="searchlist.length <= 0" class="s-empty searchevent">暂无搜索结果~</div>
-    <ul class="u-list" v-if="searchlist.length > 0">
+  <!-- 历史消息记录搜索后查看上下文 -->
+  <div class="g-hbf-container m-chat">
+    <div class="g-hbf-header m-header">
+      <span class="session-name">{{'“' + titleName + '”的记录'}}</span>
+      <div class="close-btn" @click.stop="toggleToChat"><span class="close-text">关闭</span></div>
+    </div>
+    <ul :class="isSearchCheckMore ? 'm-body-contain m-body-contain-1 u-list' : 'm-body-contain u-list'" v-if="recordlistMore.length > 0">
       <li
-        class="list-item"
-        v-for="msg in searchlist"
+        class="u-list-item s-list-item"
+        v-for="msg in recordlistMore"
         :key="msg.idClient"
         :id="msg.idClient"
         @click.stop="isSearchCheckMore ? checkItemFn(msg) : null"
         @mouseenter="idClient = msg.idClient"
         @mouseleave="idClient = ''"
       >
-        <div class="list-item" style="position: relative;">
+        <div class="u-list-item s-list-item" style="padding:0;position: relative;">
           <div class="left">
             <!-- 选择框 -->
             <span v-show="isSearchCheckMore" :class="className(msg)"></span>
             <img :src="msg.avatar" alt="" class="avatar">
-            <div style="padding:0 8px; width:85%">
-              <span style="font-size:12px; color:#999">{{msg.fromNick}}</span>
-              <span v-if="msg.custom && JSON.parse(msg.custom).isSmsMsg" class="msg-short"><i class="send-short-msg"></i></span>
+            <div style="padding:0 8px">
+              <div style="display: flex;flex-direction:row">
+                <span class="s-name">{{msg.name || mag.fromNick}}</span>
+                <!-- 时间 -->
+                <div class="s-time">{{manageTime(msg.time)}}</div>
+              </div>
               <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;" :ref="`clipboard_${msg.idClient}`"></textarea>
               <div
                 v-if="msg.type==='text'"
                 @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
                 :ref="`copy_${msg.idClient}`"
-                class="searchValue"
+                class="msg-text"
                 style="-webkit-user-select: text"
                 v-html="msg.showText"
                 @click.stop="openAplWindow($event, msg.sessionId)"
@@ -34,8 +40,19 @@
               <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
                 <img :src="msg.imgUrl" style="width: 100%; height: 100%"/>
               </div>
+              <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
+                <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
+                <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+              </div>
+              <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)">
+                <span class="custom-type8-title">邀请你加入群聊</span>
+                <span class="custom-type8-content-box">
+                  <span class="custom-type8-content">{{msg.showText.description}}</span>
+                  <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
+                </span>
+              </span>
               <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
-                <img :src="msg.imgUrl" style="width: 230px; height: 230px"/>
+                <img :src="msg.originLink" style="width: 230px; height: 230px"/>
               </div>
               <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg">
                 <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
@@ -44,74 +61,69 @@
               <div v-else-if="msg.type==='file'" class="msg-text"><a :href="msg.fileLink" target="_blank"><i class="u-icon icon-file"></i>{{msg.showText}}</a></div>
             </div>
           </div>
-          <!-- 时间 -->
-          <div class="time">{{manageTime(msg.time)}}</div>
-          <a v-if="idClient === msg.idClient " class="check-more" @click.stop="locationToMsg(msg, true)">查看上下文</a>
         </div>
       </li>
     </ul>
+
+    <div class="g-hbf-footer m-footer" id="resize-chat-btm" style="height:150px;">
+        <div class="border" id="resize-ns"></div>
+        <!-- 消息列表多选弹框 -->
+        <chat-select-more
+          v-if="isSearchCheckMore"
+        />
+      </div>
   </div>
 </template>
 
 <script>
   import util from '../../utils'
   import config from '../../configs'
-  import emojiObj from '../../configs/emoji'
   import MsgRecordFn from './msgRecord.js'
-  // import SearchData from '../search/search.js'
+  import SearchData from '../search/search.js'
+  import ChatSelectMore from '../chat/ChatSelectMore'
+  import emojiObj from '../../configs/emoji'
   export default {
-    name: 'search-msg',
-    props: {
-      shortMsgCheck: Boolean,
-      searchValue: String,
-      clearStatus: Function,
-      isSearchCheckMore: Boolean,
-      sessionId: String,
-      checkType: String, // 'all'---全部; image---图片; file---文件
-      userInfos: {
-        type: Object,
-        default () {
-          return {}
-        }
-      },
-      myInfo: {
-        type: Object,
-        default () {
-          return {}
-        }
-      },
-      closeCover: Function
+    name: 'search-record-more',
+    components: {
+      ChatSelectMore
     },
     data () {
       return {
         myGroupIcon: config.defaultGroupIcon,
         beforeValue: '', // 上一次输入的值，做延时搜索
-        searchlist: [],
+        recordlistMore: [],
         isPlay: false,
         msgsTemp: [],
-        idClient: ''
+        idClient: '',
+        isSearchCheckMore: false
       }
     },
-    watch: {
-      searchValue (newValue, oldValue) {
-        this.beforeValue = newValue
-        setTimeout(() => {
-          if (newValue !== this.beforeValue) return
-          this.renderItem(newValue, this.checkType)
-        }, 500)
-      },
-      shortMsgCheck (newValue, oldValue) {
-        this.beforeValue = newValue
-        setTimeout(() => {
-          if (newValue !== this.beforeValue) return
-          this.renderItem(this.searchValue, this.checkType)
-        }, 500)
-      },
-      checkType () {
-        this.renderItem(this.searchValue, this.checkType)
-      }
+    mounted () {
+      // 消息列表是否多选
+      this.eventBus.$on('updateIsCheckMoreChat', (data) => {
+        this.isSearchCheckMore = data.isMore
+      })
+      this.renderRecordlistMore()
     },
     computed: {
+      titleName () {
+        return this.$route.query.titleName
+      },
+      time () {
+        return this.$route.query.time
+      },
+      searchValue () {
+        return this.$route.query.searchValue
+      },
+      sessionId () {
+        return this.$route.query.sessionId || this.$store.state.currSessionId
+      },
+      myInfo () {
+        return this.$store.state.myInfo
+      },
+      userInfos () {
+        return this.$store.state.userInfos
+      },
       myPhoneId () {
         return `${this.$store.state.userUID}`
       },
@@ -125,85 +137,23 @@
       }
     },
     methods: {
+      toggleToChat () {
+        // 点击‘关闭’按钮，切换到聊天会话窗口
+        this.$router.push({name: 'chat', query: {sessionId: this.sessionId}})
+      },
       // 消息时间戳处理 --- 年-月-日 时-分-秒
       manageTime (time) {
         return util.DateFormat(time)
       },
       manageItem (item) {
-        if (item.flow === 'in') {
-          if (item.type === 'robot' && item.content && item.content.msgOut) {
-            // 机器人下行消息
-            let robotAccid = item.content.robotAccid
-            item.avatar = this.robotInfos[robotAccid].avatar
-            item.isRobot = true
-            item.link = `#/mainpage/contacts/card?accid=${robotAccid}`
-          } else if (item.from !== this.$store.state.userUID) {
-            item.avatar = (this.userInfos[item.from] && this.userInfos[item.from].avatar) || config.defaultUserIcon
-            item.link = `#/mainpage/contacts/card?accid=${item.from}`
-            //  todo如果是未加好友的人发了消息，是否能看到名片
-          } else {
-            item.avatar = this.myInfo.avatar
-            // item.avatar = `${config.myPhoneIcon}`
-          }
-        } else if (item.flow === 'out') {
-          item.avatar = this.myInfo.avatar
-        }
         if (item.type === 'text') {
-          item.showText = item.text
-          // 标签解析
-          item.showText = util.escape(item.showText)
-          // 文本消息
-          let variable = 0
-          let replaceArr = []
-          // url匹配
-          let httpUrls = MsgRecordFn.httpSpring(item.text)
-          if (httpUrls.length > 0) {
-            httpUrls.map(url => {
-              item.showText = item.showText.replace(url, (m) => {
-                variable++
-                let urlContent = url
-                urlContent = urlContent.replace(this.searchValue, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-                replaceArr.push(`<a style="max-width: 100%;text-decoration: underline;display: inline-block;" data-url="[${url}]">${urlContent}</a>`)
-                return `{---===${variable}}`
-              })
-            })
-          }
-          // 关键词高亮匹配
-          item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
-            variable++
-            replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-            return `{---===${variable}}`
-          })
-          // 表情匹配
-          if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
-            let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
-            emojiItems.forEach(text => {
-              let emojiCnt = emojiObj.emojiList.emoji
-              if (emojiCnt[text]) {
-                let dataKey = text.slice(1, -1)
-                item.showText = item.showText.replace(text, `<img data-key='[${dataKey}]' style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small'  src='${emojiCnt[text].img}'>`)
-              }
-            })
-          }
-          // 变量替换
-          item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-            m = m.slice(1, m.length - 1)
-            let index = Number(m.slice(6, m.length))
-            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
-              if (replaceArr[index - 1]) {
-                return replaceArr[index - 1]
-              }
-              return m
-            }
-            return m
-          })
+          item.showText = item.showText
         } else if (item.type === 'custom') {
           let content = JSON.parse(item.content)
           // type 1 为猜拳消息
           if (content.type === 1) {
             let data = content.data
             let resourceUrl = config.resourceUrl
-            // item.showText = `<img class="emoji-middle" src="${resourceUrl}/im/play-${data.value}.png">`
             item.type = 'custom-type1'
             item.imgUrl = `${resourceUrl}/im/play-${data.value}.png`
             // type 3 为贴图表情
@@ -212,16 +162,38 @@
             let emojiCnt = ''
             if (emojiObj.pinupList[data.catalog]) {
               emojiCnt = emojiObj.pinupList[data.catalog][data.chartlet]
-              // item.showText = `<img class="emoji-big" src="${emojiCnt.img}">`
               item.type = 'custom-type3'
               item.imgUrl = `${emojiCnt.img}`
             }
+          } else if (content.type === 7) {
+            // 自定义富文本消息
+            item.type = 'custom-type7'
+            item.showText = content.data.value
+          } else if (content.type === 8) {
+            // 自定义邀请入群消息
+            item.type = 'custom-type8'
+            if (!content.data.value.teamAvatarUrl) {
+              content.data.value.teamAvatarUrl = config.defaultGroupIcon
+            }
+            item.showText = content.data.value
           } else {
             item.showText = util.parseCustomMsg(item)
             if (item.showText !== '[自定义消息]') {
               item.showText += ',请到手机或电脑客户端查看'
             }
           }
+        } else if (item.type === 'custom-type7') {
+          // 自定义富文本消息
+          let content = JSON.parse(item.content)
+          item.showText = content.data.value
+          console.log(item)
+        } else if (item.type === 'custom-type8') {
+          // 自定义邀请入群消息
+          let content = JSON.parse(item.content)
+          if (!content.data.value.teamAvatarUrl) {
+            content.data.value.teamAvatarUrl = config.defaultGroupIcon
+          }
+          item.showText = content.data.value
         } else if (item.type === 'image') {
           // 原始图片全屏显示
           item.originLink = item.file.url
@@ -233,7 +205,12 @@
             item.h = 180 / (item.file.w / item.file.h)
           }
         } else if (item.type === 'video') {
-          // ...
+          if (/(mov|mp4|ogg|webm)/i.test(item.file.ext)) {
+            item.src = item.file.url
+          } else {
+            item.src = ''
+            item.href = item.file.url
+          }
         } else if (item.type === 'audio') {
           item.audioSrc = item.file.mp3Url
           item.showText = Math.round(item.file.dur / 1000) + '" 点击播放'
@@ -245,34 +222,13 @@
         }
         return item
       },
-      async renderItem (searchValue, checkType) {
-        if (!searchValue) return false
-        if (checkType === 'all') {
-          checkType = ['text', 'image', 'file', 'audio', 'video', 'custom-type3']
-        } else if (checkType === 'image') {
-          checkType = ['image']
-        } else if (checkType === 'file') {
-          checkType = ['file']
-        }
-        let msgList = await MsgRecordFn.getSearchRecords(searchValue, checkType)
-        console.log(msgList)
-        let searchlist = []
-        let searchMsgList = []
+      async renderRecordlistMore () {
+        if (!this.time) return false
+        let msgList = await SearchData.getRecordsDetailData({start: this.time - 1}, null, this.sessionId)
         for (let i in msgList) {
-          if (msgList[i].text && msgList[i].text.indexOf(searchValue) > -1) {
-            this.manageItem(msgList[i])
-            searchlist.push(msgList[i])
-            if (msgList[i].custom && JSON.parse(msgList[i].custom).isSmsMsg) {
-              this.manageItem(msgList[i])
-              searchMsgList.push(msgList[i])
-            }
-          }
+          msgList[i] = this.manageItem(msgList[i])
         }
-        if (this.shortMsgCheck) {
-          this.searchlist = searchMsgList
-        } else {
-          this.searchlist = searchlist
-        }
+        this.recordlistMore = msgList
       },
       className (msg) {
         // 选择框样式
@@ -347,6 +303,12 @@
                   document.execCommand('Copy')
                   break
                 case 4: // 删除
+                  let index = this.recordlistMore.findIndex(item => {
+                    return item.idClient === msg.idClient
+                  })
+                  if (index > -1) {
+                    this.recordlistMore.splice(index, 1)
+                  }
                   this.$store.dispatch('deleteMsg', msg)
                   break
               }
@@ -367,7 +329,7 @@
         document.body.style.cursor = 'default'
       },
       searchCheckMoreFn (msg) {
-        this.$emit('searchCheckMore')
+        this.isSearchCheckMore = true
         this.$store.commit('updateCheckedMsgs', [msg])
       },
       checkItemFn (msg) {
@@ -383,103 +345,140 @@
       },
       reset () {
         this.beforeValue = ''
-        this.searchlist = []
+        this.recordlistMore = []
+      },
+      sendMsgToIframe (showText, idClient) {
+        this.iframe = this.$refs.iframe
+        this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
+          params: {showText, idClient}
+        }, '*')
+        setTimeout(() => {
+          this.iframe.contentWindow.document.body.onmouseup = (e) => {
+            this.showListOptions(e, 'custom-type7', 'iframe')
+          }
+          var a = [...(this.iframe.contentWindow.document.getElementsByTagName('a'))]
+          for (let i = 0; i < a.length; i++) {
+            a[i].addEventListener('click', (e) => {
+              e.preventDefault()
+              let url = a[i].getAttribute('href')
+              if (url) {
+                if (url.indexOf('yximcreatesession.telecomjs.com') > -1) {
+                  // 发起会话处理
+                  let account = e.url.split('?account=')[1]
+                  if (account) {
+                    if (config.environment === 'web') { // web分支
+                      Request.GetAccid({userName: account}, this).then(ret => {
+                        let accid = ret.accid
+                        // 根据account 获取 accid 发起会话
+                        this.createSession(accid)
+                      })
+                    } else { // electron分支
+                      let { ipcRenderer } = require('electron')
+                      ipcRenderer.send('sendAccount', {account})
+                    }
+                  }
+                }
+              }
+              let openType = 1
+              if (url.indexOf('#browserWindow') > -1) {
+                openType = 2
+              }
+              this.openAplWindow({url}, openType)
+            })
+          }
+        }, 1000)
       },
       openAplWindow (evt, sessionId) {
         MsgRecordFn.openAplWindow(evt, sessionId)
-      },
-      locationToMsg (msg) {
-        let sessionName = this.$store.state.sessionName
-        console.log(sessionName)
-        this.$router.push({name: 'search-record-more', query: {time: msg.time, titleName: sessionName, searchValue: this.searchValue, sessionId: this.sessionId}})
-        this.closeCover()
       }
-      // async locationToMsg (msg, isFirst) {
-      //   // 跳转到相应消息页面
-      //   let msgs = []
-      //   try {
-      //     msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
-      //   } catch (error) {}
-      //   isFirst && msgs.unshift(msg)
-      //   this.msgsTemp = this.msgsTemp.concat(msgs)
-      //   if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
-      //   else {
-      //     this.closeCover()
-      //     let idClient = msg.idClient
-      //     this.$store.commit('updateMsgHighBgIdClient', idClient)
-      //     this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
-      //     this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true, isReset: true}})
-      //   }
-      // }
     }
   }
 </script>
 
 <style scoped>
-  .s-cont {
+  .m-chat .m-body-contain {
     position: absolute;
-    top: 120px;
-    width: 558px;
-    height: 300px;
-    z-index: 100;
-    box-sizing: border-box;
-    background-color: #fff;
-    overflow-y: auto;
+    left: 0;
+    top: 40px;
+    bottom: 0;
+    right: 0;
   }
-
-  .s-empty {
-    display: flex;
-    justify-content: center;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    font-size: 13px;
-    color: #C4C4C4;
+  .m-chat .m-body-contain-1 {
+    bottom: 150px;
   }
-  .list-item {
-    width:100%;
+  .m-chat .m-header {
     box-sizing: border-box;
-    overflow-x: hidden;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0 16px 10px 0;
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid rgba(214,214,214,1);
+    padding: 5px 15px;
   }
-  .list-item .left{
+  .m-chat .m-header .session-name {
+    height: 21px;
+    line-height: 21px;
+    font-size: 15px;
+    color: #0D0F0D;
+  }
+  .m-chat .m-header .close-btn {
+    -webkit-app-region: no-drag;
+    width: 60px;
+    height: 24px;
+    background-color: #F0F0F0;
+    border-radius: 4px
+  }
+  .m-chat .m-header .close-btn:hover {
+    background-color: #E0E0E0;
+  }
+  .m-chat .m-header .close-text {
+    padding: 4px 16px;
+    color: #049AFF;
+    font-size: 12px;
+  }
+  .s-list-item {
+    position: relative;
     display: flex;
     flex-direction: row;
-    width: 88%;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    padding: 10px 16px;
+    cursor: default;
   }
-  .list-item .left .searchValue{
-    font-size:13px;
+  .s-list-item:hover {
+    background-color: #e0e0e0
+  }
+  
+  .left{
+    display: flex;
+    flex-direction: row;
+    width: 78%;
+  }
+  .left .msg-text{
+    font-size:14px;
     color:#333;
-    line-height:18px;
-    padding-top:2px;
+    line-height: 20px;
+    padding-top: 5px;
     word-wrap: break-word;
   }
-  .list-item .left .searchValue.active{
-    color: rgba(79,141,255,1);
-  }
-  .list-item .avatar {
-    width:32px;
-    height:32px;
+  .avatar {
+    width:40px;
+    height:40px;
     border-radius: 50%;
-    margin-top: 5px;
+    margin-top: 2px;
   }
-  .list-item .msg-short .send-short-msg {
-    display: inline-block;
-    vertical-align: middle;
-    padding-left: 5px;
-    width: 16px;
-    height: 12px;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-image: url('../../../../static/img/edit/message-h.png');
-    background-size: 16px 12px;
+  .left .s-name {
+    font-size:12px;
+    color:#999;
+    margin-right:10px
   }
-  .list-item .msg-audio{
+  .left .s-time {
+    font-size:12px;
+    color:#999;
+  }
+  .msg-audio{
     position: relative;
     overflow: visible !important;
     width: 60px;
@@ -489,7 +488,7 @@
     background: url(../../../../static/img/edit/voice-y.png) 12px center no-repeat;
     background-size: 14px 20px;
   }
-  .list-item .msg-audio.zel-play{
+  .msg-audio.zel-play{
     background: url(../../../../static/img/edit/voice-y-p.gif) 12px center no-repeat;
     background-size: 14px 20px;
   }
@@ -501,7 +500,7 @@
     color: #999;
     font-size: 14px;
   }
-  .list-item .common {
+  .common {
     display: inline-block;
     width: 15px;
     height: 32px;
@@ -510,11 +509,11 @@
     transition: all .2s linear;
     margin: 5px 5px 0 0 ;
   }
-  .list-item .check {
+  .check {
     background-image: url('../../../../static/img/setting/checkboxborder.png');
     background-size: 15px 15px;
   }
-  .list-item .checked {
+  .checked {
     background-image: url('../../../../static/img/setting/checkbox-c.png');
     background-size: 15px 15px;
   }
@@ -526,12 +525,6 @@
     font-size: 12px;
     color: #3F6D8C;
   }
-  .list-item .time {
-    font-size:12px;
-    color:#999;
-    position: absolute;
-    top: 0;
-    right: 0
-  }
+  
 </style>
 

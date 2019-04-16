@@ -21,7 +21,7 @@
           
           <div
             class="s-btm"
-            v-html="msg.searchText"
+            v-html="msg.showText"
           ></div>
           <a v-if="msg.idClient === idClient" class="check-more" @click.stop="locationToMsg(msg, true)">查看上下文</a>
         </div>
@@ -99,22 +99,25 @@
         }
         return 's-name'
       },
-      async locationToMsg (msg, isFirst) {
-        // 跳转到相应消息页面
-        let msgs = []
-        try {
-          msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
-        } catch (error) {}
-        isFirst && msgs.unshift(msg)
-        this.msgsTemp = this.msgsTemp.concat(msgs)
-        if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
-        else {
-          let idClient = msg.idClient
-          this.$store.commit('updateMsgHighBgIdClient', idClient)
-          this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
-          this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true}})
-        }
+      locationToMsg (msg) {
+        this.$router.push({name: 'search-record-more', query: {time: msg.time, titleName: this.titleName, searchValue: this.searchValue, sessionId: this.sessionId}})
       }
+      // async locationToMsg (msg, isFirst) {
+      //   // 跳转到相应消息页面
+      //   let msgs = []
+      //   try {
+      //     msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
+      //   } catch (error) {}
+      //   isFirst && msgs.unshift(msg)
+      //   this.msgsTemp = this.msgsTemp.concat(msgs)
+      //   if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
+      //   else {
+      //     let idClient = msg.idClient
+      //     this.$store.commit('updateMsgHighBgIdClient', idClient)
+      //     this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
+      //     this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true}})
+      //   }
+      // }
     }
   }
 </script>

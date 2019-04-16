@@ -192,64 +192,68 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
    */
   return new Promise(async (resolve, reject) => {
     let recordlist = []
+    let newRecordList = []
     try {
       recordlist = await SearchData.getRecordsDetail(obj, searchValue, true, 20, sessionId)
       for (let i in recordlist) {
-        let userInfo = {}
-        if (store.state.userInfos[recordlist[i].from] === undefined) {
-          userInfo = await this.getMemberInfo(recordlist[i].from)
-        } else {
-          userInfo = store.state.userInfos[recordlist[i].from]
-        }
-        recordlist[i].avatar = userInfo.avatar
-        recordlist[i].name = userInfo.name || recordlist[i].fromNick
-        recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
-        recordlist[i].searchText = recordlist[i].text
-        // 标签解析
-        recordlist[i].searchText = util.escape(recordlist[i].searchText)
-        let variable = 0
-        let replaceArr = []
-        // 处理url
-        let httpUrls = MsgRecordFn.httpSpring(recordlist[i].text)
-        if (httpUrls.length > 0) {
-          httpUrls.map(url => {
-            recordlist[i].searchText = recordlist[i].searchText.replace(url, (m) => {
-              variable++
-              replaceArr.push(`<a style="text-decoration: underline;width: 100%;display: defalut;" data-url="${url}">${url}</a>`)
-              return `{---===${variable}}`
+        if (recordlist[i].type !== 'timeTag' && recordlist[i].type !== 'tip' && recordlist[i].type !== 'notification') {
+          let userInfo = {}
+          if (store.state.userInfos[recordlist[i].from] === undefined) {
+            userInfo = await this.getMemberInfo(recordlist[i].from)
+          } else {
+            userInfo = store.state.userInfos[recordlist[i].from]
+          }
+          recordlist[i].avatar = userInfo.avatar
+          recordlist[i].name = userInfo.name || recordlist[i].fromNick
+          recordlist[i].updateTimeShow = util.formatDate(recordlist[i].time, true)
+          recordlist[i].showText = recordlist[i].text
+          // 标签解析
+          recordlist[i].showText = util.escape(recordlist[i].showText)
+          let variable = 0
+          let replaceArr = []
+          // 处理url
+          let httpUrls = MsgRecordFn.httpSpring(recordlist[i].text)
+          if (httpUrls.length > 0) {
+            httpUrls.map(url => {
+              recordlist[i].showText = recordlist[i].showText.replace(url, (m) => {
+                variable++
+                replaceArr.push(`<a style="text-decoration: underline;width: 100%;display: defalut;" data-url="${url}">${url}</a>`)
+                return `{---===${variable}}`
+              })
             })
+          }
+          // 关键词高亮匹配
+          recordlist[i].showText = recordlist[i].showText.replace(new RegExp(searchValue, 'gmi'), (m, i) => {
+            variable++
+            replaceArr.push(`<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
+            return `{---===${variable}}`
           })
-        }
-        // 关键词高亮匹配
-        recordlist[i].searchText = recordlist[i].searchText.replace(new RegExp(searchValue, 'gmi'), (m, i) => {
-          variable++
-          replaceArr.push(`<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
-          return `{---===${variable}}`
-        })
-        // 处理表情
-        if (/\[[\u4e00-\u9fa5]+\]/.test(recordlist[i].searchText)) {
-          let emojiItems = recordlist[i].searchText.match(/\[[\u4e00-\u9fa5]+\]/g)
-          emojiItems.forEach(text => {
-            let emojiCnt = emojiObj.emojiList.emoji
-            if (emojiCnt[text]) {
-              recordlist[i].searchText = recordlist[i].searchText.replace(text, `<img style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small' src='${emojiCnt[text].img}'>`)
-            }
-          })
-        }
-        // 变量替换
-        recordlist[i].searchText = recordlist[i].searchText.replace(/\{(.+?)\}/g, (m, i) => {
-          m = m.slice(1, m.length - 1)
-          let index = Number(m.slice(6, m.length))
-          if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
-            if (replaceArr[index - 1]) {
-              return replaceArr[index - 1]
+          // 处理表情
+          if (/\[[\u4e00-\u9fa5]+\]/.test(recordlist[i].showText)) {
+            let emojiItems = recordlist[i].showText.match(/\[[\u4e00-\u9fa5]+\]/g)
+            emojiItems.forEach(text => {
+              let emojiCnt = emojiObj.emojiList.emoji
+              if (emojiCnt[text]) {
+                recordlist[i].showText = recordlist[i].showText.replace(text, `<img style="width: 20px;height: 20px;vertical-align: top;" class='emoji-small' src='${emojiCnt[text].img}'>`)
+              }
+            })
+          }
+          // 变量替换
+          recordlist[i].showText = recordlist[i].showText.replace(/\{(.+?)\}/g, (m, i) => {
+            m = m.slice(1, m.length - 1)
+            let index = Number(m.slice(6, m.length))
+            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+              if (replaceArr[index - 1]) {
+                return replaceArr[index - 1]
+              }
+              return m
             }
             return m
-          }
-          return m
-        })
+          })
+          newRecordList.push(recordlist[i])
+        }
       }
-      resolve(recordlist)
+      resolve(newRecordList)
     } catch (error) {}
   })
 }

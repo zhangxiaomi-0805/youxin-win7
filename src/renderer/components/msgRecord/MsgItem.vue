@@ -173,6 +173,7 @@ export default {
       }
     },
     sendMsgToIframe (showText, idClient) {
+      console.log(this.iframe)
       this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
         params: {showText, idClient}
       }, '*')

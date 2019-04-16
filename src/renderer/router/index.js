@@ -44,6 +44,11 @@ export default new Router({
               path: 'namecard-session',
               component: require('@/components/module/NameCard').default,
               name: 'namecard-session'
+            },
+            {
+              path: 'search-record-more',
+              component: require('@/components/msgRecord/SearchRecordMore').default, // 历史消息记录查看上下文结果
+              name: 'search-record-more'
             }
           ]
         },

@@ -69,6 +69,10 @@ export default {
     })
     state.userInfos = util.mergeObject(state.userInfos, userInfos)
   },
+  // 更新会话标题
+  updateSessionName (state, sessionName) {
+    state.sessionName = sessionName
+  },
   updateFriends (state, friends) {
     const nim = state.nim
     state.friendslist = nim.mergeFriends(state.friendslist, friends)

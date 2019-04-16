@@ -59,7 +59,7 @@
         <span v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)" style="background:transparent;border:none;"></span>
         <span v-else-if="msg.type==='custom-type7'" class="msg-text"  @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)">
           <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-          <iframe ref="iframe" @load="!isCheckMore && sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+          <iframe ref="iframe" @load="!isCheckMore && sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="180" minheight="20" frameborder="0" scrolling="no"></iframe>
         </span>
         <!-- 群邀请消息 -->
         <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box"

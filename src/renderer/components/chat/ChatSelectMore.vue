@@ -1,6 +1,6 @@
 <template>
   <div class="m-chat-select-more">
-    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard">aaa</textarea>
+    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard"></textarea>
 
     <!-- 关闭按钮 -->
     <div style='width:100%;height:30px;position:relative'>
@@ -135,6 +135,7 @@
     height: 100%;
     width: 100%;
     background-color: #F5F5F5;
+    z-index: 1000
   }
   /* 删除按钮 */
   .g-window .m-chat-select-more .close-btn {

@@ -200,20 +200,28 @@
         if (/^p2p-/.test(sessionId)) {
           user = sessionId.replace(/^p2p-/, '')
           if (user === this.$store.state.userUID) {
+            this.$store.commit('updateSessionName', this.myInfo.nick || this.myInfo.name) // 更新会话标题名称
             return this.myInfo.nick || this.myInfo.name
           } else if (this.isRobot) {
             return this.robotInfos[user].nick
           } else {
             let userInfo = this.userInfos[user] || {}
+            this.$store.commit('updateSessionName', util.getFriendAlias(userInfo))
             return util.getFriendAlias(userInfo)
           }
         } else if (/^team-/.test(sessionId)) {
           if (this.teamInfo) {
+            this.$store.commit('updateSessionName', this.teamInfo.name)
             return this.teamInfo.name
           } else if (this.lastMsg && this.lastMsg.attach && this.lastMsg.attach.team) {
+            this.$store.commit('updateSessionName', this.lastMsg.attach.team.name)
             return this.lastMsg.attach.team.name
           } else {
-            if (util.isDiscussGroup(this.teamInfo)) return '讨论组'
+            if (util.isDiscussGroup(this.teamInfo)) {
+              this.$store.commit('updateSessionName', '讨论组')
+              return '讨论组'
+            }
+            this.$store.commit('updateSessionName', '群')
             return '群'
           }
         }
