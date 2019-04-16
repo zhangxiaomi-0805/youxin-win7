@@ -255,7 +255,6 @@
           checkType = ['file']
         }
         let msgList = await MsgRecordFn.getSearchRecords(searchValue, checkType)
-        console.log(msgList)
         let searchlist = []
         let searchMsgList = []
         for (let i in msgList) {
@@ -390,8 +389,7 @@
       },
       locationToMsg (msg) {
         let sessionName = this.$store.state.sessionName
-        console.log(sessionName)
-        this.$router.push({name: 'search-record-more', query: {time: msg.time, titleName: sessionName, searchValue: this.searchValue, sessionId: this.sessionId}})
+        this.$router.push({name: 'search-record-more', query: {idClient: msg.idClient, time: msg.time, titleName: sessionName, searchValue: this.searchValue, sessionId: this.sessionId}})
         this.closeCover()
       }
       // async locationToMsg (msg, isFirst) {

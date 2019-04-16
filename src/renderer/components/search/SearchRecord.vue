@@ -100,7 +100,7 @@
         return 's-name'
       },
       locationToMsg (msg) {
-        this.$router.push({name: 'search-record-more', query: {time: msg.time, titleName: this.titleName, searchValue: this.searchValue, sessionId: this.sessionId}})
+        this.$router.push({name: 'search-record-more', query: {idClient: msg.idClient, time: msg.time, titleName: this.titleName, searchValue: this.searchValue, sessionId: this.sessionId}})
       }
       // async locationToMsg (msg, isFirst) {
       //   // 跳转到相应消息页面

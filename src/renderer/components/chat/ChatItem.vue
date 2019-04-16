@@ -728,7 +728,7 @@
         if (item.type === 'custom-type7' && this.iframe) {
           this.bindEvent(window, 'message', (e) => { // 获取iframe页面内容高度
             if (e.data.cmd === 'returnHeight') {
-              if (item.idClient === e.data.params.idClient) {
+              if (item.idClient === e.data.params.idClient && this.iframe && this.iframe.style) {
                 this.iframe.style.height = (e.data.params.contentHeight) + 'px'
               }
             }

@@ -194,7 +194,7 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
     let recordlist = []
     let newRecordList = []
     try {
-      recordlist = await SearchData.getRecordsDetail(obj, searchValue, true, 20, sessionId)
+      recordlist = await SearchData.getRecordsDetail(obj, searchValue, true, 50, sessionId)
       for (let i in recordlist) {
         if (recordlist[i].type !== 'timeTag' && recordlist[i].type !== 'tip' && recordlist[i].type !== 'notification') {
           let userInfo = {}

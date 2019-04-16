@@ -7,13 +7,11 @@
     </div>
     <ul :class="isSearchCheckMore ? 'm-body-contain m-body-contain-1 u-list' : 'm-body-contain u-list'" v-if="recordlistMore.length > 0">
       <li
-        class="u-list-item s-list-item"
+        :class="msg.idClient === idClient ? 'u-list-item s-list-item s-list-item-checked' : 'u-list-item s-list-item'"
         v-for="msg in recordlistMore"
         :key="msg.idClient"
         :id="msg.idClient"
         @click.stop="isSearchCheckMore ? checkItemFn(msg) : null"
-        @mouseenter="idClient = msg.idClient"
-        @mouseleave="idClient = ''"
       >
         <div class="u-list-item s-list-item" style="padding:0;position: relative;">
           <div class="left">
@@ -94,7 +92,7 @@
         recordlistMore: [],
         isPlay: false,
         msgsTemp: [],
-        idClient: '',
+        idClient: this.$route.query.idClient,
         isSearchCheckMore: false
       }
     },
@@ -225,10 +223,12 @@
       async renderRecordlistMore () {
         if (!this.time) return false
         let msgList = await SearchData.getRecordsDetailData({start: this.time - 1}, null, this.sessionId)
+        let newRecordList = []
         for (let i in msgList) {
           msgList[i] = this.manageItem(msgList[i])
+          newRecordList.unshift(msgList[i])
         }
-        this.recordlistMore = msgList
+        this.recordlistMore = newRecordList
       },
       className (msg) {
         // 选择框样式
@@ -447,10 +447,9 @@
     padding: 10px 16px;
     cursor: default;
   }
-  .s-list-item:hover {
+  .s-list-item-checked {
     background-color: #e0e0e0
   }
-  
   .left{
     display: flex;
     flex-direction: row;
