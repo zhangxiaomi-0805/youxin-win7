@@ -45,7 +45,7 @@
             </div>
           </div>
           <!-- 时间 -->
-          <div style="font-size:12px; color:#999">{{manageTime(msg.time)}}</div>
+          <div class="time">{{manageTime(msg.time)}}</div>
           <a v-if="idClient === msg.idClient " class="check-more" @click.stop="locationToMsg(msg, true)">查看上下文</a>
         </div>
       </li>
@@ -125,8 +125,9 @@
       }
     },
     methods: {
+      // 消息时间戳处理 --- 年-月-日 时-分-秒
       manageTime (time) {
-        return util.formatDate(time, true)
+        return util.DateFormat(time)
       },
       manageItem (item) {
         if (item.flow === 'in') {
@@ -517,6 +518,13 @@
     top: 26px;
     font-size: 12px;
     color: #333;
+  }
+  .list-item .time {
+    font-size:12px;
+    color:#999;
+    position: absolute;
+    top: 0;
+    right: 0
   }
 </style>
 
