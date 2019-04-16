@@ -1416,7 +1416,7 @@
         let childNodesArr = [...dom.childNodes]
         childNodesArr.forEach((item, index) => {
           if (item.nodeType === 3) {
-            text += item.data
+            text += item.data.replace(/\s/g, ' ')
           } else if (item.nodeType === 1) {
             if (item.tagName === 'IMG') {
               let dataKey = item.getAttribute('data-key')

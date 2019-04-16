@@ -112,7 +112,7 @@
               allCopyText += singgleCopyText
             }
           })
-          resTarget.innerText = allCopyText.slice(0, allCopyText.length - 2)
+          resTarget.innerText = allCopyText.replace(/\r/g, '')
           resTarget.select()
           document.execCommand('Copy')
           this.$store.commit('toastConfig', {
