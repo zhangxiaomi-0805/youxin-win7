@@ -1,6 +1,6 @@
 <template>
   <div class="g-window g-bg">
-    <div class="g-inherit">
+    <div class="g-inherit" style="position: relative">
         <system-caption :resizable="false"/>
         <div v-if="loading" class="m-cover"/>
         <!-- 账号登录 -->
@@ -115,8 +115,10 @@
           <div class="m-login-errmsg" style="height: 31px;"><span>{{errMsg}}</span></div>
           <login-button text="完成" :disabled="!(newPassword && confirmPassword)" :loading="loading" :callBack="setNewPwd"/>
         </div>
-    </div>
 
+      <!-- 版本更新 -->
+      <update-app-first/>
+    </div>
     <toast/>
   </div>
 </template>
@@ -134,10 +136,11 @@
   import platform from '../utils/platform'
   import clickoutside from '../utils/clickoutside.js'
   import NativeLogic from '../utils/nativeLogic.js'
+  import UpdateAppFirst from './float/UpdateAppFirst.vue'
   export default {
     name: 'login-page',
     directives: {clickoutside},
-    components: {SystemCaption, LoginButton, SendCode, Toast},
+    components: {SystemCaption, LoginButton, SendCode, Toast, UpdateAppFirst},
     data () {
       return {
         type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录，setPassword-未激活设置密码
@@ -169,6 +172,7 @@
       }
     },
     mounted () {
+      // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
         NativeLogic.native.setDraggableArea(0, 30, 30, 70)
@@ -189,6 +193,18 @@
       Request.GetSessionId({}, (value) => this.verifyCodeUrlCtrl(value))
     },
     methods: {
+      checkUpdate () {
+        // 检查更新
+        Request.AppVersions().then(res => {
+          let APPVERSIONS = localStorage.APPVERSIONS ? JSON.parse(localStorage.APPVERSIONS) : null
+          if (APPVERSIONS && APPVERSIONS.ignore && (APPVERSIONS.versionNum === res.versionNum)) {
+            return false
+          }
+          if (res && Number(res.forceUpdate) === 1) { // 强制升级时才弹出升级弹框
+            this.eventBus.$emit('updateAppFirst', res)
+          }
+        }).catch((err) => { console.log(err) })
+      },
       keyToNext (e, type) {
         if (e.keyCode === 13) {
           e.target.blur()

@@ -115,6 +115,12 @@
           resTarget.innerText = allCopyText.slice(0, allCopyText.length - 2)
           resTarget.select()
           document.execCommand('Copy')
+          this.$store.commit('toastConfig', {
+            show: true,
+            type: 'success',
+            toastText: '复制成功！'
+          })
+          this.reset()
         }
       }
     }

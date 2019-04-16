@@ -532,6 +532,7 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     padding: 0 16px 10px 0;
+    position: relative
   }
   .list-item .left{
       display: flex;
