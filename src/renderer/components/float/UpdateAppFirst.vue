@@ -24,7 +24,6 @@ export default {
   name: 'update-app-first',
   mounted () {
     this.eventBus.$on('updateAppFirst', (data) => {
-      console.log(data)
       this.showUpdateApp = true
       this.content = data || {}
       this.updateLocalVersion()

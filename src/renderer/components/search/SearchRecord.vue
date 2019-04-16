@@ -83,7 +83,6 @@
         let recordlist = []
         try {
           recordlist = await SearchData.getRecordsDetailData(obj, this.searchValue, this.sessionId)
-          console.log(recordlist)
         } catch (error) {}
         this.recordlist = this.recordlist.concat(recordlist)
         if (recordlist.length <= 0) this.noMoreData = true
