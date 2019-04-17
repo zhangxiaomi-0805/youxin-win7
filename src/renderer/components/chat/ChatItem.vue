@@ -335,6 +335,7 @@
               })
             })
           }
+          console.log(item.showText)
           // 标签解析
           item.showText = util.escape(item.showText)
           if (item.apns && item.flow === 'in') {
@@ -357,9 +358,8 @@
           }
           // 变量替换
           item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-            m = m.slice(1, m.length - 1)
-            let index = Number(m.slice(6, m.length))
-            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+            let index = Number(m.slice(7, m.length - 1))
+            if (m.slice(1, 7) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
               if (replaceArr[index - 1]) {
                 return replaceArr[index - 1]
               }
