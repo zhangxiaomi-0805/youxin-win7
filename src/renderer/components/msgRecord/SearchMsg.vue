@@ -169,11 +169,14 @@
             })
           }
           // 关键词高亮匹配
-          item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
-            variable++
-            replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-            return `{---===${variable}}`
-          })
+          item.showText = item.showText.replace(/\s/g, ' ').replace(/&nbsp;/g, ' ')
+          let reg = new RegExp(`${this.searchValue}`, 'g')
+          item.showText = item.showText.replace(reg, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+          // item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
+          //   variable++
+          //   replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+          //   return `{---===${variable}}`
+          // })
           // 表情匹配
           if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
             let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -187,8 +190,8 @@
           }
           // 变量替换
           item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-            m = m.slice(1, m.length - 1)
-            let index = Number(m.slice(6, m.length))
+            m = m.slice(1, m.length)
+            let index = Number(m.slice(6, m.length - 1))
             if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
               if (replaceArr[index - 1]) {
                 return replaceArr[index - 1]

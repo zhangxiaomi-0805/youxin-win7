@@ -5,7 +5,11 @@
       <span class="session-name">{{'“' + titleName + '”的记录'}}</span>
       <div class="close-btn" @click.stop="toggleToChat"><span class="close-text">关闭</span></div>
     </div>
-    <ul :class="isSearchCheckMore ? 'm-body-contain m-body-contain-1 u-list' : 'm-body-contain u-list'" v-if="recordlistMore.length > 0">
+    <ul id="recordMore-box" 
+      :class="isSearchCheckMore ? 'm-body-contain m-body-contain-1 u-list' : 'm-body-contain u-list'"
+      v-if="recordlistMore.length > 0"
+      @scroll="scroll($event)"
+    >
       <li
         :class="msg.idClient === idClient ? 'u-list-item s-list-item s-list-item-checked' : 'u-list-item s-list-item'"
         v-for="msg in recordlistMore"
@@ -24,7 +28,7 @@
                 <!-- 时间 -->
                 <div class="s-time">{{manageTime(msg.time)}}</div>
               </div>
-              <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;" :ref="`clipboard_${msg.idClient}`"></textarea>
+              <textarea style="width: 1px;height: 1px;position: absolute;overflow:hidden;left: -10px;visibility:hidden" :ref="`clipboard_${msg.idClient}`"></textarea>
               <div
                 v-if="msg.type==='text'"
                 @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
@@ -50,7 +54,7 @@
                 </span>
               </span>
               <div v-else-if="msg.type==='image'" class="msg-text cover" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
-                <img :src="msg.originLink" style="width: 230px; height: 230px"/>
+                <img :src="msg.originLink" style="width: 100%; height: 100%"/>
               </div>
               <div v-else-if="msg.type==='video'" class="msg-text" ref="mediaMsg">
                 <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
@@ -102,6 +106,15 @@
         this.isSearchCheckMore = data.isMore
       })
       this.renderRecordlistMore()
+      this.$nextTick(() => {
+        this.recordInterval = setInterval(() => {
+          if (document.getElementById('recordMore-box') && document.getElementById(`${this.idClient}`)) {
+            let curMsgTop = document.getElementById(`${this.idClient}`).offsetTop
+            document.getElementById('recordMore-box').scrollTop = curMsgTop
+            clearInterval(this.recordInterval)
+          }
+        }, 100)
+      })
     },
     computed: {
       titleName () {
@@ -135,6 +148,22 @@
       }
     },
     methods: {
+      // 页面滚动
+      async scroll (e) {
+        let { scrollTop, clientHeight, scrollHeight } = e.target
+        if (scrollTop === 0) {
+          // 滚动到顶部，继续加载第一条前面的消息
+          let firstMsgTime = this.recordlistMore[0].time
+          let beforeMsgList = await this.getBeforeMsgList(firstMsgTime)
+          this.recordlistMore.unshift(...beforeMsgList)
+        }
+        if (scrollHeight - (scrollTop + clientHeight) < 1) {
+          // 滚动到底部，继续加载最后一条后面的消息
+          let lastMsgTime = this.recordlistMore[this.recordlistMore.length - 1].time
+          let afterMsgList = await this.getAfterMsgList(lastMsgTime)
+          this.recordlistMore.push(...afterMsgList)
+        }
+      },
       toggleToChat () {
         // 点击‘关闭’按钮，切换到聊天会话窗口
         this.$router.push({name: 'chat', query: {sessionId: this.sessionId}})
@@ -143,6 +172,7 @@
       manageTime (time) {
         return util.DateFormat(time)
       },
+      // 数据处理
       manageItem (item) {
         if (item.type === 'text') {
           item.showText = item.showText
@@ -220,13 +250,27 @@
         }
         return item
       },
+      // 获取当前消息之后的消息
+      async getAfterMsgList (time) {
+        let afterMsgList = await SearchData.getRecordsDetailData({start: time || (this.time - 1000)}, null, this.sessionId, false)
+        console.log(afterMsgList)
+        return afterMsgList
+      },
+      // 获取当前消息之前的消息
+      async getBeforeMsgList (time) {
+        let beforMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time)}, null, this.sessionId, true)
+        return beforMsgList.reverse() // 反转
+      },
+      // 获取上下文列表
       async renderRecordlistMore () {
         if (!this.time) return false
-        let msgList = await SearchData.getRecordsDetailData({start: this.time - 1}, null, this.sessionId)
+        let afterMsgList = await this.getAfterMsgList()
+        let beforMsgList = await this.getBeforeMsgList()
+        let allMsgList = beforMsgList.concat(afterMsgList) // 拼接
         let newRecordList = []
-        for (let i in msgList) {
-          msgList[i] = this.manageItem(msgList[i])
-          newRecordList.unshift(msgList[i])
+        for (let i in allMsgList) {
+          allMsgList[i] = this.manageItem(allMsgList[i])
+          newRecordList.push(allMsgList[i])
         }
         this.recordlistMore = newRecordList
       },
@@ -396,6 +440,9 @@
 </script>
 
 <style scoped>
+  #recordMore-box .u-list-item:hover {
+    background-color: '#fff'
+  }
   .m-chat .m-body-contain {
     position: absolute;
     left: 0;
@@ -456,6 +503,7 @@
     width: 78%;
   }
   .left .msg-text{
+    height: auto;
     font-size:14px;
     color:#333;
     line-height: 20px;

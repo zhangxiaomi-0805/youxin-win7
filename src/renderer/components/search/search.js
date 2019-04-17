@@ -123,14 +123,17 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
           if (records.length > 0) {
             // 标签解析
             records[0].text = util.escape(records[0].text)
-            let variable = 0
+            // let variable = 0
             let replaceArr = []
             // 关键词高亮匹配
-            records[0].text = records[0].text.replace(new RegExp(value, 'gmi'), (m, i) => {
-              variable++
-              replaceArr.push(`<span style="color: rgba(79,141,255,1);">${value}</span>`)
-              return `{---===${variable}}`
-            })
+            records[0].text = records[0].text.replace(/\s/g, ' ').replace(/&nbsp;/g, ' ')
+            let reg = new RegExp(`${this.searchValue}`, 'g')
+            records[0].text = records[0].text.replace(reg, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+            // records[0].text = records[0].text.replace(new RegExp(value, 'gmi'), (m, i) => {
+            //   variable++
+            //   replaceArr.push(`<span style="color: rgba(79,141,255,1);">${value}</span>`)
+            //   return `{---===${variable}}`
+            // })
             // 处理表情
             if (/\[[\u4e00-\u9fa5]+\]/.test(records[0].text)) {
               let emojiItems = records[0].text.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -143,9 +146,9 @@ SearchData.getRecordsData = function (recordlimitNum, value, callback) {
             }
             // 变量替换
             records[0].text = records[0].text.replace(/\{(.+?)\}/g, (m, i) => {
-              m = m.slice(1, m.length - 1)
-              let index = Number(m.slice(6, m.length))
-              if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+              // m = m.slice(1, m.length - 1)
+              let index = Number(m.slice(7, m.length - 1))
+              if (m.slice(1, 7) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
                 if (replaceArr[index - 1]) {
                   return replaceArr[index - 1]
                 }
@@ -185,7 +188,8 @@ SearchData.getRecords = function (session, value) {
   })
 }
 
-SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
+SearchData.getRecordsDetailData = function (obj, searchValue, sessionId, desc) {
+  let newDesc = (desc === null || desc === undefined) ? true : desc
   /**
    * 聊天记录详情
    * 获取列表展示内容数据
@@ -194,7 +198,7 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
     let recordlist = []
     let newRecordList = []
     try {
-      recordlist = await SearchData.getRecordsDetail(obj, searchValue, true, 50, sessionId)
+      recordlist = await SearchData.getRecordsDetail(obj, searchValue, 20, sessionId, newDesc)
       for (let i in recordlist) {
         if (recordlist[i].type !== 'timeTag' && recordlist[i].type !== 'tip' && recordlist[i].type !== 'notification') {
           let userInfo = {}
@@ -223,11 +227,14 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
             })
           }
           // 关键词高亮匹配
-          recordlist[i].showText = recordlist[i].showText.replace(new RegExp(searchValue, 'gmi'), (m, i) => {
-            variable++
-            replaceArr.push(`<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
-            return `{---===${variable}}`
-          })
+          recordlist[i].showText = recordlist[i].showText.replace(/\s/g, ' ').replace(/&nbsp;/g, ' ')
+          let reg = new RegExp(`${searchValue}`, 'g')
+          recordlist[i].showText = recordlist[i].showText.replace(reg, `<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
+          // recordlist[i].showText = recordlist[i].showText.replace(new RegExp(searchValue, 'gmi'), (m, i) => {
+          //   variable++
+          //   replaceArr.push(`<span style="color: rgba(79,141,255,1);">${searchValue}</span>`)
+          //   return `{---===${variable}}`
+          // })
           // 处理表情
           if (/\[[\u4e00-\u9fa5]+\]/.test(recordlist[i].showText)) {
             let emojiItems = recordlist[i].showText.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -240,9 +247,8 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
           }
           // 变量替换
           recordlist[i].showText = recordlist[i].showText.replace(/\{(.+?)\}/g, (m, i) => {
-            m = m.slice(1, m.length - 1)
-            let index = Number(m.slice(6, m.length))
-            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+            let index = Number(m.slice(7, m.length - 1))
+            if (m.slice(1, 7) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
               if (replaceArr[index - 1]) {
                 return replaceArr[index - 1]
               }
@@ -258,7 +264,7 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId) {
   })
 }
 
-SearchData.getRecordsDetail = function (obj, keyword, desc, limit, sessionId) {
+SearchData.getRecordsDetail = function (obj, keyword, limit, sessionId, desc) {
   /**
    * 聊天记录详情
    * 获取匹配到的聊天记录

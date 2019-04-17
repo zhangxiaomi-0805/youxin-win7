@@ -24,24 +24,7 @@ MsgRecordFn.getSearchRecords = function (searchValue, checkType) {
     })
   })
 }
-MsgRecordFn.getSearchRecordsMore = function (time, sessionId, checkType) {
-  // 搜索后查看上下文
-  return new Promise((resolve, reject) => {
-    let nim = store.state.nim
-    nim.getLocalMsgs({
-      sessionId,
-      start: time,
-      desc: true,
-      limit: 30,
-      types: checkType,
-      done: (error, obj) => {
-        console.log(obj)
-        if (!error) resolve(obj.msgs)
-        else reject(error)
-      }
-    })
-  })
-}
+
 MsgRecordFn.forwordMsg = function (to, myPhoneId, userInfos, myInfo, myGroupIcon) {
   // 转发消息 ***** type=8---多条转发， type=7---单条转发， msg---要转发的消息
   let sessionlist = store.state.sessionlist.filter((item, index) => {

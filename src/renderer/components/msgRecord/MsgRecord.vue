@@ -450,9 +450,9 @@
           }
           // 变量替换
           item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-            m = m.slice(1, m.length - 1)
-            let index = Number(m.slice(6, m.length))
-            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
+            // m = m.slice(1, m.length - 1)
+            let index = Number(m.slice(7, m.length - 1))
+            if (m.slice(1, 7) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
               if (replaceArr[index - 1]) {
                 return replaceArr[index - 1]
               }

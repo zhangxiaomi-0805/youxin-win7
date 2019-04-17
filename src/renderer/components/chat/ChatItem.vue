@@ -335,7 +335,6 @@
               })
             })
           }
-          console.log(item.showText)
           // 标签解析
           item.showText = util.escape(item.showText)
           if (item.apns && item.flow === 'in') {
