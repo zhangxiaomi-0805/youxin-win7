@@ -42,9 +42,11 @@
               <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
                 <img :src="msg.imgUrl" style="width: 100%; height: 100%"/>
               </div>
-              <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
+              <!-- <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)"> -->
                 <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-                <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+                <!-- <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe> -->
+              <!-- </div> -->
+              <div v-else-if="msg.type==='custom-type7'" class="mediaMsg html-calss" v-html="msg.showText" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)">
               </div>
               <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)">
                 <span class="custom-type8-title">邀请你加入群聊</span>
@@ -154,8 +156,15 @@
         if (scrollTop === 0) {
           // 滚动到顶部，继续加载第一条前面的消息
           let firstMsgTime = this.recordlistMore[0].time
+          let firstMsgId = document.getElementById('recordMore-box').childNodes[0].getAttribute('id')
           let beforeMsgList = await this.getBeforeMsgList(firstMsgTime)
           this.recordlistMore.unshift(...beforeMsgList)
+          setTimeout(() => {
+            let prevFirstObj = document.getElementById(`${firstMsgId}`)
+            if (beforeMsgList.length > 2) {
+              document.getElementById('recordMore-box').scrollTop = prevFirstObj.offsetTop - 50
+            }
+          }, 0)
         }
         if (scrollHeight - (scrollTop + clientHeight) < 1) {
           // 滚动到底部，继续加载最后一条后面的消息
@@ -214,7 +223,6 @@
           // 自定义富文本消息
           let content = JSON.parse(item.content)
           item.showText = content.data.value
-          console.log(item)
         } else if (item.type === 'custom-type8') {
           // 自定义邀请入群消息
           let content = JSON.parse(item.content)
@@ -224,6 +232,7 @@
           item.showText = content.data.value
         } else if (item.type === 'image') {
           // 原始图片全屏显示
+          console.log(item)
           item.originLink = item.file.url
           if (item.file.w < 180) {
             item.w = item.file.w
@@ -253,12 +262,17 @@
       // 获取当前消息之后的消息
       async getAfterMsgList (time) {
         let afterMsgList = await SearchData.getRecordsDetailData({start: time || (this.time - 1000)}, null, this.sessionId, false)
-        console.log(afterMsgList)
+        for (let i = 0; i < afterMsgList.length; i++) {
+          afterMsgList[i] = this.manageItem(afterMsgList[i])
+        }
         return afterMsgList
       },
       // 获取当前消息之前的消息
       async getBeforeMsgList (time) {
         let beforMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time)}, null, this.sessionId, true)
+        for (let i = 0; i < beforMsgList.length; i++) {
+          beforMsgList[i] = this.manageItem(beforMsgList[i])
+        }
         return beforMsgList.reverse() // 反转
       },
       // 获取上下文列表
@@ -438,7 +452,17 @@
     }
   }
 </script>
-
+<style>
+  #recordMore-box .html-calss>a {
+    text-decoration: underline !important;
+    color: blue !important;
+    font-size: inherit
+  }
+  #recordMore-box .html-calss>img {
+    width: 100%;
+    /* height: 100% */
+  }
+</style>
 <style scoped>
   #recordMore-box .u-list-item:hover {
     background-color: '#fff'
