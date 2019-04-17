@@ -482,7 +482,6 @@ export default {
       if (obj.msgs[0]) {
         state.currSessionLastMsg = obj.msgs[0]
       }
-      state.msgs[state.currSessionId] = state.currSessionMsgs
       store.dispatch('checkTeamMsgReceipt', currSessionMsgs)
     } else if (type === 'replace') {
       let msgLen = state.currSessionMsgs.length
