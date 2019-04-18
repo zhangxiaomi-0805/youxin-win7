@@ -44,9 +44,9 @@
               </div>
               <!-- <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)"> -->
                 <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-                <!-- <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe> -->
-              <!-- </div> -->
-              <div v-else-if="msg.type==='custom-type7'" class="mediaMsg html-calss" v-html="msg.showText" @mouseup.stop="!isCheckMore && showListOptions($event, msg.type)">
+                <!-- <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+              </div> -->
+              <div v-else-if="msg.type==='custom-type7'" class="mediaMsg html-calss" v-html="msg.showText" @mouseup.stop="!isCheckMore && showListOptions($event, msg)">
               </div>
               <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)">
                 <span class="custom-type8-title">邀请你加入群聊</span>
@@ -454,6 +454,7 @@
 </script>
 <style>
   #recordMore-box .html-calss>a {
+    pointer-events:none;
     text-decoration: underline !important;
     color: blue !important;
     font-size: inherit

@@ -1,7 +1,13 @@
 <template>
   <!-- 消息列表、通讯录搜索 -->
   <div class="s-cont searchevent" :style="{top: '56px'}">
-    <div v-if="!isEmpty" class="s-empty searchevent">暂无搜索结果~</div>
+    <div v-if="!isEmpty && value" class="s-empty searchevent">暂无搜索结果~</div>
+    <div v-if="!isEmpty && !value" class="s-empty searchevent">
+      <p>温馨提示：</p>
+      <p>1、目前支持帐号、姓名、姓名拼音、手机号、邮箱查找；</p>
+      <p>2、为了能精准定位，通过姓名查找时请带上地市前缀，例如：搜索"张三"时输入"南京张三"</p>
+      <p>3、搜索结果排序规则：联系人、群/讨论组、聊天记录</p>
+    </div>
     <!-- 联系人 -->
     <div v-if="(type === 'all' || type === 'orgnize') && contactlist.length > 0">
       <div class="s-title searchevent">联系人</div>
@@ -309,16 +315,23 @@
 
   .s-empty {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     position: absolute;
     top: 0;
     bottom: 0;
     width: 100%;
-    padding-top: 60px;
+    padding: 20px 15px;
+    box-sizing: border-box;
     font-size: 14px;
     color: #C4C4C4;
-  }
 
+  }
+  .s-empty>p{
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 5px
+  }
   .s-title {
     display: flex;
     align-items: center;
