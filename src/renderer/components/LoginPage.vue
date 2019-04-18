@@ -529,7 +529,7 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    /* padding-top: 15px; */
+    padding-top: 15px;
   }
 
   .m-login-con .m-login-logo img {

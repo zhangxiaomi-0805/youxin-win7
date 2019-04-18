@@ -5,10 +5,10 @@
     <div class="m-selectcontact-cover"></div>
     <div class="m-clear-body twice-modal">
         <div class="u-sysbtn close">
-            <a class="btn-close" @click="closeModal"/>
+          <a class="btn-close" @click="closeModal"/>
         </div>
       <div class="content-box">
-        <img :src="logo">
+        <!-- <img :src="logo"> -->
         <div class="content-text">{{content}}</div>
       </div>
       <div class="footer">
@@ -51,6 +51,9 @@ export default {
         let { shell } = require('electron')
         shell.openExternal(url)
       }
+      setTimeout(() => {
+        this.closeModal()
+      }, 0)
     }
   }
 }
@@ -59,9 +62,9 @@ export default {
 <style scoped>
   .twice-modal {
     width: 264px;
-    height: 358px;
+    height: 158px;
     position: absolute;
-    top: 30px;
+    top: 130px;
     left: 28px;
     -webkit-box-shadow: 0 0 4px 4px rgba(0,0,0,0.05);
     -moz-box-shadow: 0 0 4px 4px rgba(0,0,0,0.05);
@@ -76,7 +79,7 @@ export default {
     justify-content: center;
     align-items: center;
     width: 100%;
-    margin: 110px 0 66px 0;
+    margin: 30px 0;
   }
   .twice-modal .content-box>img {
     width: 60px;
@@ -95,9 +98,9 @@ export default {
   }
 
   .twice-modal .footer .btn {
-    width: 90px;
-    height: 45px;
-    line-height: 45px;
+    width: 85px;
+    height: 35px;
+    line-height: 35px;
     text-align: center;
     color: #fff;
     font-size: 16px;
