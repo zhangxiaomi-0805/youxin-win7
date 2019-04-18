@@ -168,15 +168,12 @@
               })
             })
           }
-          // 关键词高亮匹配
-          item.showText = item.showText.replace(/\s/g, ' ').replace(/&nbsp;/g, ' ')
-          let reg = new RegExp(`${this.searchValue}`, 'g')
-          item.showText = item.showText.replace(reg, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-          // item.showText = item.showText.replace(new RegExp(this.searchValue, 'gmi'), (m, i) => {
-          //   variable++
-          //   replaceArr.push(`<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
-          //   return `{---===${variable}}`
-          // })
+          if (replaceArr.length === 0) {
+            // 关键词高亮匹配
+            item.showText = item.showText.replace(/\s/g, ' ').replace(/&nbsp;/g, ' ')
+            let reg = new RegExp(`${this.searchValue}`, 'g')
+            item.showText = item.showText.replace(reg, `<span style="color: rgba(79,141,255,1);">${this.searchValue}</span>`)
+          }
           // 表情匹配
           if (/\[[\u4e00-\u9fa5]+\]/.test(item.showText)) {
             let emojiItems = item.showText.match(/\[[\u4e00-\u9fa5]+\]/g)
@@ -189,17 +186,11 @@
             })
           }
           // 变量替换
-          item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-            m = m.slice(1, m.length)
-            let index = Number(m.slice(6, m.length - 1))
-            if (m.slice(0, 6) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
-              if (replaceArr[index - 1]) {
-                return replaceArr[index - 1]
-              }
-              return m
+          if (replaceArr.length > 0) {
+            for (let i = 0; i < replaceArr.length; i++) {
+              item.showText = item.showText.replace(`{---===${i + 1}}`, replaceArr[i])
             }
-            return m
-          })
+          }
         } else if (item.type === 'custom') {
           let content = JSON.parse(item.content)
           // type 1 为猜拳消息
@@ -395,23 +386,6 @@
         this.$router.push({name: 'search-record-more', query: {idClient: msg.idClient, time: msg.time, titleName: sessionName, searchValue: this.searchValue, sessionId: this.sessionId}})
         this.closeCover()
       }
-      // async locationToMsg (msg, isFirst) {
-      //   // 跳转到相应消息页面
-      //   let msgs = []
-      //   try {
-      //     msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
-      //   } catch (error) {}
-      //   isFirst && msgs.unshift(msg)
-      //   this.msgsTemp = this.msgsTemp.concat(msgs)
-      //   if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
-      //   else {
-      //     this.closeCover()
-      //     let idClient = msg.idClient
-      //     this.$store.commit('updateMsgHighBgIdClient', idClient)
-      //     this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
-      //     this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true, isReset: true}})
-      //   }
-      // }
     }
   }
 </script>

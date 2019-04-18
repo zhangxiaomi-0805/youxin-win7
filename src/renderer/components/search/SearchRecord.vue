@@ -102,22 +102,6 @@
       locationToMsg (msg) {
         this.$router.push({name: 'search-record-more', query: {idClient: msg.idClient, time: msg.time, titleName: this.titleName, searchValue: this.searchValue, sessionId: this.sessionId}})
       }
-      // async locationToMsg (msg, isFirst) {
-      //   // 跳转到相应消息页面
-      //   let msgs = []
-      //   try {
-      //     msgs = await SearchData.getRecordsDetail({start: msg.time}, null, false, 100, this.sessionId)
-      //   } catch (error) {}
-      //   isFirst && msgs.unshift(msg)
-      //   this.msgsTemp = this.msgsTemp.concat(msgs)
-      //   if (msgs.length >= 100) this.locationToMsg(this.msgsTemp[this.msgsTemp.length - 1])
-      //   else {
-      //     let idClient = msg.idClient
-      //     this.$store.commit('updateMsgHighBgIdClient', idClient)
-      //     this.$store.commit('updateCurrSessionMsgs', {msgs: this.msgsTemp, sessionId: this.sessionId, type: 'reset'})
-      //     this.$router.push({name: 'chat', query: {sessionId: this.sessionId, noInit: true}})
-      //   }
-      // }
     }
   }
 </script>

@@ -184,7 +184,7 @@
       // 数据处理
       manageItem (item) {
         if (item.type === 'text') {
-          item.showText = item.showText
+          item.showText = item.showText.replace(/\s/g, ' ').replace(/&nbsp;/g, ' ')
         } else if (item.type === 'custom') {
           let content = JSON.parse(item.content)
           // type 1 为猜拳消息

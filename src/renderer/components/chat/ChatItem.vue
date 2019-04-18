@@ -358,16 +358,11 @@
             })
           }
           // 变量替换
-          item.showText = item.showText.replace(/\{(.+?)\}/g, (m, i) => {
-            let index = Number(m.slice(7, m.length - 1))
-            if (m.slice(1, 7) === '---===' && /^[0-9]+.?[0-9]*$/.test(index)) {
-              if (replaceArr[index - 1]) {
-                return replaceArr[index - 1]
-              }
-              return m
+          if (replaceArr.length > 0) {
+            for (let i = 0; i < replaceArr.length; i++) {
+              item.showText = item.showText.replace(`{---===${i + 1}}`, replaceArr[i])
             }
-            return m
-          })
+          }
         } else if (item.type === 'custom') {
           let content = JSON.parse(item.content)
           // type 1 为猜拳消息
