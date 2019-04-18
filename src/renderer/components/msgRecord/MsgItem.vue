@@ -276,6 +276,7 @@ export default {
       NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
     },
     webOpenInWin (url, item) {
+      console.log(item)
       // web端打开内部窗口
       let itemInfo = {
         url,
@@ -312,7 +313,7 @@ export default {
     electronOpenInWin (url, item) {
       // electron端打开内部窗口
       let { ipcRenderer } = require('electron')
-      ipcRenderer.send('openAplWindow', {url, title: item.appName, appCode: item.appCode})
+      ipcRenderer.send('openAplWindow', {url, title: item.name, icon: item.avatar, appCode: item.id})
     },
     className (msg) {
       // 选择框样式
@@ -370,7 +371,7 @@ export default {
       }
       if (msg.type === 'custom-type7') {
         const obj = this.getOffSet(this.iframe)
-        offset.x = obj.left + e.clientX
+        offset.x = 150 + e.clientX
         offset.y = obj.top + e.clientY
       }
       if (msg.type === 'text' && e.button === 2) {
@@ -391,7 +392,7 @@ export default {
           show: true,
           id: msg,
           pos: {
-            x: e.clientX + 150,
+            x: offset.x,
             y: offset.y
           },
           that: this,
