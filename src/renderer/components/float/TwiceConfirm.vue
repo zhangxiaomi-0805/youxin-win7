@@ -29,7 +29,7 @@ export default {
     return {
       showTwiceConfirm: false,
       logo: './static/img/excl-mark.png',
-      content: `请确保在办公网络中进行此操作`
+      content: `请确保在办公内网中进行此操作`
     }
   },
   mounted () {
