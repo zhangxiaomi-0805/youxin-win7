@@ -3,7 +3,7 @@
 <transition name="fade">
   <div class="m-selectcontact-contain" v-if="showTwiceConfirm">
     <div class="m-selectcontact-cover"></div>
-    <div class="m-clear-body twice-modal">
+    <div class="twice-modal">
         <div class="u-sysbtn close">
           <a class="btn-close" @click="closeModal"/>
         </div>
@@ -60,19 +60,37 @@ export default {
 </script>
 
 <style scoped>
+  .m-selectcontact-contain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1002;
+  }
+
+  .m-selectcontact-contain .m-selectcontact-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+  }
   .twice-modal {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 90;
     width: 264px;
     height: 158px;
-    position: absolute;
-    top: 130px;
-    left: 28px;
-    -webkit-box-shadow: 0 0 4px 4px rgba(0,0,0,0.05);
-    -moz-box-shadow: 0 0 4px 4px rgba(0,0,0,0.05);
-    box-shadow: 0 0 4px 4px rgba(0,0,0,0.05);
-    border-radius: 2px;
-    z-index: 1000;
-    background-color: #fff
-  }
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border: 0.5px solid #ccc;
+    box-shadow: 0 10px 20px 0 rgba(0,0,0,0.24);
+    border-radius: 4px;
+    box-sizing: border-box;
+    z-index: 1100;  }
   .twice-modal .content-box {
     display: flex;
     flex-direction: column;
