@@ -71,7 +71,7 @@
           </div>
 
           <!-- 内容列表 -->
-          <ul v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <ul id="msg-record-box" v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"

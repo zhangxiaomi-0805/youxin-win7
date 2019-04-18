@@ -31,7 +31,7 @@
           </div>
           <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
             <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
-            <iframe ref="iframe" @load="sendMsgToIframe(msg.showText, msg.idClient)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
+            <iframe ref="iframe" @load="sendMsgToIframe(msg)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
           </div>
           <span v-else-if="msg.type==='custom-type8'" class="msg-text custom-type8-box" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)">
             <span class="custom-type8-title">邀请你加入群聊</span>
@@ -47,7 +47,7 @@
             <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
           </div>
           <div v-else-if="msg.type==='audio'"  :class="isPlay ? 'zel-play' : ''" @click="isCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
-          <div v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg.type)" @click="openItemFile(msg)" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
+          <div v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg)" @click="openItemFile(msg)" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
             <span class="file-icon" :style="{backgroundImage: `url(${fileIcon(msg)})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
             <span class="file-content">
               <span class="file-title">
@@ -172,14 +172,13 @@ export default {
         element.attachEvent('on' + eventName, eventHandler)
       }
     },
-    sendMsgToIframe (showText, idClient) {
-      console.log(this.iframe)
+    sendMsgToIframe (msg) {
       this.iframe.contentWindow && this.iframe.contentWindow.postMessage({
-        params: {showText, idClient}
+        params: {showText: msg.showText, idClient: msg.idClient}
       }, '*')
       setTimeout(() => {
         this.iframe.contentWindow.document.body.onmouseup = (e) => {
-          this.showListOptions(e, 'custom-type7', 'iframe')
+          this.showListOptions(e, msg)
         }
         var a = [...(this.iframe.contentWindow.document.getElementsByTagName('a'))]
         for (let i = 0; i < a.length; i++) {
@@ -342,7 +341,38 @@ export default {
         }
       }
     },
+    getOffSet (curEle) {
+      var totalLeft = null
+      var totalTop = null
+      var par = curEle.offsetParent
+      // 首先把自己本身的相加
+      totalLeft += curEle.offsetLeft
+      totalTop += curEle.offsetTop
+      // 现在开始一级一级往上查找，只要没有遇到body，我们就把父级参照物的边框和偏移相加
+      while (par) {
+        // if (navigator.userAgent.indexOf("MSIE 8.0") === -1){
+        //   // 不是IE8我们才进行累加父级参照物的边框
+        //   totalTop += par.clientTop;
+        //   totalLeft += par.clientLeft;
+        // }
+        // 把父级参照物的偏移相加
+        totalTop += par.offsetTop
+        totalLeft += par.offsetLeft
+        par = par.offsetParent
+      }
+      const list = document.querySelector('#msg-record-box')
+      return {left: totalLeft, top: totalTop - list.scrollTop}
+    },
     showListOptions (e, msg) {
+      let offset = {
+        x: e.clientX,
+        y: e.clientY
+      }
+      if (msg.type === 'custom-type7') {
+        const obj = this.getOffSet(this.iframe)
+        offset.x = obj.left + e.clientX
+        offset.y = obj.top + e.clientY
+      }
       if (msg.type === 'text' && e.button === 2) {
         let target = this.$refs[`copy_${this.idClient}`]
         MsgRecordFn.copyAll(target)
@@ -361,8 +391,8 @@ export default {
           show: true,
           id: msg,
           pos: {
-            x: e.clientX,
-            y: e.clientY
+            x: e.clientX + 150,
+            y: offset.y
           },
           that: this,
           msg,
