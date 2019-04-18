@@ -64,8 +64,8 @@
           </div>
 
           <div class="m-login-ctl">
-            <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
-            <span></span>
+            <!-- <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
+            <span></span> -->
             <!-- <a
               @click="autoLogin = !autoLogin, isRember = true"
               @mouseover="showPrompt = true"
@@ -73,12 +73,16 @@
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
             </a> -->
+            <!-- 忘记密码 -->
+            <a @click="resetPwdIndex">
+              <span class="unknownPwd">忘记密码</span>
+            </a>
             <a @click="isRember = !isRember,autoLogin = autoLogin ? false : false">
               <span :class="isRember ||  autoLogin ? 'common checked' : 'common check'"></span><span>记住密码</span>
             </a>
           </div>
 
-          <login-button style="margin-top: 5px" :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password || !verifyCodeImg"  :callBack="login"/>
+          <login-button style="margin-top: 35px" :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password || !verifyCodeImg"  :callBack="login"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
 
         </div>
@@ -118,6 +122,9 @@
 
       <!-- 版本更新 -->
       <update-app-first/>
+
+      <!-- 忘记密码二次确认框 -->
+      <twice-confirm/>
     </div>
     <toast/>
   </div>
@@ -137,10 +144,11 @@
   import clickoutside from '../utils/clickoutside.js'
   import NativeLogic from '../utils/nativeLogic.js'
   import UpdateAppFirst from './float/UpdateAppFirst.vue'
+  import TwiceConfirm from './float/TwiceConfirm.vue'
   export default {
     name: 'login-page',
     directives: {clickoutside},
-    components: {SystemCaption, LoginButton, SendCode, Toast, UpdateAppFirst},
+    components: {SystemCaption, LoginButton, SendCode, Toast, UpdateAppFirst, TwiceConfirm},
     data () {
       return {
         type: 'accountNumber', // 登录首页渲染类型：accountNumber-账号登录，setPassword-未激活设置密码
@@ -193,6 +201,9 @@
       Request.GetSessionId({}, (value) => this.verifyCodeUrlCtrl(value))
     },
     methods: {
+      resetPwdIndex () {
+        this.eventBus.$emit('twiceConfirm') // 显示忘记密码二次确认框
+      },
       checkUpdate () {
         // 检查更新
         Request.AppVersions().then(res => {
@@ -488,6 +499,10 @@
 </script>
 
 <style scoped>
+  .unknownPwd {
+    color: #049AFF;
+    font-size: 12px
+  }
   .g-window .m-cover {
     position: absolute;
     top: 25px;
@@ -514,12 +529,12 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    padding-top: 15px;
+    /* padding-top: 15px; */
   }
 
   .m-login-con .m-login-logo img {
-    width: 130px;
-    height: 130px;
+    width: 110px;
+    height: 110px;
   }
 
   .m-login-con .m-login-type {
