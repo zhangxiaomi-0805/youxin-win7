@@ -145,6 +145,7 @@ export function onForwordMsg ({state, commit}, OBJ) {
 
 // 接收到离线消息、漫游消息、新消息时处理（@记录）
 function receiveMsg (msgs) {
+  store.commit('connectStatus', { networkStatus: 200 })
   if (!Array.isArray(msgs)) {
     msgs = [msgs]
   }
@@ -233,17 +234,19 @@ function onSendMsgDone (error, msg) {
     if (error.code === 7101) {
       msg.status = 'success'
     } else if (error.code === 'Error_Internet_Disconnected' || error.code === 'Error_Connection_Socket_State_not_Match') {
-      msg.status = 'fail'
-      store.commit('toastConfig', {
-        show: true,
-        type: 'fail',
-        toastText: '网络连接状态异常，请检查网络连接'
-      })
-      store.commit('connectStatus', { networkStatus: 500 })
-      return
+      if (store.state.networkStatus !== 500) {
+        store.commit('toastConfig', {
+          show: true,
+          type: 'fail',
+          toastText: '网络连接状态异常，请检查网络连接'
+        })
+        store.commit('connectStatus', { networkStatus: 500 })
+      }
     } else {
       console.log(error.message)
     }
+  } else if (msg && msg.status === 'success') {
+    store.commit('connectStatus', { networkStatus: 200 })
   }
   onMsg(msg)
 }
