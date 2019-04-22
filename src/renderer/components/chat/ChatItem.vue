@@ -53,6 +53,7 @@
           @click="!isCheckMore && openAplWindow($event)"
           @keydown.stop="shearBoard($event)"
           tabindex="1"
+          @dblclick.stop="isXp && copyAll()"
         >
         </span>
         <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
@@ -183,8 +184,8 @@
         showVioceToText: false,
         vioceToText: '',
         myGroupIcon: config.defaultGroupIcon,
-        downloadUrl: ''
-        // isCheckMore: this.isChatCheckMore
+        downloadUrl: '',
+        isXp: config.environment === 'web'
       }
     },
     computed: {
