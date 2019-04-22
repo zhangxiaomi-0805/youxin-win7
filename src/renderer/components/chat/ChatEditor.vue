@@ -22,7 +22,7 @@
           <div
             @selectstart="preventDefault($event)"
             contenteditable="true"
-            @keydown="inputMsg($event)"
+            @keydown="inputMsg($event, scene, to)"
             @input="changeMsg($event)"
             ref="editDiv"
             class="edit-div"
@@ -117,7 +117,7 @@
       </div>
 
       <div  class="u-positive-btn btn-send-box">
-        <a @click.stop="sendBlendMsg" class="btn-send">发送(S)</a>
+        <a @click.stop="sendBlendMsg(scene, to)" class="btn-send">发送(S)</a>
         <div class="btn-send-quickSet noevent" @click.stop="showQuickSet = true">
           <a class="quick-send noevent"></a>
         </div>
@@ -632,7 +632,7 @@
         })
         return text
       },
-      inputMsg (e) {
+      inputMsg (e, scene, to) {
         if (this.showAtList && this.members.length !== 0) {
           switch (e.keyCode) {
             case 13: // 回车选中at列表
@@ -661,15 +661,15 @@
         } else if (e.altKey && e.keyCode === 83) {
           // 默认Alt + s 快捷键发送消息
           e.preventDefault()
-          this.sendBlendMsg()
+          this.sendBlendMsg(scene, to)
         } else if (this.quickIndex === 0 && !e.ctrlKey && e.keyCode === 13) {
           // 回车发送消息
           e.preventDefault()
-          this.sendBlendMsg()
+          this.sendBlendMsg(scene, to)
         } else if (this.quickIndex === 1 && e.ctrlKey && e.keyCode === 13) {
           // ctrl+回车发送消息
           e.preventDefault()
-          this.sendBlendMsg()
+          this.sendBlendMsg(scene, to)
         } else if (this.quickIndex === 0 && e.ctrlKey && e.keyCode === 13) {
           // ctrl + enter换行
           const newlineType = this.manageNewLine()
@@ -844,8 +844,11 @@
         return pos
       },
       // 图文混合消息发送拆分
-      async sendBlendMsg () {
-        if (this.scene === 'team' && !this.teamInfo.valid) return
+      /***
+       * scene 和 to传下来，不直接取this.scene || this.to,解决发送多张图片时快速切换会话，发送错乱问题
+       */
+      async sendBlendMsg (scene, to) {
+        if (scene === 'team' && !this.teamInfo.valid) return
         let msgToSent = this.getEditText(this.$refs.editDiv)
         let imgExcess = false
         let imgCount = msgToSent.filter((item) => {
@@ -884,7 +887,7 @@
                 await this.sendTextMsg(text, dataAt)
               }
             } else if (item.type && item.type.match('^image/')) {
-              await this.sendFileMsg(item)
+              await this.sendFileMsg(item, scene, to)
             }
           } catch (err) {}
         }
@@ -1175,7 +1178,7 @@
         }
       },
       // 发送文件
-      sendFileMsg (imageFile) {
+      sendFileMsg (imageFile, scene, to) {
         if (this.invalid) {
           this.$toast(this.invalidHint)
           return
@@ -1183,8 +1186,8 @@
         return new Promise((resolve, reject) => {
           if (this.type === 'session') {
             this.$store.dispatch('sendImgMsg', {
-              scene: this.scene,
-              to: this.to,
+              scene,
+              to,
               imageFile
             }).then(() => {
               resolve()

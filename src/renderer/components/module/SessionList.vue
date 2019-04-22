@@ -15,7 +15,7 @@
       class="u-list-item"
       @click="toggleSelect(session.id)"
       @mouseup.stop="onShowMenu($event, session)"
-      :style="hasBorder && session.id === acSessionId ? {border: '1px solid rgba(4,154,255,1)'}: {border: '1px solid transparent'}"
+      :style="hasBorder && session.id === acSessionId ? {border: '1px solid rgba(4,154,255,1)'}: (session.id === activeId ? {borderRight:'2px solid rgba(4,154,255,1)'} : {border: '1px solid transparent'})"
       :class="session.id === activeId ? 'u-list-item-active' : ''"
       v-for="session in sessionlist"
       :key="session.id" :id="session.id"

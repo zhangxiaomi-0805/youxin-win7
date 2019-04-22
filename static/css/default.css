@@ -362,14 +362,14 @@ body,
   min-height: 2rem;
   vertical-align: middle;
   overflow: hidden;
-  transition: all .2s;
+  /* transition: all .2s; */
 }
 .g-window .u-list-item:hover {
     background: rgba(242,242,242,1);
 }
 .g-window .u-list-item-active {
     background: #E0E0E0;
-    transition: all .2s;
+    /* transition: all .2s; */
 }
 .g-window .u-list-item .u-list-item-container {
   height: 68px; 

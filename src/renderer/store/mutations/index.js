@@ -279,8 +279,13 @@ export default {
         for (let i = lastMsgIndex; i >= 0; i--) {
           let currMsg = tempMsgs[i]
           if (msg.idClient === currMsg.idClient || (msg.idClientFake && currMsg.idClientFake && msg.idClientFake === currMsg.idClientFake)) {
-            needReplace = true
-            state.msgs[sessionId].splice(i, 1, msg)
+            if (currMsg.status === 'fail') {
+              // 消息重发时，只删除原来消息
+              state.msgs[sessionId].splice(i, 1)
+            } else {
+              needReplace = true
+              state.msgs[sessionId].splice(i, 1, msg)
+            }
             break
           }
         }
@@ -506,6 +511,7 @@ export default {
           }
         }
       }
+      store.commit('putMsg', obj.msg)
       // 追加新消息
       store.commit('updateCurrSessionMsgs', {
         type: 'put',
