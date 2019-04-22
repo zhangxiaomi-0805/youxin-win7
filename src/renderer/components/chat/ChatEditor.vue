@@ -890,6 +890,24 @@
         }
         this.isMsg = false
         this.eventBus.$emit('toggleSession')
+        // 发送成功后，如果有草稿，清空草稿
+        this.clearDraft()
+      },
+      // 清空草稿
+      clearDraft () {
+        let sessionId = this.scene + '-' + this.to
+        let session = this.$store.state.sessionlist.find(item => {
+          return item.id === sessionId
+        })
+        if (session && session.localCustom && session.localCustom.draftInner) {
+          session.localCustom.draftInner = ''
+          session.localCustom.draftMsg = ''
+          // 更新本地信息
+          this.$store.state.nim.updateLocalSession({
+            id: session.id,
+            localCustom: session.localCustom
+          })
+        }
       },
       // 获取编辑器信息
       getEditText (dom, msgToSent = []) {

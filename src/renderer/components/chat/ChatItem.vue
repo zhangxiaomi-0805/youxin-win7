@@ -95,7 +95,7 @@
               </span>
               <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click.stop="handleDownloadFile">
               </span>
-              <span class="circle-bar" v-else-if="curProgress < 100">
+              <span class="circle-bar" v-else-if="curProgress <= 100">
                 <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
                 <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
                 <!-- 遮罩层，显示百分比 -->
