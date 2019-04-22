@@ -1177,6 +1177,9 @@
                   break
                 // 图片或文件另存为
                 case 6:
+                  if (this.msg.file.name && !this.msg.file.name.split('.')[1]) { // 图片名称没有后缀时拼上后缀
+                    this.msg.file.name = this.msg.file.name + '.' + this.msg.file.ext
+                  }
                   if (this.msg.type === 'file') {
                     this.saveFile()
                   } else {
@@ -1460,15 +1463,22 @@
         if (this.$store.state.networkStatus !== 200) {
           return
         }
-        if (msg.type !== 'file') {
-          this.$store.dispatch('resendMsg', msg)
-        } else {
+        if (msg.type === 'file') {
           const list = this.$store.state.uploadprogressList
           const curProgress = list.find(item => {
             return item.id === this.msg.idClientFake
           })
           this.$store.commit('deleteMsg', msg)
           this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: curProgress.file, isResend: msg.idClientFake})
+        } else if (msg.type === 'image') {
+          const list = this.$store.state.uploadprogressList
+          const curProgress = list.find(item => {
+            return item.id === this.msg.idClientFake
+          })
+          this.$store.commit('deleteMsg', msg)
+          this.$store.dispatch('sendImgMsg', {scene: this.scene, to: this.to, imageFile: curProgress.file})
+        } else {
+          this.$store.dispatch('resendMsg', msg)
         }
       },
       openAplWindow (evt, openType) {

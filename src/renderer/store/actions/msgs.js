@@ -552,6 +552,7 @@ export function sendImgMsg ({ state, commit }, obj) {
         if (error) {
           msgFake.status = 'fail'
           onSendMsgDone(error, msgFake)
+          store.commit('updateUploadprogressList', { id: msgFake.idClientFake, percentage: 0, type: 0, abort: () => {}, file: imageFile })
           reject(error)
           return
         }
