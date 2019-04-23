@@ -135,6 +135,12 @@
 
         // 监听子窗口通信方法
         window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
+          // 营业精灵唤起截屏
+          console.log(params.eventName)
+          if (params.eventName === 'callScreenShot') {
+            this.eventBus.$emit('screenShot', {type: 'isCallScreenShot'})
+          }
+          // 发起会话
           if (params.eventName === 'createSession') {
             let arg = params.data
             Request.GetAccid({userName: arg.account}, this).then(ret => {
@@ -189,7 +195,7 @@
         })
         // 监听截屏快捷键方法
         window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveHotkeyEvent', (params) => {
-          this.eventBus.$emit('screenShot')
+          this.eventBus.$emit('screenShot', {type: 'isHotKeyScreenShot'})
         })
       } else { // electron分支
         let { ipcRenderer } = require('electron')

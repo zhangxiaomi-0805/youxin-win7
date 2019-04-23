@@ -202,17 +202,20 @@
         }
       })
       if (config.environment === 'web') { // web分支
-        this.eventBus.$on('screenShot', () => {
-          this.screenShot()
+        this.eventBus.$on('screenShot', (data) => {
+          this.screenShot(data.type)
         })
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('screenShotCb', (evt, arg) => {
+          console.log('1231213========')
           if (arg.isChange === 2) {
             this.onPaste()
           }
         })
         ipcRenderer.on('shortcutScreen', (evt, arg) => {
+          console.log('哈哈哈=====')
+          console.log(arg)
           this.screenShot()
         })
       }
@@ -389,44 +392,37 @@
           }, 0)
         }
       },
-      screenShot () {
+      // xp截屏处理
+      xpScreen (type) {
+        NativeLogic.native.screenShot().then((result) => {
+          if (type !== 'isCallScreenShot') {
+            if (result && result.base64) {
+              let file = this.dataURLtoFile(result.base64, 'image.png')
+              file.base64Str = result.base64
+              let image = new Image()
+              image.onload = () => {
+                file.w = image.width
+                file.h = image.height
+              }
+              image.src = result.base64
+              this.sendImgMsg(file)
+            }
+            NativeLogic.native.setWinStatus('main', 7)
+          }
+        }).catch(() => {
+          if (type !== 'isCallScreenShot') {
+            NativeLogic.native.setWinStatus('main', 7)
+          }
+        })
+      },
+      screenShot (type) {
         if (config.environment === 'web') { // web分支
           if (localStorage.SHOWHIDEWINCHECK) {
             NativeLogic.native.setWinStatus('main', 6).then(() => { // 设置窗口状态： 类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
-              NativeLogic.native.screenShot().then((result) => {
-                if (result && result.base64) {
-                  let file = this.dataURLtoFile(result.base64, 'image.png')
-                  file.base64Str = result.base64
-                  let image = new Image()
-                  image.onload = () => {
-                    file.w = image.width
-                    file.h = image.height
-                  }
-                  image.src = result.base64
-                  this.sendImgMsg(file)
-                }
-                NativeLogic.native.setWinStatus('main', 7)
-              }).catch(() => {
-                NativeLogic.native.setWinStatus('main', 7)
-              })
+              this.xpScreen(type)
             }) // 截屏前隐藏该窗口
           } else {
-            NativeLogic.native.screenShot().then((result) => {
-              if (result && result.base64) {
-                let file = this.dataURLtoFile(result.base64, 'image.png')
-                file.base64Str = result.base64
-                let image = new Image()
-                image.onload = () => {
-                  file.w = image.width
-                  file.h = image.height
-                }
-                image.src = result.base64
-                this.sendImgMsg(file)
-              }
-              NativeLogic.native.setWinStatus('main', 7)
-            }).catch(() => {
-              NativeLogic.native.setWinStatus('main', 7)
-            })
+            this.xpScreen(type)
           }
         } else { // electron分支
           let { ipcRenderer } = require('electron')

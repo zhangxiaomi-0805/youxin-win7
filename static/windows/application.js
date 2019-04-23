@@ -41,6 +41,9 @@ TabManage.prototype.init = function () {
             if (account) {
               ipcRenderer.send('sendAccount',{account})
             }
+          } else if (e.url.indexOf('yximscreencapture.telecomjs.com') > -1) { // 唤起截屏处理
+            console.log('唤起截屏处理====')
+            ipcRenderer.send('callScreenShot')
           } else {
             webview.loadURL(e.url)
             this.canGoBack()

@@ -9,11 +9,13 @@ var TabManage = function () {
 }
 
 TabManage.prototype.init = function () {
+  console.log('页面初始化===========')
   this.PreDef()
   // 监听主窗口通信方法
   window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
     if (params.eventName === 'asyncMessage') {
       let arg = JSON.parse(params.data)
+      console.log(arg)
       this.currentTab = arg.appCode
       let hasExit = false
       for (let i = 0; i < this.data.length; i++) {
@@ -30,15 +32,6 @@ TabManage.prototype.init = function () {
       if (!hasExit) {
         this.data.push(arg)
         this.createDom(arg)
-      }
-    } else if (params.eventName === 'toggleSession') {
-      let arg = JSON.parse(params.data)
-      for (let i in this.data) {
-        if (this.data[i].appCode === arg.appCode) {
-          this.currentTab = arg.appCode
-          this.resetClass()
-          break
-        }
       }
     }
   })
@@ -115,6 +108,8 @@ TabManage.prototype.createDom = function (arg) {
   a.innerHTML = `<img class="appli-icon" src="${icon}"></span><span>${arg.title}</span>`
   a.setAttribute('value', arg.appCode)
   a.onclick = () => {
+    console.log(this.currentTab)
+    console.log(arg.appCode)
     if (this.currentTab === arg.appCode) return
     // 切换标签页
     this.currentTab = arg.appCode
@@ -191,6 +186,8 @@ TabManage.prototype.removeChild = function (appCode) {
   this.tabsContain.removeChild(this.getActiveDom(1, appCode))
   this.iframeContain.removeChild(this.getActiveDom(2, appCode))
 }
+
+
 
 // 获取当前活跃状态dom
 TabManage.prototype.getActiveDom = function (type, appCode) {
@@ -270,9 +267,6 @@ TabManage.prototype.setWindowIcon = () => {
   }, () => {})
 } 
 
-
-
-
 let tabManage = new TabManage()
 tabManage.init()
 
@@ -294,6 +288,8 @@ window.onload = () => {
   
   /* 接收拦截到打开新链接的事件 */
   window.NimCefWebInstance && window.NimCefWebInstance.register('OnOpenNewLink', (params) => {
+    console.log('123=========')
+    console.log(params)
     // 窗口内链接跳转
     const iframe = tabManage.getActiveDom(2) // 找到当前活跃的iframe
     if (params.url.indexOf('yximcreatesession.telecomjs.com') > -1) { // 发起会话处理
@@ -302,6 +298,9 @@ window.onload = () => {
         // 跟主页面通信
         tabManage.sendEvent('main', JSON.stringify({account}), 'createSession')
       }
+    } else if (params.url.indexOf('yximscreencapture.telecomjs.com') > -1) { // 唤起截屏处理
+      // 跟主页面通信
+      tabManage.sendEvent('main', null, 'callScreenShot')
     } else { // 渲染新url
       iframe.src = params.url
     }

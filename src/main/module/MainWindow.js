@@ -211,6 +211,11 @@ MainWindow.prototype.getAccid = function (arg) {
   this.mainWindow.webContents.send('getAccid', arg)
 }
 
+// 营业精灵唤起截屏
+MainWindow.prototype.callScreenShot = function (arg) {
+  this.mainWindow && this.mainWindow.webContents.send('shortcutScreen', arg)
+}
+
 MainWindow.prototype.shortcutScreen = function (arg) {
   this.mainWindow && this.mainWindow.webContents.send('shortcutScreen', arg)
 }
