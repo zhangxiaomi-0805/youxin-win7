@@ -208,15 +208,16 @@
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.on('screenShotCb', (evt, arg) => {
-          console.log('1231213========')
-          if (arg.isChange === 2) {
+          if (arg.type !== 'isCallScreenShot' && arg.isChange === 2) {
             this.onPaste()
           }
         })
         ipcRenderer.on('shortcutScreen', (evt, arg) => {
-          console.log('哈哈哈=====')
-          console.log(arg)
-          this.screenShot()
+          let type = 'isScreenShot'
+          if (arg && arg.type) {
+            type = arg.type
+          }
+          this.screenShot(type)
         })
       }
       this.syncDraft()
@@ -426,7 +427,7 @@
           }
         } else { // electron分支
           let { ipcRenderer } = require('electron')
-          ipcRenderer.send('screenShot', { hideWin: localStorage.SHOWHIDEWINCHECK })
+          ipcRenderer.send('screenShot', { hideWin: localStorage.SHOWHIDEWINCHECK, type })
         }
       },
       preventDefault (e) {

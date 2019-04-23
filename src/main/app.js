@@ -288,7 +288,7 @@ APP.prototype.initIPC = function () {
           if (bakBase64Str !== base64Str) {
             isChange = 2
           }
-          _this.mainWindow.screenShot({isChange})
+          _this.mainWindow.screenShot({isChange, type: arg.type})
         }
       })
     }, 150)
@@ -360,6 +360,11 @@ APP.prototype.initIPC = function () {
 
   ipcMain.on('sendAccount', function (evt, arg) {
     if (_this.mainWindow) _this.mainWindow.getAccid(arg)
+  })
+
+  // 营业精灵唤起截屏
+  ipcMain.on('callScreenShot', function (evt, arg) {
+    if (_this.mainWindow) _this.mainWindow.callScreenShot(arg)
   })
 
   ipcMain.on('registerShortcut', function (evt, arg) {
