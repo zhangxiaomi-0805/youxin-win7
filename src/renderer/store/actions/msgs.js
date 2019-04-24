@@ -659,7 +659,7 @@ export function sendMsgReceipt ({state, commit}) {
 export function getHistoryMsgs ({state, commit}, obj) {
   const nim = state.nim
   if (nim) {
-    let {scene, to, beginTime, endTime, lastMsgId} = obj
+    let {scene, to, beginTime, endTime, lastMsgId, callBack} = obj
     let options = {
       scene,
       to,
@@ -671,6 +671,7 @@ export function getHistoryMsgs ({state, commit}, obj) {
           let msgs = obj.msgs.map(msg => {
             return formatMsg(msg)
           })
+          callBack && callBack()
           commit('updateCurrSessionHistoryMsgs', {
             type: 'concat',
             msgs: msgs

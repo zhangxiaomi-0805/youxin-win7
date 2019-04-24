@@ -60,8 +60,8 @@
 
           <!-- 短信选择 -->
           <div class="message-box">
-            <div @click.stop="shortMsgCheck = !shortMsgCheck">
-              <span :class="shortMsgCheck ? 'checked common':'check common'"></span>
+            <div @click.stop="checkType === 'all' && toggleShortMsgStatus()">
+              <span :class="(checkType === 'all' && shortMsgCheck) ? 'checked common':'check common'"></span>
               <span style="font-size: 12px; color: #333; line-height:40px">短信</span>
             </div>
 
@@ -146,7 +146,6 @@
   import MsgRecordFn from './msgRecord.js'
   import DatePicker from './DatePicker.vue'
   import SearchData from '../search/search.js'
-  // import pageUtil from '../../utils/page'
   export default {
     name: 'msg-record',
     directives: {clickoutside},
@@ -174,12 +173,13 @@
         isSearchCheckMore: false,
         date: '',
         endTime: '',
-        isXp: false
+        isXp: false,
+        lastMsgIdServer: null
       }
     },
     mounted () {
       this.eventBus.$on('checkHistoryMsg', (data) => {
-        // 获取当前聊天记录
+        // 初始化当前聊天记录
         this.InitLocalMsg()
         this.showHistoryMsg = true
         if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
@@ -199,6 +199,7 @@
       this.eventBus.$off('checkHistoryMsg')
     },
     watch: {
+      // 监听搜索关键字变化
       searchValue (newValue, oldValue) {
         this.beforeValue = newValue
         setTimeout(() => {
@@ -207,10 +208,32 @@
           this.beforeValue = ''
         }, 500)
       },
+      // 监听短信勾选状态
       shortMsgCheck (newValue, oldValue) {
         if (newValue) {
-          console.log('初始化短信消息=====')
+          // 初始化当前聊天短信记录
           this.initShortMsgList()
+        } else {
+          // 初始化当前聊天记录
+          this.InitLocalMsg()
+        }
+        this.$nextTick(() => {
+          this.scrollToBottom('msg-record-box-all')
+        })
+      },
+      // 监听是否有日期筛选
+      date (newValue, oldValue) {
+        if (newValue) {
+          // 初始化当前日期筛选历史记录
+          this.InitHistoryMsg()
+        } else {
+          if (this.shortMsgCheck) {
+            // 初始化当前聊天短信记录
+            this.initShortMsgList()
+          } else {
+            // 初始化当前聊天记录
+            this.InitLocalMsg()
+          }
         }
         this.$nextTick(() => {
           this.scrollToBottom('msg-record-box-all')
@@ -297,7 +320,6 @@
       },
       allMsgList () {
         let allList = []
-        let allMsgList = []
         let msgRecordInitList = this.msgRecordInitList
         if (this.date) {
           msgRecordInitList = this.$store.state.currSessionHistoryMsgs
@@ -306,52 +328,29 @@
           item = this.manageItem(item)
           if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
             allList.push(item)
-            if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-              allMsgList.push(item)
-            }
           }
         })
-        if (this.shortMsgCheck) {
-          return allMsgList
-        } else {
-          return allList
-        }
+        return allList
       },
       imageMsgList () {
         let imageAllList = []
-        let imageMsgList = []
         this.msgRecordInitList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'image') {
             imageAllList.push(item)
-            if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-              imageMsgList.push(item)
-            }
           }
         })
-        if (this.shortMsgCheck) {
-          return imageMsgList
-        } else {
-          return imageAllList
-        }
+        return imageAllList
       },
       fileMsgList () {
-        let allFileList = []
-        let fileMsgList = []
+        let fileList = []
         this.msgRecordInitList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'file') {
-            allFileList.push(item)
-            if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-              fileMsgList.push(item)
-            }
+            fileList.push(item)
           }
         })
-        if (this.shortMsgCheck) {
-          return fileMsgList
-        } else {
-          return allFileList
-        }
+        return fileList
       },
       checkedMsgList () {
         // 多选时选中的消息
@@ -366,6 +365,9 @@
       drag.dragPosition('historyMsgDrag', 1)
     },
     methods: {
+      toggleShortMsgStatus () {
+        this.shortMsgCheck = !this.shortMsgCheck
+      },
       scrollToBottom (domId) {
         this.msgRecordInterval = setInterval(() => {
           let dom = document.getElementById(domId)
@@ -396,21 +398,39 @@
       },
       // 初始化短信消息
       async initShortMsgList () {
-        let beforeMsgList = await this.getBeforeMsgList(this.time + 1000, true) // 需要过滤函数,过滤出短信消息
+        let beforeMsgList = null
+        try {
+          beforeMsgList = await this.getBeforeMsgList(this.time + 1000, true) // 需要过滤函数,过滤出短信消息
+        } catch (err) {}
         this.$store.commit('updateMsgRecordInitList', beforeMsgList)
       },
+      // 初始化全部历史消息
       async InitLocalMsg () {
-        let beforeMsgList = await this.getBeforeMsgList()
+        let beforeMsgList = null
+        try {
+          beforeMsgList = await this.getBeforeMsgList()
+        } catch (err) {}
         this.$store.commit('updateMsgRecordInitList', beforeMsgList)
       },
       // 获取当前消息之前的消息
       async getBeforeMsgList (time, needFilterFunc) {
-        let beforMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time + 1000)}, null, this.sessionId, true, needFilterFunc)
-        return beforMsgList.reverse() // 反转
+        let beforeMsgList = null
+        try {
+          beforeMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time + 1000)}, null, this.sessionId, true, needFilterFunc)
+        } catch (err) {}
+        if (beforeMsgList && beforeMsgList.length > 0) {
+          return beforeMsgList.reverse() // 反转
+        }
       },
-      InitHistoryMsg () {
+      // 日期筛选，获取远程消息
+      InitHistoryMsg (callBack) {
+        console.log('初始化日期筛选消息========')
         let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
-        let lastMsg = currSessionHistoryMsgs[1]
+        console.log(currSessionHistoryMsgs)
+        let lastMsg = null
+        if (currSessionHistoryMsgs && currSessionHistoryMsgs.length > 1) {
+          lastMsg = currSessionHistoryMsgs[1]
+        }
         let date = this.date.join('-')
         let beginTime = new Date(date + ' 00:00:00').getTime()
         let endTime = new Date(date + ' 24:00:00').getTime()
@@ -419,22 +439,18 @@
           to: this.to,
           beginTime,
           endTime,
-          callBack: () => {}
+          callBack
         }
         if (lastMsg) {
           params.lastMsgId = lastMsg.idServer
           params.endTime = lastMsg.time
         }
-        this.$store.dispatch('getHistoryMsgs', params)
-      },
-      getLocalMsgs () {
-        let callBack = () => {}
-        this.$store.dispatch('getLocalMsgs', {
-          scene: this.scene,
-          to: this.to,
-          sessionId: this.$store.state.currSessionId,
-          callBack: callBack
-        })
+        if (!lastMsg || (lastMsg && lastMsg.idServer !== this.lastMsgIdServer)) {
+          if (lastMsg) {
+            this.lastMsgIdServer = lastMsg.idServer // 缓存当前最后一条消息id与下一条对比
+          }
+          this.$store.dispatch('getHistoryMsgs', params)
+        }
       },
       manageItem (item) {
         if (item.flow === 'in') {
@@ -628,9 +644,18 @@
       // 向上滚动到顶部加载更多
       async scrollTopLoad (e, domId) {
         let { scrollTop } = e.target
-        if (scrollTop === 0) {
+        if (scrollTop === 1) {
           if (this.date) {
-            this.InitHistoryMsg()
+            this.InitHistoryMsg(() => {
+              // setTimeout(() => {
+              let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
+              let firstMsgId = document.getElementById(domId).childNodes[0].getAttribute('id')
+              let prevFirstObj = document.getElementById(`${firstMsgId}`)
+              if (currSessionHistoryMsgs.length > 2) {
+                document.getElementById(domId).scrollTop = prevFirstObj.offsetTop - 50
+              }
+              // }, 0)
+            })
           } else {
             // 滚动到顶部，继续加载第一条前面的消息
             let newMsgList = null
@@ -644,9 +669,25 @@
             if (newMsgList && newMsgList.length > 0) {
               let firstMsgTime = newMsgList[0].time
               let firstMsgId = document.getElementById(domId).childNodes[0].getAttribute('id')
-              let beforeMsgList = await this.getBeforeMsgList(firstMsgTime)
+              let beforeMsgList = null
+              try {
+                if (this.shortMsgCheck) {
+                  let needFilterFunc = true
+                  beforeMsgList = await this.getBeforeMsgList(firstMsgTime, needFilterFunc) // 短信消息查询时传入过滤函数
+                } else {
+                  beforeMsgList = await this.getBeforeMsgList(firstMsgTime)
+                }
+              } catch (err) {}
               if (beforeMsgList && beforeMsgList.length > 0) {
-                newMsgList.unshift(...beforeMsgList)
+                for (let i = 0; i < beforeMsgList.length; i++) {
+                   if (this.checkType === 'all') {
+                    newMsgList.unshift(beforeMsgList[i])
+                  } else if (this.checkType === 'image' && beforeMsgList[i].type === 'iamge') {
+                    newMsgList.unshift(beforeMsgList[i])
+                  } else if (this.checkType === 'file' && beforeMsgList[i].type === 'file') {
+                    newMsgList.unshift(beforeMsgList[i])
+                  }
+                }
                 this.$store.commit('updateMsgRecordInitList', newMsgList)
                 setTimeout(() => {
                   let prevFirstObj = document.getElementById(`${firstMsgId}`)
@@ -670,7 +711,6 @@
         this.checkType = 'all'
         this.shortMsgCheck = false
         this.$store.commit('updateCurrSessionHistoryMsgs', { type: 'destroy' })
-        this.InitHistoryMsg()
       },
       clearDate () {
         this.date = ''
