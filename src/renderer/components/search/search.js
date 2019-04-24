@@ -182,7 +182,7 @@ SearchData.getRecords = function (session, value) {
   })
 }
 
-SearchData.getRecordsDetailData = function (obj, searchValue, sessionId, desc) {
+SearchData.getRecordsDetailData = function (obj, searchValue, sessionId, desc, needFilterFunc) {
   let newDesc = (desc === null || desc === undefined) ? true : desc
   /**
    * 聊天记录详情
@@ -192,7 +192,7 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId, desc) {
     let recordlist = []
     let newRecordList = []
     try {
-      recordlist = await SearchData.getRecordsDetail(obj, searchValue, 20, sessionId, newDesc)
+      recordlist = await SearchData.getRecordsDetail(obj, searchValue, 20, sessionId, newDesc, needFilterFunc)
       for (let i in recordlist) {
         if (recordlist[i].type !== 'timeTag' && recordlist[i].type !== 'tip' && recordlist[i].type !== 'notification') {
           let userInfo = {}
@@ -250,7 +250,7 @@ SearchData.getRecordsDetailData = function (obj, searchValue, sessionId, desc) {
   })
 }
 
-SearchData.getRecordsDetail = function (obj, keyword, limit, sessionId, desc) {
+SearchData.getRecordsDetail = function (obj, keyword, limit, sessionId, desc, needFilterFunc) {
   /**
    * 聊天记录详情
    * 获取匹配到的聊天记录
@@ -268,6 +268,7 @@ SearchData.getRecordsDetail = function (obj, keyword, limit, sessionId, desc) {
     }
     if (obj) Params = Object.assign(Params, obj)
     if (keyword) Params = Object.assign(Params, {keyword, types: ['text']})
+    if (needFilterFunc) Params = Object.assign(Params, {filterFunc: (msg) => { if (msg.custom && JSON.parse(msg.custom).isSmsMsg) { return true } }})
     nim.getLocalMsgs(Params)
   })
 }

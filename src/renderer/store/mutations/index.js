@@ -888,6 +888,10 @@ export default {
     // 1-初始状态，2-开启，3-关闭，4-隐藏
     state.slideMenuStatus = status
   },
+  updateMsgRecordInitList (state, arr) {
+    // 更新当前初始化历史消息
+    state.msgRecordInitList = arr
+  },
   updateCheckedMsgs (state, arr) {
     // 更新当前选中的历史消息
     state.checkedMsgs = arr

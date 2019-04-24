@@ -734,6 +734,9 @@ export function getLocalMsgs ({state, commit}, obj) {
     if (obj.end) {
       options.end = obj.end.time
     }
+    if (obj.start) {
+      options.start = obj.start
+    }
     store.dispatch('showLoading')
     nim.getLocalMsgs(options)
   }

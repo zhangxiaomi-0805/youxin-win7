@@ -59,9 +59,7 @@
           </div>
 
           <!-- 短信选择 -->
-          <div
-            class="message-box"
-          >
+          <div class="message-box">
             <div @click.stop="shortMsgCheck = !shortMsgCheck">
               <span :class="shortMsgCheck ? 'checked common':'check common'"></span>
               <span style="font-size: 12px; color: #333; line-height:40px">短信</span>
@@ -71,7 +69,7 @@
           </div>
 
           <!-- 内容列表 -->
-          <ul id="msg-record-box" v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <ul id="msg-record-box-all" v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollTopLoad($event, 'msg-record-box-all')">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
@@ -86,7 +84,7 @@
               :userInfos="userInfos"
               :myInfo="myInfo"/>
           </ul>
-          <ul v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <ul id="msg-record-box-image" v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollTopLoad($event, 'msg-record-box-image')">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
@@ -101,7 +99,7 @@
               :userInfos="userInfos"
               :myInfo="myInfo"/>
           </ul>
-          <ul v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll="scrollEndLoad($event)">
+          <ul id="msg-record-box-file" v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll="scrollTopLoad($event, 'msg-record-box-file')">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
@@ -147,6 +145,8 @@
   import emojiObj from '../../configs/emoji'
   import MsgRecordFn from './msgRecord.js'
   import DatePicker from './DatePicker.vue'
+  import SearchData from '../search/search.js'
+  // import pageUtil from '../../utils/page'
   export default {
     name: 'msg-record',
     directives: {clickoutside},
@@ -178,9 +178,9 @@
       }
     },
     mounted () {
-      // 获取当前聊天记录
-      this.InitLocalMsg()
       this.eventBus.$on('checkHistoryMsg', (data) => {
+        // 获取当前聊天记录
+        this.InitLocalMsg()
         this.showHistoryMsg = true
         if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
           this.isXp = true
@@ -190,6 +190,9 @@
         this.teamInfo = data.teamInfo
         this.scene = data.scene
         this.to = data.to
+        this.$nextTick(() => {
+          this.scrollToBottom('msg-record-box-all')
+        })
       })
     },
     beforeDestroy () {
@@ -203,12 +206,32 @@
           if (newValue !== this.beforeValue) return
           this.beforeValue = ''
         }, 500)
+      },
+      shortMsgCheck (newValue, oldValue) {
+        if (newValue) {
+          console.log('初始化短信消息=====')
+          this.initShortMsgList()
+        }
+        this.$nextTick(() => {
+          this.scrollToBottom('msg-record-box-all')
+        })
       }
     },
     computed: {
+      time () {
+        let currSessionMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
+        if (currSessionMsgs && currSessionMsgs.length > 0) {
+          return currSessionMsgs[currSessionMsgs.length - 1].time
+        }
+        return 0
+      },
       currSessionMsgs () {
         let currSessionMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
         return currSessionMsgs
+      },
+      msgRecordInitList () {
+        let msgRecordInitList = JSON.parse(JSON.stringify(this.$store.state.msgRecordInitList))
+        return msgRecordInitList
       },
       myPhoneId () {
         return `${this.$store.state.userUID}`
@@ -275,16 +298,16 @@
       allMsgList () {
         let allList = []
         let allMsgList = []
-        let currSessionMsgs = this.currSessionMsgs
+        let msgRecordInitList = this.msgRecordInitList
         if (this.date) {
-          currSessionMsgs = this.$store.state.currSessionHistoryMsgs
+          msgRecordInitList = this.$store.state.currSessionHistoryMsgs
         }
-        currSessionMsgs.map((item, index) => {
+        msgRecordInitList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
-            allList.unshift(item)
+            allList.push(item)
             if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-              allMsgList.unshift(item)
+              allMsgList.push(item)
             }
           }
         })
@@ -297,12 +320,12 @@
       imageMsgList () {
         let imageAllList = []
         let imageMsgList = []
-        this.currSessionMsgs.map((item, index) => {
+        this.msgRecordInitList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'image') {
-            imageAllList.unshift(item)
+            imageAllList.push(item)
             if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-              imageMsgList.unshift(item)
+              imageMsgList.push(item)
             }
           }
         })
@@ -315,12 +338,12 @@
       fileMsgList () {
         let allFileList = []
         let fileMsgList = []
-        this.currSessionMsgs.map((item, index) => {
+        this.msgRecordInitList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'file') {
-            allFileList.unshift(item)
+            allFileList.push(item)
             if (item.custom && JSON.parse(item.custom).isSmsMsg) {
-              fileMsgList.unshift(item)
+              fileMsgList.push(item)
             }
           }
         })
@@ -343,6 +366,15 @@
       drag.dragPosition('historyMsgDrag', 1)
     },
     methods: {
+      scrollToBottom (domId) {
+        this.msgRecordInterval = setInterval(() => {
+          let dom = document.getElementById(domId)
+          if (dom) {
+            dom.scrollTop = dom.scrollHeight
+            clearInterval(this.msgRecordInterval)
+          }
+        }, 100)
+      },
       className (value) {
         let className = 'tab-title-item'
         if (value === this.checkFunc) {
@@ -362,8 +394,19 @@
       searchCheckMoreFn () {
         this.isSearchCheckMore = true
       },
-      InitLocalMsg () {
-        this.getLocalMsgs()
+      // 初始化短信消息
+      async initShortMsgList () {
+        let beforeMsgList = await this.getBeforeMsgList(this.time + 1000, true) // 需要过滤函数,过滤出短信消息
+        this.$store.commit('updateMsgRecordInitList', beforeMsgList)
+      },
+      async InitLocalMsg () {
+        let beforeMsgList = await this.getBeforeMsgList()
+        this.$store.commit('updateMsgRecordInitList', beforeMsgList)
+      },
+      // 获取当前消息之前的消息
+      async getBeforeMsgList (time, needFilterFunc) {
+        let beforMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time + 1000)}, null, this.sessionId, true, needFilterFunc)
+        return beforMsgList.reverse() // 反转
       },
       InitHistoryMsg () {
         let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
@@ -579,15 +622,40 @@
         this.checkFunc = ''
         this.isSearchCheckMore = false
         this.$store.commit('updateCheckedMsgs', [])
+        this.$store.commit('updateMsgRecordInitList', [])
         this.date = ''
       },
-      scrollEndLoad (e) {
-        let { scrollTop, clientHeight, scrollHeight } = e.target
-        if (scrollHeight - (scrollTop + clientHeight) < 1) {
+      // 向上滚动到顶部加载更多
+      async scrollTopLoad (e, domId) {
+        let { scrollTop } = e.target
+        if (scrollTop === 0) {
           if (this.date) {
             this.InitHistoryMsg()
           } else {
-            this.InitLocalMsg()
+            // 滚动到顶部，继续加载第一条前面的消息
+            let newMsgList = null
+            if (this.checkType === 'all') {
+              newMsgList = this.allMsgList
+            } else if (this.checkType === 'image') {
+              newMsgList = this.imageMsgList
+            } else if (this.checkType === 'file') {
+              newMsgList = this.fileMsgList
+            }
+            if (newMsgList && newMsgList.length > 0) {
+              let firstMsgTime = newMsgList[0].time
+              let firstMsgId = document.getElementById(domId).childNodes[0].getAttribute('id')
+              let beforeMsgList = await this.getBeforeMsgList(firstMsgTime)
+              if (beforeMsgList && beforeMsgList.length > 0) {
+                newMsgList.unshift(...beforeMsgList)
+                this.$store.commit('updateMsgRecordInitList', newMsgList)
+                setTimeout(() => {
+                  let prevFirstObj = document.getElementById(`${firstMsgId}`)
+                  if (beforeMsgList.length > 2) {
+                    document.getElementById(domId).scrollTop = prevFirstObj.offsetTop - 50
+                  }
+                }, 0)
+              }
+            }
           }
         }
       },
