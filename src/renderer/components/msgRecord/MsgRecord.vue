@@ -324,7 +324,7 @@
         if (this.date) {
           msgRecordInitList = this.$store.state.currSessionHistoryMsgs
         }
-        msgRecordInitList.map((item, index) => {
+        msgRecordInitList && msgRecordInitList.length > 0 && msgRecordInitList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
             allList.push(item)
@@ -400,7 +400,7 @@
       async initShortMsgList () {
         let beforeMsgList = null
         try {
-          beforeMsgList = await this.getBeforeMsgList(this.time + 1000, true) // 需要过滤函数,过滤出短信消息
+          beforeMsgList = await this.getBeforeMsgList(this.time + 1000, 'all', true) // 需要过滤函数,过滤出短信消息,查询所有消息类型的短信消息
         } catch (err) {}
         this.$store.commit('updateMsgRecordInitList', beforeMsgList)
       },
@@ -413,10 +413,10 @@
         this.$store.commit('updateMsgRecordInitList', beforeMsgList)
       },
       // 获取当前消息之前的消息
-      async getBeforeMsgList (time, needFilterFunc) {
+      async getBeforeMsgList (time, msgType, needFilterFunc) {
         let beforeMsgList = null
         try {
-          beforeMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time + 1000)}, null, this.sessionId, true, needFilterFunc)
+          beforeMsgList = await SearchData.getRecordsDetailData({start: 0, end: time || (this.time + 1000)}, null, this.sessionId, true, msgType, needFilterFunc)
         } catch (err) {}
         if (beforeMsgList && beforeMsgList.length > 0) {
           return beforeMsgList.reverse() // 反转
@@ -424,9 +424,7 @@
       },
       // 日期筛选，获取远程消息
       InitHistoryMsg (callBack) {
-        console.log('初始化日期筛选消息========')
         let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
-        console.log(currSessionHistoryMsgs)
         let lastMsg = null
         if (currSessionHistoryMsgs && currSessionHistoryMsgs.length > 1) {
           lastMsg = currSessionHistoryMsgs[1]
@@ -673,21 +671,13 @@
               try {
                 if (this.shortMsgCheck) {
                   let needFilterFunc = true
-                  beforeMsgList = await this.getBeforeMsgList(firstMsgTime, needFilterFunc) // 短信消息查询时传入过滤函数
+                  beforeMsgList = await this.getBeforeMsgList(firstMsgTime, 'all', needFilterFunc) // 短信消息查询时传入过滤函数,短信消息查询所有类型
                 } else {
-                  beforeMsgList = await this.getBeforeMsgList(firstMsgTime)
+                  beforeMsgList = await this.getBeforeMsgList(firstMsgTime, this.checkType)
                 }
               } catch (err) {}
               if (beforeMsgList && beforeMsgList.length > 0) {
-                for (let i = 0; i < beforeMsgList.length; i++) {
-                   if (this.checkType === 'all') {
-                    newMsgList.unshift(beforeMsgList[i])
-                  } else if (this.checkType === 'image' && beforeMsgList[i].type === 'iamge') {
-                    newMsgList.unshift(beforeMsgList[i])
-                  } else if (this.checkType === 'file' && beforeMsgList[i].type === 'file') {
-                    newMsgList.unshift(beforeMsgList[i])
-                  }
-                }
+                newMsgList.unshift(...beforeMsgList)
                 this.$store.commit('updateMsgRecordInitList', newMsgList)
                 setTimeout(() => {
                   let prevFirstObj = document.getElementById(`${firstMsgId}`)
