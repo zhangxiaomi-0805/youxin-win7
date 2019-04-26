@@ -80,8 +80,12 @@ export default {
   continueRobotAccid: '',
 
   newMsg: {},
-  // 当前历史消息记录初始化数据
-  msgRecordInitList: [],
+  // 当前历史消息记录初始化数据---全部
+  msgRecordAllList: [],
+  // 当前历史消息记录初始化数据---图片
+  msgRecordImageList: [],
+  // 当前历史消息记录初始化数据----文件
+  msgRecordFileList: [],
   // 当前选中的历史消息记录
   checkedMsgs: [],
   // 系统消息

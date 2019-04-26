@@ -81,7 +81,7 @@
             <input type="file" @change="onSendFlie($event)" style="display: none;" ref="fileIp" />
           </div>
           <!-- 远程协助 -->
-          <!-- <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
+          <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
             <a class="b-common b-remote" @click.stop="showRemote = true"/>
 
             <transition name="fade">
@@ -94,7 +94,7 @@
                 <div class="bg-hover" @click="sendRemote(2)">请求远程协助</div>
               </div>
             </transition>
-          </div> -->
+          </div>
         </div>
         <!-- 短信发送 -->
         <div
@@ -206,23 +206,29 @@
           this.screenShot(data.type)
         })
       } else { // electron分支
-        let { ipcRenderer } = require('electron')
-        ipcRenderer.on('screenShotCb', (evt, arg) => {
+        this.screenShotHandle = (evt, arg) => {
           if (arg.type !== 'isCallScreenShot' && arg.isChange === 2) {
             this.onPaste()
           }
-        })
+        }
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.on('screenShotCb', this.screenShotHandle)
         ipcRenderer.on('shortcutScreen', (evt, arg) => {
           let type = 'isScreenShot'
           if (arg && arg.type) {
             type = arg.type
           }
+          this.isFirstScreen = true
           this.screenShot(type)
         })
       }
       this.syncDraft()
     },
     beforeDestroy () {
+      if (config.environment !== 'web') {
+        let { ipcRenderer } = require('electron')
+        this.screenShotHandle && ipcRenderer.removeListener('screenShotCb', this.screenShotHandle)
+      }
       this.eventBus.$off('getFocusFn')
       this.eventBus.$off('screenShot')
     },
@@ -450,18 +456,22 @@
       },
       // 设置光标位置
       setEditRange () {
-        let selection = getSelection()
-        if (this.lastEditRange) {
-          // 存在最后光标对象，选定对象清除所有光标并添加最后光标还原之前的状态
-          selection.removeAllRanges()
-          selection.addRange(this.lastEditRange)
-        } else {
-          // 创建range
-          var range = window.getSelection()
-          // range 选择obj下所有子内容
-          range && range.selectAllChildren(this.$refs.editDiv)
-          // 光标移至最后
-          range && range.collapseToEnd()
+        try {
+          let selection = getSelection()
+          if (this.lastEditRange) {
+            // 存在最后光标对象，选定对象清除所有光标并添加最后光标还原之前的状态
+            selection.removeAllRanges()
+            selection.addRange(this.lastEditRange)
+          } else {
+            // 创建range
+            var range = window.getSelection()
+            // range 选择obj下所有子内容
+            range && range.selectAllChildren(this.$refs.editDiv)
+            // 光标移至最后
+            range && range.collapseToEnd()
+          }
+        } catch (error) {
+          console.log(error)
         }
       },
       // 获取粘贴文字

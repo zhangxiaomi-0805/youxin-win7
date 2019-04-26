@@ -651,7 +651,7 @@
           if (config.environment === 'web') { // web分支
           } else { // electron分支
             let {ipcRenderer} = require('electron')
-            ipcRenderer.on(`downloading`, (evt, obj) => {
+            this.downloadingHandle = (evt, obj) => {
               if (obj.type !== 'fail') {
                 if (obj.id === this.msg.idClient) {
                   this.$store.commit('updateDownloadFileList', {
@@ -671,9 +671,8 @@
                   })
                 }
               }
-            })
-            // 下载完成
-            ipcRenderer.on(`downloaded`, (evt, obj) => {
+            }
+            this.downloadedHandle = (evt, obj) => {
               if (obj.id !== this.msg.idClient) {
                 return
               }
@@ -718,7 +717,10 @@
                   this.downloadUrl = obj.url
                 }
               })
-            })
+            }
+            ipcRenderer.on(`downloading`, this.downloadingHandle)
+            // 下载完成
+            ipcRenderer.on(`downloaded`, this.downloadedHandle)
           }
         }
         // 自定义消息（7）
@@ -738,6 +740,11 @@
       }) // end this.nextTick
     },
     beforeDestroy () {
+      if (config.environment !== 'web') {
+        let { ipcRenderer } = require('electron')
+        this.downloadingHandle && ipcRenderer.removeListener('downloading', this.downloadingHandle)
+        this.downloadedHandle && ipcRenderer.removeListener('downloaded', this.downloadedHandle)
+      }
       if (this.currentAudio) {
         this.currentAudio.pause()
         this.currentAudio = null

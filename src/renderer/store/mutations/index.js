@@ -888,9 +888,18 @@ export default {
     // 1-初始状态，2-开启，3-关闭，4-隐藏
     state.slideMenuStatus = status
   },
-  updateMsgRecordInitList (state, arr) {
-    // 更新当前初始化历史消息
-    state.msgRecordInitList = arr
+  // 历史消息记录
+  updateMsgRecordAllList (state, arr) {
+    // 更新当前初始化历史消息---全部
+    state.msgRecordAllList = arr
+  },
+  updateMsgRecordImageList (state, arr) {
+    // 更新当前初始化历史消息---图片
+    state.msgRecordImageList = arr
+  },
+  updateMsgRecordFileList (state, arr) {
+    // 更新当前初始化历史消息---文件
+    state.msgRecordFileList = arr
   },
   updateCheckedMsgs (state, arr) {
     // 更新当前选中的历史消息

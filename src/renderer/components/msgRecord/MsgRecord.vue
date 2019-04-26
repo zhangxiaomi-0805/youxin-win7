@@ -69,7 +69,8 @@
           </div>
 
           <!-- 内容列表 -->
-          <ul id="msg-record-box-all" v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollTopLoad($event, 'msg-record-box-all')">
+          <!-- 全部 -->
+          <ul id="msg-record-box-all" v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll.stop="checkType === 'all' && scrollTopLoad($event, 'msg-record-box-all')">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
@@ -84,7 +85,8 @@
               :userInfos="userInfos"
               :myInfo="myInfo"/>
           </ul>
-          <ul id="msg-record-box-image" v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll="scrollTopLoad($event, 'msg-record-box-image')">
+          <!-- 图片 -->
+          <ul id="msg-record-box-image" v-show ="checkType === 'image'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll.stop="checkType === 'image' && scrollTopLoad($event, 'msg-record-box-image')">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
@@ -99,7 +101,8 @@
               :userInfos="userInfos"
               :myInfo="myInfo"/>
           </ul>
-          <ul id="msg-record-box-file" v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll="scrollTopLoad($event, 'msg-record-box-file')">
+          <!-- 文件 -->
+          <ul id="msg-record-box-file" v-show ="checkType === 'file'" style="width:100%;overflow-y: scroll; height:300px"  @scroll.stop="checkType === 'file' && scrollTopLoad($event, 'msg-record-box-file')">
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
@@ -174,13 +177,16 @@
         date: '',
         endTime: '',
         isXp: false,
-        lastMsgIdServer: null
+        lastMsgIdServer: null,
+        isInitLoadAll: true,
+        isInitLoadImage: true,
+        isInitLoadFile: true
       }
     },
     mounted () {
       this.eventBus.$on('checkHistoryMsg', (data) => {
-        // 初始化当前聊天记录
-        this.InitLocalMsg()
+        // 初始化当前聊天记录---全部
+        this.InitLocalAllMsg()
         this.showHistoryMsg = true
         if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
           this.isXp = true
@@ -192,6 +198,7 @@
         this.to = data.to
         this.$nextTick(() => {
           this.scrollToBottom('msg-record-box-all')
+          this.isInitLoadAll = false
         })
       })
     },
@@ -214,8 +221,9 @@
           // 初始化当前聊天短信记录
           this.initShortMsgList()
         } else {
+          this.isInitLoadAll = true
           // 初始化当前聊天记录
-          this.InitLocalMsg()
+          this.InitLocalAllMsg()
         }
         this.$nextTick(() => {
           this.scrollToBottom('msg-record-box-all')
@@ -231,12 +239,47 @@
             // 初始化当前聊天短信记录
             this.initShortMsgList()
           } else {
+            this.isInitLoadAll = true
             // 初始化当前聊天记录
-            this.InitLocalMsg()
+            this.InitLocalAllMsg()
           }
         }
         this.$nextTick(() => {
           this.scrollToBottom('msg-record-box-all')
+        })
+      },
+      // 监听选中类型状态变化
+      checkType (newValue, oldValue) {
+        let domId = ''
+        switch (newValue) {
+          case 'all':
+            domId = 'msg-record-box-all'
+            // 初始化当前聊天记录---图片
+            this.isInitLoadAll && this.InitLocalAllMsg()
+            break
+          case 'image':
+            domId = 'msg-record-box-image'
+            // 初始化当前聊天记录---图片
+            this.isInitLoadImage && this.InitLocalImageMsg()
+            break
+          case 'file':
+            domId = 'msg-record-box-file'
+            // 初始化当前聊天记录---文件
+            this.isInitLoadFile && this.InitLocalFileMsg()
+            break
+        }
+        console.log(this.checkType + '*****' + this.isInitLoadAll)
+        this.$nextTick(() => {
+          if (this.checkType === 'all' && this.isInitLoadAll) {
+            this.scrollToBottom(domId)
+            this.isInitLoadAll = false
+          } else if ((this.checkType === 'image' && this.isInitLoadImage)) {
+            this.scrollToBottom(domId)
+            this.isInitLoadImage = false
+          } else if ((this.checkType === 'file' && this.isInitLoadFile)) {
+            this.scrollToBottom(domId)
+            this.isInitLoadFile = false
+          }
         })
       }
     },
@@ -252,9 +295,17 @@
         let currSessionMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
         return currSessionMsgs
       },
-      msgRecordInitList () {
-        let msgRecordInitList = JSON.parse(JSON.stringify(this.$store.state.msgRecordInitList))
-        return msgRecordInitList
+      msgRecordAllList () {
+        let msgRecordAllList = this.$store.state.msgRecordAllList
+        return msgRecordAllList
+      },
+      msgRecordImageList () {
+        let msgRecordImageList = this.$store.state.msgRecordImageList
+        return msgRecordImageList
+      },
+      msgRecordFileList () {
+        let msgRecordFileList = this.$store.state.msgRecordFileList
+        return msgRecordFileList
       },
       myPhoneId () {
         return `${this.$store.state.userUID}`
@@ -320,11 +371,11 @@
       },
       allMsgList () {
         let allList = []
-        let msgRecordInitList = this.msgRecordInitList
+        let msgRecordAllList = this.msgRecordAllList
         if (this.date) {
-          msgRecordInitList = this.$store.state.currSessionHistoryMsgs
+          msgRecordAllList = this.$store.state.currSessionHistoryMsgs
         }
-        msgRecordInitList && msgRecordInitList.length > 0 && msgRecordInitList.map((item, index) => {
+        msgRecordAllList && msgRecordAllList.length > 0 && msgRecordAllList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
             allList.push(item)
@@ -334,7 +385,7 @@
       },
       imageMsgList () {
         let imageAllList = []
-        this.msgRecordInitList.map((item, index) => {
+        this.msgRecordImageList && this.msgRecordImageList.length > 0 && this.msgRecordImageList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'image') {
             imageAllList.push(item)
@@ -344,7 +395,7 @@
       },
       fileMsgList () {
         let fileList = []
-        this.msgRecordInitList.map((item, index) => {
+        this.msgRecordFileList && this.msgRecordFileList.length > 0 && this.msgRecordFileList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type === 'file') {
             fileList.push(item)
@@ -396,21 +447,37 @@
       searchCheckMoreFn () {
         this.isSearchCheckMore = true
       },
-      // 初始化短信消息
+      // 初始化短信消息---短信
       async initShortMsgList () {
         let beforeMsgList = null
         try {
           beforeMsgList = await this.getBeforeMsgList(this.time + 1000, 'all', true) // 需要过滤函数,过滤出短信消息,查询所有消息类型的短信消息
         } catch (err) {}
-        this.$store.commit('updateMsgRecordInitList', beforeMsgList)
+        this.$store.commit('updateMsgRecordAllList', beforeMsgList)
       },
-      // 初始化全部历史消息
-      async InitLocalMsg () {
+      // 初始化历史消息---全部
+      async InitLocalAllMsg () {
         let beforeMsgList = null
         try {
           beforeMsgList = await this.getBeforeMsgList()
         } catch (err) {}
-        this.$store.commit('updateMsgRecordInitList', beforeMsgList)
+        this.$store.commit('updateMsgRecordAllList', beforeMsgList)
+      },
+      // 初始化历史消息---图片
+      async InitLocalImageMsg () {
+        let beforeMsgList = null
+        try {
+          beforeMsgList = await this.getBeforeMsgList(this.time + 1000, 'image', false)
+        } catch (err) {}
+        this.$store.commit('updateMsgRecordImageList', beforeMsgList)
+      },
+      // 初始化历史消息---文件
+      async InitLocalFileMsg () {
+        let beforeMsgList = null
+        try {
+          beforeMsgList = await this.getBeforeMsgList(this.time + 1000, 'file', false)
+        } catch (err) {}
+        this.$store.commit('updateMsgRecordFileList', beforeMsgList)
       },
       // 获取当前消息之前的消息
       async getBeforeMsgList (time, msgType, needFilterFunc) {
@@ -636,13 +703,15 @@
         this.checkFunc = ''
         this.isSearchCheckMore = false
         this.$store.commit('updateCheckedMsgs', [])
-        this.$store.commit('updateMsgRecordInitList', [])
+        this.$store.commit('updateMsgRecordAllList', [])
         this.date = ''
       },
       // 向上滚动到顶部加载更多
       async scrollTopLoad (e, domId) {
+        console.log(e)
+        console.log('domId ==== ' + domId)
         let { scrollTop } = e.target
-        if (scrollTop === 1) {
+        if (scrollTop <= 1) {
           if (this.date) {
             this.InitHistoryMsg(() => {
               // setTimeout(() => {
@@ -655,6 +724,7 @@
               // }, 0)
             })
           } else {
+            console.log('this.checkType=====' + this.checkType)
             // 滚动到顶部，继续加载第一条前面的消息
             let newMsgList = null
             if (this.checkType === 'all') {
@@ -678,7 +748,7 @@
               } catch (err) {}
               if (beforeMsgList && beforeMsgList.length > 0) {
                 newMsgList.unshift(...beforeMsgList)
-                this.$store.commit('updateMsgRecordInitList', newMsgList)
+                this.$store.commit('updateMsgRecordAllList', newMsgList)
                 setTimeout(() => {
                   let prevFirstObj = document.getElementById(`${firstMsgId}`)
                   if (beforeMsgList.length > 2) {
