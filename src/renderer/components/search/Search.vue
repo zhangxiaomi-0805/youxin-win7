@@ -1,7 +1,11 @@
 <template>
   <!-- 消息列表、通讯录搜索 -->
   <div class="s-cont searchevent" :style="{top: '56px'}">
-    <div v-if="!isEmpty && value" class="s-empty searchevent">暂无搜索结果~</div>
+    <div v-if="!isEmpty && value && !isSearchInLocal" class="s-empty searchevent">暂无搜索结果~</div>
+    <div v-if="!isEmpty && value && isSearchInLocal" class="s-empty-searchInLocal">
+      <p>暂无搜索结果~</p>
+      <p class="search-online">在线查找 >></p>
+    </div>
     <div v-if="!isEmpty && !value" class="s-empty searchevent">
       <p>温馨提示：</p>
       <p>1、目前支持帐号、姓名、姓名拼音、手机号、邮箱查找；</p>
@@ -10,7 +14,12 @@
     </div>
     <!-- 联系人 -->
     <div v-if="(type === 'all' || type === 'orgnize') && contactlist.length > 0">
-      <div class="s-title searchevent">联系人</div>
+      <div  class="s-title searchevent">
+        <span>联系人</span>
+        <div v-if="isSearchInLocal && contactlist.length > 0" @click="toggleSearchType()">
+          <span class="search-online">在线查找 >></span>
+        </div>
+      </div>
       <ul class="u-list searchevent">
         <li
           class="u-list-item s-list-item searchevent"
@@ -79,6 +88,7 @@
 <script>
   import config from '../../configs'
   import SearchData from './search.js'
+  import util from '../../utils'
   export default {
     name: 'search',
     props: {
@@ -106,7 +116,8 @@
           spareHeight: 61,
           teamlimitNum: 5,
           recordlimitNum: 5
-        }
+        },
+        isSearchInLocal: true // 默认先从本地联系人搜索
       }
     },
     computed: {
@@ -126,7 +137,50 @@
         }
       },
       sessionlist () {
-        return this.$store.state.sessionlist
+        const pinyin = require('tiny-pinyin')
+        let sessionlist = this.$store.state.sessionlist.filter(item => {
+          item.name = ''
+          item.avatar = ''
+          if (item.scene === 'p2p') {
+            let userInfo = null
+            if (item.to !== this.myPhoneId) {
+              userInfo = this.userInfos[item.to]
+            } else {
+              userInfo = Object.assign({}, this.myInfo)
+            }
+            if (userInfo) {
+              item.name = util.getFriendAlias(userInfo)
+              item.avatar = userInfo.avatar
+            }
+          } else if (item.scene === 'team') {
+            let teamInfo = this.$store.state.teamlist.find(team => {
+              return team.teamId === item.to
+            })
+            if (teamInfo) {
+              item.name = teamInfo.name
+              item.avatar = teamInfo.avatar || this.myGroupIcon
+            } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+              item.name = item.lastMsg.attach.team.name
+              item.avatar = item.avatar || this.myGroupIcon
+            } else {
+              item.name = item.to
+              item.avatar = item.avatar || this.myGroupIcon
+            }
+          }
+          if (pinyin.isSupported()) {
+            item.pinyinStr = pinyin.convertToPinyin(item.name, '', true)
+          }
+          if (item.name && item.avatar) { // 避免显示空的现象
+            return item
+          }
+        })
+        return sessionlist
+      },
+      myInfo () {
+        return this.$store.state.myInfo
+      },
+      myPhoneId () {
+        return `${this.$store.state.userUID}`
       },
       userInfos () {
         return this.$store.state.userInfos
@@ -139,17 +193,26 @@
           if (newValue !== this.beforeValue) return
           this.renderItem(newValue)
         }, 500)
+      },
+      isSearchInLocal (newValue, oldValue) {
+        console.log(newValue)
+        if (!newValue) {
+          this.renderItem(newValue)
+        }
       }
     },
     methods: {
+      toggleSearchType () {
+        this.isSearchInLocal = false
+      },
       renderItem (value) {
         if (!value) {
           this.reset()
           return
         }
         if ((this.type === 'all' || this.type === 'orgnize')) this.searchInContact(value, 1)
-        if ((this.type === 'all' || this.type === 'team')) this.searchInTeam(value)
-        if (this.type === 'all') this.searchInRecord(value)
+        if (!this.isSearchInLocal && (this.type === 'all' || this.type === 'team')) this.searchInTeam(value)
+        if (!this.isSearchInLocal && this.type === 'all') this.searchInRecord(value)
       },
       async searchInContact (value, page) {
         // 搜索联系人
@@ -159,7 +222,15 @@
         }
         let result = []
         try {
-          result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
+          if (this.isSearchInLocal) {
+            for (let i in this.sessionlist) {
+              if ((this.sessionlist[i].name.indexOf(value) > -1 || this.sessionlist[i].pinyinStr.indexOf(value) > -1 || this.sessionlist[i].id.indexOf(value) > -1)) {
+                result.push(this.sessionlist[i])
+              }
+            }
+          } else {
+            result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
+          }
         } catch (error) {}
         let contactlistTemp = []
         for (let i in result) {
@@ -302,6 +373,16 @@
 </script>
 
 <style scoped>
+  .search-online {
+    font-size:14px;
+    color: #049AFF
+  }
+  .s-empty-searchInLocal {
+    display: flex;
+    justify-content: center;
+    height: 58px;
+    background-color: rgba(0,0,0,0.06)
+  }
   .s-cont {
     box-sizing: border-box;
     position: absolute;
@@ -335,13 +416,14 @@
   .s-title {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 30px;
     box-sizing: border-box;
-    margin-left: 13px;
+    margin: 0 13px;
     background-color: #fff;
     border-bottom: 1px solid rgba(247,247,247,1);
-    font-size: 12px;
-    color: #B3B3BA;
+    font-size: 14px;
+    color: #999;
   }
 
   .s-list-item {

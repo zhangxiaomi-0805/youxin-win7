@@ -244,9 +244,11 @@
             this.InitLocalAllMsg()
           }
         }
-        this.$nextTick(() => {
-          this.scrollToBottom('msg-record-box-all')
-        })
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.scrollToBottom('msg-record-box-all')
+          })
+        }, 100)
       },
       // 监听选中类型状态变化
       checkType (newValue, oldValue) {
@@ -708,21 +710,24 @@
       },
       // 向上滚动到顶部加载更多
       async scrollTopLoad (e, domId) {
-        console.log(e)
-        console.log('domId ==== ' + domId)
         let { scrollTop } = e.target
         if (scrollTop <= 1) {
           if (this.date) {
-            this.InitHistoryMsg(() => {
-              // setTimeout(() => {
-              let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
-              let firstMsgId = document.getElementById(domId).childNodes[0].getAttribute('id')
-              let prevFirstObj = document.getElementById(`${firstMsgId}`)
-              if (currSessionHistoryMsgs.length > 2) {
-                document.getElementById(domId).scrollTop = prevFirstObj.offsetTop - 50
-              }
-              // }, 0)
-            })
+            let preFirstDom = document.getElementById(domId).childNodes[0]
+            let preFirstId = preFirstDom && preFirstDom.getAttribute('id')
+            if (this.$store.state.currSessionHistoryMsgs && this.$store.state.currSessionHistoryMsgs.length > 0) {
+              this.InitHistoryMsg(() => {
+                setTimeout(() => {
+                  let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
+                  if (currSessionHistoryMsgs.length > 2 && preFirstDom) {
+                    let offsetTop = document.getElementById(`${preFirstId}`).offsetTop
+                    this.$nextTick(() => {
+                      document.getElementById(domId).scrollTop = offsetTop - 50
+                    })
+                  }
+                }, 0)
+              })
+            }
           } else {
             console.log('this.checkType=====' + this.checkType)
             // 滚动到顶部，继续加载第一条前面的消息

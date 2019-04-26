@@ -618,6 +618,11 @@
           if (/(mov|mp4|ogg|webm)/i.test(item.file.ext)) {
             media = document.createElement('video')
             let videoSrc = item.file.url
+            if (item.file.url.indexOf('?') < 0) {
+              videoSrc = item.file.url + `?download=${new Date().getTime()}.mp4`
+            } else {
+              videoSrc = item.file.url + `&download=${new Date().getTime()}.mp4`
+            }
             media.src = videoSrc
             media.width = 640
             media.height = 480
