@@ -2,9 +2,9 @@
   <!-- 消息列表、通讯录搜索 -->
   <div class="s-cont searchevent" :style="{top: '56px'}">
     <div v-if="!isEmpty && value && !isSearchInLocal" class="s-empty searchevent">暂无搜索结果~</div>
-    <div v-if="!isEmpty && value && isSearchInLocal" class="s-empty-searchInLocal">
-      <p>暂无搜索结果~</p>
-      <p class="search-online">在线查找 >></p>
+    <div v-if="!isEmpty && value && isSearchInLocal" class="s-empty-searchInLocal searchevent">
+      <span>无搜索结果</span>
+      <a class="search-online searchevent"  @click="toggleSearchType()">在线查找 >></a>
     </div>
     <div v-if="!isEmpty && !value" class="s-empty searchevent">
       <p>温馨提示：</p>
@@ -16,9 +16,9 @@
     <div v-if="(type === 'all' || type === 'orgnize') && contactlist.length > 0">
       <div  class="s-title searchevent">
         <span>联系人</span>
-        <div v-if="isSearchInLocal && contactlist.length > 0" @click="toggleSearchType()">
-          <span class="search-online">在线查找 >></span>
-        </div>
+        <a v-if="isSearchInLocal && contactlist.length > 0" @click="toggleSearchType()">
+          <span class="search-online searchevent">在线查找 >></span>
+        </a>
       </div>
       <ul class="u-list searchevent">
         <li
@@ -197,7 +197,7 @@
       isSearchInLocal (newValue, oldValue) {
         console.log(newValue)
         if (!newValue) {
-          this.renderItem(newValue)
+          this.renderItem(this.value)
         }
       }
     },
@@ -222,13 +222,13 @@
         }
         let result = []
         try {
-          if (this.isSearchInLocal) {
+          if (this.isSearchInLocal) { // 本地查找
             for (let i in this.sessionlist) {
               if ((this.sessionlist[i].name.indexOf(value) > -1 || this.sessionlist[i].pinyinStr.indexOf(value) > -1 || this.sessionlist[i].id.indexOf(value) > -1)) {
                 result.push(this.sessionlist[i])
               }
             }
-          } else {
+          } else { // 在线查找
             result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
           }
         } catch (error) {}
@@ -379,9 +379,15 @@
   }
   .s-empty-searchInLocal {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     height: 58px;
     background-color: rgba(0,0,0,0.06)
+  }
+  .s-empty-searchInLocal>span:first-child{
+    font-size: 14px;
+    color: #999999;
   }
   .s-cont {
     box-sizing: border-box;
