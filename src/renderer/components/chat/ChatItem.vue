@@ -1,5 +1,6 @@
 <template>
   <li class="u-msg"
+    :id="msg.idClient"
     :class="{
       'item-me': msg.flow==='out',
       'item-you': msg.flow==='in',
@@ -14,7 +15,6 @@
     <div v-else-if="msg.type==='notification' && msg.scene==='team'" class="notification">{{msg.showText}}</div>
     <div
       v-else-if="msg.flow==='in' || msg.flow==='out'"
-      :idClient="msg.idClient"
       :time="msg.time"
       :flow="msg.flow"
       :type="msg.type"

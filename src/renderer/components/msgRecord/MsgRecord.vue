@@ -196,10 +196,12 @@
         this.teamInfo = data.teamInfo
         this.scene = data.scene
         this.to = data.to
-        this.$nextTick(() => {
-          this.scrollToBottom('msg-record-box-all')
-          this.isInitLoadAll = false
-        })
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.scrollToBottom('msg-record-box-all')
+            this.isInitLoadAll = false
+          })
+        }, 100)
       })
     },
     beforeDestroy () {
@@ -225,9 +227,11 @@
           // 初始化当前聊天记录
           this.InitLocalAllMsg()
         }
-        this.$nextTick(() => {
-          this.scrollToBottom('msg-record-box-all')
-        })
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.scrollToBottom('msg-record-box-all')
+          })
+        }, 100)
       },
       // 监听是否有日期筛选
       date (newValue, oldValue) {
@@ -270,19 +274,20 @@
             this.isInitLoadFile && this.InitLocalFileMsg()
             break
         }
-        console.log(this.checkType + '*****' + this.isInitLoadAll)
-        this.$nextTick(() => {
-          if (this.checkType === 'all' && this.isInitLoadAll) {
-            this.scrollToBottom(domId)
-            this.isInitLoadAll = false
-          } else if ((this.checkType === 'image' && this.isInitLoadImage)) {
-            this.scrollToBottom(domId)
-            this.isInitLoadImage = false
-          } else if ((this.checkType === 'file' && this.isInitLoadFile)) {
-            this.scrollToBottom(domId)
-            this.isInitLoadFile = false
-          }
-        })
+        setTimeout(() => {
+          this.$nextTick(() => {
+            if (this.checkType === 'all' && this.isInitLoadAll) {
+              this.scrollToBottom(domId)
+              this.isInitLoadAll = false
+            } else if ((this.checkType === 'image' && this.isInitLoadImage)) {
+              this.scrollToBottom(domId)
+              this.isInitLoadImage = false
+            } else if ((this.checkType === 'file' && this.isInitLoadFile)) {
+              this.scrollToBottom(domId)
+              this.isInitLoadFile = false
+            }
+          })
+        }, 100)
       }
     },
     computed: {
@@ -729,7 +734,6 @@
               })
             }
           } else {
-            console.log('this.checkType=====' + this.checkType)
             // 滚动到顶部，继续加载第一条前面的消息
             let newMsgList = null
             if (this.checkType === 'all') {

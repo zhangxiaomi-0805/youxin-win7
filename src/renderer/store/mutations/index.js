@@ -888,6 +888,11 @@ export default {
     // 1-初始状态，2-开启，3-关闭，4-隐藏
     state.slideMenuStatus = status
   },
+  // 消息会话窗口---保存加载之前的数据长度和最上一条的id
+  updatePreMsgInfo (state, obj) {
+    // 更新当前初始化历史消息---全部
+    state.preMsgInfo = Object.assign({}, obj)
+  },
   // 历史消息记录
   updateMsgRecordAllList (state, arr) {
     // 更新当前初始化历史消息---全部

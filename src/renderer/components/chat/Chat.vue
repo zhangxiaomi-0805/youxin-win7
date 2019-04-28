@@ -543,7 +543,27 @@
         return newMsgTip
       },
       loadMore () {
-        this.getHistoryMsgs()
+        let currSessionMsgs = this.$store.state.currSessionMsgs
+        let preFirstDom = document.getElementById('chat-list').childNodes[3]
+        let preFirstId = preFirstDom && preFirstDom.getAttribute('id')
+        let preMsgInfo = {
+          preMsgLength: currSessionMsgs.length,
+          preFirstId
+        }
+        this.$store.commit('updatePreMsgInfo', preMsgInfo) // 加载更多之前保存当前消息长度和最前面一条消息的id
+        this.getHistoryMsgs(() => {
+          setTimeout(() => {
+            let curMsgLength = this.$store.state.currSessionMsgs && this.$store.state.currSessionMsgs.length
+            let preMsgLength = this.$store.state.preMsgInfo && this.$store.state.preMsgInfo.preMsgLength
+            let preFirstId = this.$store.state.preMsgInfo && this.$store.state.preMsgInfo.preFirstId
+            if (curMsgLength - 2 >= preMsgLength) {
+              let offsetTop = document.getElementById(`${preFirstId}`).offsetTop
+              this.$nextTick(() => {
+                document.getElementById('chat-list').scrollTop = offsetTop - 50
+              })
+            }
+          }, 0)
+        })
       },
       openSliderMenu () {
         if (this.moveStatus === 2) {

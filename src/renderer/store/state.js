@@ -80,6 +80,8 @@ export default {
   continueRobotAccid: '',
 
   newMsg: {},
+  // 消息会话窗口---保存加载之前的数据长度和最上一条的id
+  preMsgInfo: {},
   // 当前历史消息记录初始化数据---全部
   msgRecordAllList: [],
   // 当前历史消息记录初始化数据---图片
