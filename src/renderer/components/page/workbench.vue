@@ -95,7 +95,7 @@ export default {
     electronOpenInWin (url, item) {
       // electron端打开内部窗口
       let { ipcRenderer } = require('electron')
-      ipcRenderer.send('openAplWindow', {url, title: item.appName, appCode: item.appCode})
+      ipcRenderer.send('openAplWindow', {url, title: item.appName, appCode: item.appCode, showHideWinCheck: localStorage.SHOWHIDEWINCHECK})
     },
     webOpenOutWin (url) {
       // web端打开外部窗口
@@ -103,7 +103,13 @@ export default {
     },
     webOpenInWin (url, item) {
       // web端打开内部窗口
-      let itemInfo = {url, title: item.appName, appCode: item.appCode, icon: item.appIconUrl}
+      let itemInfo = {
+        url,
+        title: item.appName,
+        appCode: item.appCode,
+        icon: item.appIconUrl,
+        showHideWinCheck: localStorage.SHOWHIDEWINCHECK
+      }
       localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
       // 1、创建窗口
       // params: windowName, path, height, width

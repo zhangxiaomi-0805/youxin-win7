@@ -217,7 +217,7 @@ MsgRecordFn.openAplWindow = function (evt, sessionId) {
             NativeLogic.native.createWindows('营业精灵', url, config.aplWinHeight, config.aplWinWidth)
           } else { // electron分支
             let { ipcRenderer } = require('electron')
-            ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId})
+            ipcRenderer.send('openAplWindow', {url: res, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: sessionId, showHideWinCheck: localStorage.SHOWHIDEWINCHECK})
           }
         }).catch(() => {})
         return false

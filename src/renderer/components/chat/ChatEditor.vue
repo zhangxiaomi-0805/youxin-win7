@@ -414,11 +414,17 @@
               image.src = result.base64
               this.sendImgMsg(file)
             }
-            NativeLogic.native.setWinStatus('main', 7)
+            if (localStorage.SHOWHIDEWINCHECK) {
+              NativeLogic.native.setWinStatus('main', 7) // 窗口显示
+              NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
+              // NativeLogic.native.sendEvent('营业精灵', {isShow: true}, 'showAplWindow')
+            }
           }
         }).catch(() => {
-          if (type !== 'isCallScreenShot') {
-            NativeLogic.native.setWinStatus('main', 7)
+          if (localStorage.SHOWHIDEWINCHECK) {
+            NativeLogic.native.setWinStatus('main', 7) // 窗口显示
+            NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
+            // NativeLogic.native.sendEvent('营业精灵', {isShow: true}, 'asyncMessage')
           }
         })
       },
@@ -1247,25 +1253,6 @@
         let msgText = ''
         let msgImg = 0
         let childNodes = [...(this.$refs.editDiv.childNodes)]
-        // let nodes = this.$refs.editDiv.childNodes
-        // for(let i = 0; i < nodes.length; i++) {
-        //   if (nodes[i].nodeType === 3) {
-        //     msgText += nodes[i].data
-        //   } else if (nodes[i].nodeType === 1) {
-        //     if (nodes[i].outerHTML === '<div><br></div>') {
-        //       msgText += '\r\n'
-        //     } else if (nodes[i].tagName === 'IMG') {
-        //       if (nodes[i].getAttribute('data-key')) {
-        //         msgText += nodes[i].getAttribute('data-key')
-        //       }
-        //       if (nodes[i].getAttribute('data-obj')) {
-        //         msgImg++
-        //       }
-        //     } else if (nodes[i].tagName === 'DIV') {
-        //       msgText += '\r\n' + nodes[i].innerText
-        //     }
-        //   }
-        // }
         childNodes.forEach((item, index) => {
           if (item.nodeType === 3) {
             msgText += item.data

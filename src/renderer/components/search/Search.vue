@@ -195,7 +195,6 @@
         }, 500)
       },
       isSearchInLocal (newValue, oldValue) {
-        console.log(newValue)
         if (!newValue) {
           this.renderItem(this.value)
         }
@@ -211,8 +210,8 @@
           return
         }
         if ((this.type === 'all' || this.type === 'orgnize')) this.searchInContact(value, 1)
-        if (!this.isSearchInLocal && (this.type === 'all' || this.type === 'team')) this.searchInTeam(value)
-        if (!this.isSearchInLocal && this.type === 'all') this.searchInRecord(value)
+        if ((this.type === 'all' || this.type === 'team')) this.searchInTeam(value)
+        if (this.type === 'all') this.searchInRecord(value)
       },
       async searchInContact (value, page) {
         // 搜索联系人
@@ -225,11 +224,14 @@
           if (this.isSearchInLocal) { // 本地查找
             for (let i in this.sessionlist) {
               if ((this.sessionlist[i].name.indexOf(value) > -1 || this.sessionlist[i].pinyinStr.indexOf(value) > -1 || this.sessionlist[i].id.indexOf(value) > -1)) {
+                this.sessionlist[i].accid = this.sessionlist[i].id && this.sessionlist[i].id.split('-')[1]
                 result.push(this.sessionlist[i])
+                console.log(result)
               }
             }
           } else { // 在线查找
             result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
+            console.log(result)
           }
         } catch (error) {}
         let contactlistTemp = []

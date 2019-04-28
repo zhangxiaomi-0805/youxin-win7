@@ -7,7 +7,9 @@
     <!-- <span>在线</span><i></i> -->
   </div>
   <!-- 单聊 -->
-  <div @click="navTo('session')" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'"></div>
+  <div @click="navTo('session')" style="position: relative" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'">
+    <span v-if="isShowRedPoint" class="u-nav-unread"></span>
+  </div>
   <!-- 常用联系人 -->
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'nav-item u-nav-friends z-sel' : 'u-nav-friends'"></div>
   <!-- 群&讨论组 -->
@@ -34,16 +36,24 @@ export default {
     return {
       defaultUserIcon: config.defaultUserIcon,
       selectedItem: 'session',
-      marginTop: platform.getOsInfo() === 'Windows' ? '17px' : '2rem'
+      marginTop: platform.getOsInfo() === 'Windows' ? '17px' : '2rem',
+      isShowRedPoint: false
     }
   },
   mounted () {
     this.eventBus.$on('updateNavBar', (data) => {
       this.selectedItem = data.navTo
     })
+    this.eventBus.$on('showRedPoint', (data) => {
+      this.isShowRedPoint = false
+      if (data.unreadNums > 0) {
+        this.isShowRedPoint = true
+      }
+    })
   },
   beforeDestroy () {
     this.eventBus.$off('updateNavBar')
+    this.eventBus.$off('showRedPoint')
   },
   watch: {
     $route () {
@@ -117,6 +127,16 @@ export default {
 </script>
 
 <style>
+  .u-nav-unread {
+    display: inline-block;
+    position: absolute;
+    top: 8px;
+    right: 28%;
+    width: 8px;
+    height: 8px;
+    background-color: #F43530;
+    border-radius: 50%;
+  }
   .u-nav-avatar{
     margin-top: 17px;
     width: 36px;

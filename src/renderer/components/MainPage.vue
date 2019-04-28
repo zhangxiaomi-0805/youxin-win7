@@ -287,6 +287,7 @@
         } else {
           unreadNums = 1
         }
+        this.eventBus.$emit('showRedPoint', {unreadNums})
         if (config.environment === 'web') { // web分支
           NativeLogic.native.receiveNewMsgs({ unreadNums })
         } else { // electron分支

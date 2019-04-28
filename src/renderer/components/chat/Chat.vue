@@ -556,8 +556,8 @@
             let curMsgLength = this.$store.state.currSessionMsgs && this.$store.state.currSessionMsgs.length
             let preMsgLength = this.$store.state.preMsgInfo && this.$store.state.preMsgInfo.preMsgLength
             let preFirstId = this.$store.state.preMsgInfo && this.$store.state.preMsgInfo.preFirstId
-            if (curMsgLength - 2 >= preMsgLength) {
-              let offsetTop = document.getElementById(`${preFirstId}`).offsetTop
+            if (curMsgLength - 2 >= preMsgLength && preFirstId) {
+              let offsetTop = document.getElementById(`${preFirstId}`) && document.getElementById(`${preFirstId}`).offsetTop
               this.$nextTick(() => {
                 document.getElementById('chat-list').scrollTop = offsetTop - 50
               })

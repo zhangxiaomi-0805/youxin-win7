@@ -6,7 +6,7 @@ var config = {
   aplWinHeight: 767, // 内部子窗口初始宽
   xpVersion: '3.1.4', // XP---app当前版本号
   winVersion: '3.1.4', // windows---app当前版本号
-  env: 'selfOnline',
+  env: 'test',
   sdk: 'NIM_Web_SDK_v6.2.1',
   // 用户自定义的登录注册地址
   loginUrl: '#/',

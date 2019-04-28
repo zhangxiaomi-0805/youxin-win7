@@ -97,11 +97,15 @@
               <span v-else-if="msg.flow === 'in' && isDownloaded === 0 && curDownloadStatus === 0" class="file-downloadBtn" @click.stop="handleDownloadFile">
               </span>
               <span class="circle-bar" v-else-if="curProgress < 100">
-                <span class="circle-bar-left" :style="curProgress > 50 ? {transform: `rotate(${(curProgress-50) * 3.6}deg)`} : {}"></span>
-                <span class="circle-bar-right" :style="curProgress <= 50 ? {transform: `rotate(${curProgress * 3.6}deg)`} : {backgroundColor: '#529EFF', transform: 'rotate(0deg)'}"></span>
+                <span class="circle-bar-left"></span>
+                <span class="circle-bar-right"></span>
                 <!-- 遮罩层，显示百分比 -->
-                <span class="mask">
-                  <span :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click.stop="handleCancelLoad"></span>
+                <span class="mask"
+                  @mouseover="activeFileMsgId = msg.idClient"
+                  @mouseout="activeFileMsgId = -1"
+                >
+                  <span v-if="msg.idClient === activeFileMsgId" :class="curDownloadStatus === 2 ? 'percent z-pause' : 'percent'" @click.stop="handleCancelLoad"></span>
+                  <span v-else style="fontSize: 10px; color: #666">{{parseInt(curProgress) + '%'}}</span>
                 </span>
               </span>
               <span v-else style="color: #999;font-size: 12px;">
@@ -185,7 +189,8 @@
         vioceToText: '',
         myGroupIcon: config.defaultGroupIcon,
         downloadUrl: '',
-        isXp: config.environment === 'web'
+        isXp: config.environment === 'web',
+        activeFileMsgId: -1
       }
     },
     computed: {
@@ -1560,7 +1565,8 @@
           url,
           title: sessionInfo.name,
           icon: sessionInfo.avatar,
-          appCode: this.msg.sessionId
+          appCode: this.msg.sessionId,
+          showHideWinCheck: localStorage.SHOWHIDEWINCHECK
         }
         localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
         // 1、创建窗口
@@ -1592,7 +1598,8 @@
       electronOpenInWin (url, sessionInfo) {
         // electron端打开内部窗口
         let { ipcRenderer } = require('electron')
-        ipcRenderer.send('openAplWindow', {url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId})
+  
+        ipcRenderer.send('openAplWindow', {url, title: sessionInfo.name, icon: sessionInfo.avatar, appCode: this.msg.sessionId, showHideWinCheck: localStorage.SHOWHIDEWINCHECK})
       },
       httpSpring (str) {
         // 匹配url
@@ -2310,12 +2317,12 @@
 
 /*圆形进度条*/
 .circle-bar {display: block; font-size:30px; width: 1em; height: 1em; position: relative;  background-color: #529EFF; }
-.circle-bar-left,.circle-bar-right {display: block; width: 1em; height: 1em; background-color: #eee; }
+.circle-bar-left,.circle-bar-right {display: block; width: 1em; height: 1em; background-color: rgba(79,141,255,0.1); }
 
 .circle-bar-right { clip:rect(0,auto,auto,.5em); }
 .circle-bar-left { clip:rect(0,.5em,auto,0); }
 
-.mask {display: block; width: 0.8em; height: 0.8em;  background-color: #fff;text-align: center;line-height: 0.2em; color:rgba(0,0,0,0.5); }
+.mask {display: block; width: 0.8em; height: 0.8em;  background-color: #fff;text-align: center;line-height: 0.2em; color:rgba(0,0,0,0.5);cursor: pointer; }
 .mask :first-child {display: block; font-size: 0.3em; height: 0.8em; line-height: 0.8em; display: block;  }
 /*所有的后代都水平垂直居中，这样就是同心圆了*/
 .circle-bar * {display: block; position: absolute; top:0; right:0; bottom:0; left:0; margin:auto; }

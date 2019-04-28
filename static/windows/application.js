@@ -2,6 +2,7 @@
  * 访客页初始化
  */
 var TabManage = function () {
+  this.showHideWinCheck = false // 截屏时是否隐藏窗口
   this.data = [] // 数据源
   this.currentTab = -1 // 当前活跃项
   this.tabsContain = document.getElementById('appli-tabs')
@@ -13,6 +14,7 @@ TabManage.prototype.init = function () {
   let electron = require('electron')
   let ipcRenderer = electron.ipcRenderer
   ipcRenderer.on('asynchronous-message', (event, arg) => {
+    this.showHideWinCheck = arg.showHideWinCheck
     this.currentTab = arg.appCode
     let hasExit = false
     for (let i = 0; i < this.data.length; i++) {
@@ -43,7 +45,11 @@ TabManage.prototype.init = function () {
             }
           } else if (e.url.indexOf('yximscreencapture.telecomjs.com') > -1) { // 唤起截屏处理
             console.log('唤起截屏处理====')
+            console.log('this.showHideWinCheck====' + this.showHideWinCheck)
             ipcRenderer.send('callScreenShot')
+            if (this.showHideWinCheck) {
+              ipcRenderer.send('onMinimize', {window: 'aplWindow'})
+            }
           } else {
             webview.loadURL(e.url)
             this.canGoBack()

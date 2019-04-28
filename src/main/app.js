@@ -275,12 +275,18 @@ APP.prototype.initIPC = function () {
         if (error) {
           if (arg.hideWin) {
             _this.mainWindow.show()
+            if (_this.aplWindow) {
+              _this.aplWindow.show()
+            }
           }
           this.screenShoted = false
           throw error
         } else {
           if (arg.hideWin) {
             _this.mainWindow.show()
+            if (_this.aplWindow) {
+              _this.aplWindow.show()
+            }
           }
           this.screenShoted = false
           let isChange = 1

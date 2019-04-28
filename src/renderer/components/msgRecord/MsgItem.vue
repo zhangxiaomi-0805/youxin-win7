@@ -281,7 +281,8 @@ export default {
       let itemInfo = {
         url,
         title: item.appName,
-        appCode: item.appCode
+        appCode: item.appCode,
+        showHideWinCheck: localStorage.SHOWHIDEWINCHECK
       }
       localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
       // 1、创建窗口
@@ -313,7 +314,7 @@ export default {
     electronOpenInWin (url, item) {
       // electron端打开内部窗口
       let { ipcRenderer } = require('electron')
-      ipcRenderer.send('openAplWindow', {url, title: item.name, icon: item.avatar, appCode: item.id})
+      ipcRenderer.send('openAplWindow', {url, title: item.name, icon: item.avatar, appCode: item.id, showHideWinCheck: localStorage.SHOWHIDEWINCHECK})
     },
     className (msg) {
       // 选择框样式

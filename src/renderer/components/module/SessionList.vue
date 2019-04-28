@@ -1,11 +1,12 @@
 <template>
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
   <div class="u-search searchevent" v-clickoutside="clearStatus">
-    <div class="u-cont">
-      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
+    <div class="u-cont" @mouseup="showPaste">
+      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" ref="editDiv"/>
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
+  <div class="u-editor-paste-btn" v-if="showPasteBtn && !isXp" :style="{left: pasteLeft + 'px', top: pasteTop + 'px'}" @click="onPaste($event, 'click')" >粘贴</div>
   <div class="u-tips neterr" v-if="networkStatus !== 200"><i></i><span>当前网络不可用，请检查你的网络设置</span></div>
   <div class="u-tips mobile-online" v-else-if="mobileOnline"><i></i><span>手机端已登录</span></div>
   <div class="u-nomsg" v-if="sessionlist.length <= 0">暂无聊天消息~~</div>
@@ -86,6 +87,7 @@ import Search from '../search/Search.vue'
 import clickoutside from '../../utils/clickoutside.js'
 import Request from '../../utils/request'
 import NativeLogic from '../../utils/nativeLogic.js'
+import emojiObj from '../../configs/emoji'
 export default {
   name: 'session-list',
   directives: {clickoutside},
@@ -154,6 +156,8 @@ export default {
   },
   data () {
     return {
+      isXp: config.environment === 'web',
+      showPasteBtn: false,
       activeId: '',
       scrollTop: 0,
       showSearch: false,
@@ -165,6 +169,11 @@ export default {
       showDelete: false, // 快捷删除按钮
       selectedId: -1 // 当前鼠标移入的会话id
     }
+  },
+  updated () {
+    window.document.body.addEventListener('click', () => {
+      this.showPasteBtn = false
+    })
   },
   computed: {
     moveStatus () {
@@ -286,6 +295,85 @@ export default {
     }
   },
   methods: {
+    // 右键粘贴
+    showPaste (e) {
+      if (e.button === 2 && config.environment !== 'web') {
+        e.preventDefault()
+        this.showPasteBtn = true
+        this.pasteLeft = e.offsetX
+        this.pasteTop = e.offsetY
+      }
+    },
+    // 粘贴事件
+    async onPaste (e) {
+      e && e.preventDefault()
+      let text = null
+      if (config.environment !== 'web') {
+        const { clipboard } = require('electron')
+        if (clipboard.readText() && !clipboard.read('public.file-url')) {
+          text = clipboard.readText()
+        }
+      }
+      if (text) {
+        // 粘贴文字
+        // 得到剪贴板中的文本
+        let showText = ''
+        if (text.length + this.msgTransform().textLen > 5000) {
+          showText = text.slice(0, 5000 - this.msgTransform().textLen)
+        } else {
+          showText = text
+        }
+        let emojiItems = showText.match(/\[[\u4e00-\u9fa5]+\]/g)
+        let copyText = showText
+        let emojiCnt = emojiObj.emojiList.emoji
+        if (emojiItems && emojiItems.length > 0) {
+          emojiItems.forEach((item) => {
+            let index = copyText.indexOf(item)
+            if (index !== 0) {
+              document.execCommand('insertText', false, copyText.slice(0, index))
+            }
+            if (emojiCnt[item]) {
+              let dataKey = item.slice(1, -1)
+              let emoji = `<img class="emoji-small" style="width: 24px;height: 24px;vertical-align: middle;" data-key="${dataKey}" src="${emojiCnt[item].img}">`
+              document.execCommand('insertHTML', false, emoji)
+            } else {
+              document.execCommand('insertText', false, item)
+            }
+            copyText = copyText.slice(index + item.length)
+          })
+        }
+        if (copyText) {
+          document.execCommand('insertText', false, copyText)
+        }
+      }
+    },
+    msgTransform () {
+      let msgText = ''
+      let msgImg = 0
+      let childNodes = [...(this.$refs.editDiv.childNodes)]
+      childNodes.forEach((item, index) => {
+        if (item.nodeType === 3) {
+          msgText += item.data
+        } else if (item.nodeType === 1) {
+          if (item.outerHTML === '<div><br></div>') {
+            msgText += '\r\n'
+          } else if (item.tagName === 'IMG') {
+            if (item.getAttribute('data-key')) {
+              msgText += item.getAttribute('data-key')
+            }
+            if (item.getAttribute('data-obj')) {
+              msgImg++
+            }
+          } else if (item.tagName === 'DIV') {
+            msgText += '\r\n' + item.innerText
+          }
+        }
+      })
+      return {
+        textLen: msgText.length,
+        imgLen: msgImg
+      }
+    },
     // 快捷删除会话
     deleteSessionFast (session) {
       this.$store.dispatch('deleteSession', {id: session.id, that: this})
@@ -640,6 +728,21 @@ export default {
 </script>
 
 <style>
+  .u-editor-paste-btn {
+    position: absolute;
+    z-index: 70;
+    width: 88px;
+    height: 30px;
+    background: rgba(255,255,255,0.90);
+    border: 1px solid #BEBEBE;
+    box-shadow: 0 0 10px 0 rgba(0,0,0,0.16);
+    border-radius: 10px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    color: #333;
+    font-size: 14px;
+  }
   /*时间提示*/
   .g-window .u-session-time {
     display: inline-block;

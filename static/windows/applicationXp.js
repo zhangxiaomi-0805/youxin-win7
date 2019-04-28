@@ -2,6 +2,7 @@
  * 访客页初始化
  */
 var TabManage = function () {
+  this.showHideWinCheck = false // 截屏时是否隐藏窗口
   this.data = [] // 数据源
   this.currentTab = -1 // 当前活跃项
   this.tabsContain = document.getElementById('appli-tabs')
@@ -13,9 +14,13 @@ TabManage.prototype.init = function () {
   this.PreDef()
   // 监听主窗口通信方法
   window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
+    if (params.eventName === 'showAplWindow') {
+      tabManage.setWinStatus('营业精灵', 7) // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
+    }
     if (params.eventName === 'asyncMessage') {
       let arg = JSON.parse(params.data)
       console.log(arg)
+      this.showHideWinCheck = arg.showHideWinCheck
       this.currentTab = arg.appCode
       let hasExit = false
       for (let i = 0; i < this.data.length; i++) {
@@ -187,8 +192,6 @@ TabManage.prototype.removeChild = function (appCode) {
   this.iframeContain.removeChild(this.getActiveDom(2, appCode))
 }
 
-
-
 // 获取当前活跃状态dom
 TabManage.prototype.getActiveDom = function (type, appCode) {
   let className = ''
@@ -299,8 +302,16 @@ window.onload = () => {
         tabManage.sendEvent('main', JSON.stringify({account}), 'createSession')
       }
     } else if (params.url.indexOf('yximscreencapture.telecomjs.com') > -1) { // 唤起截屏处理
-      // 跟主页面通信
-      tabManage.sendEvent('main', null, 'callScreenShot')
+      if (this.showHideWinCheck) {
+        tabManage.setWinStatus('营业精灵', 1).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
+          // 跟主页面通信
+          tabManage.sendEvent('main', null, 'callScreenShot')
+        }).catch(err => console.log(err))
+      } else {
+        // 跟主页面通信
+        tabManage.sendEvent('main', null, 'callScreenShot')
+      }
+      
     } else { // 渲染新url
       iframe.src = params.url
     }
