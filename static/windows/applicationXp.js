@@ -292,7 +292,6 @@ window.onload = () => {
   /* 接收拦截到打开新链接的事件 */
   window.NimCefWebInstance && window.NimCefWebInstance.register('OnOpenNewLink', (params) => {
     console.log('123=========')
-    console.log(params)
     // 窗口内链接跳转
     const iframe = tabManage.getActiveDom(2) // 找到当前活跃的iframe
     if (params.url.indexOf('yximcreatesession.telecomjs.com') > -1) { // 发起会话处理
@@ -302,7 +301,7 @@ window.onload = () => {
         tabManage.sendEvent('main', JSON.stringify({account}), 'createSession')
       }
     } else if (params.url.indexOf('yximscreencapture.telecomjs.com') > -1) { // 唤起截屏处理
-      if (this.showHideWinCheck) {
+      if (tabManage.showHideWinCheck) {
         tabManage.setWinStatus('营业精灵', 1).then(res => { // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
           // 跟主页面通信
           tabManage.sendEvent('main', null, 'callScreenShot')

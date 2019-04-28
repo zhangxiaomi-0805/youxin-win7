@@ -414,17 +414,15 @@
               image.src = result.base64
               this.sendImgMsg(file)
             }
-            if (localStorage.SHOWHIDEWINCHECK) {
-              NativeLogic.native.setWinStatus('main', 7) // 窗口显示
-              NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
-              // NativeLogic.native.sendEvent('营业精灵', {isShow: true}, 'showAplWindow')
-            }
+          }
+          if (localStorage.SHOWHIDEWINCHECK) {
+            NativeLogic.native.setWinStatus('main', 7) // 窗口显示
+            NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
           }
         }).catch(() => {
           if (localStorage.SHOWHIDEWINCHECK) {
             NativeLogic.native.setWinStatus('main', 7) // 窗口显示
             NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
-            // NativeLogic.native.sendEvent('营业精灵', {isShow: true}, 'asyncMessage')
           }
         })
       },
