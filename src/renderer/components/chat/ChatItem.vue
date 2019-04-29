@@ -52,7 +52,6 @@
           @mouseup.stop="!isCheckMore && itemMouseUp($event)"
           @click="!isCheckMore && openAplWindow($event)"
           @keydown.stop="shearBoard($event)"
-          tabindex="1"
           @dblclick.stop="isXp && copyAll()"
         >
         </span>
@@ -1182,6 +1181,7 @@
                   this.forwordMsg()
                   break
                 case 3: // 复制
+                  e.preventDefault()
                   this.$refs.clipboard.value = this.getCopyText(e)
                   this.$refs.clipboard.select()
                   document.execCommand('Copy')
@@ -1621,11 +1621,15 @@
         return httpArr
       },
       shearBoard (e) {
+        console.log('hahahahh=====')
         // Ctrl + C写入剪切版
         let keyCode = e.keyCode || e.which || e.charCode
         let ctrlKey = e.ctrlKey || e.metaKey
         if (ctrlKey && keyCode === 67) {
+          console.log('124567=====')
           this.$refs.clipboard.innerText = this.getCopyText(e)
+          console.log(this.getCopyText(e))
+          console.log(this.$refs.clipboard.innerText)
           this.$refs.clipboard.select()
           document.execCommand('Copy')
         }
