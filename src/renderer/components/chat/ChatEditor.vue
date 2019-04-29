@@ -561,6 +561,10 @@
               if (e.clipboardData.items[j].type === 'image/png') { // 将复制的excle转为图片
                 var pasteFile1 = e.clipboardData.items[j].getAsFile()
                 file = new File([pasteFile1], 'image.png', {type: 'image/png'})
+              } else if (e.clipboardData.items[j].kind === 'string') {
+                try {
+                  text = await this.getAsString(e.clipboardData.items[j])
+                } catch (err) {}
               } else {
                 _copyText()
               }

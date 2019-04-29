@@ -1182,10 +1182,7 @@
                   this.forwordMsg()
                   break
                 case 3: // 复制
-                  e.preventDefault()
-                  this.$refs.clipboard.value = this.getCopyText(e)
-                  // this.$refs.clipboard.select() // 加上会使得按下ctrl + c之后，之前的选中效果消失
-                  document.execCommand('Copy')
+                  this.shearBoard(e)
                   break
                 case 4:
                   this.$store.dispatch('deleteMsg', this.msg)
@@ -1623,13 +1620,12 @@
       },
       shearBoard (e) {
         // Ctrl + C写入剪切版
-        let keyCode = e.keyCode || e.which || e.charCode
-        let ctrlKey = e.ctrlKey || e.metaKey
-        if (ctrlKey && keyCode === 67) {
-          this.$refs.clipboard.innerText = this.getCopyText(e)
-          // this.$refs.clipboard.select() // 加上会使得按下ctrl + c之后，之前的选中效果消失
-          document.execCommand('Copy')
-        }
+        let copyText = this.getCopyText(e)
+        document.addEventListener('copy', function copy (e) {
+          e.clipboardData.setData('text/plain', copyText)
+          e.preventDefault()
+        })
+        document.execCommand('copy')
       },
       downloadImg (item) {
         // 本地存储图片
