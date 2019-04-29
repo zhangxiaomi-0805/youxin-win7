@@ -21,6 +21,9 @@ export default {
     nick () {
       return this.$store.state.remoteWaitingObj.nick
     },
+    currentNick () {
+      return this.$store.state.remoteWaitingObj.currentNick
+    },
     type () {
       return this.$store.state.remoteWaitingObj.type
     },
@@ -40,10 +43,10 @@ export default {
       let content = ''
       switch (this.type) {
         case 1:
-          content = `您正在请求远程控制${this.nick}的电脑，请等待对方回应...`
+          content = `您正在请求远程控制${this.currentNick}的电脑，请等待对方回应...`
           break
         case 2:
-          content = `您正在邀请${this.nick}远程控制您的电脑，请等待对方回应...`
+          content = `您正在邀请${this.currentNick}远程控制您的电脑，请等待对方回应...`
           break
         default :
           break
@@ -63,6 +66,8 @@ export default {
       }
       this.$store.dispatch('sendCustomSysMsg', {account: this.account, content: JSON.stringify(content)})
       this.$store.commit('updateRemoteWaitingObj', { showModal: false })
+      const ipcRenderer = require('electron').ipcRenderer
+      ipcRenderer.send('remoteConnectionDiss')
     }
   }
 }
