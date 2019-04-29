@@ -417,12 +417,14 @@
           }
           if (localStorage.SHOWHIDEWINCHECK) {
             NativeLogic.native.setWinStatus('main', 7) // 窗口显示
-            NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
+            NativeLogic.native.setWinStatus('营业精灵', 3).then(res => {
+              console.log(res)
+            }).catch(err => console.log(err)) // 窗口显示
           }
         }).catch(() => {
           if (localStorage.SHOWHIDEWINCHECK) {
             NativeLogic.native.setWinStatus('main', 7) // 窗口显示
-            NativeLogic.native.setWinStatus('营业精灵', 7) // 窗口显示
+            NativeLogic.native.setWinStatus('营业精灵', 3) // 窗口显示
           }
         })
       },

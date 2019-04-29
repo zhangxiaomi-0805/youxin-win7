@@ -14,9 +14,6 @@ TabManage.prototype.init = function () {
   this.PreDef()
   // 监听主窗口通信方法
   window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
-    if (params.eventName === 'showAplWindow') {
-      tabManage.setWinStatus('营业精灵', 7) // 1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示
-    }
     if (params.eventName === 'asyncMessage') {
       let arg = JSON.parse(params.data)
       console.log(arg)
