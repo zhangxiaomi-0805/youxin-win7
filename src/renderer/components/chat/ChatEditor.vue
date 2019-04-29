@@ -557,9 +557,9 @@
             }
           }
           if (e.clipboardData && e.clipboardData.items) { // ctrl + c 复制时粘贴
-            for (var i = 0; i < e.clipboardData.items.length; i++) {
-              if (e.clipboardData.items[i].type === 'image/png') { // 将复制的excle转为图片
-                var pasteFile1 = e.clipboardData.items[i].getAsFile()
+            for (var j = 0; j < e.clipboardData.items.length; j++) {
+              if (e.clipboardData.items[j].type === 'image/png') { // 将复制的excle转为图片
+                var pasteFile1 = e.clipboardData.items[j].getAsFile()
                 file = new File([pasteFile1], 'image.png', {type: 'image/png'})
               } else {
                 _copyText()

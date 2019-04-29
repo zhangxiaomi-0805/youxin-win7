@@ -53,6 +53,7 @@
           @click="!isCheckMore && openAplWindow($event)"
           @keydown.stop="shearBoard($event)"
           @dblclick.stop="isXp && copyAll()"
+          tabindex="1"
         >
         </span>
         <span v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></span>
@@ -1183,7 +1184,7 @@
                 case 3: // 复制
                   e.preventDefault()
                   this.$refs.clipboard.value = this.getCopyText(e)
-                  this.$refs.clipboard.select()
+                  // this.$refs.clipboard.select() // 加上会使得按下ctrl + c之后，之前的选中效果消失
                   document.execCommand('Copy')
                   break
                 case 4:
@@ -1621,16 +1622,12 @@
         return httpArr
       },
       shearBoard (e) {
-        console.log('hahahahh=====')
         // Ctrl + C写入剪切版
         let keyCode = e.keyCode || e.which || e.charCode
         let ctrlKey = e.ctrlKey || e.metaKey
         if (ctrlKey && keyCode === 67) {
-          console.log('124567=====')
           this.$refs.clipboard.innerText = this.getCopyText(e)
-          console.log(this.getCopyText(e))
-          console.log(this.$refs.clipboard.innerText)
-          this.$refs.clipboard.select()
+          // this.$refs.clipboard.select() // 加上会使得按下ctrl + c之后，之前的选中效果消失
           document.execCommand('Copy')
         }
       },
