@@ -187,6 +187,9 @@
       this.eventBus.$on('checkHistoryMsg', (data) => {
         // 初始化当前聊天记录---全部
         this.InitLocalAllMsg()
+        this.isInitLoadAll = true
+        this.isInitLoadImage = true
+        this.isInitLoadFile = true
         this.showHistoryMsg = true
         if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
           this.isXp = true
@@ -260,7 +263,7 @@
         switch (newValue) {
           case 'all':
             domId = 'msg-record-box-all'
-            // 初始化当前聊天记录---图片
+            // 初始化当前聊天记录---全部
             this.isInitLoadAll && this.InitLocalAllMsg()
             break
           case 'image':
@@ -294,7 +297,7 @@
       time () {
         let currSessionMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
         if (currSessionMsgs && currSessionMsgs.length > 0) {
-          return currSessionMsgs[currSessionMsgs.length - 1].time
+          return currSessionMsgs[currSessionMsgs.length - 1].time || currSessionMsgs[currSessionMsgs.length - 2].time
         }
         return 0
       },
@@ -711,6 +714,8 @@
         this.isSearchCheckMore = false
         this.$store.commit('updateCheckedMsgs', [])
         this.$store.commit('updateMsgRecordAllList', [])
+        this.$store.commit('updateMsgRecordImageList', [])
+        this.$store.commit('updateMsgRecordFileList', [])
         this.date = ''
       },
       // 向上滚动到顶部加载更多

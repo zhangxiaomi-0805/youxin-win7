@@ -1481,6 +1481,7 @@
           return
         }
         if (msg.type === 'file') {
+          this.activeFileMsgId = -1 // 选中文件id重置，重发后显示进度
           const list = this.$store.state.uploadprogressList
           const curProgress = list.find(item => {
             return item.id === this.msg.idClientFake
