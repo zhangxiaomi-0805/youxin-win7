@@ -8,7 +8,8 @@
   </div>
   <!-- 单聊 -->
   <div @click="navTo('session')" style="position: relative" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'">
-    <span v-if="isShowRedPoint" class="u-nav-unread"></span>
+    <!-- 小红点先注释掉 -->
+    <!-- <span v-if="isShowRedPoint" class="u-nav-unread"></span> -->
   </div>
   <!-- 常用联系人 -->
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'nav-item u-nav-friends z-sel' : 'u-nav-friends'"></div>
