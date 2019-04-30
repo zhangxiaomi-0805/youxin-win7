@@ -676,6 +676,9 @@
         }
         this.reset()
         // 初始化当前聊天记录---全部
+        this.isInitLoadAll = true
+        this.isInitLoadImage = true
+        this.isInitLoadFile = true
         this.InitLocalAllMsg()
         setTimeout(() => {
           this.$nextTick(() => {
