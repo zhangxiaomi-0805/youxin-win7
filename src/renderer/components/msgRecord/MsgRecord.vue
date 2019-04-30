@@ -675,6 +675,14 @@
           if (className.indexOf('searchevent') > -1) return
         }
         this.reset()
+        // 初始化当前聊天记录---全部
+        this.InitLocalAllMsg()
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.scrollToBottom('msg-record-box-all')
+            this.isInitLoadAll = false
+          })
+        }, 100)
       },
       toggleList (value) {
         if (this.checkType === value) return
