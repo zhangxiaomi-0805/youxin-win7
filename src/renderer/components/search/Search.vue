@@ -10,7 +10,7 @@
     <div v-else-if="!isNotEmpty && value && !isSearchInLocal && contactlist.length < 1 && teamlist.length < 1 && recordlist.length < 1" class="s-empty searchevent">暂无搜索结果~</div>
     <!-- 联系人 -->
     <div v-else-if="(type === 'all' || type === 'orgnize')">
-      <div v-if="!isSearchInLocal" style="height:80px">
+      <div v-if="!isSearchInLocal">
         <span  class="s-title searchevent">联系人</span>
         <div v-if="contactlist.length < 1" style="display:flex;width:100%;alignItems:center;height:40px;justifyContent:center;">
           <span style="fontSize: 14px;color:#999">暂无搜索结果~</span>
