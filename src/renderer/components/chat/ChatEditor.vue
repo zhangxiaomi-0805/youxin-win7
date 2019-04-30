@@ -81,7 +81,7 @@
             <input type="file" @change="onSendFlie($event)" style="display: none;" ref="fileIp" />
           </div>
           <!-- 远程协助 -->
-          <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
+          <!-- <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
             <a class="b-common b-remote" @click.stop="showRemote = true"/>
 
             <transition name="fade">
@@ -94,7 +94,7 @@
                 <div class="bg-hover" @click="sendRemote(2)">请求远程协助</div>
               </div>
             </transition>
-          </div>
+          </div> -->
         </div>
         <!-- 短信发送 -->
         <div
