@@ -81,7 +81,7 @@
             <input type="file" @change="onSendFlie($event)" style="display: none;" ref="fileIp" />
           </div>
           <!-- 远程协助 -->
-          <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
+          <!-- <div v-if="!isRobot && scene === 'p2p'" class="u-editor-icon">
             <a class="b-common b-remote" @click.stop="showRemote = true"/>
 
             <transition name="fade">
@@ -94,7 +94,7 @@
                 <div class="bg-hover" @click="sendRemote(2)">请求远程协助</div>
               </div>
             </transition>
-          </div>
+          </div> -->
         </div>
         <!-- 短信发送 -->
         <div
@@ -494,14 +494,17 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
-          var item = e.clipboardData.items[0]
-          if (item.kind === 'string') {
-            try {
-              text = await this.getAsString(item)
-            } catch (err) {}
-          } else if (item.kind === 'file') {
-            var pasteFile = item.getAsFile()
-            file = new File([pasteFile], 'image.png', {type: 'image/png'})
+          if (e.clipboardData && e.clipboardData.items) {
+            for (var i = 0; i < e.clipboardData.items.length; i++) {
+              if (e.clipboardData.items[i].kind === 'file') {
+                var pasteFile = e.clipboardData.items[i].getAsFile()
+                file = new File([pasteFile], 'image.png', {type: 'image/png'})
+              } else if (e.clipboardData.items[i].kind === 'string') {
+                try {
+                  text = await this.getAsString(e.clipboardData.items[i])
+                } catch (err) {}
+              }
+            }
           }
         } else {
           const { clipboard } = require('electron')
