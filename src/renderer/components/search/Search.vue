@@ -1,24 +1,35 @@
 <template>
   <!-- 消息列表、通讯录搜索 -->
   <div class="s-cont searchevent" :style="{top: '56px'}">
-    <div v-if="!isEmpty && value && !isSearchInLocal" class="s-empty searchevent">暂无搜索结果~</div>
-    <div v-if="!isEmpty && value && isSearchInLocal" class="s-empty-searchInLocal searchevent">
-      <span>无搜索结果</span>
-      <a class="search-online searchevent"  @click="toggleSearchType()">在线查找 >></a>
-    </div>
-    <div v-if="!isEmpty && !value" class="s-empty searchevent">
+    <div v-if="!isNotEmpty && !value" class="s-empty searchevent">
       <p>温馨提示：</p>
       <p>1、目前支持帐号、姓名、姓名拼音、手机号、邮箱查找；</p>
       <p>2、为了能精准定位，通过姓名查找时请带上地市前缀，例如：搜索"张三"时输入"南京张三"</p>
       <p>3、搜索结果排序规则：联系人、群/讨论组、聊天记录</p>
     </div>
+    <div v-else-if="!isNotEmpty && value && !isSearchInLocal && contactlist.length < 1 && teamlist.length < 1 && recordlist.length < 1" class="s-empty searchevent">暂无搜索结果~</div>
     <!-- 联系人 -->
-    <div v-if="(type === 'all' || type === 'orgnize') && contactlist.length > 0">
-      <div  class="s-title searchevent">
-        <span>联系人</span>
-        <a v-if="isSearchInLocal && contactlist.length > 0" @click="toggleSearchType()">
-          <span class="search-online searchevent">在线查找 >></span>
-        </a>
+    <div v-else-if="(type === 'all' || type === 'orgnize')">
+      <div v-if="!isSearchInLocal" style="height:80px">
+        <span  class="s-title searchevent">联系人</span>
+        <div v-if="contactlist.length < 1" style="display:flex;width:100%;alignItems:center;height:40px;justifyContent:center;">
+          <span style="fontSize: 14px;color:#999">暂无搜索结果~</span>
+        </div>
+      </div>
+      <div v-if="isSearchInLocal">
+        <div v-if="contactlist.length < 1">
+          <span class="s-title searchevent">联系人</span>
+          <div class="s-empty-searchInLocal searchevent">
+            <span>无搜索结果</span>
+            <a class="search-online searchevent"  @click="toggleSearchType()">在线查找 >></a>
+          </div>
+        </div>
+        <div v-else class="s-title searchevent">
+          <span>联系人</span>
+          <a v-if="isSearchInLocal && contactlist.length > 0" @click="toggleSearchType()">
+            <span class="search-online searchevent">在线查找 >></span>
+          </a>
+        </div>
       </div>
       <ul class="u-list searchevent">
         <li
@@ -120,6 +131,12 @@
         isSearchInLocal: true // 默认先从本地联系人搜索
       }
     },
+    mounted () {
+      console.log(this.value)
+      if (this.value) {
+        this.renderItem(this.value)
+      }
+    },
     computed: {
       grouplist () {
         let grouplist = this.$store.state.teamlist.filter(item => {
@@ -127,9 +144,9 @@
         })
         return grouplist
       },
-      isEmpty () {
+      isNotEmpty () {
         if (this.type === 'all') {
-          return this.contactlist.length > 0 || this.teamlist.length > 0 || this.recordlist.length > 0
+          return this.contactlist.length > 0 && this.teamlist.length > 0 && this.recordlist.length > 0
         } else if (this.type === 'orgnize') {
           return this.contactlist.length > 0
         } else if (this.type === 'team') {
@@ -188,6 +205,7 @@
     },
     watch: {
       value (newValue, oldValue) {
+        console.log('newValue ====' + newValue)
         this.beforeValue = newValue
         setTimeout(() => {
           if (newValue !== this.beforeValue) return
