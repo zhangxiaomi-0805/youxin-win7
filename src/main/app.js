@@ -59,10 +59,10 @@ APP.prototype.initApp = function () {
 
   if (process.platform === 'win32') {
     // 修改数据存储位置（包含应用和db数据、日志）
-    let filePath = path.join(process.cwd(), 'appData')
-    app.setPath('appData', filePath)
-    app.setPath('userData', filePath)
-    app.setPath('logs', filePath)
+    // let filePath = path.join(process.cwd(), 'appData')
+    // app.setPath('appData', filePath)
+    // app.setPath('userData', filePath)
+    // app.setPath('logs', filePath)
   }
 
   // 更新App版本号

@@ -494,8 +494,7 @@
               }
             }
             dom.scrollTop = item.offsetTop - itemOffsetHeight - 60
-            clearInterval(msgScrollInterval)
-            this.scrollPullData = null
+            dom.scrrollPullData = null
           }
           if (count > 50) {
             clearInterval(msgScrollInterval)
