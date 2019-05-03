@@ -483,17 +483,19 @@
           let childLength = dom.childElementCount
           if (childLength > bakChildLength) {
             let item = document.getElementById(itemId)
-            let prevItemOne = item && item.previousSibling // 查找上一个兄弟元素节点
-            let itemOffsetHeight = item && item.offsetHeight
-            if (prevItemOne) {
-              let prevItemTwo = prevItemOne.previousSibling // 查找上上一个兄弟元素节点
-              if (prevItemTwo) {
-                itemOffsetHeight = prevItemTwo.offsetHeight
-              } else {
-                itemOffsetHeight = prevItemOne.offsetHeight
+            if (item) {
+              let prevItemOne = item.previousSibling // 查找上一个兄弟元素节点
+              let itemOffsetHeight = item.offsetHeight
+              if (prevItemOne) {
+                let prevItemTwo = prevItemOne.previousSibling // 查找上上一个兄弟元素节点
+                if (prevItemTwo) {
+                  itemOffsetHeight = prevItemTwo.offsetHeight
+                } else {
+                  itemOffsetHeight = prevItemOne.offsetHeight
+                }
               }
+              dom.scrollTop = item.offsetTop - itemOffsetHeight - 60
             }
-            dom.scrollTop = item.offsetTop - itemOffsetHeight - 60
             dom.scrrollPullData = null
           }
           if (count > 50) {

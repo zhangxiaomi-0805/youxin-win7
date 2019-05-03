@@ -556,21 +556,23 @@
             let curMsgLength = this.$store.state.currSessionMsgs && this.$store.state.currSessionMsgs.length
             let preMsgLength = this.$store.state.preMsgInfo && this.$store.state.preMsgInfo.preMsgLength
             let preFirstId = this.$store.state.preMsgInfo && this.$store.state.preMsgInfo.preFirstId
-            let prevFirstObj = document.getElementById(`${preFirstId}`)
-            let prevItemOne = prevFirstObj && prevFirstObj.previousSibling // 查找上一个兄弟元素节点
-            let itemOffsetHeight = prevFirstObj && prevFirstObj.offsetHeight
-            if (prevItemOne) {
-              let prevItemTwo = prevItemOne.previousSibling // 查找上上一个兄弟元素节点
-              if (prevItemTwo) {
-                itemOffsetHeight = prevItemTwo.offsetHeight
-              } else {
-                itemOffsetHeight = prevItemOne.offsetHeight
+            if (preFirstId) {
+              let prevFirstObj = document.getElementById(`${preFirstId}`)
+              let prevItemOne = prevFirstObj && prevFirstObj.previousSibling // 查找上一个兄弟元素节点
+              let itemOffsetHeight = prevFirstObj && prevFirstObj.offsetHeight
+              if (prevItemOne) {
+                let prevItemTwo = prevItemOne.previousSibling // 查找上上一个兄弟元素节点
+                if (prevItemTwo) {
+                  itemOffsetHeight = prevItemTwo.offsetHeight
+                } else {
+                  itemOffsetHeight = prevItemOne.offsetHeight
+                }
               }
-            }
-            if (curMsgLength - 2 >= preMsgLength && preFirstId) {
-              this.$nextTick(() => {
-                document.getElementById('chat-list').scrollTop = prevFirstObj.offsetTop - itemOffsetHeight
-              })
+              if (curMsgLength - 2 >= preMsgLength && prevFirstObj) {
+                this.$nextTick(() => {
+                  document.getElementById('chat-list').scrollTop = prevFirstObj.offsetTop - itemOffsetHeight
+                })
+              }
             }
           }, 0)
         })
