@@ -483,6 +483,7 @@
           let childLength = dom.childElementCount
           if (childLength > bakChildLength) {
             let item = document.getElementById(itemId)
+            clearInterval(msgScrollInterval)
             if (item) {
               let prevItemOne = item.previousSibling // 查找上一个兄弟元素节点
               let itemOffsetHeight = item.offsetHeight
@@ -496,7 +497,7 @@
               }
               dom.scrollTop = item.offsetTop - itemOffsetHeight - 60
             }
-            dom.scrrollPullData = null
+            this.scrollPullData = null
           }
           if (count > 50) {
             clearInterval(msgScrollInterval)
