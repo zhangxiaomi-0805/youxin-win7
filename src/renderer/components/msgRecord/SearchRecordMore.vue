@@ -161,8 +161,18 @@
           this.recordlistMore.unshift(...beforeMsgList)
           setTimeout(() => {
             let prevFirstObj = document.getElementById(`${firstMsgId}`)
+            let prevItemOne = prevFirstObj && prevFirstObj.previousSibling // 查找上一个兄弟元素节点
+            let itemOffsetHeight = prevFirstObj && prevFirstObj.offsetHeight
+            if (prevItemOne) {
+              let prevItemTwo = prevItemOne.previousSibling // 查找上上一个兄弟元素节点
+              if (prevItemTwo) {
+                itemOffsetHeight = prevItemTwo.offsetHeight
+              } else {
+                itemOffsetHeight = prevItemOne.offsetHeight
+              }
+            }
             if (beforeMsgList.length > 2) {
-              document.getElementById('recordMore-box').scrollTop = prevFirstObj.offsetTop - 50
+              document.getElementById('recordMore-box').scrollTop = prevFirstObj.offsetTop - itemOffsetHeight
             }
           }, 0)
         }
