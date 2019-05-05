@@ -171,7 +171,8 @@
         selectedId: 0, // 历史账号当前选中的id
         rememberAccount: [], // 保存记住用户的信息
         verifyCodeImg: '', // 图形验证码
-        verifyCodeUrl: ''
+        verifyCodeUrl: '',
+        macAddress: '' // mac地址
       }
     },
     computed: {
@@ -208,14 +209,25 @@
         if (config.environment === 'web') {
           NativeLogic.native.getMacAddress().then(res => {
             console.log(res)
+            this.macAddress = res.macAddress
           }).catch(err => {
             console.log(err)
           })
         } else {
           const os = require('os')
-          var cpus = os.cpus()
-          console.log('cpus============')
-          console.log(cpus)
+          var networkInterfaces = os.networkInterfaces()
+          if (networkInterfaces) {
+            var arr = []
+            for (let i in networkInterfaces) {
+              arr.push(...networkInterfaces[i])
+            }
+            for (let j = 0; j < arr.length; j++) {
+              if (arr[j].mac !== '00:00:00:00:00:00') {
+                this.macAddress = arr[j].mac
+                return
+              }
+            }
+          }
         }
       },
       resetPwdIndex () {
