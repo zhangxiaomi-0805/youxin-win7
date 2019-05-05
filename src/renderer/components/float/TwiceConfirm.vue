@@ -45,7 +45,7 @@ export default {
       let url = `https://youx.telecomjs.com:10582/sm/user/resetPwdIndex`
       if (config.environment === 'web') {
         // web端打开外部窗口
-        NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+        NativeLogic.native.openShell(3, url, true) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
       } else {
         // electron端打开外部窗口
         let { shell } = require('electron')

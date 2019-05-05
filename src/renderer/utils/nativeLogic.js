@@ -44,8 +44,8 @@ class NativeHandle {
       window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', {
         type,
         path,
-        params: '',
-        is_show: true
+        is_show: isShow,
+        params: ''
       }, (error, result) => {
         if (error) {
           reject(error)

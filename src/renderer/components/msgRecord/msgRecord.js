@@ -224,7 +224,7 @@ MsgRecordFn.openAplWindow = function (evt, sessionId) {
       }
     }
     if (config.environment === 'web') { // web分支
-      NativeLogic.native.openShell(3, url) // 打开类型（1-文件，2-文件所在目录，3-外部浏览器）
+      NativeLogic.native.openShell(3, url, true) // 打开类型（1-文件，2-文件所在目录，3-外部浏览器）
     } else { // electron分支
       let { shell } = require('electron')
       shell.openExternal(url)

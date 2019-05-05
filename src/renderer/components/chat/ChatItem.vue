@@ -1252,7 +1252,7 @@
         const fileUrl = this.downloadUrl || (this.msg.localCustom && this.msg.localCustom.downloadUrl)
         if (config.environment === 'web') {
           // 调用native
-          NativeLogic.native.openShell(1, fileUrl)
+          NativeLogic.native.openShell(1, fileUrl, true)
             .then(() => {})
             .catch(() => {
               // 重新触发下载逻辑
@@ -1285,7 +1285,7 @@
               }
             }
           })
-          NativeLogic.native.openShell(2, folderUrl)
+          NativeLogic.native.openShell(2, folderUrl, true)
             .then()
             .catch(() => {
               // 重新触发下载逻辑
@@ -1555,7 +1555,7 @@
       },
       webOpenOutWin (url) {
         // web端打开外部窗口
-        NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+        NativeLogic.native.openShell(3, url, true) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
       },
       webOpenInWin (url, sessionInfo) {
         // web端打开内部窗口

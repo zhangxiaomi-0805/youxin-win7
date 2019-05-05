@@ -5,6 +5,7 @@ import store from '../store'
 import Fetch from './fetch'
 import config from '../configs'
 import DES from '../utils/des'
+import NativeLogic from '../utils/nativeLogic.js'
 function LoginAuth (params, $this) {
   /*
    * 登录鉴权
@@ -284,7 +285,29 @@ function GetSessionId (params, callback) {
       callback(res)
       localStorage.setItem('sessionId', res)
     }
-  }).catch(() => {})
+  }).catch((err) => {
+    console.log('获取sessionId=====')
+    console.log(err)
+    // 刷新dns
+    if (config.environment === 'web') { // web分支
+      let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
+      if (AppDirectory.indexOf('dist') > -1) {
+        let urlArr = AppDirectory.split('dist')
+        AppDirectory = urlArr[0]
+      }
+      let fileUrl = AppDirectory + '/network_error/network_exception_repair.bat'
+      NativeLogic.native.openShell(1, fileUrl, false)
+        .then((res) => {
+          console.log(res)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    } else {
+      let { ipcRenderer } = require('electron')
+      ipcRenderer.on('refreshDns')
+    }
+  })
 }
 
 function SendMsg (params, $this) {

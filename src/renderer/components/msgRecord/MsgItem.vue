@@ -274,7 +274,7 @@ export default {
     },
     webOpenOutWin (url) {
       // web端打开外部窗口
-      NativeLogic.native.openShell(3, url) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
+      NativeLogic.native.openShell(3, url, true) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
     },
     webOpenInWin (url, item) {
       // web端打开内部窗口
@@ -489,7 +489,7 @@ export default {
       const fileUrl = msg.localCustom.downloadUrl
       if (config.environment === 'web') {
         // 调用native
-        NativeLogic.native.openShell(1, fileUrl)
+        NativeLogic.native.openShell(1, fileUrl, true)
           .then(() => {})
           .catch(() => {
             // 重新触发下载逻辑

@@ -42,7 +42,7 @@ export default {
     },
     goUpdate () {
       if (config.environment === 'web') { // web分支
-        NativeLogic.native.openShell(3, this.content.downloadUrl) // 1.打开类型（1-文件，2-文件所在目录，3-外部浏览器） 2.路径
+        NativeLogic.native.openShell(3, this.content.downloadUrl, true) // 1.打开类型（1-文件，2-文件所在目录，3-外部浏览器） 2.路径
       } else { // electron分支
         let { shell } = require('electron')
         this.content && shell.openExternal(this.content.downloadUrl)

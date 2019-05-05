@@ -59,7 +59,7 @@ APP.prototype.initApp = function () {
 
   if (process.platform === 'win32') {
     // 修改数据存储位置（包含应用和db数据、日志）
-    // let filePath = path.join(process.cwd(), 'Netease')
+    // let filePath = path.join(process.cwd(), 'appData')
     // app.setPath('appData', filePath)
     // app.setPath('userData', filePath)
     // app.setPath('logs', filePath)
@@ -270,7 +270,7 @@ APP.prototype.initIPC = function () {
     }
     setTimeout(() => {
       let bakBase64Str = getStrFn()
-      var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, '/QQPYSnapshot')
+      var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, '/Snapshot')
       exec(testFile, {}, (error, stdout, stderr) => {
         if (error) {
           if (arg.hideWin) {
@@ -379,7 +379,7 @@ APP.prototype.initIPC = function () {
 
   // 发起远程协助
   ipcMain.on('remoteConnection', function (evt, arg) {
-    _this.execProcess('jsmpeg-vnc.exe "desktop"', () => {
+    _this.execProcess('remote-vnc.exe "desktop"', () => {
       // 获取域名
       const req = require('http').get({ host: 'nodejs.cn' })
       req.end()
@@ -398,7 +398,7 @@ APP.prototype.initIPC = function () {
     _this.remoteConnection = null
     global.HASREMOTE = null
     _this.remoteWindow && _this.remoteWindow.close()
-    _this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
+    _this.execProcess('taskkill -f -im "remote-vnc.exe"')
   })
 
   // 创建远程桌面
@@ -506,6 +506,19 @@ APP.prototype.execProcess = function (cmd, callback) {
   })
 }
 
+// getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
+ipcMain.on('refreshDns', function (evt, arg) {
+  _this.refreshDns('network_exception_repair.bat "desktop"')
+})
+
+// getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
+APP.prototype.refreshDns = function (cmd) {
+  // 网络异常时需要执行的bat程序
+  let testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/network_error')
+  let workerProcess = exec(cmd, { cwd: testFile })
+  workerProcess.stdout.on('data', function (data) {})
+}
+
 APP.prototype.createRemoteWindow = function ({url, account}) {
   if (this.remoteWindow) {
     this.remoteWindow.show()
@@ -550,7 +563,7 @@ APP.prototype.initRemoteConnect = function () {
     this.remoteConnection = null
     this.mainWindow.closeRemoteWindow(global.HASREMOTE)
     global.HASREMOTE = null
-    this.execProcess('taskkill -f -im "jsmpeg-vnc.exe"')
+    this.execProcess('taskkill -f -im "remote-vnc.exe"')
   }
 }
 
