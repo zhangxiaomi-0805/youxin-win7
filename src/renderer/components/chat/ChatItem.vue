@@ -596,7 +596,7 @@
               media.src = item.localCustom.imageLocalDir
             } else {
               // 下载图片到本地存储
-              // this.downloadImg(item)
+              this.downloadImg(item)
             }
             media.onerror = () => {
               media.src = config.defaultErrorImg
@@ -1654,7 +1654,7 @@
           let fileExtension = item.file && item.file.name.split('.')[1] // 后缀名
           let fileName = item.idClient + '.' + fileExtension // 文件名
           let accid = localStorage.getItem('uid')
-          let savePath = AppDirectory + `/images/${accid}/${fileName}`
+          let savePath = AppDirectory + `/appData/images/${accid}/${fileName}`
           let downloadUrl = item.originLink.split('?')[0] // 文件原始路径
           /**
            * 3、文件下载: (1)提供文件下载功能，需要将文件下载的进度、是否下载完成以及下载失败提供给h5（需要支持断点续传）(2)图片静默下载
