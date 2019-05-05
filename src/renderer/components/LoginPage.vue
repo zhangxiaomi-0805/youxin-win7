@@ -180,6 +180,8 @@
       }
     },
     mounted () {
+      // 获取mac地址
+      this.getMacAddress()
       // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
@@ -201,6 +203,21 @@
       Request.GetSessionId({}, (value) => this.verifyCodeUrlCtrl(value))
     },
     methods: {
+      // 获取mac地址
+      getMacAddress () {
+        if (config.environment === 'web') {
+          NativeLogic.native.getMacAddress().then(res => {
+            console.log(res)
+          }).catch(err => {
+            console.log(err)
+          })
+        } else {
+          const os = require('os')
+          var cpus = os.cpus()
+          console.log('cpus============')
+          console.log(cpus)
+        }
+      },
       resetPwdIndex () {
         this.eventBus.$emit('twiceConfirm') // 显示忘记密码二次确认框
       },

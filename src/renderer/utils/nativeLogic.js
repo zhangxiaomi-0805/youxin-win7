@@ -39,7 +39,7 @@ class NativeHandle {
    * @params: params   // 调用程序附加的参数
    * @params: is_show   // 是否显示调用窗口
    * **/
-  openShell = (type, path) => {
+  openShell = (type, path, isShow) => {
     return new Promise((resolve, reject) => {
       window.NimCefWebInstance && window.NimCefWebInstance.call('openShell', {
         type,
@@ -386,6 +386,22 @@ class NativeHandle {
             resolve(result)
           } else {
             reject(error)
+          }
+        }
+      })
+    })
+  }
+  /**
+  * 16、获取mac地址
+  * **/
+  getMacAddress = () => {
+    return new Promise((resolve, reject) => {
+      window.NimCefWebInstance && window.NimCefWebInstance.call('getMacAddress', (error, result) => {
+        if (error) {
+          reject(error)
+        } else {
+          if (result) {
+            resolve(result)
           }
         }
       })

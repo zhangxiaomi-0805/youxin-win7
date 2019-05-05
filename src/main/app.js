@@ -508,7 +508,7 @@ APP.prototype.execProcess = function (cmd, callback) {
 
 // getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
 ipcMain.on('refreshDns', function (evt, arg) {
-  _this.refreshDns('network_exception_repair.bat "desktop"')
+  this.refreshDns('network_exception_repair.bat "desktop"')
 })
 
 // getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
