@@ -192,7 +192,6 @@
             return item
           }
         })
-        console.log(sessionlist)
         return sessionlist
       },
       myInfo () {
