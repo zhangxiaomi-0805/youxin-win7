@@ -49,7 +49,7 @@
           </div>
 
           <!-- 图形验证码 -->
-          <div :class="verifyCodeImg ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'">
+          <div v-if="!localAutoLogin" :class="verifyCodeImg ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'">
             <input
               type="text"
               class="ipt"
@@ -63,26 +63,28 @@
               </a>
           </div>
 
-          <div class="m-login-ctl">
-            <!-- <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
-            <span></span> -->
-            <!-- <a
+          <!-- 自动登录 && 记住密码 && 忘记密码 -->
+          <div :class="localAutoLogin ? 'm-login-ctl m-login-ctl2' : 'm-login-ctl'">
+            <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
+            <a
               @click="autoLogin = !autoLogin, isRember = true"
               @mouseover="showPrompt = true"
               @mouseout="showPrompt = false"
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
-            </a> -->
+            </a>
+            
+            <a @click="isRember = !isRember,autoLogin = autoLogin ? false : false">
+              <span :class="isRember ||  autoLogin ? 'common checked' : 'common check'"></span><span>记住密码</span>
+            </a>
+
             <!-- 忘记密码 -->
             <a @click="resetPwdIndex">
               <span class="unknownPwd">忘记密码</span>
             </a>
-            <a @click="isRember = !isRember,autoLogin = autoLogin ? false : false">
-              <span :class="isRember ||  autoLogin ? 'common checked' : 'common check'"></span><span>记住密码</span>
-            </a>
           </div>
 
-          <login-button style="margin-top: 35px" :text="loading ?  '登录中...':'登录'"  :disabled="!account || !password || !verifyCodeImg"  :callBack="login"/>
+          <login-button style="margin-top: 35px" :text="loading ?  '登录中...':'登录'"  :disabled="localAutoLogin ? (!account || !password) : (!account || !password || !verifyCodeImg)"  :callBack="login"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
 
         </div>
@@ -171,7 +173,9 @@
         selectedId: 0, // 历史账号当前选中的id
         rememberAccount: [], // 保存记住用户的信息
         verifyCodeImg: '', // 图形验证码
-        verifyCodeUrl: ''
+        verifyCodeUrl: '',
+        macAddress: '', // mac地址
+        localAutoLogin: localStorage.AUTOLOGIN // 是否为自动登录状态
       }
     },
     computed: {
@@ -190,7 +194,22 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      if (localStorage.LOGININFO) {
+      if (localStorage.AUTOLOGIN) {
+        // 已开启自动登录(30天内)
+        let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
+        let nowDate = new Date().getTime()
+        if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
+          this.loading = true
+          this.autoLogin = true
+          this.account = USERINFO.account
+          this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
+          this.isRember = true
+          this.login(1)
+        } else {
+          localStorage.removeItem('AUTOLOGIN')
+          this.isRember = false
+        }
+      } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
         let loginInfo = JSON.parse(localStorage.LOGININFO)
         this.account = loginInfo.account
@@ -208,14 +227,25 @@
         if (config.environment === 'web') {
           NativeLogic.native.getMacAddress().then(res => {
             console.log(res)
+            this.macAddress = res.macAddress
           }).catch(err => {
             console.log(err)
           })
         } else {
           const os = require('os')
-          var cpus = os.cpus()
-          console.log('cpus============')
-          console.log(cpus)
+          var networkInterfaces = os.networkInterfaces()
+          if (networkInterfaces) {
+            var arr = []
+            for (let i in networkInterfaces) {
+              arr.push(...networkInterfaces[i])
+            }
+            for (let j = 0; j < arr.length; j++) {
+              if (arr[j].mac !== '00:00:00:00:00:00') {
+                this.macAddress = (arr[j].mac).replace(/:/g, '-')
+                return
+              }
+            }
+          }
         }
       },
       resetPwdIndex () {
@@ -324,10 +354,15 @@
         })
       },
       async login (type) {
+        console.log(this.macAddress)
         if (this.errMsg) {
           this.errMsg = ''
         }
-        if (!(this.account && this.password && this.verifyCodeImg)) return
+        if (this.localAutoLogin) {
+          if (!(this.account && this.password)) return
+        } else {
+          if (!(this.account && this.password && this.verifyCodeImg)) return
+        }
         /**
          * type===1,直接密码登录，type===2,首次登录密码激活后登录
          *  */
@@ -350,7 +385,8 @@
         Request.LoginAuth({
           account: this.account,
           password: DES.encryptByDES(this.password, 2),
-          verifyCode: this.verifyCodeImg
+          verifyCode: this.verifyCodeImg,
+          bindingSeq: this.macAddress // mac地址
         }, this).then(ret => {
           if (ret.type === 'setPassword') {
             this.$store.commit('updateCurrentUserSecret', ret.secret)
@@ -630,6 +666,9 @@
     align-items: center;
     justify-content: space-between;
     padding-top: 8px;
+  }
+  .m-login-con .m-login-ctl2 {
+    margin-bottom: 82px
   }
 
   .m-login-con .m-login-ctl a {
