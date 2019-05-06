@@ -67,8 +67,8 @@ Fetch.post = async function (url, params, $this, ContentType) {
       localStorage.removeItem('AUTOLOGIN')
       if (configs.environment === 'web') { // web分支
         // 先关闭所有子窗口，再重启主窗口
-        NativeLogic.native.setWinStatus('aplWindow', 3) // 类型（1-最小化，2-最大化，3-关闭，4-重启，5-隐藏，6-显示）
-        NativeLogic.native.setWinStatus('main', 4)
+        NativeLogic.native.setWinStatus('aplWindow', 4) // 类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）
+        NativeLogic.native.setWinStatus('main', 5)
       } else { // electron分支
         let { ipcRenderer } = require('electron')
         ipcRenderer.send('relaunch-app')
