@@ -354,7 +354,6 @@
         })
       },
       async login (type) {
-        console.log(this.macAddress)
         if (this.errMsg) {
           this.errMsg = ''
         }
