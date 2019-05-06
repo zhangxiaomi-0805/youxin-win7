@@ -183,9 +183,9 @@
         return platform.getOsInfo() === 'Windows'
       }
     },
-    mounted () {
+    async mounted () {
       // 获取mac地址
-      this.getMacAddress()
+      await this.getMacAddress()
       // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
@@ -203,6 +203,7 @@
           this.autoLogin = true
           this.account = USERINFO.account
           this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
+          this.verifyCodeImg = ''
           this.isRember = true
           this.login(1)
         } else {
@@ -223,17 +224,16 @@
     },
     methods: {
       // 获取mac地址
-      getMacAddress () {
+      async getMacAddress () {
         if (config.environment === 'web') {
-          NativeLogic.native.getMacAddress().then(res => {
-            console.log(res)
-            this.macAddress = res.macAddress
+          await NativeLogic.native.getMacAddress().then(res => {
+            this.macAddress = res.mac
           }).catch(err => {
             console.log(err)
           })
         } else {
           const os = require('os')
-          var networkInterfaces = os.networkInterfaces()
+          var networkInterfaces = await os.networkInterfaces()
           if (networkInterfaces) {
             var arr = []
             for (let i in networkInterfaces) {
@@ -357,9 +357,11 @@
         if (this.errMsg) {
           this.errMsg = ''
         }
+        let verifyCode = ''
         if (this.localAutoLogin) {
           if (!(this.account && this.password)) return
         } else {
+          verifyCode = this.verifyCodeImg
           if (!(this.account && this.password && this.verifyCodeImg)) return
         }
         /**
@@ -379,14 +381,18 @@
           this.loading = false
           return
         }
-
-        // 登录鉴权
-        Request.LoginAuth({
+        console.log('this.macAddress ====' + this.macAddress)
+        console.log('verifyCode ====' + verifyCode)
+        let params = {
           account: this.account,
           password: DES.encryptByDES(this.password, 2),
-          verifyCode: this.verifyCodeImg,
+          verifyCode,
           bindingSeq: this.macAddress // mac地址
-        }, this).then(ret => {
+        }
+        console.log('请求参数params====')
+        console.log(params)
+        // 登录鉴权
+        Request.LoginAuth(params, this).then(ret => {
           if (ret.type === 'setPassword') {
             this.$store.commit('updateCurrentUserSecret', ret.secret)
             this.type = 'setPassword'
@@ -464,7 +470,7 @@
                   .catch(() => {})
                 Request.ThirdUrls()
                 // 开启自动登录
-                if (this.autoLogin && !localStorage.AUTOLOGIN) {
+                if (this.autoLogin) {
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password, 2),
