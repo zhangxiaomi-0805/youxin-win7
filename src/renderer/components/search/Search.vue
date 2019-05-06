@@ -50,7 +50,7 @@
       <a v-if="contactShowMore" class="s-cheak-more searchevent" @click="checkMore('contact')">{{contactShowMore === 2 ? '收起' : '显示更多'}}</a>
     </div>
     <!-- 群组 -->
-    <div v-if="(type === 'all' || type === 'team') && value && teamlist.length > 0" :style="{height: teamHeight}">
+    <div v-if="(type === 'all' || type === 'team') && teamlist.length > 0" :style="{height: teamHeight}">
       <div class="s-title searchevent">群组</div>
       <ul class="u-list searchevent">
         <li
@@ -73,7 +73,7 @@
       <a v-if="teamShowMore" class="s-cheak-more searchevent" @click="checkMore('team')">{{teamShowMore === 2 ? '收起' : '显示全部'}}</a>
     </div>
     <!-- 聊天记录 -->
-    <div v-if="value && type === 'all' && recordlist.length > 0" :style="{height: recordHeight}">
+    <div v-if="type === 'all' && recordlist.length > 0" :style="{height: recordHeight}">
       <div class="s-title searchevent">聊天记录</div>
       <ul class="u-list searchevent">
         <li
@@ -170,9 +170,7 @@
             }
           } else if (item.scene === 'team') {
             let teamInfo = this.$store.state.teamlist.find(team => {
-              if (!item.localCustom) {
-                return team.teamId === item.to
-              }
+              return team.teamId === item.to
             })
             if (teamInfo) {
               item.name = teamInfo.name
@@ -186,9 +184,11 @@
             }
           }
           if (pinyin.isSupported()) {
-            item.pinyinStr = pinyin.convertToPinyin(item.name, '', true)
+            if (!item.pinyinStr && item.name) {
+              item.pinyinStr = pinyin.convertToPinyin(item.name, '', true)
+            }
           }
-          if (item.name && item.avatar && !item.localCustom) { // 避免显示空的现象 和 已解散的群组
+          if (item.name && item.avatar) { // 避免显示空的现象
             return item
           }
         })
@@ -244,10 +244,12 @@
               if ((this.sessionlist[i].name.indexOf(value) > -1 || this.sessionlist[i].pinyinStr.indexOf(value) > -1 || this.sessionlist[i].id.indexOf(value) > -1)) {
                 this.sessionlist[i].accid = this.sessionlist[i].id && this.sessionlist[i].id.split('-')[1]
                 result.push(this.sessionlist[i])
+                console.log(result)
               }
             }
           } else { // 在线查找
             result = await SearchData.getContactlists(value, page > 1 ? 10 : 6, userId)
+            console.log(result)
           }
         } catch (error) {}
         let contactlistTemp = []
@@ -337,6 +339,7 @@
         }
       },
       toggleSessin (scene, account, titleName) {
+        console.log(account)
         // 切换会话
         let sessionId = this.getSessionId(account)
         let BaseFn = (sessionId) => {
