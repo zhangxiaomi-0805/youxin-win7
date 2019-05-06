@@ -188,7 +188,7 @@
               item.pinyinStr = pinyin.convertToPinyin(item.name, '', true)
             }
           }
-          if (item.name && item.avatar) { // 避免显示空的现象
+          if (item.name && item.avatar) { // 避免显示空的现象 和 已解散的群组
             return item
           }
         })
