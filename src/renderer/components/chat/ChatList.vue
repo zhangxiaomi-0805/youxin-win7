@@ -108,7 +108,6 @@
         let chatUl = document.getElementById('chat-list')
         if (chatUl.scrollTop === 0 && chatUl.childNodes.length > 10 && this.canLoadMore) {
           // 滚动到顶部，且非首次加载
-          // chatUl.scrollTop = 90
           this.loadMore()
         }
       }

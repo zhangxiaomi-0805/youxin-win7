@@ -16,7 +16,7 @@ let OperateFs = function () {}
 OperateFs.prototype.createDefaltDir = async function ({name, msg, done}) {
   try {
     let { file } = msg || {}
-    let fileDir = path.join(process.cwd(), 'images')
+    let fileDir = path.join(process.cwd(), 'appData/images')
     let accid = localStorage.getItem('uid')
     let readRes = await this.readDir(fileDir)
     if (readRes === 1) {

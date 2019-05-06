@@ -2,7 +2,7 @@
   <li 
     class="list-item"
     @click.stop="isCheckMore ? checkItemFn(msg) : null"
-    :id = idClient
+    :id="`${idClient}_serarch`"
   >
     <div  class="list-item" style="position: relative">
       <div 

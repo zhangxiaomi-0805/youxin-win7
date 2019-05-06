@@ -69,16 +69,32 @@
           </div>
 
           <!-- 内容列表 -->
-          <!-- 全部 -->
-          <ul id="msg-record-box-all" v-show ="checkType === 'all'" style="width: 100%;overflow-y: scroll; height:300px"  @scroll.stop="checkType === 'all' && scrollTopLoad($event, 'msg-record-box-all')">
+          <!-- 日期筛选 -->
+          <ul id="msg-record-box-date" v-show ="checkType === 'all' && date" style="width: 100%;overflow-y: scroll; height:300px" >
             <msg-item
               @checkMore="checkMoreFn"
               :isCheckMore="isCheckMore"
               :sessionId="sessionId"
               :checkedMsgList="checkedMsgList"
               keep-alive
-              v-for="(msg, $index) in allMsgList"
-              :key = $index
+              v-for="(msg) in allDateMsgList"
+              :key="msg.idClient"
+              :msg="msg"
+              :idClient="msg.idClient"
+              :isRobot="isRobot"
+              :userInfos="userInfos"
+              :myInfo="myInfo"/>
+          </ul>
+          <!-- 全部 -->
+          <ul id="msg-record-box-all" v-show ="checkType === 'all' && !date" style="width: 100%;overflow-y: scroll; height:300px"  @scroll.stop="checkType === 'all' && !date && scrollTopLoad($event, 'msg-record-box-all')">
+            <msg-item
+              @checkMore="checkMoreFn"
+              :isCheckMore="isCheckMore"
+              :sessionId="sessionId"
+              :checkedMsgList="checkedMsgList"
+              keep-alive
+              v-for="(msg) in allMsgList"
+              :key="msg.idClient"
               :msg="msg"
               :idClient="msg.idClient"
               :isRobot="isRobot"
@@ -93,8 +109,8 @@
               :sessionId="sessionId"
               :checkedMsgList="checkedMsgList"
               keep-alive
-              v-for="(msg, $index) in imageMsgList"
-              :key = $index
+              v-for="(msg) in imageMsgList"
+              :key="msg.idClient"
               :msg="msg"
               :idClient="msg.idClient"
               :isRobot="isRobot"
@@ -109,8 +125,8 @@
               :sessionId="sessionId"
               :checkedMsgList="checkedMsgList"
               keep-alive
-              v-for="(msg, $index) in fileMsgList"
-              :key = $index
+              v-for="(msg) in fileMsgList"
+              :key="msg.idClient"
               :msg="msg"
               :idClient="msg.idClient"
               :isRobot="isRobot"
@@ -185,8 +201,9 @@
     },
     mounted () {
       this.eventBus.$on('checkHistoryMsg', (data) => {
-        // 初始化当前聊天记录---全部
-        this.InitLocalAllMsg()
+        this.isInitLoadAll = true
+        this.isInitLoadImage = true
+        this.isInitLoadFile = true
         this.showHistoryMsg = true
         if (config.environment === 'web') { // Xp系统时，头部预留30px拖拽区域
           this.isXp = true
@@ -196,9 +213,11 @@
         this.teamInfo = data.teamInfo
         this.scene = data.scene
         this.to = data.to
+        // 初始化当前聊天记录---全部
+        this.InitLocalAllMsg()
         setTimeout(() => {
           this.$nextTick(() => {
-            this.scrollToBottom('msg-record-box-all')
+            this.scrollToBottom('msg-record-box-all', true)
             this.isInitLoadAll = false
           })
         }, 100)
@@ -215,7 +234,7 @@
           this.checkType = 'all'
           if (newValue !== this.beforeValue) return
           this.beforeValue = ''
-        }, 500)
+        }, 100)
       },
       // 监听短信勾选状态
       shortMsgCheck (newValue, oldValue) {
@@ -229,15 +248,17 @@
         }
         setTimeout(() => {
           this.$nextTick(() => {
-            this.scrollToBottom('msg-record-box-all')
+            this.scrollToBottom('msg-record-box-all', true)
           })
         }, 100)
       },
       // 监听是否有日期筛选
       date (newValue, oldValue) {
+        let domId = 'msg-record-box-all'
         if (newValue) {
           // 初始化当前日期筛选历史记录
           this.InitHistoryMsg()
+          domId = 'msg-record-box-date'
         } else {
           if (this.shortMsgCheck) {
             // 初始化当前聊天短信记录
@@ -250,7 +271,7 @@
         }
         setTimeout(() => {
           this.$nextTick(() => {
-            this.scrollToBottom('msg-record-box-all')
+            this.scrollToBottom(domId, true)
           })
         }, 100)
       },
@@ -260,7 +281,7 @@
         switch (newValue) {
           case 'all':
             domId = 'msg-record-box-all'
-            // 初始化当前聊天记录---图片
+            // 初始化当前聊天记录---全部
             this.isInitLoadAll && this.InitLocalAllMsg()
             break
           case 'image':
@@ -277,13 +298,13 @@
         setTimeout(() => {
           this.$nextTick(() => {
             if (this.checkType === 'all' && this.isInitLoadAll) {
-              this.scrollToBottom(domId)
+              this.scrollToBottom(domId, true)
               this.isInitLoadAll = false
             } else if ((this.checkType === 'image' && this.isInitLoadImage)) {
-              this.scrollToBottom(domId)
+              this.scrollToBottom(domId, true)
               this.isInitLoadImage = false
             } else if ((this.checkType === 'file' && this.isInitLoadFile)) {
-              this.scrollToBottom(domId)
+              this.scrollToBottom(domId, true)
               this.isInitLoadFile = false
             }
           })
@@ -294,7 +315,7 @@
       time () {
         let currSessionMsgs = JSON.parse(JSON.stringify(this.$store.state.currSessionMsgs))
         if (currSessionMsgs && currSessionMsgs.length > 0) {
-          return currSessionMsgs[currSessionMsgs.length - 1].time
+          return currSessionMsgs[currSessionMsgs.length - 1].time || currSessionMsgs[currSessionMsgs.length - 2].time
         }
         return 0
       },
@@ -376,12 +397,25 @@
           return members
         }
       },
+      // 日期筛选数据
+      allDateMsgList () {
+        let allDateList = []
+        let allDateMsgList = this.$store.state.currSessionHistoryMsgs
+        allDateMsgList && allDateMsgList.length > 0 && allDateMsgList.map((item, index) => {
+          item = this.manageItem(item)
+          if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
+            allDateList.push(item)
+          }
+        })
+        return allDateList
+      },
+      // 全部数据
       allMsgList () {
         let allList = []
         let msgRecordAllList = this.msgRecordAllList
-        if (this.date) {
-          msgRecordAllList = this.$store.state.currSessionHistoryMsgs
-        }
+        // if (this.date) {
+        //   msgRecordAllList = this.$store.state.currSessionHistoryMsgs
+        // }
         msgRecordAllList && msgRecordAllList.length > 0 && msgRecordAllList.map((item, index) => {
           item = this.manageItem(item)
           if (item.type !== 'timeTag' && item.type !== 'tip' && item.type !== 'notification') {
@@ -426,12 +460,48 @@
       toggleShortMsgStatus () {
         this.shortMsgCheck = !this.shortMsgCheck
       },
-      scrollToBottom (domId) {
-        this.msgRecordInterval = setInterval(() => {
+      scrollToBottom (domId, validChild) {
+        let count = 0
+        let msgRecordInterval = setInterval(() => {
+          count++
           let dom = document.getElementById(domId)
-          if (dom) {
+          if (dom && (!validChild || dom.childElementCount > 0)) {
             dom.scrollTop = dom.scrollHeight
-            clearInterval(this.msgRecordInterval)
+            clearInterval(msgRecordInterval)
+          }
+          if (count > 50) {
+            clearInterval(msgRecordInterval)
+          }
+        }, 100)
+      },
+      scrollToItem (domId, itemId) {
+        let dom = document.getElementById(domId)
+        let bakChildLength = dom.childElementCount
+        let count = 0
+        let msgScrollInterval = setInterval(() => {
+          count++
+          let childLength = dom.childElementCount
+          if (childLength > bakChildLength) {
+            let item = document.getElementById(itemId)
+            clearInterval(msgScrollInterval)
+            if (item) {
+              let prevItemOne = item.previousSibling // 查找上一个兄弟元素节点
+              let itemOffsetHeight = item.offsetHeight
+              if (prevItemOne) {
+                let prevItemTwo = prevItemOne.previousSibling // 查找上上一个兄弟元素节点
+                if (prevItemTwo) {
+                  itemOffsetHeight = prevItemTwo.offsetHeight
+                } else {
+                  itemOffsetHeight = prevItemOne.offsetHeight
+                }
+              }
+              dom.scrollTop = item.offsetTop - itemOffsetHeight - 60
+            }
+            this.scrollPullData = null
+          }
+          if (count > 50) {
+            clearInterval(msgScrollInterval)
+            this.scrollPullData = null
           }
         }, 100)
       },
@@ -672,6 +742,17 @@
           if (className.indexOf('searchevent') > -1) return
         }
         this.reset()
+        this.isInitLoadAll = true
+        this.isInitLoadImage = true
+        this.isInitLoadFile = true
+        // 初始化当前聊天记录---全部
+        this.InitLocalAllMsg()
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.scrollToBottom('msg-record-box-all')
+            this.isInitLoadAll = false
+          })
+        }, 100)
       },
       toggleList (value) {
         if (this.checkType === value) return
@@ -709,29 +790,31 @@
         this.isCheckMore = false
         this.checkFunc = ''
         this.isSearchCheckMore = false
+        this.shortMsgCheck = false
         this.$store.commit('updateCheckedMsgs', [])
         this.$store.commit('updateMsgRecordAllList', [])
+        this.$store.commit('updateMsgRecordImageList', [])
+        this.$store.commit('updateMsgRecordFileList', [])
+        this.$store.commit('updateCurrSessionHistoryMsgs', {type: 'destroy'})
         this.date = ''
       },
       // 向上滚动到顶部加载更多
       async scrollTopLoad (e, domId) {
         let { scrollTop } = e.target
+        if (this.scrollPullData) {
+          return
+        }
         if (scrollTop <= 1) {
+          this.scrollPullData = true
           if (this.date) {
             let preFirstDom = document.getElementById(domId).childNodes[0]
             let preFirstId = preFirstDom && preFirstDom.getAttribute('id')
             if (this.$store.state.currSessionHistoryMsgs && this.$store.state.currSessionHistoryMsgs.length > 0) {
               this.InitHistoryMsg(() => {
-                setTimeout(() => {
-                  let currSessionHistoryMsgs = this.$store.state.currSessionHistoryMsgs
-                  if (currSessionHistoryMsgs.length > 2 && preFirstDom) {
-                    let offsetTop = document.getElementById(`${preFirstId}`).offsetTop
-                    this.$nextTick(() => {
-                      document.getElementById(domId).scrollTop = offsetTop - 50
-                    })
-                  }
-                }, 0)
+                this.scrollToItem(domId, preFirstId)
               })
+            } else {
+              this.scrollPullData = false
             }
           } else {
             // 滚动到顶部，继续加载第一条前面的消息
@@ -758,12 +841,9 @@
               if (beforeMsgList && beforeMsgList.length > 0) {
                 newMsgList.unshift(...beforeMsgList)
                 this.$store.commit('updateMsgRecordAllList', newMsgList)
-                setTimeout(() => {
-                  let prevFirstObj = document.getElementById(`${firstMsgId}`)
-                  if (beforeMsgList.length > 2) {
-                    document.getElementById(domId).scrollTop = prevFirstObj.offsetTop - 50
-                  }
-                }, 0)
+                this.scrollToItem(domId, firstMsgId)
+              } else {
+                this.scrollPullData = false
               }
             }
           }
