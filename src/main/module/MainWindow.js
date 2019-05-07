@@ -218,11 +218,6 @@ MainWindow.prototype.callScreenShot = function (arg) {
   this.mainWindow && this.mainWindow.webContents.send('shortcutScreen', newArg)
 }
 
-// getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
-MainWindow.prototype.refreshDns = function (arg) {
-  this.mainWindow && this.mainWindow.webContents.send('refreshDns', arg)
-}
-
 MainWindow.prototype.shortcutScreen = function (arg) {
   this.mainWindow && this.mainWindow.webContents.send('shortcutScreen', arg)
 }

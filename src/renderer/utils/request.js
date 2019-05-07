@@ -277,6 +277,7 @@ function AppVersions () {
 }
 
 function GetSessionId (params, callback) {
+  console.log('123====')
   /**
    * 获取sessionId
    */
@@ -305,7 +306,7 @@ function GetSessionId (params, callback) {
         })
     } else {
       let { ipcRenderer } = require('electron')
-      ipcRenderer.on('refreshDns')
+      ipcRenderer.send('refreshDns')
     }
   })
 }

@@ -183,9 +183,7 @@
         return platform.getOsInfo() === 'Windows'
       }
     },
-    async mounted () {
-      // 获取mac地址
-      await this.getMacAddress()
+    mounted () {
       // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
@@ -354,6 +352,8 @@
         })
       },
       async login (type) {
+        // 获取mac地址
+        await this.getMacAddress()
         if (this.errMsg) {
           this.errMsg = ''
         }
