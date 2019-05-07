@@ -584,7 +584,13 @@ body,
     height: 31px;
     background:rgba(236,236,236,1);
 }
-
+.appli-window .content-box {
+    position: absolute;
+    top: 32px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
 .appli-window .nav {
     -webkit-app-region: no-drag;
     position: absolute;
@@ -628,3 +634,4 @@ body,
     border-radius: 10px;
     margin-right: 5px;
 }
+
