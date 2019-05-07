@@ -3,8 +3,8 @@
  */
 
 import store from '../'
-import config from '../../configs'
-import NativeLogic from '../../utils/nativeLogic.js'
+// import config from '../../configs'
+// import NativeLogic from '../../utils/nativeLogic.js'
 // 如果会话对象不是好友，需要更新好友名片
 function updateSessionAccount (sessions) {
   sessions.forEach(session => {
@@ -143,19 +143,14 @@ export async function onUpdateSession (session, callback) {
 }
 
 async function updateTwinkle (type) {
-  let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
-  let unreadNums = 0
-  if (unreadList.length < 1) {
-    unreadNums = 0
-  } else {
-    unreadNums = 1
-  }
-  if (config.environment === 'web') { // web分支
-    NativeLogic.native.receiveNewMsgs({ unreadNums })
-  } else { // electron分支
-    let { ipcRenderer } = require('electron')
-    ipcRenderer.send('sessionUnreadNums', {unreadNums})
-  }
+  let unreadNums = store.state.unreadNums
+  console.log('unreadNums ==== ' + unreadNums)
+  // if (config.environment === 'web') { // web分支
+  //   NativeLogic.native.receiveNewMsgs({ unreadNums })
+  // } else { // electron分支
+  //   let { ipcRenderer } = require('electron')
+  //   ipcRenderer.send('sessionUnreadNums', {unreadNums})
+  // }
 }
 
 // 置顶聊天

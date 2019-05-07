@@ -1,6 +1,7 @@
 /* 内存数据状态 */
 
 export default {
+  unreadNums: 0, // 未读消息数量
   // 正在加载中
   isLoading: true,
   // 操作是否是刷新页面，刷新初始没有nim实例，会导致时序问题

@@ -51,16 +51,13 @@ export function onNewMsg (msg) {
 }
 
 async function systemNewMsgsManage (msg) {
+  console.log(msg)
+  store.commit('updateSessions', {sessions: msg})
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
-  let unreadList = [...document.getElementsByClassName('unread-num')] // 未读数dom列表
-  let unreadNums = 0
-  if (unreadList.length > 0) {
-    unreadNums = 1
-  } else {
-    unreadNums = 0
-  }
+  let unreadNums = store.state.unreadNums
+  console.log('unreadNums ==== ' + unreadNums)
   if (config.environment === 'web') { // web分支
-    NativeLogic.native.receiveNewMsgs({ unreadNums })
+    // NativeLogic.native.receiveNewMsgs({ unreadNums })
     NativeLogic.native.getWinStatus('main')
       .then(res => {
         if (!res.isFocused) {

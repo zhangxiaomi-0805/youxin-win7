@@ -287,6 +287,7 @@ function GetSessionId (params, callback) {
       localStorage.setItem('sessionId', res)
     }
   }).catch((err) => {
+    console.log(err)
     // 刷新dns
     if (config.environment === 'web') { // web分支
       let AppDirectory = window.location.pathname.slice(1) // 应用所在目录

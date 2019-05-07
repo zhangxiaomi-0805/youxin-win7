@@ -10,6 +10,10 @@ import Vue from 'Vue'
 import LocalStorage from 'localStorage'
 import IndexedDB from '../../utils/indexedDB'
 export default {
+  // 更新未读消息数量
+  updateUnreadNums (state, unreadNums) {
+    state.unreadNums = unreadNums
+  },
   updateRefreshState (state) {
     state.isRefresh = false
   },
