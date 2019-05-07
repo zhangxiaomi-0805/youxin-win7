@@ -405,6 +405,17 @@ APP.prototype.initIPC = function () {
   ipcMain.on('remoteConnectionCreate', function (evt, arg) {
     _this.createRemoteWindow(arg)
   })
+
+  // getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
+  ipcMain.on('refreshDns', function (evt, arg) {
+    let batPath = path.join(app.getAppPath(), '/dist/electron/static/addon/network_error/network_exception_repair.bat')
+    exec(batPath, (error, stdout, stderr) => {
+      if (error) {
+        throw error
+      } else {
+      }
+    })
+  })
 }
 
 APP.prototype.login = function () {
@@ -504,19 +515,6 @@ APP.prototype.execProcess = function (cmd, callback) {
       callback && callback()
     }
   })
-}
-
-// getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
-ipcMain.on('refreshDns', function (evt, arg) {
-  this.refreshDns('network_exception_repair.bat "desktop"')
-})
-
-// getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
-APP.prototype.refreshDns = function (cmd) {
-  // 网络异常时需要执行的bat程序
-  let testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/network_error')
-  let workerProcess = exec(cmd, { cwd: testFile })
-  workerProcess.stdout.on('data', function (data) {})
 }
 
 APP.prototype.createRemoteWindow = function ({url, account}) {

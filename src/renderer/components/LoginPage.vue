@@ -49,7 +49,7 @@
           </div>
 
           <!-- 图形验证码 -->
-          <div v-if="!localAutoLogin" :class="verifyCodeImg ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'">
+          <div v-if="isShowVericode" :class="verifyCodeImg ? 'm-login-ipt m-login-ipt-active' : 'm-login-ipt'">
             <input
               type="text"
               class="ipt"
@@ -64,7 +64,7 @@
           </div>
 
           <!-- 自动登录 && 记住密码 && 忘记密码 -->
-          <div :class="localAutoLogin ? 'm-login-ctl m-login-ctl2' : 'm-login-ctl'">
+          <div :class="isShowVericode ? 'm-login-ctl' : 'm-login-ctl  m-login-ctl2'">
             <transition name="fade"><div v-if="showPrompt" class="prompt">支持30天内自动登录</div></transition>
             <a
               @click="autoLogin = !autoLogin, isRember = true"
@@ -84,7 +84,7 @@
             </a>
           </div>
 
-          <login-button style="margin-top: 35px" :text="loading ?  '登录中...':'登录'"  :disabled="localAutoLogin ? (!account || !password) : (!account || !password || !verifyCodeImg)"  :callBack="login"/>
+          <login-button style="margin-top: 35px" :text="loading ?  '登录中...':'登录'"  :disabled="isShowVericode ? (!account || !password || !verifyCodeImg) : (!account || !password)"  :callBack="login"/>
           <div class="m-login-errmsg"><span>{{errMsg}}</span></div>
 
         </div>
@@ -175,7 +175,7 @@
         verifyCodeImg: '', // 图形验证码
         verifyCodeUrl: '',
         macAddress: '', // mac地址
-        localAutoLogin: localStorage.AUTOLOGIN // 是否为自动登录状态
+        isShowVericode: true // 是否显示验证码,自动登录成功时不显示
       }
     },
     computed: {
@@ -183,9 +183,7 @@
         return platform.getOsInfo() === 'Windows'
       }
     },
-    async mounted () {
-      // 获取mac地址
-      await this.getMacAddress()
+    mounted () {
       // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
@@ -194,7 +192,9 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
+      console.log(localStorage.AUTOLOGIN)
       if (localStorage.AUTOLOGIN) {
+        this.isShowVericode = false
         // 已开启自动登录(30天内)
         let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
         let nowDate = new Date().getTime()
@@ -209,6 +209,7 @@
         } else {
           localStorage.removeItem('AUTOLOGIN')
           this.isRember = false
+          this.isShowVericode = true
         }
       } else if (localStorage.LOGININFO) {
         // 退出登录记住账号
@@ -354,15 +355,17 @@
         })
       },
       async login (type) {
+        // 获取mac地址
+        await this.getMacAddress()
         if (this.errMsg) {
           this.errMsg = ''
         }
         let verifyCode = ''
-        if (this.localAutoLogin) {
-          if (!(this.account && this.password)) return
-        } else {
+        if (this.isShowVericode) {
           verifyCode = this.verifyCodeImg
           if (!(this.account && this.password && this.verifyCodeImg)) return
+        } else {
+          if (!(this.account && this.password)) return
         }
         /**
          * type===1,直接密码登录，type===2,首次登录密码激活后登录
@@ -381,16 +384,12 @@
           this.loading = false
           return
         }
-        console.log('this.macAddress ====' + this.macAddress)
-        console.log('verifyCode ====' + verifyCode)
         let params = {
           account: this.account,
           password: DES.encryptByDES(this.password, 2),
           verifyCode,
           bindingSeq: this.macAddress // mac地址
         }
-        console.log('请求参数params====')
-        console.log(params)
         // 登录鉴权
         Request.LoginAuth(params, this).then(ret => {
           if (ret.type === 'setPassword') {
@@ -404,13 +403,15 @@
           }
         }).catch(err => {
           this.loading = false
-          if (err) this.errMsg = err.msg
-          // 自动登录情况且密码错误
+          if (err && this.isShowVericode) this.errMsg = err.msg
+          // 自动登录
           if (localStorage.AUTOLOGIN) {
             this.password = ''
             this.isRember = false
+            this.autoLogin = false
             localStorage.removeItem('AUTOLOGIN')
           }
+          this.isShowVericode = true
           // 更新图形验证码
           this.verifyCodeUrlCtrl()
         })
@@ -777,7 +778,7 @@
   /* 记住登录账号弹框 */
   .account-box {
   position: absolute;
-  top: 200px;
+  top: 150px;
   width: 260px;
   height: 132px;
   background: #fff;
