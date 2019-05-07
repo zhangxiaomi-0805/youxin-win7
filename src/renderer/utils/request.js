@@ -15,7 +15,8 @@ function LoginAuth (params, $this) {
   return new Promise((resolve, reject) => {
     params.account = DES.encryptByDES(params.account, 1)
     params.password = DES.encryptByDES(params.password)
-    params.verifyCode = DES.encryptByDES(params.verifyCode)
+    params.bindingSeq = DES.encryptByDES(params.bindingSeq) // mac地址
+    params.verifyCode = params.verifyCode ? DES.encryptByDES(params.verifyCode) : params.verifyCode
     Fetch.post('api/appPc/login/auth', params || {}).then(res => resolve(res)).catch(err => reject(err))
   })
 }
@@ -277,7 +278,6 @@ function AppVersions () {
 }
 
 function GetSessionId (params, callback) {
-  console.log('123====')
   /**
    * 获取sessionId
    */
