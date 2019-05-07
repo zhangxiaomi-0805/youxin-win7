@@ -1,6 +1,6 @@
 <template>
   <div class="m-chat-select-more">
-    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard"></textarea>
+    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard_checkMore"></textarea>
 
     <!-- 关闭按钮 -->
     <div style='width:100%;height:30px;position:relative'>
@@ -18,7 +18,7 @@
       </div>
 
       <div>
-        <div class="btn-box"  @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('copy') : null">
+        <div class="btn-box"  @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('copy', 'clipboard_checkMore') : null">
           <span class="btn-copy"/>
           <div v-if="!(checkedMsgList && checkedMsgList.length > 0)" class="btn-box-mask"/>
         </div>
@@ -31,7 +31,7 @@
 <script>
   import MsgRecordFn from '../msgRecord/msgRecord.js'
   import config from '../../configs'
-  import util from '../../utils'
+  // import util from '../../utils'
   export default {
     mounted () {
       this.eventBus.$on('resetCheckMoreStatus', () => { // 转发 || 复制完成后重置多选状态
@@ -68,7 +68,7 @@
       }
     },
     methods: {
-      toggleFunc (value) {
+      toggleFunc (value, textAreaId) {
         switch (value) {
           case 'forword':
             let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
@@ -84,44 +84,14 @@
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
             break
           case 'copy':
-            this.copyText()
+            // 复制
+            MsgRecordFn.copyMoreText(textAreaId, this.checkedMsgList, () => { this.reset() })
             break
         }
       },
       reset () {
         this.$store.commit('updateCheckedMsgs', [])
         this.eventBus.$emit('updateIsCheckMoreChat', {isMore: false}) // 关闭底部多选操作按钮，显示为输入框
-      },
-      // 消息时间戳处理 --- 年-月-日 时-分-秒
-      manageTime (time) {
-        return util.DateFormat(time)
-      },
-      // 复制
-      copyText () {
-        let resTarget = document.getElementById('clipboard')
-        let allCopyText = ''
-        this.checkedMsgList.sort(function (obj1, obj2) {
-          return obj1.time - obj2.time
-        })
-        if (this.checkedMsgList && this.checkedMsgList.length > 0) {
-          this.checkedMsgList.forEach(msg => {
-            let newMsg = JSON.parse(JSON.stringify(msg))
-            newMsg.time = this.manageTime(newMsg.time)
-            if (newMsg.type === 'text') {
-              let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}\n${newMsg.text}\n\n`
-              allCopyText += singgleCopyText
-            }
-          })
-          resTarget.innerText = allCopyText.replace(/\r/g, '')
-          resTarget.select()
-          document.execCommand('Copy')
-          this.$store.commit('toastConfig', {
-            show: true,
-            type: 'success',
-            toastText: '复制成功！'
-          })
-          this.reset()
-        }
       }
     }
   }

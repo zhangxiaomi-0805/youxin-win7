@@ -2,6 +2,7 @@
   <!-- 历史消息记录 -->
   <transition name="fade">
     <div :class="isXp ? 'm-historymsg-contain contain-top' : 'm-historymsg-contain'" v-if="showHistoryMsg">
+      <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="msgRecord_checkMore"></textarea>
       <div class="m-historymsg-cover" @click="closeCover"></div>
       <div class="m-info-box" style="width:600px;height:502px;">
         <!-- 头部 -->
@@ -39,6 +40,7 @@
           </div>
           <!-- 转发 && 删除 && 取消 -->
           <div v-if="(isCheckMore || isSearchCheckMore)" class="tab-right-title">
+            <a v-if="checkType === 'all'" :class="className('copy')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('copy', 'msgRecord_checkMore') : null">复制</a>
             <a :class="className('forword')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">转发</a>
             <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a>
             <a :class="className('cancel')" @click.stop=" toggleFunc('cancel')">取消</a>
@@ -758,10 +760,16 @@
         if (this.checkType === value) return
         this.checkType = value
       },
-      toggleFunc (value) {
+      toggleFunc (value, textAreaId) {
         if (this.checkFunc === value) return
         this.checkFunc = value
         switch (value) {
+          case 'copy':
+            // 复制
+            MsgRecordFn.copyMoreText(textAreaId, this.checkedMsgList, () => { this.clearCheck() })
+            // 状态重置
+            this.clearCheck()
+            break
           case 'forword':
             let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})

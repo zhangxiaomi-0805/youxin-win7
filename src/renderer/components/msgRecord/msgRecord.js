@@ -7,6 +7,32 @@ import config from '../../configs'
 import NativeLogic from '../../utils/nativeLogic.js'
 import Request from '../../utils/request.js'
 var MsgRecordFn = {}
+MsgRecordFn.copyMoreText = function (textAreaId, checkedMsgList, callback) {
+  let resTarget = document.getElementById(textAreaId)
+  let allCopyText = ''
+  checkedMsgList.sort(function (obj1, obj2) {
+    return obj1.time - obj2.time
+  })
+  if (checkedMsgList && checkedMsgList.length > 0) {
+    checkedMsgList.forEach(msg => {
+      let newMsg = JSON.parse(JSON.stringify(msg))
+      // newMsg.time = this.manageTime(newMsg.time)
+      if (newMsg.type === 'text') {
+        let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}\n${newMsg.text}\n\n`
+        allCopyText += singgleCopyText
+      }
+    })
+    resTarget.innerText = allCopyText.replace(/\r/g, '')
+    resTarget.select()
+    document.execCommand('Copy')
+    store.commit('toastConfig', {
+      show: true,
+      type: 'success',
+      toastText: '复制成功！'
+    })
+    callback && callback()
+  }
+}
 MsgRecordFn.getSearchRecords = function (searchValue, checkType) {
   // 搜索
   return new Promise((resolve, reject) => {
