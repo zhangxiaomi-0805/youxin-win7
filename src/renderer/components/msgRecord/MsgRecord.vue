@@ -766,13 +766,14 @@
             let sidelist = MsgRecordFn.forwordMsg(this.to, this.myPhoneId, this.userInfos, this.myInfo, this.myGroupIcon) // type:8---多条转发， type:7---单条转发
             this.eventBus.$emit('selectContact', {type: 8, sidelist, msg: this.checkedMsgList})
             // 状态重置
-            this.reset()
+            this.clearCheck()
             break
           case 'delete':
             this.deleteMsgs()
+            this.clearCheck()
             break
           case 'cancel':
-            this.reset()
+            this.clearCheck()
             break
         }
       },
@@ -780,7 +781,13 @@
         for (let i = 0; i < this.checkedMsgList.length; i++) {
           this.$store.dispatch('deleteMsg', this.checkedMsgList[i])
         }
-        this.reset()
+      },
+      clearCheck () {
+        this.loading = false
+        this.checkType = 'all'
+        this.isCheckMore = false
+        this.checkFunc = ''
+        this.isSearchCheckMore = false
       },
       reset () {
         this.loading = false
@@ -791,12 +798,12 @@
         this.checkFunc = ''
         this.isSearchCheckMore = false
         this.shortMsgCheck = false
+        this.date = ''
         this.$store.commit('updateCheckedMsgs', [])
         this.$store.commit('updateMsgRecordAllList', [])
         this.$store.commit('updateMsgRecordImageList', [])
         this.$store.commit('updateMsgRecordFileList', [])
         this.$store.commit('updateCurrSessionHistoryMsgs', {type: 'destroy'})
-        this.date = ''
       },
       // 向上滚动到顶部加载更多
       async scrollTopLoad (e, domId) {
