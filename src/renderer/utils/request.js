@@ -287,8 +287,6 @@ function GetSessionId (params, callback) {
       localStorage.setItem('sessionId', res)
     }
   }).catch((err) => {
-    console.log('获取sessionId=====')
-    console.log(err)
     // 刷新dns
     if (config.environment === 'web') { // web分支
       let AppDirectory = window.location.pathname.slice(1) // 应用所在目录
@@ -296,7 +294,7 @@ function GetSessionId (params, callback) {
         let urlArr = AppDirectory.split('dist')
         AppDirectory = urlArr[0]
       }
-      let fileUrl = AppDirectory + '/network_error/network_exception_repair.bat'
+      let fileUrl = AppDirectory + 'network_error/network_exception_repair.bat'
       NativeLogic.native.openShell(1, fileUrl, false)
         .then((res) => {
           console.log(res)
