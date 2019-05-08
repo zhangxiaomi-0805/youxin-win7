@@ -480,14 +480,6 @@
           console.log(error)
         }
       },
-      // 获取粘贴文字
-      getAsString (item) {
-        return new Promise((resolve, reject) => {
-          item.getAsString(str => {
-            resolve(str)
-          })
-        })
-      },
       // 粘贴事件
       async onPaste (e) {
         e && e.preventDefault()
@@ -500,9 +492,10 @@
                 var pasteFile = e.clipboardData.items[i].getAsFile()
                 file = new File([pasteFile], 'image.png', {type: 'image/png'})
               } else if (e.clipboardData.items[i].kind === 'string') {
-                try {
-                  text = await this.getAsString(e.clipboardData.items[i])
-                } catch (err) {}
+                e.clipboardData.items[i].getAsString(function (str) {
+                  // str 是获取到的字符串
+                  text = str
+                })
               }
             }
           }
