@@ -509,61 +509,71 @@
         } else {
           const { clipboard } = require('electron')
           let imgPath = this._readHTML(clipboard.readHTML())
-          if (imgPath) {
-            try {
-              file = await getFile(imgPath.split('file:///')[1])
+          let _copyText = async () => {
+            if (imgPath) {
+              try {
+                file = await getFile(imgPath.split('file:///')[1])
+                let image = new Image()
+                image.onload = () => {
+                  file.w = image.width
+                  file.h = image.height
+                }
+                image.src = imgPath
+              } catch (error) {}
+            } else if (clipboard.readText() && !clipboard.read('public.file-url')) {
+              text = clipboard.readText()
+            } else if (clipboard.read('FileNameW') || clipboard.read('public.file-url')) {
+              let filePath = ''
+              if (clipboard.read('FileNameW')) {
+                // 通过electron获取文件夹复制的文件
+                let rawFilePath = clipboard.readBuffer('FileNameW').toString('ucs2')
+                filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '')
+              } else {
+                filePath = clipboard.read('public.file-url').replace('file://', '')
+              }
+              try {
+                file = await getFile(filePath)
+              } catch (err) {}
+            } else if (clipboard.readImage()) {
+              let nativeImage = clipboard.readImage()
+              let base64Str = nativeImage.toDataURL()
+              let arr = base64Str.split(',')
+              let mime = arr[0].match(/:(.*?);/)[1]
+              let bstr = atob(arr[1])
+              let n = bstr.length
+              let u8arr = new Uint8Array(n)
+              while (n--) {
+                u8arr[n] = bstr.charCodeAt(n)
+              }
+              file = new File([u8arr], 'image.png', {type: mime})
+              file.base64Str = base64Str
               let image = new Image()
               image.onload = () => {
                 file.w = image.width
                 file.h = image.height
               }
-              image.src = imgPath
-            } catch (error) {}
-          } else if (clipboard.readText() && !clipboard.read('public.file-url')) {
-            text = clipboard.readText()
-          } else if (clipboard.read('FileNameW') || clipboard.read('public.file-url')) {
-            let filePath = ''
-            if (clipboard.read('FileNameW')) {
-              // 通过electron获取文件夹复制的文件
-              let rawFilePath = clipboard.readBuffer('FileNameW').toString('ucs2')
-              filePath = rawFilePath.replace(new RegExp(String.fromCharCode(0), 'g'), '')
-            } else {
-              filePath = clipboard.read('public.file-url').replace('file://', '')
-            }
-            try {
-              file = await getFile(filePath)
-            } catch (err) {}
-          } else if (clipboard.readImage()) {
-            let nativeImage = clipboard.readImage()
-            let base64Str = nativeImage.toDataURL()
-            let arr = base64Str.split(',')
-            let mime = arr[0].match(/:(.*?);/)[1]
-            let bstr = atob(arr[1])
-            let n = bstr.length
-            let u8arr = new Uint8Array(n)
-            while (n--) {
-              u8arr[n] = bstr.charCodeAt(n)
-            }
-            file = new File([u8arr], 'image.png', {type: mime})
-            file.base64Str = base64Str
-            let image = new Image()
-            image.onload = () => {
-              file.w = image.width
-              file.h = image.height
-            }
-            image.src = base64Str
-          } else if (e && e.clipboardData && e.clipboardData.items) {
-            for (let i = 0, len = e.clipboardData.items.length; i < len; i++) {
-              let item = e.clipboardData.items[i]
-              if (item.kind === 'file') {
-                file = item.getAsFile()
-              } else {
-                console.log('粘贴的不是文件')
-              }
+              image.src = base64Str
             }
           }
+          if (e.clipboardData && e.clipboardData.items) { // ctrl + c 复制时粘贴
+            for (var j = 0; j < e.clipboardData.items.length; j++) {
+              if (e.clipboardData.items[j].type === 'image/png') { // 将复制的excle转为图片
+                var pasteFile1 = e.clipboardData.items[j].getAsFile()
+                file = new File([pasteFile1], 'image.png', {type: 'image/png'})
+              } else {
+                _copyText()
+              }
+            }
+          } else { // 右键复制时粘贴
+            _copyText()
+          }
         }
-        if (text) {
+        if (file && file.type.match('^image/')) {
+          // 图片粘贴
+          this.sendImgMsg(file)
+        } else if (file) {
+          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
+        } else if (text) {
           // 粘贴文字
           // 得到剪贴板中的文本
           let showText = ''
@@ -594,13 +604,9 @@
           if (copyText) {
             document.execCommand('insertText', false, copyText)
           }
-        } else if (file && file.type.match('^image/')) {
-          // 图片粘贴
-          this.sendImgMsg(file)
-        } else if (file) {
-          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
         }
       },
+
       _readHTML (html) {
         // 针对QQ图片复制兼容
         let imgReg = /<img.*?(?:>|\/>)/gi
