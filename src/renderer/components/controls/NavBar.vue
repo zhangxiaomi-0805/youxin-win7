@@ -1,5 +1,5 @@
 <template>
-<div class="m-nav">
+<div class="m-nav" :sessionlist="sessionlist">
   <div class="u-nav-avatar" :style="{marginTop}">
     <img @click="getUserInfo($event)" :src="myInfo.avatar || defaultUserIcon"/>
   </div>
@@ -8,8 +8,8 @@
   </div>
   <!-- 单聊 -->
   <div @click="navTo('session')" style="position: relative" :class="selectedItem === 'session' ? 'nav-item u-nav-session z-sel' : 'u-nav-session'">
-    <!-- 小红点先注释掉 -->
-    <!-- <span v-if="isShowRedPoint" class="u-nav-unread"></span> -->
+    <!-- 小红点--有未读消息时显示 -->
+    <span v-if="unreadNums > 0" class="u-nav-unread"></span>
   </div>
   <!-- 常用联系人 -->
   <div @click="navTo('contacts')" :class="selectedItem === 'contacts' ? 'nav-item u-nav-friends z-sel' : 'u-nav-friends'"></div>
@@ -31,14 +31,15 @@
 <script>
 import platform from '../../utils/platform'
 import config from '../../configs'
+import NativeLogic from '../../utils/nativeLogic.js'
+import util from '../../utils'
 export default {
   name: 'nav-bar',
   data () {
     return {
       defaultUserIcon: config.defaultUserIcon,
       selectedItem: 'session',
-      marginTop: platform.getOsInfo() === 'Windows' ? '17px' : '2rem',
-      isShowRedPoint: false
+      marginTop: platform.getOsInfo() === 'Windows' ? '17px' : '2rem'
     }
   },
   mounted () {
@@ -82,6 +83,33 @@ export default {
     }
   },
   methods: {
+    isMute (account) {
+      if (account.scene === 'p2p') {
+        // 静音处理
+        for (let i = 0; i < this.mutelist.length; i++) {
+          if (this.mutelist[i].account === account.to) {
+            return this.mutelist[i].isMute
+          }
+        }
+      } else {
+        let isMute = this.$store.state.muteTeamIds.find(team => {
+          return team === account.to
+        })
+        if (isMute) {
+          return true
+        }
+        return false
+      }
+    },
+    updateTwinkle (unreadNums) {
+      console.log('unreadNums === ' + unreadNums)
+      if (config.environment === 'web') { // web分支
+        NativeLogic.native.receiveNewMsgs({ unreadNums })
+      } else { // electron分支
+        let { ipcRenderer } = require('electron')
+        ipcRenderer.send('sessionUnreadNums', {unreadNums})
+      }
+    },
     getUserInfo ($event) {
       this.eventBus.$emit('showMyInfo', {userInfos: 1, event})
     },
@@ -122,6 +150,64 @@ export default {
     sysMsgUnread () {
       let temp = this.$store.state.sysMsgUnread
       return temp.applyTeam
+    },
+    unreadNums () {
+      return this.$store.state.unreadNums
+    },
+    mutelist () {
+      return this.$store.state.mutelist
+    },
+    userInfos () {
+      return this.$store.state.userInfos
+    },
+    myPhoneId () {
+      return `${this.$store.state.userUID}`
+    },
+    sessionlist () {
+      let unreadNums = 0
+      let isMute = false
+      let newSessionlist = JSON.parse(JSON.stringify(this.$store.state.sessionlist))
+      let sessionlist = newSessionlist.filter(item => {
+        item.name = ''
+        item.avatar = ''
+        if (item.scene === 'p2p') {
+          let userInfo = null
+          if (item.to !== this.myPhoneId) {
+            userInfo = this.userInfos[item.to]
+          } else {
+            userInfo = Object.assign({}, this.myInfo)
+          }
+          if (userInfo) {
+            item.name = util.getFriendAlias(userInfo)
+            item.avatar = userInfo.avatar
+          }
+        } else if (item.scene === 'team') {
+          let teamInfo = this.$store.state.teamlist.find(team => {
+            return team.teamId === item.to
+          })
+          if (teamInfo) {
+            item.name = teamInfo.name
+            item.avatar = teamInfo.avatar || this.myGroupIcon
+          } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+            item.name = item.lastMsg.attach.team.name
+            item.avatar = item.avatar || this.myGroupIcon
+          } else {
+            item.name = item.to
+            item.avatar = item.avatar || this.myGroupIcon
+          }
+        }
+        if (item.name && item.avatar) { // 避免显示空的现象 和 已解散的群组
+          isMute = this.isMute(item)
+          if (!isMute) {
+            unreadNums += item.unread // 统计未读消息数量
+          }
+          return item
+        }
+      })
+      console.log('1345=== ' + unreadNums)
+      this.updateTwinkle(unreadNums)
+      this.$store.commit('updateUnreadNums', unreadNums)
+      return sessionlist
     }
   }
 }

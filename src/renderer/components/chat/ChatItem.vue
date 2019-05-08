@@ -596,7 +596,7 @@
               media.src = item.localCustom.imageLocalDir
             } else {
               // 下载图片到本地存储
-              // this.downloadImg(item)
+              this.downloadImg(item)
             }
             media.onerror = () => {
               media.src = config.defaultErrorImg

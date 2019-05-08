@@ -219,7 +219,8 @@ export default {
       return this.$store.state.currSessionId
     },
     sessionlist () {
-      let sessionlist = this.$store.state.sessionlist.filter(item => {
+      let newSessionlist = JSON.parse(JSON.stringify(this.$store.state.sessionlist))
+      let sessionlist = newSessionlist.filter(item => {
         item.name = ''
         item.avatar = ''
         if (item.scene === 'p2p') {
