@@ -216,6 +216,7 @@
         let loginInfo = JSON.parse(localStorage.LOGININFO)
         this.account = loginInfo.account
         this.isRember = loginInfo.isRember
+        this.autoLogin = false
         if (loginInfo.isRember) {
           this.password = DES.decryptByDESModeEBC(loginInfo.password, 2)
         }
