@@ -1,5 +1,5 @@
 var config = {
-  environment: 'electron', // 运行环境：web/electron
+  environment: 'web', // 运行环境：web/electron
   mainWinWidth: 922, // 主窗口初始宽
   mainWinHeight: 645, // 主窗口初始高
   aplWinWidth: 899, // 内部子窗口初始宽

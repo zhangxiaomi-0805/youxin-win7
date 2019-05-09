@@ -473,6 +473,8 @@
                 Request.ThirdUrls()
                 // 开启自动登录
                 if (this.autoLogin) {
+                  // 先移除之前的自动登录信息，再存储最新的
+                  localStorage.removeItem('AUTOLOGIN')
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password, 2),
