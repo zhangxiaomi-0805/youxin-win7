@@ -270,8 +270,50 @@
       path () {
         return this.$route.path === '/'
       },
+      myInfo () {
+        return this.$store.state.myInfo
+      },
+      myPhoneId () {
+        return `${this.$store.state.userUID}`
+      },
+      userInfos () {
+        return this.$store.state.userInfos
+      },
       sessionlist () {
-        return this.$store.state.sessionlist
+        let sessionlist = this.$store.state.sessionlist.filter(item => {
+          item.name = ''
+          item.avatar = ''
+          if (item.scene === 'p2p') {
+            let userInfo = null
+            if (item.to !== this.myPhoneId) {
+              userInfo = this.userInfos[item.to]
+            } else {
+              userInfo = Object.assign({}, this.myInfo)
+            }
+            if (userInfo) {
+              item.name = util.getFriendAlias(userInfo)
+              item.avatar = userInfo.avatar
+            }
+          } else if (item.scene === 'team') {
+            let teamInfo = this.$store.state.teamlist.find(team => {
+              return team.teamId === item.to
+            })
+            if (teamInfo) {
+              item.name = teamInfo.name
+              item.avatar = teamInfo.avatar || this.myGroupIcon
+            } else if (item.lastMsg && item.lastMsg.attach && item.lastMsg.attach.team) {
+              item.name = item.lastMsg.attach.team.name
+              item.avatar = item.avatar || this.myGroupIcon
+            } else {
+              item.name = item.to
+              item.avatar = item.avatar || this.myGroupIcon
+            }
+          }
+          if (item.name && item.avatar) { // 避免显示空的现象 和 已解散的群组
+            return item
+          }
+        })
+        return sessionlist
       }
     },
     methods: {
