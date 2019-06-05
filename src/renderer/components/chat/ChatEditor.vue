@@ -549,7 +549,7 @@
               image.src = base64Str
             }
           }
-          if (e.clipboardData && e.clipboardData.items) { // ctrl + c 复制时粘贴
+          if (e && e.clipboardData && e.clipboardData.items) { // ctrl + c 复制时粘贴
             if (e.clipboardData.items.length > 0) {
               for (var j = 0; j < e.clipboardData.items.length; j++) {
                 if (e.clipboardData.items[j].type === 'image/png') { // 将复制的excle转为图片
