@@ -487,16 +487,16 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
+          console.log(e)
           if (e.clipboardData && e.clipboardData.items) {
             for (var i = 0; i < e.clipboardData.items.length; i++) {
               if (e.clipboardData.items[i].kind === 'file') {
                 var pasteFile = e.clipboardData.items[i].getAsFile()
                 file = new File([pasteFile], 'image.png', {type: 'image/png'})
               } else if (e.clipboardData.items[i].kind === 'string') {
-                e.clipboardData.items[i].getAsString(function (str) {
-                  // str 是获取到的字符串
-                  text = str
-                })
+                try {
+                  text = await this.getAsString(e.clipboardData.items[i])
+                } catch (err) {console.log(err)}
               }
             }
           }
@@ -568,6 +568,7 @@
             await _copyText()
           }
         }
+        console.log('text ==== ' + text)
         if (file && file.type.match('^image/')) {
           // 图片粘贴
           this.sendImgMsg(file)
@@ -582,6 +583,7 @@
           } else {
             showText = text
           }
+          console.log('得到剪贴板中的文本====' + showText)
           let emojiItems = showText.match(/\[[\u4e00-\u9fa5]+\]/g)
           let copyText = showText
           let emojiCnt = emojiObj.emojiList.emoji
@@ -605,6 +607,14 @@
             document.execCommand('insertText', false, copyText)
           }
         }
+      },
+       // 获取粘贴文字
+      getAsString (item) {
+        return new Promise((resolve, reject) => {
+          item.getAsString(str => {
+            resolve(str)
+          })
+        })
       },
       _readHTML (html) {
         // 针对QQ图片复制兼容
