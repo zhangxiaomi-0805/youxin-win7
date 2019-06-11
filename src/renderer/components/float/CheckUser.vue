@@ -14,12 +14,16 @@
         <div class="nick" :title="userInfos.name"
           @mouseup.stop="userInfos.name ? showListOptions($event, userInfos.name, 'copy_0') : null"
           ref="copy_0"
+          @keydown.stop="shearBoard($event)"
+          tabindex="1"
         >{{userInfos.name}}</div>
         <div class="line" style="margin: 10px 0 0 0; width: 180px; color: #999; font-size: 13px"
           @mouseover="showPrompt = true"
           @mouseout="showPrompt = false"
           @mouseup.stop="userInfos.signature ? showListOptions($event, userInfos.signature, 'copy_1') : null"
           ref="copy_1"
+          @keydown.stop="shearBoard($event)"
+          tabindex="1"
         >{{userInfos.signature || '-'}}</div>
       </div>
     </div>
@@ -30,6 +34,8 @@
         :title="userInfos.account"
         @mouseup.stop="userInfos.account ? showListOptions($event, userInfos.account, 'copy_2') : null"
         ref="copy_2"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.account || '未设置'}}</span>
     </div>
     <div class="user-tel"><span>手机</span>
@@ -37,18 +43,24 @@
         class="line" :title="userInfos.phone"
         @mouseup.stop="userInfos.phone ? showListOptions($event, userInfos.phone, 'copy_3') : null"
         ref="copy_3"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.phone}}</span>
     </div>
     <div class="user-tel"><span>电话</span>
       <span class="line" :title="userInfos.telephone"
         @mouseup.stop="userInfos.tel ? showListOptions($event, userInfos.telephone, 'copy_4') : null"
         ref="copy_4"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.telephone}}</span>
     </div>
     <div class="user-tel"><span>邮箱</span>
       <span class="line" :title="userInfos.email"
         @mouseup.stop="userInfos.email ? showListOptions($event, userInfos.email, 'copy_5') : null"
         ref="copy_5"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.email}}</span>
     </div>
 
@@ -56,18 +68,24 @@
       <span class="line"
         @mouseup.stop="userInfos.sex ? showListOptions($event, userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密', 'copy_6') : null"
         ref="copy_6"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.sex === 1 ? '男' : userInfos.sex === 2 ? '女' : '保密' }}</span>
     </div>
     <div class="user-tel"><span>职务</span>
       <span class="line" :title="userInfos.position"
         @mouseup.stop="userInfos.position ? showListOptions($event, userInfos.position, 'copy_7') : null"
         ref="copy_7"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.position || "-"}}</span>
     </div>
     <div class="user-tel"><span>部门</span>
       <span class="line" :title="userInfos.companyName"
         @mouseup.stop="userInfos.companyName ? showListOptions($event, userInfos.companyName, 'copy_8') : null"
         ref="copy_8"
+        @keydown.stop="shearBoard($event)"
+        tabindex="1"
       >{{userInfos.companyName || "-"}}</span>
     </div>
     <div v-if="callBack" style="marginTop: 15px;">
@@ -247,6 +265,15 @@ export default {
       this.showCheckUser = false
       this.callBack(type)
     },
+    shearBoard (e) {
+      // Ctrl + C写入剪切版
+      let copyText = MsgRecordFn.getCopyText(e)
+      document.addEventListener('copy', function copy (e) {
+        e.clipboardData.setData('text/plain', copyText)
+        e.preventDefault()
+      })
+      document.execCommand('copy')
+    },
     showListOptions (e, msg, ref) {
       let target = this.$refs[ref]
       MsgRecordFn.copyAll(target)
@@ -266,10 +293,7 @@ export default {
           callBack: (type) => {
             switch (type) {
               case 3: // 复制
-                let resTarget = document.getElementById('clipboard')
-                resTarget.innerText = MsgRecordFn.getCopyText(e)
-                resTarget.select()
-                document.execCommand('Copy')
+                this.shearBoard(e)
                 break
             }
           }
@@ -345,6 +369,7 @@ export default {
   }
 
   .m-checkuser-con .m-modify .nick {
+    outline: 0;
     width: 100%;
     font-size: 18px;
     color: #000;
@@ -409,6 +434,7 @@ export default {
   }
 
   .m-checkuser-con .line {
+    outline: 0;
     display: inline-block;
     width: 75%;
     font-size: 14px;

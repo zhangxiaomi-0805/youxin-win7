@@ -18,19 +18,26 @@
           <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
           <div
             v-if="msg.type==='text'"
-            style="font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
+            style="outline:0;font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
             @click="openAplWindow($event)"
             v-html="msg.showText"
             :ref="`copy_${msg.idClient}`"
+            @keydown.stop="shearBoard($event)"
+            tabindex="1"
           ></div>
           <div v-else-if="msg.type==='custom-type1'" ref="mediaMsg">
             <img :src="msg.imgUrl" style="width: 230px; height: 230px"/> 
           </div>
-          <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
+          <div v-else-if="msg.type==='custom-type3'" ref="mediaMsg"
+           @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" 
+           style="background:transparent;border:none;"
+           >
             <img :src="msg.imgUrl" style="width: 230px; height: 230px"/> 
           </div>
-          <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  @mouseup.stop="showListOptions($event, msg)">
+          <div v-else-if="msg.type==='custom-type7'" class="mediaMsg"  
+          @mouseup.stop="showListOptions($event, msg)"
+          >
             <!-- <webview style="height:auto" class="webview-box" ref="webview"  autosize="on" minwidth="300" minheight="20" maxheight='auto' nodeintegration disablewebsecurity src="../../../../static/windows/webview.html"></webview> -->
             <iframe ref="iframe" @load="sendMsgToIframe(msg)" style="height: auto" src="./static/windows/webview.html" minwidth="300" minheight="20" frameborder="0" scrolling="no"></iframe>
           </div>
@@ -41,14 +48,21 @@
               <img :src="msg.showText.teamAvatarUrl" alt="" style="width: 50px; height:50px">
             </span>
           </span>
-          <div v-else-if="msg.type==='image'"  ref="mediaMsg" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}">
+          <div v-else-if="msg.type==='image'"  ref="mediaMsg" 
+          @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)" 
+          :style="{cursor: 'pointer', width: msg.w + 'px', height: msg.h + 'px', background: 'transparent', border: 'none'}"
+          >
             <img :src="msg.originLink" style="width: 100%; height: 100%"/> 
           </div>
           <div v-else-if="msg.type==='video'"  ref="mediaMsg">
             <video :src="msg.src" autoStart="false" controls="controls" style="width:230px; height:230px"></video>
           </div>
           <div v-else-if="msg.type==='audio'"  :class="isPlay ? 'zel-play' : ''" @click="isCheckMore ? null : playAudio(msg.audioSrc, msg)" @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"><span>{{msg.showText.split(' ')[0]}}</span></div>
-          <div v-else-if="msg.type==='file'" class="msg-text msg-file" @mouseup.stop="showListOptions($event, msg)" @click="openItemFile(msg)" :style="{cursor: hasFileUrl ? 'pointer' : 'default'}">
+          <div v-else-if="msg.type==='file'" class="msg-text msg-file" 
+          @mouseup.stop="showListOptions($event, msg)" 
+          @click="openItemFile(msg)" 
+          :style="{cursor: hasFileUrl ? 'pointer' : 'default'}"
+          >
             <span class="file-icon" :style="{backgroundImage: `url(${fileIcon(msg)})`, backgroundSize: '100%', backgroundRepeat: 'no-repeat'}"></span>
             <span class="file-content">
               <span class="file-title">
@@ -409,9 +423,7 @@ export default {
                 this.eventBus.$emit('selectContact', {type: 7, sidelist, msg: this.msg})
                 break
               case 3: // 复制
-                this.$refs.clipboard.innerText = MsgRecordFn.getCopyText(e)
-                this.$refs.clipboard.select()
-                document.execCommand('Copy')
+                this.shearBoard(e)
                 break
               case 4: // 删除
                 this.$store.dispatch('deleteMsg', this.msg)
@@ -428,6 +440,15 @@ export default {
       document.onmousemove = null
       document.onmouseup = null
       document.body.style.cursor = 'default'
+    },
+    shearBoard (e) {
+      // Ctrl + C写入剪切版
+      let copyText = MsgRecordFn.getCopyText(e)
+      document.addEventListener('copy', function copy (e) {
+        e.clipboardData.setData('text/plain', copyText)
+        e.preventDefault()
+      })
+      document.execCommand('copy')
     },
     checkMoreFn (msg) {
       this.$emit('checkMore')

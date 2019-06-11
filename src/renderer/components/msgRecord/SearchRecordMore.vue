@@ -37,6 +37,8 @@
                 style="-webkit-user-select: text"
                 v-html="msg.showText"
                 @click.stop="openAplWindow($event, msg.sessionId)"
+                @keydown.stop="shearBoard($event)"
+                tabindex="1"
               />
               <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
               <div v-else-if="msg.type==='custom-type3'" class="msg-text" ref="mediaMsg" @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)" style="background:transparent;border:none;">
@@ -333,6 +335,15 @@
           }
         }
       },
+      shearBoard (e) {
+        // Ctrl + C写入剪切版
+        let copyText = MsgRecordFn.getCopyText(e)
+        document.addEventListener('copy', function copy (e) {
+          e.clipboardData.setData('text/plain', copyText)
+          e.preventDefault()
+        })
+        document.execCommand('copy')
+      },
       showListOptions (e, msg) {
         if (msg.type === 'text' && e.button === 2) {
           let target = (this.$refs[`copy_${msg.idClient}`])[0]
@@ -367,10 +378,7 @@
                   this.eventBus.$emit('selectContact', {type: 7, sidelist, msg})
                   break
                 case 3: // 复制
-                  let clipboard = (this.$refs[`clipboard_${msg.idClient}`])[0]
-                  clipboard.innerText = MsgRecordFn.getCopyText(e)
-                  clipboard.select()
-                  document.execCommand('Copy')
+                  this.shearBoard(e)
                   break
                 case 4: // 删除
                   let index = this.recordlistMore.findIndex(item => {

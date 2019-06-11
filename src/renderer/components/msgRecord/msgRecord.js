@@ -23,7 +23,10 @@ MsgRecordFn.copyMoreText = function (textAreaId, checkedMsgList, callback) {
       }
     })
     resTarget.innerText = allCopyText.replace(/\r/g, '')
-    resTarget.select()
+    document.addEventListener('copy', function copy (e) {
+      e.clipboardData.setData('text/plain', allCopyText.replace(/\r/g, ''))
+      e.preventDefault()
+    })
     document.execCommand('Copy')
     store.commit('toastConfig', {
       show: true,

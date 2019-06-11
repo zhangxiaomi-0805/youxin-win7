@@ -32,6 +32,7 @@
             @drop="onDragFile($event, 'drop')"
             @dragenter="onDragFile($event, 'dragenter')"
             @dragover="onDragFile($event, 'dragover')"
+            tabindex="1"
           />
         </div>
       </div>
@@ -549,6 +550,7 @@
               image.src = base64Str
             }
           }
+          console.log(e)
           if (e && e.clipboardData && e.clipboardData.items) { // ctrl + c 复制时粘贴
             if (e.clipboardData.items.length > 0) {
               for (var j = 0; j < e.clipboardData.items.length; j++) {
@@ -604,7 +606,6 @@
           }
         }
       },
-
       _readHTML (html) {
         // 针对QQ图片复制兼容
         let imgReg = /<img.*?(?:>|\/>)/gi
@@ -652,6 +653,15 @@
         })
         return text
       },
+      shearBoard (e) {
+        // Ctrl + C写入剪切版
+        let copyText = this.getCopyText(e)
+        document.addEventListener('copy', function copy (e) {
+          e.clipboardData.setData('text/plain', copyText)
+          e.preventDefault()
+        })
+        document.execCommand('copy')
+      },
       inputMsg (e, scene, to) {
         if (this.showAtList && this.members.length !== 0) {
           switch (e.keyCode) {
@@ -675,9 +685,7 @@
               break
           }
         } else if (e.ctrlKey && e.keyCode === 67) {
-          this.$refs.clipboard.innerText = this.getCopyText(e)
-          this.$refs.clipboard.select()
-          document.execCommand('Copy')
+          this.shearBoard(e)
         } else if (e.altKey && e.keyCode === 83) {
           // 默认Alt + s 快捷键发送消息
           e.preventDefault()
