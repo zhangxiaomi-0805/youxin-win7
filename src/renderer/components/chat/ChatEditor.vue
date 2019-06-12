@@ -487,17 +487,19 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
-          console.log(e)
+          console.log(e.clipboardData.items)
           if (e.clipboardData && e.clipboardData.items) {
-            for (var i = 0; i < e.clipboardData.items.length; i++) {
-              if (e.clipboardData.items[i].kind === 'file') {
-                var pasteFile = e.clipboardData.items[i].getAsFile()
-                file = new File([pasteFile], 'image.png', {type: 'image/png'})
-              } else if (e.clipboardData.items[i].kind === 'string') {
-                try {
-                  text = await this.getAsString(e.clipboardData.items[i])
-                } catch (err) {console.log(err)}
+            console.log('length==,'+ e.clipboardData.items.length)
+            if (e.clipboardData.items.length > 1) {
+              for (let i = 0; i < e.clipboardData.items.length; i++) {
+                console.log(e.clipboardData.items[i])
+                if (e.clipboardData.items[i].kind === 'file') {
+                  var pasteFile = e.clipboardData.items[i].getAsFile()
+                  file = new File([pasteFile], 'image.png', {type: 'image/png'})
+                }
               }
+            } else {
+              text = await this.getAsString(e.clipboardData.items[0])
             }
           }
         } else {
