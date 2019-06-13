@@ -16,9 +16,8 @@ MsgRecordFn.copyMoreText = function (textAreaId, checkedMsgList, callback) {
   if (checkedMsgList && checkedMsgList.length > 0) {
     checkedMsgList.forEach(msg => {
       let newMsg = JSON.parse(JSON.stringify(msg))
-      // newMsg.time = this.manageTime(newMsg.time)
       if (newMsg.type === 'text') {
-        let singgleCopyText = `${newMsg.fromNick}  ${newMsg.time}\n${newMsg.text}\n\n`
+        let singgleCopyText = `${newMsg.fromNick}  ${util.DateFormat(newMsg.time)}\n${newMsg.text}\n\n`
         allCopyText += singgleCopyText
       }
     })

@@ -487,12 +487,9 @@
         let text = null
         let file = null
         if (config.environment === 'web') {
-          console.log(e.clipboardData.items)
           if (e.clipboardData && e.clipboardData.items) {
-            console.log('length==,'+ e.clipboardData.items.length)
             if (e.clipboardData.items.length > 1) {
               for (let i = 0; i < e.clipboardData.items.length; i++) {
-                console.log(e.clipboardData.items[i])
                 if (e.clipboardData.items[i].kind === 'file') {
                   var pasteFile = e.clipboardData.items[i].getAsFile()
                   file = new File([pasteFile], 'image.png', {type: 'image/png'})
@@ -610,7 +607,7 @@
           }
         }
       },
-       // 获取粘贴文字
+      // 获取粘贴文字
       getAsString (item) {
         return new Promise((resolve, reject) => {
           item.getAsString(str => {
