@@ -419,7 +419,6 @@
           if (localStorage.SHOWHIDEWINCHECK) {
             NativeLogic.native.setWinStatus('main', 7) // 窗口显示
             NativeLogic.native.setWinStatus('营业精灵', 3).then(res => {
-              console.log(res)
             }).catch(err => console.log(err)) // 窗口显示
           }
         }).catch(() => {
@@ -478,7 +477,6 @@
             range && range.collapseToEnd()
           }
         } catch (error) {
-          console.log(error)
         }
       },
       // 粘贴事件
@@ -488,7 +486,7 @@
         let file = null
         if (config.environment === 'web') {
           if (e.clipboardData && e.clipboardData.items) {
-            if (e.clipboardData.items.length > 1) {
+            if (e.clipboardData.items.length === 4) { // 单独处理excel问题
               for (let i = 0; i < e.clipboardData.items.length; i++) {
                 if (e.clipboardData.items[i].kind === 'file') {
                   var pasteFile = e.clipboardData.items[i].getAsFile()
@@ -496,7 +494,15 @@
                 }
               }
             } else {
-              text = await this.getAsString(e.clipboardData.items[0])
+              var item = e.clipboardData.items[0]
+              if (item.kind === 'string') {
+                try {
+                  text = await this.getAsString(item)
+                } catch (err) {}
+              } else if (item.kind === 'file') {
+                var pasteFile = item.getAsFile()
+                file = new File([pasteFile], 'image.png', {type: 'image/png'})
+              }
             }
           }
         } else {
@@ -516,7 +522,6 @@
             } else if (clipboard.readText() && !clipboard.read('public.file-url')) {
               text = clipboard.readText()
             } else if (clipboard.read('FileNameW') || clipboard.read('public.file-url')) {
-              console.log('12345t=====')
               let filePath = ''
               if (clipboard.read('FileNameW')) {
                 // 通过electron获取文件夹复制的文件
@@ -549,7 +554,6 @@
               image.src = base64Str
             }
           }
-          console.log(e)
           if (e && e.clipboardData && e.clipboardData.items) { // ctrl + c 复制时粘贴
             if (e.clipboardData.items.length > 0) {
               for (var j = 0; j < e.clipboardData.items.length; j++) {
@@ -567,7 +571,6 @@
             await _copyText()
           }
         }
-        console.log('text ==== ' + text)
         if (file && file.type.match('^image/')) {
           // 图片粘贴
           this.sendImgMsg(file)
@@ -582,7 +585,6 @@
           } else {
             showText = text
           }
-          console.log('得到剪贴板中的文本====' + showText)
           let emojiItems = showText.match(/\[[\u4e00-\u9fa5]+\]/g)
           let copyText = showText
           let emojiCnt = emojiObj.emojiList.emoji
