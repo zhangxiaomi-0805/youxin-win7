@@ -484,12 +484,13 @@
         e && e.preventDefault()
         let text = null
         let file = null
+        let pasteFile = null
         if (config.environment === 'web') {
           if (e.clipboardData && e.clipboardData.items) {
             if (e.clipboardData.items.length === 4) { // 单独处理excel问题
               for (let i = 0; i < e.clipboardData.items.length; i++) {
                 if (e.clipboardData.items[i].kind === 'file') {
-                  var pasteFile = e.clipboardData.items[i].getAsFile()
+                  pasteFile = e.clipboardData.items[i].getAsFile()
                   file = new File([pasteFile], 'image.png', {type: 'image/png'})
                 }
               }
@@ -500,7 +501,7 @@
                   text = await this.getAsString(item)
                 } catch (err) {}
               } else if (item.kind === 'file') {
-                var pasteFile = item.getAsFile()
+                pasteFile = item.getAsFile()
                 file = new File([pasteFile], 'image.png', {type: 'image/png'})
               }
             }

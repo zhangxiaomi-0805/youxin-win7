@@ -169,7 +169,7 @@ export function deleteSession ({state, commit}, obj) {
   let sessionIdArr = state.sessionlist.map((item, index) => {
     return item.id
   })
-  let curSessionId = obj.that.$router.history.current.query.sessionId
+  let curSessionId = obj.that ? obj.that.$router.history.current.query.sessionId : ''
   let sessionId = obj.id || ''
   let scene = null
   let account = null
@@ -203,7 +203,7 @@ export function deleteSession ({state, commit}, obj) {
             // type为1是则删除所有
             let { that, type } = obj
             if (type === 1) {
-              that.$router.push({ name: 'session-default' })
+              that && that.$router.push({ name: 'session-default' })
               commit('deleteSessions', [sessionId])
               return
             }
