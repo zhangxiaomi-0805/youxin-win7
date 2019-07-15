@@ -46,11 +46,11 @@
         <span :ref="`copy_${idClient}`"
           style="-webkit-user-select: text;outline: 0;"
           v-if="msg.type==='text'"
-          class="msg-text"
+          :class="(msg.localCustom && msg.localCustom.urlIsClick) || msgUrlIsClick ? 'msg-text msg-text-active' : 'msg-text'"
           v-html="msg.showText"
           @mousedown.stop="!isCheckMore && showListOptions($event, msg.type, msg.showText)"
           @mouseup.stop="!isCheckMore && itemMouseUp($event)"
-          @click="!isCheckMore && openAplWindow($event)"
+          @click="!isCheckMore && openAplWindow($event, null, msg)"
           @keydown.stop="shearBoard($event)"
           @dblclick.stop="copyAll()"
           tabindex="1"
@@ -150,6 +150,12 @@
       to: String,
       teamId: String,
       idClient: String,
+      msglist: {
+        type: Array,
+        default () {
+          return []
+        }
+      },
       rawMsg: {
         type: Object,
         default () {
@@ -190,7 +196,8 @@
         myGroupIcon: config.defaultGroupIcon,
         downloadUrl: '',
         isXp: config.environment === 'web',
-        activeFileMsgId: -1
+        activeFileMsgId: -1,
+        msgUrlIsClick: false
       }
     },
     computed: {
@@ -338,6 +345,7 @@
             httpUrls.map(url => {
               item.showText = item.showText.replace(url, (m) => {
                 variable++
+                url = util.escape(url)
                 replaceArr.push(`<a style="text-decoration: underline;display: inline-block;max-width: 100%;" data-url="${url}">${url}</a>`)
                 return `{---===${variable}}`
               })
@@ -497,6 +505,7 @@
             }
           }
         }
+        console.log(item)
         return item
       },
       fileSize () {
@@ -1497,7 +1506,20 @@
           this.$store.dispatch('resendMsg', msg)
         }
       },
-      openAplWindow (evt, openType) {
+      // url点击之后记录状态，后续显示为已点击的效果
+      _manageUrlMsg (msg) {
+        // 更新消息自定义字段
+        if (!msg.localCustom || !msg.localCustom.urlIsClick) {
+          if (!msg.localCustom) {
+            msg.localCustom = { urlIsClick: true }
+          } else {
+            msg.localCustom.urlIsClick = true
+          }
+          this.msgUrlIsClick = true
+          this.$store.dispatch('updateLocalMsg', {idClient: msg.idClient, localCustom: msg.localCustom})
+        }
+      },
+      openAplWindow (evt, openType, msg) {
         let url = ''
         if (!openType) {
           url = evt.target.getAttribute('data-url')
@@ -1505,6 +1527,7 @@
           url = evt.url
         }
         if (url) {
+          this._manageUrlMsg(msg || this.msg) // url点击之后记录状态，后续显示为已点击的效果
           // 打开营业精灵
           let thirdUrls = this.$store.state.thirdUrls
           let sessionlist = this.$store.state.sessionlist
@@ -2061,6 +2084,9 @@
     padding: 6px 10px;
     overflow: hidden;
 }
+.g-window .u-msg.session-chat.item-me .msg-text-active, .g-window .u-msg.session-chat.item-you .msg-text-active{
+  color: #FFEE1B
+}
 
 .g-window .u-msg.session-chat.item-you .msg-text.cover,
 .g-window .u-msg.session-chat.item-me .msg-text.cover {
@@ -2260,6 +2286,7 @@
   background: center center url(../../../../static/img/setting/arrow-bot.png) no-repeat;
   background-size: 14px;
 }
+
 
 .u-msg .isRemoteRead {
   margin: 2px 62px 0 0;

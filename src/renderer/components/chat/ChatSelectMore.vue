@@ -1,6 +1,6 @@
 <template>
   <div class="m-chat-select-more">
-    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;overflow:hidden" id="clipboard_checkMore"></textarea>
+    <textarea style="width: 1px;height: 1px;position: absolute;left: -1px;display:none" id="clipboard_checkMore"></textarea>
 
     <!-- 关闭按钮 -->
     <div style='width:100%;height:30px;position:relative'>

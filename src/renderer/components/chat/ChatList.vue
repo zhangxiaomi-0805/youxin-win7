@@ -19,6 +19,7 @@
       :key="msg.idClient"
       :idClient="msg.idClient"
       :isHistory='isHistory'
+      :msglist='msglist'
       @msg-loaded="msgLoaded"
       :isCheckMore="isChatCheckMore"
     ></chat-item>

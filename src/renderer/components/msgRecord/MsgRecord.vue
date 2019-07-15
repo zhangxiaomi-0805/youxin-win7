@@ -617,8 +617,6 @@
         }
         if (item.type === 'text') {
           item.showText = item.text
-          // 标签解析
-          item.showText = util.escape(item.showText)
           // 文本消息
           let variable = 0
           let replaceArr = []
@@ -628,11 +626,14 @@
             httpUrls.map(url => {
               item.showText = item.showText.replace(url, (m) => {
                 variable++
+                url = util.escape(url)
                 replaceArr.push(`<a style="text-decoration: underline;display: inline-block;max-width: 100%;" data-url="[${url}]">${url}</a>`)
                 return `{---===${variable}}`
               })
             })
           }
+          // 标签解析
+          item.showText = util.escape(item.showText)
           if (item.apns && item.flow === 'in') {
             if (!item.apns.accounts) {
               item.showText = item.showText.replace('@所有人', '<span style="color: #4F8DFF;">@所有人 </span>')
@@ -728,6 +729,7 @@
         } else {
           item.showText = `[${util.mapMsgType(item)}],请到手机或电脑客户端查看`
         }
+        console.log(item)
         return item
       },
       closeCover () {

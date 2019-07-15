@@ -525,6 +525,18 @@ export default {
       // 聊天记录重置会话
       state.msgs[obj.sessionId] = obj.msgs
       // state.currSessionMsgs = obj.msgs
+    } else if (type === 'updateReplace') { // 更新替换 --- 主要是标记url已点击
+      console.log('1234====')
+      let msgLen = state.currSessionMsgs.length
+      let lastMsgIndex = msgLen - 1
+      if (msgLen > 0) {
+        for (let i = lastMsgIndex; i >= 0; i--) {
+          if (state.currSessionMsgs[i].idClient === obj.idClient || state.currSessionMsgs[i].idClientFake === obj.idClient) {
+            state.currSessionMsgs[i] = obj.msg
+            break
+          }
+        }
+      }
     }
   },
   updateSysMsgs (state, sysMsgs) {

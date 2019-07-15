@@ -203,18 +203,14 @@ MsgRecordFn.getCopyText = function (e) {
 }
 MsgRecordFn.httpSpring = function (str) {
   // 匹配url
-  // let regHttp = /((?:http(s?):\/\/)?w{3}(?:.[\w]+)+)/g
-  let regHttpAll = /(?:http(s?):\/\/)?[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/g
+  let regUrlAll = /(https?:\/\/|ftps?:\/\/)?((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:[0-9]+)?|(localhost)(:[0-9]+)?|([\w]+\.)(\S+)(\w{2,4})(:[0-9]+)?)(\/?([\w#!:.?+=&%@!\\-\\/]+))?/ig
   let regEmail = /^([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g
   let httpArr = []
   str.split('\r\n').map(lineStr => {
     // 分割空格
     lineStr.split(/\s+/).map(minStr => {
       if (!regEmail.test(minStr)) {
-        let httpResult = minStr.match(regHttpAll)
-        // if (!httpResult) {
-        //   httpResult = minStr.match(regHttpAll)
-        // }
+        let httpResult = minStr.match(regUrlAll)
         if (httpResult) httpArr.push(httpResult[0])
       }
     })
