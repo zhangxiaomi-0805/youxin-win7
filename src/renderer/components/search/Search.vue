@@ -349,7 +349,7 @@
       toggleSessin (scene, account, titleName) {
         console.log(account)
         // 切换会话
-        let sessionId = this.getSessionId(account)
+        // let sessionId = this.getSessionId(account)
         let BaseFn = (sessionId) => {
           this.reset()
           this.clearStatus()
@@ -378,17 +378,17 @@
           }
         }
         return false
-      },
-      getSessionId (account) {
-        let sessionId = ''
-        for (let i in this.sessionlist) {
-          if (this.sessionlist[i].to === account) {
-            sessionId = this.sessionlist[i].id
-            break
-          }
-        }
-        return sessionId
       }
+      // getSessionId (account) {
+      //   let sessionId = ''
+      //   for (let i in this.sessionlist) {
+      //     if (this.sessionlist[i].to === account) {
+      //       sessionId = this.sessionlist[i].id
+      //       break
+      //     }
+      //   }
+      //   return sessionId
+      // }
     }
   }
 </script>

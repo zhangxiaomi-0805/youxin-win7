@@ -52,7 +52,7 @@
           @mouseup.stop="!isCheckMore && itemMouseUp($event)"
           @click="!isCheckMore && openAplWindow($event)"
           @keydown.stop="shearBoard($event)"
-          @dblclick.stop="isXp && copyAll()"
+          @dblclick.stop="copyAll()"
           tabindex="1"
         >
         </span>
