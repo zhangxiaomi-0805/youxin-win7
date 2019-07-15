@@ -20,9 +20,10 @@
           <div class="u-editor-paste-btn" v-if="showPasteBtn" :style="{left: pasteLeft + 'px', top: pasteTop + 'px'}" @click="onPaste($event, 'click')" >粘贴</div>
           <!-- <input type="text" class="u-editor-at" :style="{left: inputPos.left + 'px', top: inputPos.top + 'px'}" v-model="inAtText" ref="atInput" @input="changeAtText($event)" /> -->
           <div
+            style="-webkit-user-select: text;outline: 0;"
             @selectstart="preventDefault($event)"
             contenteditable="true"
-            @keydown="inputMsg($event, scene, to)"
+            @keydown.stop="inputMsg($event, scene, to)"
             @input="changeMsg($event)"
             ref="editDiv"
             class="edit-div"
@@ -651,7 +652,7 @@
         let childNodesArr = [...dom.childNodes]
         childNodesArr.forEach((item, index) => {
           if (item.nodeType === 3) {
-            text += item.data
+            text += item.data.replace(/\s/g, ' ')
           } else if (item.nodeType === 1) {
             if (item.tagName === 'IMG') {
               let dataKey = item.getAttribute('data-key')
@@ -1305,12 +1306,10 @@
       },
       // 获取选中
       getSelectedText () {
-        if (window.getSelection) {
-          return window.getSelection().toString()
-        } else if (document.getSelection) {
-          return document.getSelection()
-        } else if (document.selection) {
-          return document.selection.createRange().text
+        let sel = window.getSelection && window.getSelection()
+        if (sel && sel.rangeCount > 0) {
+          let selection = window.getSelection().getRangeAt(0).cloneContents()
+          return selection
         } else {
           return ''
         }

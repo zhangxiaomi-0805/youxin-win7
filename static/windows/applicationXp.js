@@ -24,7 +24,7 @@ TabManage.prototype.init = function () {
         if (this.data[i].appCode === arg.appCode) {
           // 已存在tab
           this.data[i] = arg
-          document.getElementsByClassName('tabs-item')[i].firstChild.innerHTML = arg.title
+          document.getElementsByClassName('tabs-item')[i].firstChild.innerHTML = arg.title || '--'
           const iframe = document.getElementsByClassName('iframe')[i]
           iframe.setAttribute('src', arg.url)
           this.resetClass()

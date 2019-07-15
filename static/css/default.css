@@ -142,10 +142,12 @@ body,
     display: inherit;
     padding: 0;
     margin: 0;
-    width: 100%;
-    height: 100%;
+    width: 99.9%;
+    height: 99.9%;
     overflow: hidden;
     box-sizing: border-box;
+    -moz-box-sizing:border-box; /* Firefox */
+    -webkit-box-sizing:border-box; /* Safari */
     border: 1px solid rgba(0,0,0,0.22);
     box-shadow: 1px 0 4px 0 #D1D1D1, 1px 0 0 0 #D6D6D6;
 }
@@ -166,11 +168,7 @@ body,
     height:100%;
     margin-left: 69px;
     background: rgba(255,255,255,0.92);
-    border-left-width: 0;
     overflow: hidden;
-    box-sizing: border-box;
-    border: 1px solid rgba(0,0,0,0.22);
-    box-shadow: 1px 0 4px 0 #D1D1D1, 1px 0 0 0 #D6D6D6;
 }
 
 /* 主界面左侧主列表容器样式 */

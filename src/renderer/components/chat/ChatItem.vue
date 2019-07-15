@@ -505,7 +505,6 @@
             }
           }
         }
-        console.log(item)
         return item
       },
       fileSize () {

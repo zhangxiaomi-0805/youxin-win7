@@ -20,7 +20,7 @@ TabManage.prototype.init = function () {
     for (let i = 0; i < this.data.length; i++) {
       if (this.data[i].appCode === arg.appCode) {
         // 已存在tab
-        this.data[i] = arg
+        this.data[i] = arg || {}
         document.getElementsByClassName('tabs-item')[i].firstChild.innerHTML = arg.title
         const webview = document.getElementsByClassName('webview')[i]
         webview.setAttribute('src', arg.url)
@@ -29,8 +29,8 @@ TabManage.prototype.init = function () {
       }
     }
     if (!hasExit) {
-      this.data.push(arg)
-      this.createDom(arg)
+      this.data.push(arg || {})
+      this.createDom(arg || {})
     }
     // 窗口内链接跳转
     const webview = this.getActiveDom(2)
@@ -161,7 +161,7 @@ TabManage.prototype.createDom = function (arg) {
   let a = document.createElement('a')
   a.className = 'tabs-item'
   let icon = arg.icon || '../img/systry-logo.png'
-  a.innerHTML = `<img class="appli-icon" src="${icon}"></span><span>${arg.title}</span>`
+  a.innerHTML = `<img class="appli-icon" src="${icon}"></span><span>${arg.title || '--'}</span>`
   a.setAttribute('value', arg.appCode)
   a.onclick = () => {
     if (this.currentTab === arg.appCode) return
