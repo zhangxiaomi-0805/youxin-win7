@@ -4,8 +4,8 @@ var config = {
   mainWinHeight: 645, // 主窗口初始高
   aplWinWidth: 899, // 内部子窗口初始宽
   aplWinHeight: 767, // 内部子窗口初始宽
-  xpVersion: '3.1.7', // XP---app当前版本号
-  winVersion: '3.1.5', // windows---app当前版本号
+  xpVersion: '3.1.8', // XP---app当前版本号
+  winVersion: '3.1.8', // windows---app当前版本号
   env: 'test',
   sdk: 'NIM_Web_SDK_v6.2.1',
   // 用户自定义的登录注册地址

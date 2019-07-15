@@ -135,6 +135,14 @@
       if (this.value) {
         this.renderItem(this.value)
       }
+      // 监听输入框回车事件，判断是否触发在线查找(当本地搜素不到联系人时，回车触发在线查找)
+      this.eventBus.$on('_keyToSearch', (data) => {
+        let e = data.event
+        if (e.keyCode === 13 && this.contactlist.length === 0) {
+          e.target.blur()
+          this.toggleSearchType()
+        }
+      })
     },
     computed: {
       grouplist () {
@@ -348,27 +356,19 @@
           this.eventBus.$emit('updateNavBar', {navTo: 'session'})
           this.eventBus.$emit('toggleSelect', {sessionId})
         }
-        if (sessionId) {
-          BaseFn(sessionId)
-          if (titleName) {
-            this.$router.push({name: 'search-record', query: {sessionId, searchValue: this.value, titleName}})
-          } else {
-            this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
-          }
-        } else {
-          this.$store.dispatch('insertLocalSession', {
-            scene,
-            account,
-            callback: (sessionId) => {
-              BaseFn(sessionId)
-              if (titleName) {
-                this.$router.push({name: 'search-record', query: {sessionId, searchValue: this.value, titleName}})
-              } else {
-                this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
-              }
+        // 搜索切换会话时，不考虑已有会话，直接打开，而都是插入新会话（插入新会话时会判断，如果该会话已存在，会先删除，再插入，始终保证搜索到的会话在列表最上面）
+        this.$store.dispatch('insertLocalSession', {
+          scene,
+          account,
+          callback: (sessionId) => {
+            BaseFn(sessionId)
+            if (titleName) {
+              this.$router.push({name: 'search-record', query: {sessionId, searchValue: this.value, titleName}})
+            } else {
+              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
             }
-          })
-        }
+          }
+        })
       },
       contactExit (accid) {
         let contactHistoryAccount = this.$store.state.contactHistoryAccount

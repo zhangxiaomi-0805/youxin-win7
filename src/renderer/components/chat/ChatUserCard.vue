@@ -115,6 +115,10 @@
     mounted () {
       this.getUserInfo(this.to)
     },
+    // 离开该页面，此时清空当前用户信息，避免网络慢的情况下，切换到下个会话显示的还是上个联系人的名片
+    destroyed () {
+      this.userInfos = {}
+    },
     computed: {
       myInfo () {
         return this.$store.state.myInfo

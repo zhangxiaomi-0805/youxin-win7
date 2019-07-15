@@ -2,7 +2,11 @@
 <div class="m-main-list" id="resize-side-lf" style="width:270px;">
   <div class="u-search searchevent" v-clickoutside="clearStatus">
     <div class="u-cont" @mouseup="showPaste">
-      <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true" ref="editDiv"/>
+      <input :class="showSearch ? 'active' : ''" type="text" 
+        v-model="searchValue" placeholder="搜索"
+        @focus="showSearch = true" ref="editDiv"
+        @keyup="keyToSearch($event)"
+      />
       <span v-if="showSearch" class="clear" @click="clearStatus"/>
     </div>
   </div>
@@ -296,6 +300,10 @@ export default {
     }
   },
   methods: {
+    // 回车触发搜索
+    keyToSearch (e) {
+      this.eventBus.$emit('_keyToSearch', {event: e})
+    },
     // 右键粘贴
     showPaste (e) {
       if (e.button === 2 && config.environment !== 'web') {
