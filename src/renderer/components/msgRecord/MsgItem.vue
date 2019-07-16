@@ -240,14 +240,6 @@ export default {
       if (url) {
         // 打开营业精灵
         let thirdUrls = this.$store.state.thirdUrls
-        let sessionlist = this.$store.state.sessionlist
-        let sessionInfo = {}
-        for (let i in sessionlist) {
-          if (sessionlist[i].id === this.msg.sessionId) {
-            sessionInfo = sessionlist[i]
-            break
-          }
-        }
         let regDomain = /[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62}|(:[0-9]{1,6}))+\.?/
         let domain = url.match(regDomain)[0]
         if (url.split('://').length <= 1) url = 'http://' + url
@@ -262,9 +254,9 @@ export default {
                 }
               } else {
                 if (config.environment === 'web') {
-                  this.webOpenInWin(res, sessionInfo)
+                  this.webOpenInWin(res)
                 } else {
-                  this.electronOpenInWin(res, sessionInfo)
+                  this.electronOpenInWin(res)
                 }
               }
             }).catch(() => {})
@@ -273,9 +265,9 @@ export default {
         }
         if (openType && openType === 1) {
           if (config.environment === 'web') {
-            this.webOpenInWin(url, sessionInfo)
+            this.webOpenInWin(url)
           } else {
-            this.electronOpenInWin(url, sessionInfo)
+            this.electronOpenInWin(url)
           }
         } else {
           if (config.environment === 'web') {
@@ -290,12 +282,13 @@ export default {
       // web端打开外部窗口
       NativeLogic.native.openShell(3, url, true) // type: 打开类型（1-文件，2-文件所在目录，3-外部浏览器） url
     },
-    webOpenInWin (url, item) {
+    webOpenInWin (url) {
       // web端打开内部窗口
       let itemInfo = {
         url,
-        title: item.appName,
-        appCode: item.appCode,
+        title: this.msg.fromNick,
+        icon: this.msg.avatar,
+        appCode: this.msg.sessionId,
         showHideWinCheck: localStorage.SHOWHIDEWINCHECK
       }
       localStorage.setItem('ItemInfo', JSON.stringify(itemInfo)) // 保存当前点击tab的信息
@@ -325,10 +318,10 @@ export default {
       let { shell } = require('electron')
       shell.openExternal(url)
     },
-    electronOpenInWin (url, item) {
+    electronOpenInWin (url) {
       // electron端打开内部窗口
       let { ipcRenderer } = require('electron')
-      ipcRenderer.send('openAplWindow', {url, title: item.name, icon: item.avatar, appCode: item.id, showHideWinCheck: localStorage.SHOWHIDEWINCHECK})
+      ipcRenderer.send('openAplWindow', {url, title: this.msg.fromNick, icon: this.msg.avatar, appCode: this.msg.sessionId, showHideWinCheck: localStorage.SHOWHIDEWINCHECK})
     },
     className (msg) {
       // 选择框样式

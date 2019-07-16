@@ -14,6 +14,7 @@ TabManage.prototype.init = function () {
   let electron = require('electron')
   let ipcRenderer = electron.ipcRenderer
   ipcRenderer.on('asynchronous-message', (event, arg) => {
+    console.log('arg===', arg)
     this.showHideWinCheck = arg.showHideWinCheck
     this.currentTab = arg.appCode
     let hasExit = false

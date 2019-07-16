@@ -52,6 +52,7 @@
           :teamId="teamId"
           :teamInfo="teamInfo"
           :userInfos="userInfos"
+          :sessionName="sessionName"
         />
       </div>
     </div>

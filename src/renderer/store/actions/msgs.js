@@ -393,18 +393,23 @@ export function sendMsg ({state, commit}, obj) {
   }
   store.dispatch('showLoading')
   return new Promise((resolve, reject) => {
+    let option = {}
     switch (type) {
       case 'text':
-        let option = {
+        option = {
           scene: obj.scene,
           to: obj.to,
           text: obj.text,
+          needPushNick: true,
           done: (error, msg) => {
             onSendMsgDone(error, msg)
             if (error) reject(error)
             else resolve(msg)
           },
           needMsgReceipt: true
+        }
+        if (obj.scene === 'team') {
+          option.pushPayload = obj.pushPayload
         }
         if (obj.custom && obj.custom.isSmsMsg) option.custom = JSON.stringify(obj.custom)
         if (dataAt) option.apns = apns
@@ -414,9 +419,10 @@ export function sendMsg ({state, commit}, obj) {
         }
         break
       case 'custom':
-        nim.sendCustomMsg({
+        option = {
           scene: obj.scene,
           to: obj.to,
+          needPushNick: true,
           pushContent: obj.pushContent,
           content: JSON.stringify(obj.content),
           done: (error, msg) => {
@@ -424,7 +430,11 @@ export function sendMsg ({state, commit}, obj) {
             if (error) reject(error)
             else resolve(msg)
           }
-        })
+        }
+        if (obj.scene === 'team') {
+          option.pushPayload = obj.pushPayload
+        }
+        nim.sendCustomMsg(option)
     }
   })
 }
@@ -458,12 +468,12 @@ export function sendFileMsg ({ state, commit }, obj) {
   onSendMsgDone(null, msgFake)
   const id = msgFake.idClientFake
   return new Promise((resolve, reject) => {
-    // 发送文件消息
-    nim.sendFile({
+    let option = {
       scene,
       to,
       type,
       blob: file,
+      needPushNick: true,
       needMsgReceipt: true,
       beginupload: function (upload) {
         store.commit('updateUploadprogressList', { id, percentage: 0, type: 0, abort: () => upload.abort(), file })
@@ -506,7 +516,12 @@ export function sendFileMsg ({ state, commit }, obj) {
           }
         })
       }
-    })
+    }
+    if (option.scene === 'team') {
+      option.pushPayload = obj.pushPayload
+    }
+    // 发送文件消息
+    nim.sendFile(option)
   })
 }
 

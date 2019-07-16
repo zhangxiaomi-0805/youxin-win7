@@ -163,6 +163,7 @@
       type: String,
       scene: String,
       to: String,
+      sessionName: String,
       isRobot: {
         type: Boolean,
         default () {
@@ -1093,6 +1094,8 @@
                   scene: this.scene,
                   to: this.to,
                   text: text,
+                  isPushable: true,
+                  pushPayload: JSON.stringify({pushTitle: this.sessionName}),
                   dataAt,
                   needMsgReceipt: this.scene === 'team',
                   custom: {isSmsMsg: this.isMsg}
@@ -1154,6 +1157,7 @@
             scene: this.scene,
             to: this.to,
             pushContent: '[猜拳]',
+            pushPayload: JSON.stringify({pushTitle: this.sessionName}),
             content: {
               type: 1,
               data: {
@@ -1165,6 +1169,7 @@
           this.$store.dispatch('sendChatroomMsg', {
             type: 'custom',
             pushContent: '[猜拳]',
+            pushPayload: JSON.stringify({pushTitle: this.sessionName}),
             content: {
               type: 1,
               data: {
@@ -1229,6 +1234,7 @@
             this.$store.dispatch('sendImgMsg', {
               scene,
               to,
+              pushPayload: JSON.stringify({pushTitle: this.sessionName}),
               imageFile
             }).then(() => {
               resolve()
