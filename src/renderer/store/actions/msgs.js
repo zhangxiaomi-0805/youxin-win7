@@ -54,17 +54,6 @@ async function systemNewMsgsManage (msg) {
   store.commit('updateSessions', {sessions: msg})
   if (msg.from === store.state.userUID || msg.type === 'notification') return false
   let unreadNums = store.state.unreadNums
-  if (config.environment === 'web') { // web分支
-    NativeLogic.native.getWinStatus('main')
-      .then(res => {
-        if (!res.isFocused) {
-          NativeLogic.native.flashFrame(true)
-        }
-      })
-  } else { // electron分支
-    let { ipcRenderer } = require('electron')
-    ipcRenderer.send('receiveNewMsgs', {unreadNums})
-  }
   // 发送音频
   let isMute = false
   if (msg.scene === 'p2p') {
@@ -79,6 +68,18 @@ async function systemNewMsgsManage (msg) {
   if (!isMute && !localStorage.getItem('AUDIOSETT')) {
     let audio = new Audio(`./static/img/msg.wav`)
     audio.play()
+    // 未设置免打扰时，任务栏才闪烁
+    if (config.environment === 'web') { // web分支
+      NativeLogic.native.getWinStatus('main')
+        .then(res => {
+          if (!res.isFocused) {
+            NativeLogic.native.flashFrame(true)
+          }
+        })
+    } else { // electron分支
+      let { ipcRenderer } = require('electron')
+      ipcRenderer.send('receiveNewMsgs', {unreadNums})
+    }
     setTimeout(() => audio.pause(), 800)
   }
 }

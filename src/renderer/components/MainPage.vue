@@ -106,6 +106,7 @@
       RemoteConfirm
     },
     mounted () {
+      // this.$store.state.nim.db.putSession({id: 'test_69720a396cdc4c6d', ack: 123, unread: 0, updateTime: 1561692739390}) // 插入空白会话
       // 初始化窗口拖拽函数
       Resize.changeSideRange({max: 300, min: 250})
       if (config.environment === 'web') { // web分支
@@ -325,28 +326,19 @@
         }
       },
       createSession (accid) {
-        let sessionId = ''
-        for (let i in this.sessionlist) {
-          if (this.sessionlist[i].to === accid) {
-            sessionId = this.sessionlist[i].id
-            break
-          }
-        }
-        if (sessionId) {
+        let BaseFn = (sessionId) => {
           this.eventBus.$emit('updateNavBar', {navTo: 'session'})
           this.eventBus.$emit('toggleSelect', {sessionId})
           this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
-        } else {
-          this.$store.dispatch('insertLocalSession', {
-            scene: 'p2p',
-            account: accid,
-            callback: (sessionId) => {
-              this.eventBus.$emit('updateNavBar', {navTo: 'session'})
-              this.eventBus.$emit('toggleSelect', {sessionId})
-              this.$router.push({name: 'chat', query: {sessionId, firstFlag: true}})
-            }
-          })
         }
+        // 创建会话时，不考虑已有会话，直接打开，而都是插入新会话（插入新会话时会判断，如果该会话已存在，会先删除，再插入，始终保证发起的会话在列表最上面）
+        this.$store.dispatch('insertLocalSession', {
+          scene: 'p2p',
+          account: accid,
+          callback: (sessionId) => {
+            BaseFn(sessionId)
+          }
+        })
       }
     }
   }

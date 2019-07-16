@@ -144,6 +144,9 @@
         }
       })
     },
+    beforeDestroy () {
+      this.eventBus.$off('_keyToSearch')
+    },
     computed: {
       grouplist () {
         let grouplist = this.$store.state.teamlist.filter(item => {
@@ -347,7 +350,6 @@
         }
       },
       toggleSessin (scene, account, titleName) {
-        console.log(account)
         // 切换会话
         // let sessionId = this.getSessionId(account)
         let BaseFn = (sessionId) => {

@@ -166,6 +166,7 @@ export default {
     }
     const nim = state.nim
     state.sessionlist = nim.mergeSessions(state.sessionlist, sessions)
+    console.log(state.sessionlist)
     state.sessionlist.sort((a, b) => {
       return b.updateTime - a.updateTime
     })
@@ -175,6 +176,14 @@ export default {
         item.status = state.friendsStatusList[item.to]
       }
     })
+    if (state.sessionlist && state.sessionlist.length > 0) {
+      state.sessionlist = JSON.parse(JSON.stringify(state.sessionlist)).filter(item => {
+        if (item.localCustom || item.to || item.scene) {
+          return item
+        }
+      })
+    }
+    console.log(state.sessionlist)
     callback && callback(sessions[0].id)
     if (sessions[0] && sessions[0].msgReceiptTime) {
       // 修改已读回执状态

@@ -280,7 +280,10 @@ APP.prototype.initIPC = function () {
             }
           }
           this.screenShoted = false
-          throw error
+          // 采用inno setup打包的exe文件，点击截屏闪退，这里引入electron-log打印日志，不抛出异常
+          const log = require('electron-log')
+          log.info(error)
+          // throw error
         } else {
           if (arg.hideWin) {
             _this.mainWindow.show()

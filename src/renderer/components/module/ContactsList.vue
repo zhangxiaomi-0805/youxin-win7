@@ -3,7 +3,10 @@
 
     <div class="u-search searchevent" v-clickoutside="clearStatus">
       <div class="u-cont">
-        <input :class="showSearch ? 'active' : ''" type="text" v-model="searchValue" placeholder="搜索" @focus="showSearch = true"/>
+        <input :class="showSearch ? 'active' : ''" type="text" 
+        v-model="searchValue" placeholder="搜索" @focus="showSearch = true"
+        @keyup="keyToSearch($event)"
+        />
         <span v-if="showSearch" class="clear" @click="clearStatus"/>
       </div>
     </div>
@@ -110,6 +113,10 @@
       }
     },
     methods: {
+      // 回车触发搜索
+      keyToSearch (e) {
+        this.eventBus.$emit('_keyToSearch', {event: e})
+      },
       setDragArea () {
         let leftDom = document.getElementById('resize-side-lf')
         let leftWidth = (leftDom.style.width).split('px')[0]
