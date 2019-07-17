@@ -194,35 +194,6 @@ function receiveMsg (msgs) {
 }
 
 function onMsg (msg) {
-  console.log('自定义消息msg===', msg)
-  if (msg.type === 'custom') {
-    let content = JSON.parse(msg.content)
-    console.log('content===', content)
-    // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
-    if (content.type === 10) {
-      let value = Object.assign({}, content.data.value)
-      console.log('value===', value)
-      store.dispatch('delegateTeamFunction', {
-        functionName: value.actionStatus,
-        options: {
-          idServer: value.msg.idServer,
-          teamId: value.msg.to,
-          from: value.msg.from,
-          done: (_error, obj) => {
-            console.log('handleDone', obj)
-            let sysMsgs = store.state.sysMsgs
-            for (let i = 0; i < sysMsgs.length; i++) {
-              if (sysMsgs[i].fromNick === obj.msg.fromNick || sysMsgs[i].to === obj.msg.to) {
-                sysMsgs[i] = obj.msg
-              }
-            }
-            store.commit('updateSysMsgs', [sysMsgs])
-          }
-        }
-      })
-    }
-    return
-  }
   msg = formatMsg(msg)
   store.commit('putMsg', msg)
   if (msg.sessionId === store.state.currSessionId) {

@@ -59,13 +59,34 @@ export function onCustomSysMsgs (customSysMsgs) {
     customSysMsgs = [customSysMsgs]
   }
   customSysMsgs = customSysMsgs.filter(msg => {
+    console.log('自定义系统通知====', msg)
     if (msg.type === 'custom') {
       if (msg.content) {
+        let content = JSON.parse(msg.content)
         try {
-          let content = JSON.parse(msg.content)
           if (content.status) {
             remoteConnectCtrl(content, msg.from)
             return false
+          } else if (content.actionStatus) {// content.actionStatus: passTeamApply || rejectTeamApply
+            // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
+            store.dispatch('delegateTeamFunction', {
+              functionName: content.actionStatus,
+              options: {
+                idServer: content.msg.idServer,
+                teamId: content.msg.to,
+                from: content.msg.from,
+                done: (_error, obj) => {
+                  console.log('handleDone', obj)
+                  // let sysMsgs = store.state.sysMsgs
+                  // for (let i = 0; i < sysMsgs.length; i++) {
+                  //   if (sysMsgs[i].fromNick === obj.msg.fromNick || sysMsgs[i].to === obj.msg.to) {
+                  //     sysMsgs[i] = obj.msg
+                  //   }
+                  // }
+                  // store.commit('updateSysMsgs', [sysMsgs])
+                }
+              }
+            })
           }
         } catch (e) {}
       }
