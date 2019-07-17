@@ -151,8 +151,12 @@
       // 给管理员发自定义消息
       async sendMsgToManager (msg, action) {
         const members = await this.getTeamMembers(msg.to) // 获取群成员
-        let managerArr = members && members.find(member => { // 在群成员中找到管理员
-          return member.type === 'manager'
+        console.log('members===', members)
+        let managerArr = []
+        members && members.find(member => { // 在群成员中找到管理员
+          if (member.type === 'owner' || member.type === 'manager') {
+            managerArr.push(member)
+          }
         })
         console.log('managerArr===', managerArr)
         let content = {

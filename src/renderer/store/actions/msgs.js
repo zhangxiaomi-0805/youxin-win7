@@ -194,6 +194,7 @@ function receiveMsg (msgs) {
 }
 
 function onMsg (msg) {
+  console.log('自定义消息msg===', msg)
   if (msg.type === 'custom') {
     let content = JSON.parse(msg.content)
     console.log('content===', content)
@@ -213,6 +214,7 @@ function onMsg (msg) {
         }
       })
     }
+    return
   }
   msg = formatMsg(msg)
   store.commit('putMsg', msg)
