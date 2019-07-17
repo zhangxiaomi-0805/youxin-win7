@@ -7,6 +7,7 @@ export function onSysMsgs (sysMsgs) {
 }
 
 export async function onSysMsg (sysMsg) {
+  console.log('系统消息sysMsg====', sysMsg)
   if (!sysMsg) return
   switch (sysMsg.type) {
     // 在其他端添加或删除好友
@@ -38,8 +39,10 @@ export async function onSysMsg (sysMsg) {
       store.commit('updateSysMsgs', [sysMsg])
       break
     case 'passTeamApply': // 通过入群申请
+      store.commit('updateSysMsgs', [sysMsg])
       break
     case 'rejectTeamApply': // 申请入群被拒绝
+      store.commit('updateSysMsgs', [sysMsg])
       break
     case 'rejectTeamInvite': // 拒绝入群邀请
       store.commit('updateSysMsgs', [sysMsg])

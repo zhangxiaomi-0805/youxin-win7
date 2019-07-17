@@ -51,6 +51,7 @@
         return this.$store.state.userInfos || {}
       },
       sysMsgs () {
+        console.log(this.$store.state.sysMsgs)
         let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
           return msg.type === 'applyTeam'
         })
@@ -115,6 +116,9 @@
           default:
             return
         }
+        if (msg.type === 'applyTeam') {
+          this.sendMsgToManager(msg, action)
+        }
         this.$store.dispatch('delegateTeamFunction', {
           functionName: action,
           options: {
@@ -143,6 +147,51 @@
             }
           }
         })
+      },
+      // 给管理员发自定义消息
+      async sendMsgToManager (msg, action) {
+        const members = await this.getTeamMembers(msg.to) // 获取群成员
+        let managerArr = members && members.find(member => { // 在群成员中找到管理员
+          return member.type === 'manager'
+        })
+        console.log('managerArr===', managerArr)
+        let content = {
+          type: 10, // 有管理员处理了入群申请消息后给其他管理员发的自定义消息
+          data: {
+            value: {
+              msg,
+              actionStatus: action // passTeamApply || rejectTeamApply
+            }
+          }
+        }
+        for (let i = 0; i < managerArr.length; i++) {
+          await this.$store.dispatch('sendMsg', {
+            type: 'custom',
+            scene: 'p2p',
+            to: managerArr[i].accid || managerArr[i].account,
+            content
+          })
+        }
+      },
+      // 获取群成员
+      getTeamMembers (id) {
+        var teamMembers = this.$store.state.teamMembers[id]
+        if (!teamMembers) {
+          return new Promise((resolve, reject) => {
+            this.$store.state.nim.getTeamMembers({
+              teamId: id,
+              done: (err, obj) => {
+                if (!err) {
+                  resolve(obj.members)
+                } else {
+                  reject(err)
+                }
+              }
+            })
+          })
+        } else {
+          return teamMembers
+        }
       }
     }
   }

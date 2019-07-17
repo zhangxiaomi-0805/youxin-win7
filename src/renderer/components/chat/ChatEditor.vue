@@ -302,6 +302,9 @@
       }
     },
     computed: {
+      myInfo () {
+        return this.$store.state.myInfo
+      },
       continueRobotAccid () {
         return this.$store.state.continueRobotAccid
       },
@@ -1089,13 +1092,14 @@
                   })
                 }
               } else {
+                let pushTitle = `${(this.myInfo.nick || this.myInfo.name)}(${this.sessionName}):`
                 this.$store.dispatch('sendMsg', {
                   type: 'text',
                   scene: this.scene,
                   to: this.to,
                   text: text,
                   isPushable: true,
-                  pushPayload: JSON.stringify({pushTitle: this.sessionName}),
+                  pushPayload: JSON.stringify({pushTitle}),
                   dataAt,
                   needMsgReceipt: this.scene === 'team',
                   custom: {isSmsMsg: this.isMsg}
@@ -1230,11 +1234,12 @@
           return
         }
         return new Promise((resolve, reject) => {
+          // let pushContent = `${(this.myInfo.nick || this.myInfo.name)}(${this.sessionName}):发来了[媒体消息]`
           if (this.type === 'session') {
             this.$store.dispatch('sendImgMsg', {
               scene,
               to,
-              pushPayload: JSON.stringify({pushTitle: this.sessionName}),
+              pushPayload: '{"key1": "value1", "apsField": {"mutable-content": 1, "sound": "abc.wav", "alert": {"title": "推送标题", "body": "推送内容"}, "key2": "value2"}}',
               imageFile
             }).then(() => {
               resolve()

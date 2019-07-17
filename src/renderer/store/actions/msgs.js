@@ -194,6 +194,26 @@ function receiveMsg (msgs) {
 }
 
 function onMsg (msg) {
+  if (msg.type === 'custom') {
+    let content = JSON.parse(msg.content)
+    console.log('content===', content)
+    // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
+    if (content.type === 10) {
+      let value = Object.assign({}, content.data.value)
+      console.log('value===', value)
+      store.dispatch('delegateTeamFunction', {
+        functionName: value.actionStatus,
+        options: {
+          idServer: value.msg.idServer,
+          teamId: value.msg.to,
+          from: value.msg.from,
+          done: (_error, obj) => {
+            console.log('handleDone', obj)
+          }
+        }
+      })
+    }
+  }
   msg = formatMsg(msg)
   store.commit('putMsg', msg)
   if (msg.sessionId === store.state.currSessionId) {
@@ -458,6 +478,8 @@ export function sendFileMsg ({ state, commit }, obj) {
     type,
     idClientFake: util.uuid(),
     status: 'sending',
+    isPushable: true,
+    pushContent: obj.pushContent,
     time: (new Date()).getTime(),
     file: {
       name: file.name,
