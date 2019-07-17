@@ -7,7 +7,6 @@ export function onSysMsgs (sysMsgs) {
 }
 
 export async function onSysMsg (sysMsg) {
-  console.log('系统消息sysMsg====', sysMsg)
   if (!sysMsg) return
   switch (sysMsg.type) {
     // 在其他端添加或删除好友

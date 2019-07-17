@@ -210,6 +210,13 @@ function onMsg (msg) {
           from: value.msg.from,
           done: (_error, obj) => {
             console.log('handleDone', obj)
+            let sysMsgs = store.state.sysMsgs
+            for (let i = 0; i < sysMsgs.length; i++) {
+              if (sysMsgs[i].fromNick === obj.msg.fromNick || sysMsgs[i].to === obj.msg.to) {
+                sysMsgs[i] = obj.msg
+              }
+            }
+            store.commit('updateSysMsgs', [sysMsgs])
           }
         }
       })
