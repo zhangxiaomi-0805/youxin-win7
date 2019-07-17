@@ -64,10 +64,10 @@ export function onCustomSysMsgs (customSysMsgs) {
       if (msg.content) {
         let content = JSON.parse(msg.content)
         try {
-          if (content.status) {
+          if (content.status && !content.actionStatus) {
             remoteConnectCtrl(content, msg.from)
             return false
-          } else if (content.actionStatus) {// content.actionStatus: passTeamApply || rejectTeamApply
+          } else if (content.actionStatus) { // content.actionStatus: passTeamApply || rejectTeamApply
             // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
             store.dispatch('delegateTeamFunction', {
               functionName: content.actionStatus,
