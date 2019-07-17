@@ -161,10 +161,8 @@
         console.log('managerArr===', managerArr)
         let content = {
           type: 'custom', // 有管理员处理了入群申请消息后给其他管理员发的自定义x系统通知
-          data: {
-            msg,
-            actionStatus: action // passTeamApply || rejectTeamApply
-          }
+          msg,
+          actionStatus: action // passTeamApply || rejectTeamApply
         }
         for (let i = 0; i < managerArr.length; i++) {
           await this.$store.dispatch('sendCustomSysMsg', {
