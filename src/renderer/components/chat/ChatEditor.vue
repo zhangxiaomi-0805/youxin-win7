@@ -327,7 +327,8 @@
             e.target.files[0].path = params.file
           })
         }
-        this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: e.target.files[0]})
+        let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:发来了文件"}}}`
+        this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file: e.target.files[0], pushPayload})
           .then(() => {
             e.target.value = ''
           })
@@ -344,7 +345,8 @@
           if (file.type.indexOf('image') > -1) {
             this.sendImgMsg(file)
           } else {
-            this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
+            let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:发来文件"}}}`
+            this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file, pushPayload})
           }
         }
       },
@@ -581,7 +583,8 @@
           // 图片粘贴
           this.sendImgMsg(file)
         } else if (file) {
-          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file})
+          let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:发来了文件"}}}`
+          this.$store.dispatch('sendFileMsg', {scene: this.scene, to: this.to, file, pushPayload})
         } else if (text) {
           // 粘贴文字
           // 得到剪贴板中的文本
@@ -1092,14 +1095,14 @@
                   })
                 }
               } else {
-                let pushTitle = `${(this.myInfo.nick || this.myInfo.name)}(${this.sessionName}):`
+                let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:${text}"}}}`
                 this.$store.dispatch('sendMsg', {
                   type: 'text',
                   scene: this.scene,
                   to: this.to,
                   text: text,
                   isPushable: true,
-                  pushPayload: JSON.stringify({pushTitle}),
+                  pushPayload,
                   dataAt,
                   needMsgReceipt: this.scene === 'team',
                   custom: {isSmsMsg: this.isMsg}
@@ -1154,6 +1157,7 @@
           this.$toast(this.invalidHint)
           return
         }
+        let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:[猜拳]"}}}`
         // 发送猜拳消息
         if (this.type === 'session') {
           this.$store.dispatch('sendMsg', {
@@ -1161,7 +1165,7 @@
             scene: this.scene,
             to: this.to,
             pushContent: '[猜拳]',
-            pushPayload: JSON.stringify({pushTitle: this.sessionName}),
+            pushPayload,
             content: {
               type: 1,
               data: {
@@ -1173,7 +1177,7 @@
           this.$store.dispatch('sendChatroomMsg', {
             type: 'custom',
             pushContent: '[猜拳]',
-            pushPayload: JSON.stringify({pushTitle: this.sessionName}),
+            pushPayload,
             content: {
               type: 1,
               data: {
@@ -1234,12 +1238,12 @@
           return
         }
         return new Promise((resolve, reject) => {
-          // let pushContent = `${(this.myInfo.nick || this.myInfo.name)}(${this.sessionName}):发来了[媒体消息]`
+          let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:发来了图片"}}}`
           if (this.type === 'session') {
             this.$store.dispatch('sendImgMsg', {
               scene,
               to,
-              pushPayload: '{"key1": "value1", "apsField": {"mutable-content": 1, "sound": "abc.wav", "alert": {"title": "推送标题", "body": "推送内容"}, "key2": "value2"}}',
+              pushPayload,
               imageFile
             }).then(() => {
               resolve()

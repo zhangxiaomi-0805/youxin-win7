@@ -460,6 +460,7 @@ export function sendMsg ({state, commit}, obj) {
 }
 // 发送文件消息
 export function sendFileMsg ({ state, commit }, obj) {
+  console.log(obj.pushPayload)
   const nim = state.nim
   let type = 'file'
   const { scene, to, file } = obj
@@ -478,8 +479,6 @@ export function sendFileMsg ({ state, commit }, obj) {
     type,
     idClientFake: util.uuid(),
     status: 'sending',
-    isPushable: true,
-    pushContent: obj.pushContent,
     time: (new Date()).getTime(),
     file: {
       name: file.name,
@@ -495,7 +494,6 @@ export function sendFileMsg ({ state, commit }, obj) {
       to,
       type,
       blob: file,
-      needPushNick: true,
       needMsgReceipt: true,
       beginupload: function (upload) {
         store.commit('updateUploadprogressList', { id, percentage: 0, type: 0, abort: () => upload.abort(), file })
@@ -539,7 +537,7 @@ export function sendFileMsg ({ state, commit }, obj) {
         })
       }
     }
-    if (option.scene === 'team') {
+    if (scene === 'team') {
       option.pushPayload = obj.pushPayload
     }
     // 发送文件消息
@@ -590,8 +588,7 @@ export function sendImgMsg ({ state, commit }, obj) {
         }
         file.w = w
         file.h = h
-        // 发送文件消息
-        nim.sendFile({
+        let option = {
           scene,
           to,
           type,
@@ -617,7 +614,12 @@ export function sendImgMsg ({ state, commit }, obj) {
             onSendMsgDone(error, msg)
             resolve(msg)
           }
-        })
+        }
+        if (scene === 'team') {
+          option.pushPayload = obj.pushPayload
+        }
+        // 发送文件消息
+        nim.sendFile(option)
       }
     })
   })
