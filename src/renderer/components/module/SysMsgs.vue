@@ -116,9 +116,6 @@
           default:
             return
         }
-        if (msg.type === 'applyTeam') {
-          this.sendMsgToManager(msg, action)
-        }
         this.$store.dispatch('delegateTeamFunction', {
           functionName: action,
           options: {
@@ -127,6 +124,9 @@
             from: msg.from,
             done: (_error, obj) => {
               console.log('handleDone', obj)
+              if (msg.type === 'applyTeam') {
+                this.sendMsgToManager(msg, action)
+              }
             }
           }
         })
