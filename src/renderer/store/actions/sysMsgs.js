@@ -69,31 +69,26 @@ export function onCustomSysMsgs (customSysMsgs) {
             return false
           } else if (content.actionStatus) { // content.actionStatus: passTeamApply || rejectTeamApply
             // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
-            store.dispatch('delegateTeamFunction', {
-              functionName: content.actionStatus,
-              options: {
-                idServer: content.msg.idServer,
-                teamId: content.msg.to,
-                from: content.msg.from,
-                done: (_error, obj) => {
-                  let sysMsgs = store.state.sysMsgs
-                  for (let i = 0; i < sysMsgs.length; i++) {
-                    if (sysMsgs[i].from === obj.from || sysMsgs[i].to === obj.teamid) {
-                      if (content.myAccid === store.state.myInfo.account) { // 我自己
-                        if (content.actionStatus === 'passTeamApply') { // 同意申请
-                          sysMsgs[i].state = 'passed'
-                        } else if (content.actionStatus === 'rejectTeamApply') { // 拒绝申请
-                          sysMsgs[i].state = 'rejected'
-                        }
-                      } else { // 其他管理员或者群主
-                        sysMsgs[i].state = 'error' // 已被其他管理员处理
-                      }
+            if (content.myAccid !== store.state.myInfo.account) {
+              store.dispatch('delegateTeamFunction', {
+                functionName: content.actionStatus,
+                options: {
+                  idServer: content.msg.idServer,
+                  teamId: content.msg.to,
+                  from: content.msg.from,
+                  done: (_error, obj) => {
+                    let sysMsgs = store.state.sysMsgs
+                    let index = sysMsgs.findIndex(msg => {
+                      return msg.idServer === obj.idServer
+                    })
+                    if (index > -1) {
+                      sysMsgs[index].state = 'error' // 已被其他管理员处理
+                      store.commit('updateSysMsgs', [sysMsgs])
                     }
                   }
-                  store.commit('updateSysMsgs', [sysMsgs])
                 }
-              }
-            })
+              })
+            }
           }
         } catch (e) {}
       }
