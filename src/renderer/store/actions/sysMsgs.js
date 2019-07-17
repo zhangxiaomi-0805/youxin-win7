@@ -76,14 +76,21 @@ export function onCustomSysMsgs (customSysMsgs) {
                 teamId: content.msg.to,
                 from: content.msg.from,
                 done: (_error, obj) => {
-                  console.log('handleDone', obj)
-                  // let sysMsgs = store.state.sysMsgs
-                  // for (let i = 0; i < sysMsgs.length; i++) {
-                  //   if (sysMsgs[i].fromNick === obj.msg.fromNick || sysMsgs[i].to === obj.msg.to) {
-                  //     sysMsgs[i] = obj.msg
-                  //   }
-                  // }
-                  // store.commit('updateSysMsgs', [sysMsgs])
+                  let sysMsgs = store.state.sysMsgs
+                  for (let i = 0; i < sysMsgs.length; i++) {
+                    if (sysMsgs[i].from === obj.from || sysMsgs[i].to === obj.teamid) {
+                      if (content.myAccid === store.state.myInfo.account) { // 我自己
+                        if (content.actionStatus === 'passTeamApply') { // 同意申请
+                          sysMsgs[i].state = 'passed'
+                        } else if (content.actionStatus === 'rejectTeamApply') { // 拒绝申请
+                          sysMsgs[i].state = 'rejected'
+                        }
+                      } else { // 其他管理员或者群主
+                        sysMsgs[i].state = 'error' // 已被其他管理员处理
+                      }
+                    }
+                  }
+                  store.commit('updateSysMsgs', [sysMsgs])
                 }
               }
             })

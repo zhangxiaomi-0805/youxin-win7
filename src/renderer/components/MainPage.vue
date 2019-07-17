@@ -133,7 +133,6 @@
         // 监听子窗口通信方法
         window.NimCefWebInstance && window.NimCefWebInstance.register('onReceiveEvent', (params) => {
           // 营业精灵唤起截屏
-          console.log(params.eventName)
           if (params.eventName === 'callScreenShot') {
             this.eventBus.$emit('screenShot', {type: 'isCallScreenShot'})
           }

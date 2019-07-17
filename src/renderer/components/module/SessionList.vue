@@ -352,9 +352,7 @@ export default {
           })
         }
         if (copyText) {
-          console.log(copyText)
           this.searchValue = copyText
-          console.log('this.searchValue === ' + this.searchValue)
           document.execCommand('insertText', false, copyText)
         }
       }

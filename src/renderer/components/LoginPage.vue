@@ -192,7 +192,6 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      console.log(localStorage.AUTOLOGIN)
       if (localStorage.AUTOLOGIN) {
         this.isShowVericode = false
         // 已开启自动登录(30天内)

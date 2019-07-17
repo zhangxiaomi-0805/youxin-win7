@@ -102,7 +102,6 @@ export default {
       }
     },
     updateTwinkle (unreadNums) {
-      console.log('unreadNums === ' + unreadNums)
       if (config.environment === 'web') { // web分支
         NativeLogic.native.receiveNewMsgs({ unreadNums })
       } else { // electron分支
@@ -204,7 +203,6 @@ export default {
           return item
         }
       })
-      console.log('1345=== ' + unreadNums)
       this.updateTwinkle(unreadNums)
       this.$store.commit('updateUnreadNums', unreadNums)
       return sessionlist

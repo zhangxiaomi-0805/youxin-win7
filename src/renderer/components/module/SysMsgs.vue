@@ -47,11 +47,13 @@
       }
     },
     computed: {
+      myInfo () {
+        return this.$store.state.myInfo || {}
+      },
       userInfos () {
         return this.$store.state.userInfos || {}
       },
       sysMsgs () {
-        console.log(this.$store.state.sysMsgs)
         let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
           return msg.type === 'applyTeam'
         })
@@ -123,7 +125,6 @@
             teamId: msg.to,
             from: msg.from,
             done: (_error, obj) => {
-              console.log('handleDone', obj)
               if (msg.type === 'applyTeam') {
                 this.sendMsgToManager(msg, action)
               }
@@ -151,18 +152,17 @@
       // 给管理员发自定义消息
       async sendMsgToManager (msg, action) {
         const members = await this.getTeamMembers(msg.to) // 获取群成员
-        console.log('members===', members)
         let managerArr = []
         members && members.find(member => { // 在群成员中找到管理员
           if (member.type === 'owner' || member.type === 'manager') {
             managerArr.push(member)
           }
         })
-        console.log('managerArr===', managerArr)
         let content = {
           type: 'custom', // 有管理员处理了入群申请消息后给其他管理员发的自定义x系统通知
           msg,
-          actionStatus: action // passTeamApply || rejectTeamApply
+          actionStatus: action, // passTeamApply || rejectTeamApply
+          myAccid: this.myInfo.account
         }
         for (let i = 0; i < managerArr.length; i++) {
           await this.$store.dispatch('sendCustomSysMsg', {
