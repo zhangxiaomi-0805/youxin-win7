@@ -345,11 +345,15 @@ export default {
         }
       }
       try {
+        // 推送文案调整
+        let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${personInfos.name}", "body": "邀请你加入${(this.teamName)}"}}}`
         await this.$store.dispatch('sendMsg', {
           type: 'custom',
           scene: 'p2p',
           to: item.accid,
-          content
+          content,
+          isPushable: true,
+          pushPayload
         })
       } catch (error) {}
       callback()
