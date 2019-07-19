@@ -107,6 +107,7 @@
     },
     watch: {
       to (newValue, oldValue) {
+        this.userInfos = {} // 先清空之前的数据
         if (newValue !== oldValue) {
           this.getUserInfo(newValue)
         }

@@ -47,9 +47,6 @@
       }
     },
     computed: {
-      myInfo () {
-        return this.$store.state.myInfo || {}
-      },
       userInfos () {
         return this.$store.state.userInfos || {}
       },
@@ -151,18 +148,22 @@
       },
       // 给管理员发自定义消息
       async sendMsgToManager (msg, action) {
+        console.log('msg.to===', msg.to)
         const members = await this.getTeamMembers(msg.to) // 获取群成员
+        console.log('members===', members)
         let managerArr = []
         members && members.find(member => { // 在群成员中找到管理员
           if (member.type === 'owner' || member.type === 'manager') {
             managerArr.push(member)
           }
         })
+        console.log('managerArr===', managerArr)
         let content = {
           type: 'custom', // 有管理员处理了入群申请消息后给其他管理员发的自定义x系统通知
-          msg,
-          actionStatus: action, // passTeamApply || rejectTeamApply
-          myAccid: this.myInfo.account
+          teamId: msg.to,
+          fromAccid: msg.from,
+          idServer: msg.idServer,
+          actionStatus: action // passTeamApply || rejectTeamApply
         }
         for (let i = 0; i < managerArr.length; i++) {
           await this.$store.dispatch('sendCustomSysMsg', {
@@ -174,7 +175,7 @@
       // 获取群成员
       getTeamMembers (id) {
         var teamMembers = this.$store.state.teamMembers[id]
-        if (!teamMembers) {
+        if (!teamMembers || (teamMembers && teamMembers.length === 0)) {
           return new Promise((resolve, reject) => {
             this.$store.state.nim.getTeamMembers({
               teamId: id,

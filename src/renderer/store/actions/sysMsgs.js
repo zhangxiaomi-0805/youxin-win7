@@ -68,15 +68,30 @@ export function onCustomSysMsgs (customSysMsgs) {
             remoteConnectCtrl(content, msg.from)
             return false
           } else if (content.actionStatus) { // content.actionStatus: passTeamApply || rejectTeamApply
+            console.log('content ===', content)
+            console.log('sysMsgs ===', store.state.sysMsgs)
             // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
-            if (content.myAccid !== store.state.myInfo.account) {
+            if (msg.from !== store.state.myInfo.account) {
+              let idServer = content.idServer
+              if (!idServer) { // 移动端是没有idServer的，需要去找到当前处理的消息匹配到idServer
+                console.log('1234===')
+                for (let i = 0; i < store.state.sysMsgs.length; i++) {
+                  let itemMsg = store.state.sysMsgs[i]
+                  if ((itemMsg.to === content.teamId) && (itemMsg.from === content.fromAccid)) {
+                    idServer = itemMsg.idServer
+                    break
+                  }
+                }
+              }
+              console.log('idServer ===', idServer)
               store.dispatch('delegateTeamFunction', {
                 functionName: content.actionStatus,
                 options: {
-                  idServer: content.msg.idServer,
-                  teamId: content.msg.to,
-                  from: content.msg.from,
+                  idServer,
+                  teamId: content.teamId,
+                  from: content.fromAccid,
                   done: (_error, obj) => {
+                    console.log('obj===', obj)
                     let sysMsgs = store.state.sysMsgs
                     let index = sysMsgs.findIndex(msg => {
                       return msg.idServer === obj.idServer
