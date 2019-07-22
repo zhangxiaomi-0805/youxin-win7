@@ -158,7 +158,7 @@ export function getLocalSysMsgs ({state}, obj) {
                 console.log('item === ', item)
                 console.log('itemMsg === ', itemMsg)
                 resultMsgs.forEach(async (item1, index) => {
-                  if (item1.idServer === itemMsg.idServer) {
+                  if (item1.idServer === item.idServer) {
                     resultMsgs.splice(index, 1)
                   }
                 })
