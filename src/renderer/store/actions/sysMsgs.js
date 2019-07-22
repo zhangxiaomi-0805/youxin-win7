@@ -68,22 +68,18 @@ export function onCustomSysMsgs (customSysMsgs) {
             remoteConnectCtrl(content, msg.from)
             return false
           } else if (content.actionStatus) { // content.actionStatus: passTeamApply || rejectTeamApply
-            console.log('content ===', content)
-            console.log('sysMsgs ===', store.state.sysMsgs)
             // 群管理员处理群成员入群申请时发的自定义消息 --- 通知其他管理员同步处理
             if (msg.from !== store.state.myInfo.account) {
               let idServer = content.idServer
-              if (!idServer) { // 移动端是没有idServer的，需要去找到当前处理的消息匹配到idServer
-                console.log('1234===')
-                for (let i = 0; i < store.state.sysMsgs.length; i++) {
-                  let itemMsg = store.state.sysMsgs[i]
-                  if ((itemMsg.to === content.teamId) && (itemMsg.from === content.fromAccid)) {
-                    idServer = itemMsg.idServer
-                    break
-                  }
+              let findIndex = -1
+              for (let i = 0; i < store.state.sysMsgs.length; i++) {
+                let itemMsg = store.state.sysMsgs[i]
+                if ((itemMsg.to === content.teamId) && (itemMsg.from === content.fromAccid)) { // 千万别拿idServer去匹配，同一条消息管理员的idServer和群主的idServer还不一样，大坑
+                  idServer = itemMsg.idServer
+                  findIndex = i
+                  break
                 }
               }
-              console.log('idServer ===', idServer)
               store.dispatch('delegateTeamFunction', {
                 functionName: content.actionStatus,
                 options: {
@@ -91,14 +87,11 @@ export function onCustomSysMsgs (customSysMsgs) {
                   teamId: content.teamId,
                   from: content.fromAccid,
                   done: (_error, obj) => {
-                    console.log('obj===', obj)
                     let sysMsgs = store.state.sysMsgs
-                    let index = sysMsgs.findIndex(msg => {
-                      return msg.idServer === obj.idServer
-                    })
-                    if (index > -1) {
-                      sysMsgs[index].state = 'error' // 已被其他管理员处理
-                      sysMsgs[index].read = true // 手动置为已读
+                    console.log('findIndex===', findIndex)
+                    if (findIndex > -1) {
+                      sysMsgs[findIndex].state = 'error' // 已被其他管理员处理
+                      sysMsgs[findIndex].read = true // 手动置为已读
                       store.commit('updateSysMsgs', [sysMsgs])
                     }
                   }
@@ -155,12 +148,34 @@ export function getLocalSysMsgs ({state}, obj) {
     limit: obj.limit || 100,
     done: function (_error, _obj) {
       if (!_error) {
+        let resultMsgs = JSON.parse(JSON.stringify(_obj.sysMsgs))
+        console.log('_obj.sysMsgs.length === ', _obj.sysMsgs.length)
         _obj.sysMsgs.forEach(async item => {
+          try {
+            for (let i = 0; i < _obj.sysMsgs.length; i++) {
+              let itemMsg = _obj.sysMsgs[i]
+              if ((itemMsg.idServer !== item.idServer) && (itemMsg.to === item.to) && (itemMsg.from === item.from) && (itemMsg.time === item.time) && (item.state === 'init')) {
+                console.log('item === ', item)
+                console.log('itemMsg === ', itemMsg)
+                resultMsgs.forEach(async (item1, index) => {
+                  if (item1.idServer === itemMsg.idServer) {
+                    resultMsgs.splice(index, 1)
+                  }
+                })
+                deleteLocalSysMsg(item.idServer)
+                break
+              }
+            }
+            // item = await manageSysMsg(item)
+          } catch (error) {}
+        })
+        console.log('resultMsgs.length === ', resultMsgs.length)
+        resultMsgs.forEach(async item => {
           try {
             item = await manageSysMsg(item)
           } catch (error) {}
         })
-        store.commit('updateSysMsgs', _obj.sysMsgs)
+        store.commit('updateSysMsgs', resultMsgs)
       }
     }
   }
@@ -199,8 +214,8 @@ function getUserInfo (account) {
 }
 
 // 删除本地消息
-export function deleteLocalSysMsg ({state}, idServer) {
-  const nim = state.nim
+export function deleteLocalSysMsg (idServer) {
+  const nim = store.state.nim
   nim.deleteLocalSysMsg({
     idServer,
     done: (_err, _obj) => {

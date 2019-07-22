@@ -116,8 +116,8 @@ html,
 body,
 .g-window {
     position: absolute;
-    width: 99.9%; /* 100%时部分电脑没有右、下边框 */
-    height: 99.9%;
+    width: 99.98%; /* 100%时部分电脑没有右、下边框 */
+    height: 99.98%;
     overflow: hidden;
     font-size: 1rem;
     color: #333;
@@ -142,8 +142,8 @@ body,
     display: inherit;
     padding: 0;
     margin: 0;
-    width: 99.9%;
-    height: 99.9%;
+    width: 99.98%;
+    height: 99.98%;
     overflow: hidden;
     box-sizing: border-box;
     -moz-box-sizing:border-box; /* Firefox */

@@ -54,6 +54,7 @@
         let sysMsgs = this.$store.state.sysMsgs.filter(msg => {
           return msg.type === 'applyTeam'
         })
+        console.log('sysMsgs===', sysMsgs)
         return sysMsgs
       },
       customSysMsgs () {
