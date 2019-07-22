@@ -98,6 +98,7 @@ export function onCustomSysMsgs (customSysMsgs) {
                     })
                     if (index > -1) {
                       sysMsgs[index].state = 'error' // 已被其他管理员处理
+                      sysMsgs[index].read = true // 手动置为已读
                       store.commit('updateSysMsgs', [sysMsgs])
                     }
                   }

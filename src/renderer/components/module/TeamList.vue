@@ -113,8 +113,13 @@
         return grouplist
       },
       sysMsgUnread () {
-        let temp = this.$store.state.sysMsgUnread
-        return temp.applyTeam
+        let unReadNum = 0
+        for (let i = 0; i < this.sysMsgs.length; i++) {
+          if (!this.sysMsgs[i].read) {
+            unReadNum += 1
+          }
+        }
+        return unReadNum
       },
       sysMsgs () {
         let sysMsgs = this.$store.state.sysMsgs.filter(msg => {

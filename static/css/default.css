@@ -116,8 +116,8 @@ html,
 body,
 .g-window {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 99.9%; /* 100%时部分电脑没有右、下边框 */
+    height: 99.9%;
     overflow: hidden;
     font-size: 1rem;
     color: #333;

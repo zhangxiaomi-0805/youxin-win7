@@ -123,6 +123,7 @@
             from: msg.from,
             done: (_error, obj) => {
               if (msg.type === 'applyTeam') {
+                msg.read = true // 手动置为已读
                 this.sendMsgToManager(msg, action)
               }
             }
