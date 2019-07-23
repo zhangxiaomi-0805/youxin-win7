@@ -73,7 +73,7 @@
             >
               <span :class="autoLogin ? 'common checked' : 'common check'"></span><span>自动登录</span>
             </a>
-            
+
             <a @click="isRember = !isRember,autoLogin = autoLogin ? false : false">
               <span :class="isRember ||  autoLogin ? 'common checked' : 'common check'"></span><span>记住密码</span>
             </a>
@@ -195,7 +195,7 @@
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
       let loginInfo = localStorage.LOGININFO && JSON.parse(localStorage.LOGININFO)
-      if (localStorage.AUTOLOGIN && !loginInfo.autoLogin) {
+      if (localStorage.AUTOLOGIN && loginInfo && loginInfo.autoLogin) {
         this.isShowVericode = false
         // 已开启自动登录(30天内)
         let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
