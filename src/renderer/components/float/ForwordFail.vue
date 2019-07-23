@@ -87,6 +87,7 @@ export default {
           ipcRenderer.send('relaunch-app')
         }
         localStorage.removeItem('AUTOLOGIN')
+        console.log('forwordFail 移除AUTOLOGIN===', localStorage.AUTOLOGIN)
       }
     }
   }

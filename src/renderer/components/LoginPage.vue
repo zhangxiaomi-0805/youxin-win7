@@ -209,6 +209,7 @@
           this.isRember = true
           this.login(1)
         } else {
+          console.log('loginPage 超过30天移除AUTOLOGIN===', localStorage.AUTOLOGIN)
           localStorage.removeItem('AUTOLOGIN')
           this.isRember = false
           this.isShowVericode = true
@@ -412,6 +413,7 @@
             // this.password = ''
             this.isRember = false
             this.autoLogin = false
+            console.log('loginPage 登录出错移除AUTOLOGIN===', localStorage.AUTOLOGIN)
             localStorage.removeItem('AUTOLOGIN')
           }
           this.isShowVericode = true
@@ -477,6 +479,7 @@
                 if (this.autoLogin) {
                   // 先移除之前的自动登录信息，再存储最新的
                   localStorage.removeItem('AUTOLOGIN')
+                  console.log('loginPage 登录时先移除，再存储AUTOLOGIN===', localStorage.AUTOLOGIN)
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password, 2),

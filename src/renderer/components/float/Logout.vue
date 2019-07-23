@@ -69,7 +69,7 @@ export default {
           loginInfo.autoLogin = false
           localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
-          console.log('退出登录移除AUTOLOGIN===', AUTOLOGIN)
+          console.log('Logout 退出登录移除AUTOLOGIN===', localStorage.AUTOLOGIN)
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')
             // 先关闭所有子窗口，再重启主窗口

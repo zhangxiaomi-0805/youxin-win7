@@ -68,6 +68,7 @@ export default {
           // let loginInfo = this.$store.state.loginInfo
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
+          console.log('downLine 移除AUTOLOGIN===', localStorage.AUTOLOGIN)
           this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')
