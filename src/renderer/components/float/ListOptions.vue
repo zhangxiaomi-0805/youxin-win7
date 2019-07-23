@@ -1,6 +1,6 @@
 <template>
   <div v-if="showListOptions" class="m-options" :style="{left: left + 'px', top: top + 'px'}" v-clickoutside="closeModal">
-    <div class="item" v-for="item in items" :key="item.id" @click="item.callBack" :class="item.title === '群设置' ? 'b-more' : ''">{{item.title}}</div>
+    <div class="item" v-for="item in items" :key="item.id" @click="clickItem(item)" :class="item.title === '群设置' ? 'b-more' : ''">{{item.title}}</div>
   </div>
 </template>
 
@@ -46,6 +46,10 @@ export default {
     }
   },
   methods: {
+    clickItem (item) {
+      item.callBack()
+      this.closeModal()
+    },
     closeModal () {
       this.$store.dispatch('showListOptions', {
         show: false
