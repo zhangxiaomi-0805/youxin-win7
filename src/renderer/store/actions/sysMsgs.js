@@ -149,16 +149,14 @@ export function getLocalSysMsgs ({state}, obj) {
     done: function (_error, _obj) {
       if (!_error) {
         let resultMsgs = JSON.parse(JSON.stringify(_obj.sysMsgs))
-        console.log('_obj.sysMsgs.length === ', _obj.sysMsgs.length)
         _obj.sysMsgs.forEach(async item => {
           try {
             for (let i = 0; i < _obj.sysMsgs.length; i++) {
               let itemMsg = _obj.sysMsgs[i]
+              // 如果是群主处理了入群申请消息时，退出重新登录后，同样的申请会多一条，时间是一样的，但是idServer不一样且状态是init，需要删除掉
               if ((itemMsg.idServer !== item.idServer) && (itemMsg.to === item.to) && (itemMsg.from === item.from) && (itemMsg.time === item.time) && (item.state === 'init')) {
-                console.log('item === ', item)
-                console.log('itemMsg === ', itemMsg)
                 resultMsgs.forEach(async (item1, index) => {
-                  if (item1.idServer === itemMsg.idServer) {
+                  if (item1.idServer === item.idServer) {
                     resultMsgs.splice(index, 1)
                   }
                 })
@@ -166,10 +164,8 @@ export function getLocalSysMsgs ({state}, obj) {
                 break
               }
             }
-            // item = await manageSysMsg(item)
           } catch (error) {}
         })
-        console.log('resultMsgs.length === ', resultMsgs.length)
         resultMsgs.forEach(async item => {
           try {
             item = await manageSysMsg(item)
