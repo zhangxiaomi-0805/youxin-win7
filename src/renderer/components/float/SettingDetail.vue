@@ -357,12 +357,12 @@ export default {
         this.closeModal()
         this.eventBus.$emit('generalSetting', {show: false})
         // 更新密码
-        IndexedDB.getItem('AUTOLOGIN')
+        IndexedDB.getItem('autoLogin')
           .then(data => {
             if (data) {
               let USERINFO = Object.assign({}, data)
               USERINFO.password = DES.encryptByDES(this.password, 2)
-              IndexedDB.setItem('AUTOLOGIN', USERINFO)
+              IndexedDB.setItem('autoLogin', USERINFO)
             }
           })
           .catch(() => {})

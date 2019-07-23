@@ -7,6 +7,7 @@ class IndexedDB {
   openDB () {
     const accid = localStorage.getItem('uid')
     return new Promise((resolve, reject) => {
+      db.createObjectStore('autoLogin', { keyPath: 'key' })
       // 判断是否已经打开数据库
       if (this.db) {
         resolve(this.db)
@@ -21,7 +22,6 @@ class IndexedDB {
           db.createObjectStore('contactslist', { keyPath: 'key' })
           db.createObjectStore('contactsToplist', { keyPath: 'key' })
           db.createObjectStore('userSecret', { keyPath: 'key' })
-          db.createObjectStore('AUTOLOGIN', { keyPath: 'key' })
         }
         request.onsuccess = () => {
           this.db = request.result

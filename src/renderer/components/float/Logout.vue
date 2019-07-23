@@ -66,7 +66,7 @@ export default {
       this.loading = true
       Request.Logout({}, this)
         .then(res => {
-          IndexedDB.clear('AUTOLOGIN')
+          IndexedDB.clear('autoLogin')
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')
             // 先关闭所有子窗口，再重启主窗口

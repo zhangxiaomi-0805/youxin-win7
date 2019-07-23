@@ -87,8 +87,8 @@ export default {
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('relaunch-app')
         }
-        IndexedDB.clear('AUTOLOGIN')
-        console.log('forwordFail 移除AUTOLOGIN===', localStorage.AUTOLOGIN)
+        IndexedDB.clear('autoLogin')
+        console.log('forwordFail 移除autoLogin===', localStorage.autoLogin)
       }
     }
   }

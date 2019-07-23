@@ -68,8 +68,8 @@ export default {
         .then(res => {
           // let loginInfo = this.$store.state.loginInfo
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
-          IndexedDB.clear('AUTOLOGIN')
-          console.log('downLine 移除AUTOLOGIN===', localStorage.AUTOLOGIN)
+          IndexedDB.clear('autoLogin')
+          console.log('downLine 移除autoLogin===', localStorage.autoLogin)
           this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')

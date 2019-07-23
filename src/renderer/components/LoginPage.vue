@@ -192,7 +192,7 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      IndexedDB.getItem('AUTOLOGIN')
+      IndexedDB.getItem('autoLogin')
         .then(data => {
           console.log(data)
           if (data) {
@@ -209,7 +209,7 @@
               this.isRember = true
               this.login(1)
             } else {
-              IndexedDB.clear('AUTOLOGIN')
+              IndexedDB.clear('autoLogin')
               this.isRember = false
               this.isShowVericode = true
             }
@@ -410,11 +410,11 @@
           this.loading = false
           if (err && this.isShowVericode) this.errMsg = err.msg
           // 自动登录
-          if (localStorage.AUTOLOGIN) {
+          if (localStorage.autoLogin) {
             // this.password = ''
             this.isRember = false
             this.autoLogin = false
-            IndexedDB.clear('AUTOLOGIN')
+            IndexedDB.clear('autoLogin')
           }
           this.isShowVericode = true
           // 更新图形验证码
@@ -485,7 +485,7 @@
                     dateTime: new Date().getTime()
                   }
                   this.isRember = true
-                  IndexedDB.setItem('AUTOLOGIN', USERINFO)
+                  IndexedDB.setItem('autoLogin', USERINFO)
                 }
                 // 记住账户
                 let loginInfo = {
