@@ -318,11 +318,11 @@
     },
     methods: {
       onCloseListOptions () {
-        if (this.$store.state.showListOptions) {
-          this.$store.dispatch('showListOptions', {
-            show: false
-          })
-        }
+        // if (this.$store.state.showListOptions) {
+        //   this.$store.dispatch('showListOptions', {
+        //     show: false
+        //   })
+        // }
       },
       createSession (accid) {
         let BaseFn = (sessionId) => {
