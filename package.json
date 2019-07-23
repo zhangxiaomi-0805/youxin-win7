@@ -1,6 +1,6 @@
 {
   "name": "youxin",
-  "version": "3.1.5",
+  "version": "3.2.0",
   "author": "Netease",
   "description": "优信企业办公解决方案桌面端",
   "displayName": "",
@@ -37,7 +37,7 @@
   "build": {
     "productName": "YouXin",
     "appId": "org.netease.nice",
-    "asar": false,
+    "asar": true,
     "directories": {
       "output": "build"
     },
