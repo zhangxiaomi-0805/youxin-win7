@@ -59,10 +59,10 @@ APP.prototype.initApp = function () {
 
   if (process.platform === 'win32') {
     // 修改数据存储位置（包含应用和db数据、日志）
-    // let filePath = path.join(process.cwd(), 'appData')
-    // app.setPath('appData', filePath)
-    // app.setPath('userData', filePath)
-    // app.setPath('logs', filePath)
+    let filePath = path.join(process.cwd(), 'appData')
+    app.setPath('appData', filePath)
+    app.setPath('userData', filePath)
+    app.setPath('logs', filePath)
   }
 
   // 更新App版本号
@@ -270,8 +270,8 @@ APP.prototype.initIPC = function () {
     }
     setTimeout(() => {
       let bakBase64Str = getStrFn()
-      var testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/', process.platform, '/Snapshot')
-      exec(testFile, {}, (error, stdout, stderr) => {
+      let testFile = require('path').join(app.getAppPath(), '/dist/electron/static/addon/screenshot')
+      exec('start Snapshot.exe', {cwd: testFile}, (error, stdout, stderr) => {
         if (error) {
           if (arg.hideWin) {
             _this.mainWindow.show()
@@ -502,6 +502,10 @@ APP.prototype.tryTwinkle = function (arg) {
 APP.prototype.registerShortcut = function (arg) {
   // 注册快捷键
   globalShortcut.unregisterAll()
+  globalShortcut.register('Ctrl + Alt + Q', () => {
+    // Do stuff when Y and either Command/Control is pressed.
+    this.mainWindow.webContents.openDevTools()
+  })
   globalShortcut.register(arg, () => {
     this.mainWindow.shortcutScreen()
   })

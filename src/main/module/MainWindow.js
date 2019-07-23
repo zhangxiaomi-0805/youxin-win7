@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, ipcMain, globalShortcut } from 'electron'
 
 var MainWindow = function () {
   this.init()
@@ -108,10 +108,10 @@ MainWindow.prototype.createWindow = function () {
     })
   })
 
-  // globalShortcut.register('CommandOrControl+F12', () => {
-  //   // Do stuff when Y and either Command/Control is pressed.
-  //   this.mainWindow.webContents.openDevTools()
-  // })
+  globalShortcut.register('Ctrl + Alt + Q', () => {
+    // Do stuff when Y and either Command/Control is pressed.
+    this.mainWindow.webContents.openDevTools()
+  })
 }
 
 MainWindow.prototype.show = function () {
@@ -232,6 +232,10 @@ MainWindow.prototype.positionSession = function (arg) {
 
 MainWindow.prototype.closeRemoteWindow = function (arg) {
   this.mainWindow.webContents.send('closeRemoteWindow', arg)
+}
+
+MainWindow.prototype.openDevTools = function () {
+  this.mainWindow.webContents.openDevTools()
 }
 
 export default MainWindow
