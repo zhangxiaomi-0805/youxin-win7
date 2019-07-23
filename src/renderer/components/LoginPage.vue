@@ -184,6 +184,8 @@
       }
     },
     mounted () {
+      console.log('自动登录localStorage.AUTOLOGIN=====', localStorage.AUTOLOGIN)
+      console.log('登录用户localStorage.LOGININFO======', localStorage.LOGININFO)
       // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
@@ -192,7 +194,8 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      if (localStorage.AUTOLOGIN) {
+      let loginInfo = localStorage.LOGININFO && JSON.parse(localStorage.LOGININFO)
+      if (localStorage.AUTOLOGIN && !loginInfo.autoLogin) {
         this.isShowVericode = false
         // 已开启自动登录(30天内)
         let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
@@ -406,7 +409,7 @@
           if (err && this.isShowVericode) this.errMsg = err.msg
           // 自动登录
           if (localStorage.AUTOLOGIN) {
-            this.password = ''
+            // this.password = ''
             this.isRember = false
             this.autoLogin = false
             localStorage.removeItem('AUTOLOGIN')
@@ -480,6 +483,8 @@
                     dateTime: new Date().getTime()
                   }
                   this.isRember = true
+                  console.log('loginPage set AUTOLOGIN ===', USERINFO)
+                  USERINFO.pageType = 'loginPage'
                   localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
                 }
                 // 记住账户

@@ -65,9 +65,11 @@ export default {
       this.loading = true
       Request.Logout({}, this)
         .then(res => {
-          // let loginInfo = this.$store.state.loginInfo
-          // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
+          let loginInfo = localStorage.LOGININFO && JSON.parse(localStorage.LOGININFO)
+          loginInfo.autoLogin = false
+          localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
           localStorage.removeItem('AUTOLOGIN')
+          console.log('退出登录移除AUTOLOGIN===', AUTOLOGIN)
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')
             // 先关闭所有子窗口，再重启主窗口

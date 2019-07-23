@@ -360,6 +360,8 @@ export default {
         if (USERINFO) {
           USERINFO = JSON.parse(USERINFO)
           USERINFO.password = DES.encryptByDES(this.password, 2)
+          USERINFO.pageType = 'settingDetail'
+          console.log('settingDetail set AUTOLOGIN ===', USERINFO)
           localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
         }
       }).catch((err) => {
