@@ -42,6 +42,7 @@
 <script>
 import drag from '../../utils/drag.js'
 import config from '../../configs'
+import IndexedDB from '../../utils/indexedDB'
 import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'dismiss-team',
@@ -86,7 +87,7 @@ export default {
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('relaunch-app')
         }
-        localStorage.removeItem('AUTOLOGIN')
+        IndexedDB.clear('AUTOLOGIN')
         console.log('forwordFail 移除AUTOLOGIN===', localStorage.AUTOLOGIN)
       }
     }

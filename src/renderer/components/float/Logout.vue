@@ -33,6 +33,7 @@
 import platform from '../../utils/platform'
 import Request from '../../utils/request'
 import config from '../../configs'
+import IndexedDB from '../../utils/indexedDB'
 import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'logout',
@@ -65,11 +66,7 @@ export default {
       this.loading = true
       Request.Logout({}, this)
         .then(res => {
-          let loginInfo = localStorage.LOGININFO && JSON.parse(localStorage.LOGININFO)
-          loginInfo.autoLogin = false
-          localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
-          localStorage.removeItem('AUTOLOGIN')
-          console.log('Logout 退出登录移除AUTOLOGIN===', localStorage.AUTOLOGIN)
+          IndexedDB.clear('AUTOLOGIN')
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')
             // 先关闭所有子窗口，再重启主窗口

@@ -21,6 +21,7 @@ class IndexedDB {
           db.createObjectStore('contactslist', { keyPath: 'key' })
           db.createObjectStore('contactsToplist', { keyPath: 'key' })
           db.createObjectStore('userSecret', { keyPath: 'key' })
+          db.createObjectStore('AUTOLOGIN', { keyPath: 'key' })
         }
         request.onsuccess = () => {
           this.db = request.result

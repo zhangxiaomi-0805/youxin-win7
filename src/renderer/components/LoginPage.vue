@@ -184,8 +184,6 @@
       }
     },
     mounted () {
-      console.log('自动登录localStorage.AUTOLOGIN=====', localStorage.AUTOLOGIN)
-      console.log('登录用户localStorage.LOGININFO======', localStorage.LOGININFO)
       // this.checkUpdate() // 检查版本更新
       if (config.environment === 'web') {
         // 设置可拖拽范围
@@ -194,36 +192,39 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      let loginInfo = localStorage.LOGININFO && JSON.parse(localStorage.LOGININFO)
-      if (localStorage.AUTOLOGIN && loginInfo && loginInfo.autoLogin) {
-        this.isShowVericode = false
-        // 已开启自动登录(30天内)
-        let USERINFO = JSON.parse(localStorage.AUTOLOGIN)
-        let nowDate = new Date().getTime()
-        if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
-          this.loading = true
-          this.autoLogin = true
-          this.account = USERINFO.account
-          this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
-          this.verifyCodeImg = ''
-          this.isRember = true
-          this.login(1)
-        } else {
-          console.log('loginPage 超过30天移除AUTOLOGIN===', localStorage.AUTOLOGIN)
-          localStorage.removeItem('AUTOLOGIN')
-          this.isRember = false
-          this.isShowVericode = true
-        }
-      } else if (localStorage.LOGININFO) {
-        // 退出登录记住账号
-        let loginInfo = JSON.parse(localStorage.LOGININFO)
-        this.account = loginInfo.account
-        this.isRember = loginInfo.isRember
-        this.autoLogin = false
-        if (loginInfo.isRember) {
-          this.password = DES.decryptByDESModeEBC(loginInfo.password, 2)
-        }
-      }
+      IndexedDB.getItem('AUTOLOGIN')
+        .then(data => {
+          console.log(data)
+          if (data) {
+            this.isShowVericode = false
+            // 已开启自动登录(30天内)
+            let USERINFO = data
+            let nowDate = new Date().getTime()
+            if (nowDate - USERINFO.dateTime <= 30 * 24 * 3600 * 1000) {
+              this.loading = true
+              this.autoLogin = true
+              this.account = USERINFO.account
+              this.password = DES.decryptByDESModeEBC(USERINFO.password, 2)
+              this.verifyCodeImg = ''
+              this.isRember = true
+              this.login(1)
+            } else {
+              IndexedDB.clear('AUTOLOGIN')
+              this.isRember = false
+              this.isShowVericode = true
+            }
+          } else if (localStorage.LOGININFO) {
+            // 退出登录记住账号
+            let loginInfo = JSON.parse(localStorage.LOGININFO)
+            this.account = loginInfo.account
+            this.isRember = loginInfo.isRember
+            this.autoLogin = false
+            if (loginInfo.isRember) {
+              this.password = DES.decryptByDESModeEBC(loginInfo.password, 2)
+            }
+          }
+        })
+        .catch(() => {})
       // 获取sessionId
       Request.GetSessionId({}, (value) => this.verifyCodeUrlCtrl(value))
     },
@@ -413,8 +414,7 @@
             // this.password = ''
             this.isRember = false
             this.autoLogin = false
-            console.log('loginPage 登录出错移除AUTOLOGIN===', localStorage.AUTOLOGIN)
-            localStorage.removeItem('AUTOLOGIN')
+            IndexedDB.clear('AUTOLOGIN')
           }
           this.isShowVericode = true
           // 更新图形验证码
@@ -476,19 +476,16 @@
                   .catch(() => {})
                 Request.ThirdUrls()
                 // 开启自动登录
+                console.log('this.autoLogin===', this.autoLogin)
                 if (this.autoLogin) {
-                  // 先移除之前的自动登录信息，再存储最新的
-                  localStorage.removeItem('AUTOLOGIN')
-                  console.log('loginPage 登录时先移除，再存储AUTOLOGIN===', localStorage.AUTOLOGIN)
+                  console.log('开启自动登录===')
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password, 2),
                     dateTime: new Date().getTime()
                   }
                   this.isRember = true
-                  console.log('loginPage set AUTOLOGIN ===', USERINFO)
-                  USERINFO.pageType = 'loginPage'
-                  localStorage.setItem('AUTOLOGIN', JSON.stringify(USERINFO))
+                  IndexedDB.setItem('AUTOLOGIN', USERINFO)
                 }
                 // 记住账户
                 let loginInfo = {
