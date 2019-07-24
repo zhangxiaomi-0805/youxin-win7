@@ -33,7 +33,7 @@
 import platform from '../../utils/platform'
 import Request from '../../utils/request'
 import config from '../../configs'
-import IndexedDB from '../../utils/indexedDB'
+import LocalDB from '../../utils/LocalIndexedDB'
 import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'logout',
@@ -66,7 +66,7 @@ export default {
       this.loading = true
       Request.Logout({}, this)
         .then(res => {
-          IndexedDB.clear('autoLogin')
+          LocalDB.clear('autoLogin')
           if (config.environment === 'web') { // web分支
             localStorage.removeItem('UserName')
             // 先关闭所有子窗口，再重启主窗口

@@ -1,26 +1,21 @@
-class IndexedDB {
+class LocalIndexedDB {
   constructor () {
     this.db = null // 初始化数据库
   }
 
   // 打开数据库
   openDB () {
-    const accid = localStorage.getItem('uid')
     return new Promise((resolve, reject) => {
       // 判断是否已经打开数据库
       if (this.db) {
         resolve(this.db)
       } else {
-        const request = window.indexedDB.open(`NICE-${accid}`)
+        const request = window.indexedDB.open(`NICE-AUTOLOGIN`)
         // 首次创建数据库
         request.onupgradeneeded = (event) => {
           const db = event.target.result
           // 设置标识为key
-          db.createObjectStore('orgnizeObj', { keyPath: 'key' })
-          db.createObjectStore('myDeptObj', { keyPath: 'key' })
-          db.createObjectStore('contactslist', { keyPath: 'key' })
-          db.createObjectStore('contactsToplist', { keyPath: 'key' })
-          db.createObjectStore('userSecret', { keyPath: 'key' })
+          db.createObjectStore('autoLogin', { keyPath: 'key' })
         }
         request.onsuccess = () => {
           this.db = request.result
@@ -126,6 +121,6 @@ class IndexedDB {
   }
 }
 
-const DB = new IndexedDB()
+const LocalDB = new LocalIndexedDB()
 
-export default DB
+export default LocalDB

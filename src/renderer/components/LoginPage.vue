@@ -141,6 +141,7 @@
   import SendCode from './login/SendCode.vue'
   import Toast from './toast/toast.vue'
   import Request from '../utils/request.js'
+  import LocalDB from '../utils/LocalIndexedDB'
   import IndexedDB from '../utils/indexedDB'
   import platform from '../utils/platform'
   import clickoutside from '../utils/clickoutside.js'
@@ -192,7 +193,7 @@
       if (localStorage.HistoryAccount) {
         this.rememberAccount = JSON.parse(localStorage.HistoryAccount)
       }
-      IndexedDB.getItem('autoLogin')
+      LocalDB.getItem('autoLogin')
         .then(data => {
           console.log(data)
           if (data) {
@@ -209,7 +210,7 @@
               this.isRember = true
               this.login(1)
             } else {
-              IndexedDB.clear('autoLogin')
+              LocalDB.clear('autoLogin')
               this.isRember = false
               this.isShowVericode = true
             }
@@ -414,7 +415,7 @@
             // this.password = ''
             this.isRember = false
             this.autoLogin = false
-            IndexedDB.clear('autoLogin')
+            LocalDB.clear('autoLogin')
           }
           this.isShowVericode = true
           // 更新图形验证码
@@ -485,7 +486,7 @@
                     dateTime: new Date().getTime()
                   }
                   this.isRember = true
-                  IndexedDB.setItem('autoLogin', USERINFO)
+                  LocalDB.setItem('autoLogin', USERINFO)
                 }
                 // 记住账户
                 let loginInfo = {

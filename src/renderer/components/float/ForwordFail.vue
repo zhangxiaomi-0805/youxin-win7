@@ -42,7 +42,7 @@
 <script>
 import drag from '../../utils/drag.js'
 import config from '../../configs'
-import IndexedDB from '../../utils/indexedDB'
+import LocalDB from '../../utils/LocalIndexedDB'
 import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'dismiss-team',
@@ -87,7 +87,7 @@ export default {
           let { ipcRenderer } = require('electron')
           ipcRenderer.send('relaunch-app')
         }
-        IndexedDB.clear('autoLogin')
+        LocalDB.clear('autoLogin')
         console.log('forwordFail 移除autoLogin===', localStorage.autoLogin)
       }
     }

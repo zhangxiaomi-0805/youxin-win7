@@ -29,7 +29,7 @@
 import Request from '../../utils/request.js'
 import drag from '../../utils/drag.js'
 import config from '../../configs'
-import IndexedDB from '../../utils/indexedDB'
+import LocalDB from '../../utils/LocalIndexedDB'
 import NativeLogic from '../../utils/nativeLogic.js'
 export default {
   name: 'down-line',
@@ -68,7 +68,7 @@ export default {
         .then(res => {
           // let loginInfo = this.$store.state.loginInfo
           // localStorage.setItem('LOGININFO', JSON.stringify(loginInfo))
-          IndexedDB.clear('autoLogin')
+          LocalDB.clear('autoLogin')
           console.log('downLine 移除autoLogin===', localStorage.autoLogin)
           this.$store.commit('updateDownlineModal', {status: false, reason: this.reason})
           if (config.environment === 'web') { // web分支

@@ -3,7 +3,7 @@
  */
 import configs from '../configs/index'
 import NativeLogic from './nativeLogic'
-import IndexedDB from '../utils/indexedDB'
+import LocalDB from '../utils/LocalIndexedDB'
 import DES from '../utils/des'
 var Fetch = {
   last_url: null
@@ -65,7 +65,7 @@ Fetch.post = async function (url, params, $this, ContentType) {
   return new Promise((resolve, reject) => {
     let reLoginFn = () => {
       // 鉴权失败处理
-      IndexedDB.clear('autoLogin')
+      LocalDB.clear('autoLogin')
       if (configs.environment === 'web') { // web分支
         // 先关闭所有子窗口，再重启主窗口
         NativeLogic.native.setWinStatus('aplWindow', 4) // 类型（1-最小化，2-最大化，3-还原，4-关闭，5-重启，6-隐藏，7-显示）

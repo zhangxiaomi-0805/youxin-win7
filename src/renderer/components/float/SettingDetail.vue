@@ -118,7 +118,7 @@ import LoginButton from '../login/LoginButton.vue'
 import SelectArea from '../login/SelectArea.vue'
 import SendCode from '../login/SendCode.vue'
 import DES from '../../utils/des.js'
-import IndexedDB from '../../utils/indexedDB'
+import LocalDB from '../../utils/LocalIndexedDB'
 import Request from '../../utils/request.js'
 import util from '../../utils'
 export default {
@@ -357,12 +357,12 @@ export default {
         this.closeModal()
         this.eventBus.$emit('generalSetting', {show: false})
         // 更新密码
-        IndexedDB.getItem('autoLogin')
+        LocalDB.getItem('autoLogin')
           .then(data => {
             if (data) {
               let USERINFO = Object.assign({}, data)
               USERINFO.password = DES.encryptByDES(this.password, 2)
-              IndexedDB.setItem('autoLogin', USERINFO)
+              LocalDB.setItem('autoLogin', USERINFO)
             }
           })
           .catch(() => {})
