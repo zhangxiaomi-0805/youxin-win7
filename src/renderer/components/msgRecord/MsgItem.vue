@@ -418,9 +418,9 @@ export default {
               case 3: // 复制
                 this.shearBoard(e)
                 break
-              case 4: // 删除
-                this.$store.dispatch('deleteMsg', this.msg)
-                break
+              // case 4: // 删除
+              //   this.$store.dispatch('deleteMsg', this.msg)
+              //   break
             }
           }
         })

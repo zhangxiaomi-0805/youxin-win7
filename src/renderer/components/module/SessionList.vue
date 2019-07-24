@@ -26,8 +26,8 @@
       :key="session.id" :id="session.id"
     >
       <a @click="toggleChat(session)" style="width:100%;cursor:default;" :ref="session.id" class="u-router-link"
-        @mouseover="selectedId = session.id, showDelete = session.unread <= 0"
-        @mouseout="selectedId = -1, showDelete = false"
+        @mouseover.stop="toggleShowDeleteBtn(1, session)"
+        @mouseout.stop="toggleShowDeleteBtn(2)"
       >
         <div class="u-list-item-container" :class="session.localCustom && session.localCustom.topTime ? 'u-list-item-isTop' : ''">
           <div style="display: flex; align-items: center;width:70%;">
@@ -300,6 +300,23 @@ export default {
     }
   },
   methods: {
+    // 判断快捷删除按钮显示与否
+    toggleShowDeleteBtn (type, session) {
+      if (type === 1 && session) { // 鼠标移入时
+        console.log('鼠标移入时=====')
+        this.selectedId = session.id
+        this.showDelete = session.unread <= 0
+        console.log('this.selectedId=====', this.selectedId)
+        console.log('session.id=====', session.id)
+        console.log('this.showDelete=====', this.showDelete)
+      } else if (type === 2) { // 鼠标移出时
+        console.log('鼠标移出时=====')
+        this.selectedId = -1
+        this.showDelete = false
+        console.log('this.selectedId=====', this.selectedId)
+        console.log('this.showDelete=====', this.showDelete)
+      }
+    },
     // 回车触发搜索
     keyToSearch (e) {
       this.eventBus.$emit('_keyToSearch', {event: e})

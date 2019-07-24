@@ -256,27 +256,27 @@ export async function showListOptions ({state, commit}, obj) {
   // 历史消息记录
   if (obj.key === 'msg-record') {
     items = [
-      event3, event2, event0, event4
+      event3, event2, event0
     ]
   }
   // if (obj.key === 'text-msg-record') {
   //   items = [
-  //     event3, event2, event0, event4
+  //     event3, event2, event0
   //   ]
   // }
   if (obj.key === 'image-msg-record') {
     items = [
-      event2, event0, event4
+      event2, event0
     ]
   }
-  if (obj.key === 'custom-type8-msg-record') {
-    items = [
-      event4
-    ]
-  }
+  // if (obj.key === 'custom-type8-msg-record') {
+  //   items = [
+  //     event4
+  //   ]
+  // }
   // if (obj.key === 'file-msg-record') {
   //   items = [
-  //     event2, event6, event0, event4, event37
+  //     event2, event6, event0, event37
   //   ]
   // }
   // 自定义消息 --- 贴图表情 && 富文本

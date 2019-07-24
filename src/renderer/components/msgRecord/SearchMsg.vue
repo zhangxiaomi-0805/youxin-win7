@@ -26,7 +26,7 @@
                 @mouseup.stop="isSearchCheckMore ? null : showListOptions($event, msg)"
                 :ref="`copy_${msg.idClient}`"
                 class="searchValue"
-                style="-webkit-user-select: text"
+                style="outline:0;-webkit-user-select: text"
                 v-html="msg.showText"
                 @click.stop="openAplWindow($event, msg.sessionId)"
                 @keydown.stop="shearBoard($event)"

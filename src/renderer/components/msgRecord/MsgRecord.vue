@@ -42,7 +42,7 @@
           <div v-if="(isCheckMore || isSearchCheckMore)" class="tab-right-title">
             <a v-if="checkType === 'all'" :class="className('copy')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('copy', 'msgRecord_checkMore') : null">复制</a>
             <a :class="className('forword')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('forword') : null">转发</a>
-            <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a>
+            <!-- <a :class="className('delete')" @click.stop="checkedMsgList && checkedMsgList.length > 0 ? toggleFunc('delete') : null">删除</a> -->
             <a :class="className('cancel')" @click.stop=" toggleFunc('cancel')">取消</a>
           </div>
 
