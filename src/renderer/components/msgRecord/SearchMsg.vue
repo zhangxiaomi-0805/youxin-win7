@@ -27,9 +27,11 @@
                 :ref="`copy_${msg.idClient}`"
                 class="searchValue"
                 style="outline:0;-webkit-user-select: text"
+                onselectstart = "return false"
                 v-html="msg.showText"
                 @click.stop="openAplWindow($event, msg.sessionId)"
                 @keydown.stop="shearBoard($event)"
+                @dblclick.stop="copyAll(msg.idClient)"
                 tabindex="1"
               />
               <div v-else-if="msg.type==='custom-type1'" class="msg-text" ref="mediaMsg"></div>
@@ -127,6 +129,11 @@
       }
     },
     methods: {
+      // 双击文本全选
+      copyAll (idClient) {
+        let target = (this.$refs[`copy_${idClient}`])[0]
+        MsgRecordFn.copyAll(target)
+      },
       // 消息时间戳处理 --- 年-月-日 时-分-秒
       manageTime (time) {
         return util.DateFormat(time)

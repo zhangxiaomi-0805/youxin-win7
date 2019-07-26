@@ -21,9 +21,11 @@
             style="outline:0;font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
             @click="openAplWindow($event)"
+            onselectstart = "return false"
             v-html="msg.showText"
             :ref="`copy_${msg.idClient}`"
             @keydown.stop="shearBoard($event)"
+            @dblclick.stop="copyAll()"
             tabindex="1"
           ></div>
           <div v-else-if="msg.type==='custom-type1'" ref="mediaMsg">
@@ -180,6 +182,11 @@ export default {
     this.eventBus.$off('sendMsgToChild')
   },
   methods: {
+    // 双击文本全选
+    copyAll () {
+      let target = this.$refs[`copy_${this.idClient}`]
+      MsgRecordFn.copyAll(target)
+    },
     bindEvent (element, eventName, eventHandler) {
       if (element.addEventListener) {
         element.addEventListener(eventName, eventHandler, false)
