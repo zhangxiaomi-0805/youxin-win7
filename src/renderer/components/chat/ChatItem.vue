@@ -45,6 +45,7 @@
         <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
         <span :ref="`copy_${idClient}`"
           style="-webkit-user-select: text;outline: 0;"
+          onselectstart = "return false"
           v-if="msg.type==='text'"
           :class="(msg.localCustom && msg.localCustom.urlIsClick) || msgUrlIsClick ? 'msg-text msg-text-active' : 'msg-text'"
           v-html="msg.showText"
