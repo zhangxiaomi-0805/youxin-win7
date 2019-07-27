@@ -618,6 +618,11 @@
       syncDraft (newId, oldId) {
         // 同步草稿
         let result = this.$refs.chatEditor ? this.$refs.chatEditor.getEditContent() : null
+        // br剪切板未过滤，手动置为无效
+        if (result && result.innerHTML === '<br>') {
+          result.innerHTML = ''
+        }
+        console.log('result', result)
         let prevSession = this.$store.state.sessionlist.find(item => {
           return item.id === oldId
         })
@@ -632,6 +637,7 @@
           } else {
             prevSession.localCustom = { draftMsg, draftInner: result.innerHTML }
           }
+          console.log('prevSession.localCustom', prevSession.localCustom)
           // 更新本地信息
           this.$store.state.nim.updateLocalSession({
             id: prevSession.id,

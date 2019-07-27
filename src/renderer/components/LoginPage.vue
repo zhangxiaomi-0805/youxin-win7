@@ -477,9 +477,9 @@
                   .catch(() => {})
                 Request.ThirdUrls()
                 // 开启自动登录
-                console.log('this.autoLogin===', this.autoLogin)
+                // console.log('this.autoLogin===', this.autoLogin)
                 if (this.autoLogin) {
-                  console.log('开启自动登录===')
+                  // console.log('开启自动登录===')
                   let USERINFO = {
                     account: this.account,
                     password: DES.encryptByDES(this.password, 2),
