@@ -833,6 +833,7 @@ export function sendCustomSysMsg ({ state }, msg) {
     scene: 'p2p',
     to: account,
     content: content,
+    isPushable: false, // 自定义系统消息不推送消息
     sendToOnlineUsersOnly: true,
     apnsText: content,
     done: (error, newMsg) => {
