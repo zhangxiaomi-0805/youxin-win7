@@ -2075,7 +2075,7 @@
     overflow: hidden;
 }
 .g-window .u-msg.session-chat.item-me .msg-text-active, .g-window .u-msg.session-chat.item-you .msg-text-active{
-  color: #FFEE1B
+  color: #8B0A50
 }
 
 .g-window .u-msg.session-chat.item-you .msg-text.cover,

@@ -65,9 +65,7 @@ async function systemNewMsgsManage (msg) {
     let muteNotiType = Number(map[msg.to])
     if (muteNotiType === 1) isMute = true
   }
-  if (!isMute && !localStorage.getItem('AUDIOSETT')) {
-    let audio = new Audio(`./static/img/msg.wav`)
-    audio.play()
+  if (!isMute) {
     // 未设置免打扰时，任务栏才闪烁
     if (config.environment === 'web') { // web分支
       NativeLogic.native.getWinStatus('main')
@@ -80,7 +78,12 @@ async function systemNewMsgsManage (msg) {
       let { ipcRenderer } = require('electron')
       ipcRenderer.send('receiveNewMsgs', {unreadNums})
     }
-    setTimeout(() => audio.pause(), 800)
+    // 开启声音提醒
+    if (!localStorage.getItem('AUDIOSETT')) {
+      let audio = new Audio(`./static/img/msg.wav`)
+      audio.play()
+      setTimeout(() => audio.pause(), 800)
+    }
   }
 }
 
@@ -238,6 +241,7 @@ function onSendMsgDone (error, msg) {
         store.commit('connectStatus', { networkStatus: 500 })
       }
     } else {
+      console.log(' onSendMsgDone error ', error)
       console.log(error.message)
     }
   } else if (msg && msg.status === 'success') {
@@ -350,11 +354,13 @@ export function revocateMsg ({state, commit}, obj) {
 
 // 下载图片或文件
 export function downloadImg ({state, commit}, file) {
+  console.log('downloadImg', file)
   const nim = state.nim
   const nameUrl = nim.packFileDownloadName({
     url: file.url.split('?')[0],
     name: file.name
   })
+  console.log('nameUrl', nameUrl)
   var $a = document.createElement('a')
   let decodeUrl = ''
   if (file.type === 'file') {

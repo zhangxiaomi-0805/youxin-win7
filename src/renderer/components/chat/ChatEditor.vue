@@ -1095,7 +1095,12 @@
                   })
                 }
               } else {
-                let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:${text}"}}}`
+                // 双引号在推送时替换成单引号
+                let pushText = text
+                while (pushText.indexOf('"') >= 0) {
+                  pushText = pushText.replace('"', '\'')
+                }
+                let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:${pushText}"}}}`
                 this.$store.dispatch('sendMsg', {
                   type: 'text',
                   scene: this.scene,
