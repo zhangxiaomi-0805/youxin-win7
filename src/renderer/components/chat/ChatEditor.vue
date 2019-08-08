@@ -1555,65 +1555,65 @@
         this.cutCode = localStorage.CUTCODE || 'Alt + A'
       },
       sendRemote (type) {
-        // 判断是否为内网环境
-        Promise.race([
-          new Promise((resolve, reject) => {
-            fetch('https://132.252.137.143:10581', {
-              method: 'POST'
-            }).then((response) => {
-              resolve(true)
-            }).then((respResult) => {
-              resolve(true)
-            }).catch(() => {
-              reject(new Error('request error'))
-            })
-          }),
-          new Promise((resolve, reject) => {
-            setTimeout(() => reject(new Error('request timeout')), 2000)
-          })])
-          .then((data) => {
-            console.log('远程协助发起---------')
-            // 请求成功
-            this.showRemote = false
-            /**
-             * 发起远程协助
-             * @params type 1-控制对方电脑，2-请求远程协助
-             */
-            if (config.environment === 'electron') {
-              const remote = require('electron').remote
-              if (remote.getGlobal('HASREMOTE')) {
-                this.$store.commit('toastConfig', {
-                  show: true,
-                  type: 'fail',
-                  toastText: '已有一个远程桌面正在进行。'
-                })
-                return
-              }
-              let userInfo = this.userInfos[this.to] || {}
-              let myInfo = this.$store.state.myInfo
-              let content = {
-                status: 'request',
-                type,
-                nick: myInfo.nick || myInfo.account,
-                account: this.to,
-                currentNick: userInfo.nick || userInfo.alias || this.to
-              }
-              if (localStorage.IGNOREREMOTE) {
-                this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content, nick: userInfo.nick || userInfo.alias || this.to })
-                this.$store.dispatch('sendCustomSysMsg', {account: content.account, content: JSON.stringify(content)})
-              } else {
-                this.eventBus.$emit('remoteConfirm', content)
-              }
-            }
-          }).catch(() => {
-            console.log('远程协助发起失败---------')
-            // 请求失败
+        console.log('远程协助发起---------')
+        // 请求成功
+        this.showRemote = false
+        /**
+         * 发起远程协助
+         * @params type 1-控制对方电脑，2-请求远程协助
+         */
+        if (config.environment === 'electron') {
+          const remote = require('electron').remote
+          if (remote.getGlobal('HASREMOTE')) {
             this.$store.commit('toastConfig', {
               show: true,
               type: 'fail',
-              toastText: '请确保在办公内网环境或网络延迟良好的环境中使用远程协助!'
+              toastText: '已有一个远程桌面正在进行。'
             })
-          })
+            return
+          }
+          let userInfo = this.userInfos[this.to] || {}
+          let myInfo = this.$store.state.myInfo
+          let content = {
+            status: 'request',
+            type,
+            nick: myInfo.nick || myInfo.account,
+            account: this.to,
+            currentNick: userInfo.nick || userInfo.alias || this.to
+          }
+          if (localStorage.IGNOREREMOTE) {
+            this.$store.commit('updateRemoteWaitingObj', { showModal: true, ...content, nick: userInfo.nick || userInfo.alias || this.to })
+            this.$store.dispatch('sendCustomSysMsg', {account: content.account, content: JSON.stringify(content)})
+          } else {
+            this.eventBus.$emit('remoteConfirm', content)
+          }
+        }
+        // 判断是否为内网环境
+        // Promise.race([
+        //   new Promise((resolve, reject) => {
+        //     fetch('https://132.252.137.143:10581', {
+        //       method: 'POST'
+        //     }).then((response) => {
+        //       resolve(true)
+        //     }).then((respResult) => {
+        //       resolve(true)
+        //     }).catch(() => {
+        //       reject(new Error('request error'))
+        //     })
+        //   }),
+        //   new Promise((resolve, reject) => {
+        //     setTimeout(() => reject(new Error('request timeout')), 2000)
+        //   })])
+        //   .then((data) => {
+        //   }).catch(() => {
+        //     console.log('远程协助发起失败---------')
+        //     // 请求失败
+        //     this.$store.commit('toastConfig', {
+        //       show: true,
+        //       type: 'fail',
+        //       toastText: '请确保在办公内网环境或网络延迟良好的环境中使用远程协助!'
+        //     })
+        //   })
       }
     }
   }

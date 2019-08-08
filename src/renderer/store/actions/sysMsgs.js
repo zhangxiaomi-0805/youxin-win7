@@ -260,7 +260,16 @@ function remoteConnectCtrl (content, account) {
           // 接受远程协助
           store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, ...content, account })
           if (content.reqType === 2) {
-            ipcRenderer.send('remoteConnection', account)
+            try {
+              ipcRenderer.send('remoteConnection', account)
+            } catch (error) {
+              console.log('remoteConnection error', error)
+              store.commit('toastConfig', {
+                show: true,
+                type: 'fail',
+                toastText: '网络连接状态异常，请在办公内网环境或网络良好的场景下使用远程协助'
+              })
+            }
           }
         }
       }

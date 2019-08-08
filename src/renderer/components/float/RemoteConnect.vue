@@ -62,7 +62,16 @@ export default {
         this.$store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account, role: 'Initiator' })
         if (reqType === 1) {
           let ipcRenderer = require('electron').ipcRenderer
-          ipcRenderer.send('remoteConnection', account)
+          try {
+            ipcRenderer.send('remoteConnection', account)
+          } catch (error) {
+            console.log('remoteConnection error', error)
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '网络连接状态异常，请在办公内网环境或网络良好的场景下使用远程协助'
+            })
+          }
         }
       }
     }
