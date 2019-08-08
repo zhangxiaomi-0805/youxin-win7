@@ -252,10 +252,10 @@
         try {
           if (this.isSearchInLocal) { // 本地查找
             for (let i in this.sessionlist) {
-              if ((this.sessionlist[i].name.indexOf(value) > -1 || this.sessionlist[i].pinyinStr.indexOf(value) > -1 || this.sessionlist[i].id.indexOf(value) > -1)) {
+              if (this.sessionlist[i].scene === 'p2p' && (this.sessionlist[i].name.indexOf(value) > -1 || this.sessionlist[i].pinyinStr.indexOf(value) > -1 || this.sessionlist[i].id.indexOf(value) > -1)) {
                 this.sessionlist[i].accid = this.sessionlist[i].id && this.sessionlist[i].id.split('-')[1]
                 result.push(this.sessionlist[i])
-                console.log(result)
+                // console.log(result)
               }
             }
           } else { // 在线查找
