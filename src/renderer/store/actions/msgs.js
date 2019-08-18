@@ -3,6 +3,7 @@ import config from '../../configs'
 import util from '../../utils'
 import Request from '../../utils/request'
 import NativeLogic from '../../utils/nativeLogic.js'
+const fs = require('fs')
 export function formatMsg (msg) {
   const nim = store.state.nim
   if (msg.type === 'robot') {
@@ -354,13 +355,13 @@ export function revocateMsg ({state, commit}, obj) {
 
 // 下载图片或文件
 export function downloadImg ({state, commit}, file) {
-  console.log('downloadImg', file)
+  // console.log('downloadImg', file)
   const nim = state.nim
   const nameUrl = nim.packFileDownloadName({
     url: file.url.split('?')[0],
     name: file.name
   })
-  console.log('nameUrl', nameUrl)
+  // console.log('nameUrl', nameUrl)
   var $a = document.createElement('a')
   let decodeUrl = ''
   if (file.type === 'file') {
@@ -373,6 +374,39 @@ export function downloadImg ({state, commit}, file) {
   var evObj = document.createEvent('MouseEvents')
   evObj.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null)
   $a.dispatchEvent(evObj)
+  // 修改文件名
+  let {ipcRenderer} = require('electron')
+  this.downloadedHandle = (evt, obj) => {
+    // 判断文件是否存在后缀
+    let oldPath = obj.url
+    let newPath = obj.url
+    console.log('downloadImg downloadedHandle obj：', obj)
+    let oriUrl = obj.id.replace('youx.telecomjs.com', '')
+    var spl = oriUrl.split('.')
+    if (obj.url.split('.').length === 1 && spl.length !== 1) {
+      newPath = obj.url + '.' + spl[spl.length - 1]
+    }
+    // 修改文件名
+    if (oldPath !== newPath) {
+      fs.stat(newPath, function (err, stat) {
+        // console.log('stat========', stat)
+        // console.log('err========', err)
+        if (err !== null) {
+          setTimeout(() => {
+            fs.rename(oldPath, newPath, (err) => {
+              // console.log('rename oldPath', oldPath)
+              // console.log('rename newPath', newPath)
+              if (err) {
+                console.log('err', err)
+              }
+            })
+          }, 100)
+        }
+      })
+    }
+  }
+  // 下载完成
+  ipcRenderer.on(`downloaded`, this.downloadedHandle)
 }
 
 // 发送普通消息

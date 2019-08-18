@@ -142,6 +142,7 @@
   import getFile from '../../utils/getFile.js'
   import NativeLogic from '../../utils/nativeLogic.js'
   import operateFs from '../../utils/operateFs'
+  const fs = require('fs')
   export default {
     props: {
       isCheckMore: Boolean,
@@ -298,6 +299,7 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
+        // console.log('item:', item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -720,10 +722,40 @@
                 type: 0,
                 id: this.msg.idClient
               })
+              // 判断文件是否存在后缀
+              let oldPath = obj.url
+              let newPath = obj.url
+              // console.log('downloadedHandle obj', obj)
+              if (obj.url.split('.').length === 1 && this.msg.file.ext) {
+                newPath = obj.url + '.' + this.msg.file.ext
+              }
+              console.log('nextTick downloadedHandle msg.file.ext：', this.msg.file.ext)
+              console.log('nextTick downloadedHandle obj：', obj)
+              console.log('rename oldPath：', oldPath)
+              console.log('rename newPath：', newPath)
               this.$store.state.nim.updateLocalMsg({
                 idClient: this.msg.idClient,
-                localCustom: {downloadUrl: obj.url},
+                localCustom: {downloadUrl: newPath},
                 done: () => {
+                  // 修改文件名
+                  if (oldPath !== newPath) {
+                    fs.stat(newPath, function (err, stat) {
+                      // console.log('stat========', stat)
+                      // console.log('err========', err)
+                      if (err !== null) {
+                        setTimeout(() => {
+                          fs.rename(oldPath, newPath, (err) => {
+                            // console.log('rename oldPath', oldPath)
+                            // console.log('rename newPath', newPath)
+                            if (err) {
+                              console.log('err', err)
+                            }
+                          })
+                        }, 100)
+                      }
+                    })
+                  }
+
                   this.$store.commit('replaceMsg', param)
                   if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
                     this.$store.commit('updateCurrSessionMsgs', {
@@ -1644,6 +1676,7 @@
       downloadImg (item) {
         // 本地存储图片
         if (config.environment === 'electron') {
+          // console.log('electron 另存为.....', item)
           operateFs.createDefaltDir({
             name: item.idClient,
             msg: item,

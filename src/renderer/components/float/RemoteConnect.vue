@@ -69,7 +69,7 @@ export default {
             this.$store.commit('toastConfig', {
               show: true,
               type: 'fail',
-              toastText: '网络连接状态异常，请在办公内网环境或网络良好的场景下使用远程协助'
+              toastText: '网络连接状态异常，远程连接支持在同一局域网环境使用（VPN环境不可用），连接前请先确认双方的网络环境'
             })
           }
         }

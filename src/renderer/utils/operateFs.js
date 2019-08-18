@@ -15,8 +15,10 @@ let OperateFs = function () {}
  */
 OperateFs.prototype.createDefaltDir = async function ({name, msg, done}) {
   try {
+    // console.log('createDefaltDir msg', msg)
     let { file } = msg || {}
     let fileDir = path.join(process.cwd(), 'appData/images')
+    // console.log('createDefaltDir fileDir', fileDir)
     let accid = localStorage.getItem('uid')
     let readRes = await this.readDir(fileDir)
     if (readRes === 1) {
@@ -27,6 +29,7 @@ OperateFs.prototype.createDefaltDir = async function ({name, msg, done}) {
         fileDir = path.join(fileDir, accid)
         let creatRes1 = await this.createDir(fileDir)
         if (creatRes1 === 1 && name) {
+          // console.log('createDefaltDir1 name', name)
           fileDir = path.join(fileDir, name + '.' + file.name.split('.')[1])
           this.writeFile({file, fileDir, msg, done})
         }
@@ -42,6 +45,7 @@ OperateFs.prototype.createDefaltDir = async function ({name, msg, done}) {
       let creatRes1 = await this.createDir(fileDir)
       if (creatRes1 === 1 && name) {
         fileDir = path.join(fileDir, name + '.' + file.name.split('.')[1])
+        console.log('createDefaltDir2 name', name)
         this.writeFile({file, fileDir, msg, done})
       }
       return false
