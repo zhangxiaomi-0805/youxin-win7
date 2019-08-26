@@ -530,13 +530,13 @@ export default {
       }
     },
     onShowMenu (e, session) {
-      console.log('会话列表右击事件===session===', session)
+      // console.log('会话列表右击事件===session===', session)
       // 单个列表右击事件
       let teamInfo = {}
       let members = []
       let userType = 'normal'
       if (e.button === 2) {
-        console.log('会话列表右击事件===e.button===', e.button)
+        // console.log('会话列表右击事件===e.button===', e.button)
         e.preventDefault()
         let type = 'p2p-istop'
         if (session.scene === 'team') {
@@ -565,7 +565,7 @@ export default {
             type = 'p2p-notTop'
           }
         }
-        console.log('会话列表右击事件===showListOptions --- type ===', type)
+        // console.log('会话列表右击事件===showListOptions --- type ===', type)
         this.$store.dispatch('showListOptions', {
           key: type,
           show: true,
@@ -576,7 +576,7 @@ export default {
           },
           userType,
           callBack: (type) => {
-            console.log('会话列表右击事件---右键回调type', type)
+            // console.log('会话列表右击事件---右键回调type', type)
             switch (type) {
               case 1:
                 // 消息置顶
