@@ -343,6 +343,7 @@
           let replaceArr = []
           // 处理url
           let httpUrls = this.httpSpring(item.text)
+          // console.log('httpUrls=====', httpUrls)
           if (httpUrls.length > 0) {
             httpUrls.map(url => {
               item.showText = item.showText.replace(url, (m) => {
@@ -1648,19 +1649,35 @@
       httpSpring (str) {
         // 匹配url
         let regUrlAll = /(https?:\/\/|ftps?:\/\/)?((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:[0-9]+)?|(localhost)(:[0-9]+)?|([\w]+\.)(\S+)(\w{2,4})(:[0-9]+)?)(\/?([\w#!:.?+=&%@!\\-\\/]+))?/ig
-        let regEmail = /^([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g
+        let regEmail = /([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
+          let emailResult = lineStr.match(regEmail)
+          if (emailResult) {
+            emailResult.forEach(item => {
+              lineStr = lineStr.replace(item, '')
+            })
+          }
+          // 匹配url，匹配上之后提取url
+          let httpResult = lineStr.match(regUrlAll)
+          if (httpResult) {
+            httpResult.forEach(item => {
+              if (!regEmail.test(item)) {
+                httpArr.push(item)
+              }
+            })
+          }
           // 分割空格
-          lineStr.split(/\s+/).map(minStr => {
-            if (!regEmail.test(minStr)) {
-              let httpResult = minStr.match(regUrlAll)
-              // if (!httpResult) {
-              //   httpResult = minStr.match(regHttpAll)
-              // }
-              if (httpResult) httpArr.push(httpResult[0])
-            }
-          })
+          // lineStr.split(/\s+/).map(minStr => {
+          //   if (!regEmail.test(minStr)) {
+          //     let httpResult = minStr.match(regUrlAll)
+          //     console.log('httpResult=======', httpResult)
+          //     // if (!httpResult) {
+          //     //   httpResult = minStr.match(regHttpAll)
+          //     // }
+          //     if (httpResult) httpArr.push(httpResult[0])
+          //   }
+          // })
         })
         return httpArr
       },

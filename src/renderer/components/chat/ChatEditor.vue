@@ -1095,10 +1095,13 @@
                   })
                 }
               } else {
-                // 双引号在推送时替换成单引号
+                // 双引号在推送时替换成单引号,\替换成|
                 let pushText = text
                 while (pushText.indexOf('"') >= 0) {
                   pushText = pushText.replace('"', '\'')
+                }
+                while (pushText.indexOf('\\') >= 0) {
+                  pushText = pushText.replace('\\', '|')
                 }
                 let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:${pushText}"}}}`
                 this.$store.dispatch('sendMsg', {
@@ -1588,32 +1591,6 @@
             this.eventBus.$emit('remoteConfirm', content)
           }
         }
-        // 判断是否为内网环境
-        // Promise.race([
-        //   new Promise((resolve, reject) => {
-        //     fetch('https://132.252.137.143:10581', {
-        //       method: 'POST'
-        //     }).then((response) => {
-        //       resolve(true)
-        //     }).then((respResult) => {
-        //       resolve(true)
-        //     }).catch(() => {
-        //       reject(new Error('request error'))
-        //     })
-        //   }),
-        //   new Promise((resolve, reject) => {
-        //     setTimeout(() => reject(new Error('request timeout')), 2000)
-        //   })])
-        //   .then((data) => {
-        //   }).catch(() => {
-        //     console.log('远程协助发起失败---------')
-        //     // 请求失败
-        //     this.$store.commit('toastConfig', {
-        //       show: true,
-        //       type: 'fail',
-        //       toastText: '请确保在办公内网环境或网络延迟良好的环境中使用远程协助!'
-        //     })
-        //   })
       }
     }
   }
