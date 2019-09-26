@@ -21,7 +21,6 @@
             style="outline:0;font-size:13px; color:#333; line-height:18px;padding-top:2px; -webkit-user-select: text;word-wrap: break-word;"
             @mouseup.stop="isCheckMore ? null : showListOptions($event, msg)"
             @click="openAplWindow($event)"
-            onselectstart = "return false"
             v-html="msg.showText"
             :ref="`copy_${msg.idClient}`"
             @keydown.stop="shearBoard($event)"

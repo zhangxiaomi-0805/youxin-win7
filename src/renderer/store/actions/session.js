@@ -143,8 +143,8 @@ export async function onUpdateSession (session, callback) {
 }
 
 async function updateTwinkle (type) {
-  let unreadNums = store.state.unreadNums
-  console.log('unreadNums ==== ' + unreadNums)
+  // let unreadNums = store.state.unreadNums
+  // console.log('unreadNums ==== ' + unreadNums)
   // if (config.environment === 'web') { // web分支
   //   NativeLogic.native.receiveNewMsgs({ unreadNums })
   // } else { // electron分支

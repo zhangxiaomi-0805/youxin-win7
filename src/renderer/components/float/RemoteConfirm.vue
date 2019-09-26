@@ -12,7 +12,7 @@
           <span class="warning"></span>
           <div style="width: 88%">
             <div>确定发起远程连接吗？</div>
-            <div style="color: #999;font-size: 13px;margin-top: 10px">远程连接仅支持双方在内网环境下使用，请确认双方的网络环境。</div>
+            <div style="color: #999;font-size: 13px;margin-top: 10px">远程连接支持在同一局域网环境使用（VPN环境不可用），连接前请先确认双方的网络环境。</div>
             <div style="margin-top: 10px; display: flex;align-items: center;">
               <span :class="checked ? 'checked common' : 'check common'" @click="checkBoxCtrl"></span>
               <span style="color: #333;font-size: 12px;margin-left: 5px">以后不再提示</span>

@@ -62,7 +62,16 @@ export default {
         this.$store.commit('updateRemoteWaitingObj', { showModal: true, noCancel: true, account, role: 'Initiator' })
         if (reqType === 1) {
           let ipcRenderer = require('electron').ipcRenderer
-          ipcRenderer.send('remoteConnection', account)
+          try {
+            ipcRenderer.send('remoteConnection', account)
+          } catch (error) {
+            console.log('remoteConnection error', error)
+            this.$store.commit('toastConfig', {
+              show: true,
+              type: 'fail',
+              toastText: '网络连接状态异常，远程连接支持在同一局域网环境使用（VPN环境不可用），连接前请先确认双方的网络环境'
+            })
+          }
         }
       }
     }

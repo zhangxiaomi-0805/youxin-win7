@@ -27,7 +27,6 @@
                 :ref="`copy_${msg.idClient}`"
                 class="searchValue"
                 style="outline:0;-webkit-user-select: text"
-                onselectstart = "return false"
                 v-html="msg.showText"
                 @click.stop="openAplWindow($event, msg.sessionId)"
                 @keydown.stop="shearBoard($event)"

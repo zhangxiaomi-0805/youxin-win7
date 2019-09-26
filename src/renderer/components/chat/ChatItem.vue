@@ -45,7 +45,6 @@
         <textarea style="width: 1px;height: 1px;position: absolute;left: -10px;" ref="clipboard"></textarea>
         <span :ref="`copy_${idClient}`"
           style="-webkit-user-select: text;outline: 0;"
-          onselectstart = "return false"
           v-if="msg.type==='text'"
           :class="(msg.localCustom && msg.localCustom.urlIsClick) || msgUrlIsClick ? 'msg-text msg-text-active' : 'msg-text'"
           v-html="msg.showText"
@@ -143,6 +142,7 @@
   import getFile from '../../utils/getFile.js'
   import NativeLogic from '../../utils/nativeLogic.js'
   import operateFs from '../../utils/operateFs'
+  const fs = require('fs')
   export default {
     props: {
       isCheckMore: Boolean,
@@ -299,6 +299,7 @@
       },
       msg () {
         let item = Object.assign({}, this.rawMsg)
+        // console.log('item:', item)
         if (this.downloadUrl) {
           if (item.localCustom === undefined) {
             item.localCustom = {
@@ -342,6 +343,7 @@
           let replaceArr = []
           // 处理url
           let httpUrls = this.httpSpring(item.text)
+          // console.log('httpUrls=====', httpUrls)
           if (httpUrls.length > 0) {
             httpUrls.map(url => {
               item.showText = item.showText.replace(url, (m) => {
@@ -721,10 +723,40 @@
                 type: 0,
                 id: this.msg.idClient
               })
+              // 判断文件是否存在后缀
+              let oldPath = obj.url
+              let newPath = obj.url
+              // console.log('downloadedHandle obj', obj)
+              if (obj.url.split('.').length === 1 && this.msg.file.ext) {
+                newPath = obj.url + '.' + this.msg.file.ext
+              }
+              console.log('nextTick downloadedHandle msg.file.ext：', this.msg.file.ext)
+              console.log('nextTick downloadedHandle obj：', obj)
+              console.log('rename oldPath：', oldPath)
+              console.log('rename newPath：', newPath)
               this.$store.state.nim.updateLocalMsg({
                 idClient: this.msg.idClient,
-                localCustom: {downloadUrl: obj.url},
+                localCustom: {downloadUrl: newPath},
                 done: () => {
+                  // 修改文件名
+                  if (oldPath !== newPath) {
+                    fs.stat(newPath, function (err, stat) {
+                      // console.log('stat========', stat)
+                      // console.log('err========', err)
+                      if (err !== null) {
+                        setTimeout(() => {
+                          fs.rename(oldPath, newPath, (err) => {
+                            // console.log('rename oldPath', oldPath)
+                            // console.log('rename newPath', newPath)
+                            if (err) {
+                              console.log('err', err)
+                            }
+                          })
+                        }, 100)
+                      }
+                    })
+                  }
+
                   this.$store.commit('replaceMsg', param)
                   if (this.scene + '-' + this.to === this.$store.state.currSessionId) {
                     this.$store.commit('updateCurrSessionMsgs', {
@@ -1617,19 +1649,35 @@
       httpSpring (str) {
         // 匹配url
         let regUrlAll = /(https?:\/\/|ftps?:\/\/)?((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:[0-9]+)?|(localhost)(:[0-9]+)?|([\w]+\.)(\S+)(\w{2,4})(:[0-9]+)?)(\/?([\w#!:.?+=&%@!\\-\\/]+))?/ig
-        let regEmail = /^([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g
+        let regEmail = /([0-9A-Za-z\-_\\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)/g
         let httpArr = []
         str.split('\r\n').map(lineStr => {
+          let emailResult = lineStr.match(regEmail)
+          if (emailResult) {
+            emailResult.forEach(item => {
+              lineStr = lineStr.replace(item, '')
+            })
+          }
+          // 匹配url，匹配上之后提取url
+          let httpResult = lineStr.match(regUrlAll)
+          if (httpResult) {
+            httpResult.forEach(item => {
+              if (!regEmail.test(item)) {
+                httpArr.push(item)
+              }
+            })
+          }
           // 分割空格
-          lineStr.split(/\s+/).map(minStr => {
-            if (!regEmail.test(minStr)) {
-              let httpResult = minStr.match(regUrlAll)
-              // if (!httpResult) {
-              //   httpResult = minStr.match(regHttpAll)
-              // }
-              if (httpResult) httpArr.push(httpResult[0])
-            }
-          })
+          // lineStr.split(/\s+/).map(minStr => {
+          //   if (!regEmail.test(minStr)) {
+          //     let httpResult = minStr.match(regUrlAll)
+          //     console.log('httpResult=======', httpResult)
+          //     // if (!httpResult) {
+          //     //   httpResult = minStr.match(regHttpAll)
+          //     // }
+          //     if (httpResult) httpArr.push(httpResult[0])
+          //   }
+          // })
         })
         return httpArr
       },
@@ -1645,6 +1693,7 @@
       downloadImg (item) {
         // 本地存储图片
         if (config.environment === 'electron') {
+          // console.log('electron 另存为.....', item)
           operateFs.createDefaltDir({
             name: item.idClient,
             msg: item,
@@ -2076,7 +2125,7 @@
     overflow: hidden;
 }
 .g-window .u-msg.session-chat.item-me .msg-text-active, .g-window .u-msg.session-chat.item-you .msg-text-active{
-  color: #FFEE1B
+  color: #8B0A50
 }
 
 .g-window .u-msg.session-chat.item-you .msg-text.cover,

@@ -5,7 +5,7 @@ import store from '../store'
 import Fetch from './fetch'
 import config from '../configs'
 import DES from '../utils/des'
-import NativeLogic from '../utils/nativeLogic.js'
+import { exec } from 'child_process'
 function LoginAuth (params, $this) {
   /*
    * 登录鉴权
@@ -295,14 +295,12 @@ function GetSessionId (params, callback) {
         let urlArr = AppDirectory.split('dist')
         AppDirectory = urlArr[0]
       }
-      let fileUrl = AppDirectory + 'network_error/network_exception_repair.bat'
-      NativeLogic.native.openShell(1, fileUrl, false)
-        .then((res) => {
-          console.log(res)
-        })
-        .catch((err) => {
-          console.log(err)
-        })
+      let fileUrl = AppDirectory + 'network_error/'
+      exec('start network_exception_repair.bat', {cwd: fileUrl}, (error, stdout, stderr) => {
+        if (error) {
+          console.log(error)
+        }
+      })
     } else {
       let { ipcRenderer } = require('electron')
       ipcRenderer.send('refreshDns')

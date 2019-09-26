@@ -13,5 +13,6 @@ youxin-win32-ia32/
 youxin-win32-x64/
 Netease/
 images/
+appData/
 app.asar
 *.rar

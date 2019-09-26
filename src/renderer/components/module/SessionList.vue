@@ -50,7 +50,7 @@
               <div class="content">
                 <span class="fail-icon" v-if="session.fileStatus === 'fail' && !(session.localCustom && session.localCustom.draftMsg && session.localCustom.draftMsg.show)"></span>
                 <span v-if="session.localCustom && session.localCustom.draftMsg && curSessionId !== session.id">
-                  <span style="color: #F43530;">[草稿] </span>
+                  <span style="color: #F43530;">[草稿]</span>
                   <span>{{showDraft(session.localCustom.draftMsg.draftMsg)}}</span>
                 </span>
                 <span v-else>
@@ -303,18 +303,18 @@ export default {
     // 判断快捷删除按钮显示与否
     toggleShowDeleteBtn (type, session) {
       if (type === 1 && session) { // 鼠标移入时
-        console.log('鼠标移入时=====')
+        // console.log('鼠标移入时=====')
         this.selectedId = session.id
         this.showDelete = session.unread <= 0
-        console.log('this.selectedId=====', this.selectedId)
-        console.log('session.id=====', session.id)
-        console.log('this.showDelete=====', this.showDelete)
+        // console.log('this.selectedId=====', this.selectedId)
+        // console.log('session.id=====', session.id)
+        // console.log('this.showDelete=====', this.showDelete)
       } else if (type === 2) { // 鼠标移出时
-        console.log('鼠标移出时=====')
+        // console.log('鼠标移出时=====')
         this.selectedId = -1
         this.showDelete = false
-        console.log('this.selectedId=====', this.selectedId)
-        console.log('this.showDelete=====', this.showDelete)
+        // console.log('this.selectedId=====', this.selectedId)
+        // console.log('this.showDelete=====', this.showDelete)
       }
     },
     // 回车触发搜索
@@ -530,13 +530,13 @@ export default {
       }
     },
     onShowMenu (e, session) {
-      console.log('会话列表右击事件===session===', session)
+      // console.log('会话列表右击事件===session===', session)
       // 单个列表右击事件
       let teamInfo = {}
       let members = []
       let userType = 'normal'
       if (e.button === 2) {
-        console.log('会话列表右击事件===e.button===', e.button)
+        // console.log('会话列表右击事件===e.button===', e.button)
         e.preventDefault()
         let type = 'p2p-istop'
         if (session.scene === 'team') {
@@ -565,7 +565,7 @@ export default {
             type = 'p2p-notTop'
           }
         }
-        console.log('会话列表右击事件===showListOptions --- type ===', type)
+        // console.log('会话列表右击事件===showListOptions --- type ===', type)
         this.$store.dispatch('showListOptions', {
           key: type,
           show: true,
@@ -576,7 +576,7 @@ export default {
           },
           userType,
           callBack: (type) => {
-            console.log('会话列表右击事件---右键回调type', type)
+            // console.log('会话列表右击事件---右键回调type', type)
             switch (type) {
               case 1:
                 // 消息置顶

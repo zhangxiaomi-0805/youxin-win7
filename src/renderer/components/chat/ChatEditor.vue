@@ -1095,7 +1095,15 @@
                   })
                 }
               } else {
-                let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:${text}"}}}`
+                // 双引号在推送时替换成单引号,\替换成|
+                let pushText = text
+                while (pushText.indexOf('"') >= 0) {
+                  pushText = pushText.replace('"', '\'')
+                }
+                while (pushText.indexOf('\\') >= 0) {
+                  pushText = pushText.replace('\\', '|')
+                }
+                let pushPayload = `{"apsField": {"mutable-content": 1, "alert": {"title": "${this.sessionName}", "body": "${(this.myInfo.nick || this.myInfo.name)}:${pushText}"}}}`
                 this.$store.dispatch('sendMsg', {
                   type: 'text',
                   scene: this.scene,
@@ -1550,6 +1558,8 @@
         this.cutCode = localStorage.CUTCODE || 'Alt + A'
       },
       sendRemote (type) {
+        console.log('远程协助发起---------')
+        // 请求成功
         this.showRemote = false
         /**
          * 发起远程协助

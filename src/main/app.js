@@ -382,37 +382,67 @@ APP.prototype.initIPC = function () {
 
   // 发起远程协助
   ipcMain.on('remoteConnection', function (evt, arg) {
-    _this.execProcess('remote-vnc.exe "desktop"', () => {
-      // 获取域名
-      const req = require('http').get({ host: 'nodejs.cn' })
-      req.end()
-      req.once('response', (res) => {
-        const ip = req.socket.localAddress
+    // 采用inno setup打包的exe文件，点击截屏闪退，这里引入electron-log打印日志，不抛出异常
+    const log = require('electron-log')
+    log.info('remoteConnection init')
+    // 通过调用获取用户信息接口验证网络是否通
+    try {
+      _this.execProcess('remote-vnc.exe -p 9016 "desktop"', () => {
+        log.info('remoteConnection remote-vnc.exe init')
+        let ip = ''
+        const os = require('os')
+        let interfaces = os.networkInterfaces()
+        // 获取本地IP地址
+        for (let devName in interfaces) {
+          let iface = interfaces[devName]
+          for (let i = 0; i < iface.length; i++) {
+            let alias = iface[i]
+            // log.info('alias', alias)
+            if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+              ip = alias.address
+              break
+            }
+          }
+        }
+        log.info('remoteConnection ip', ip)
+        // 获取IP地址
         if (ip && _this.mainWindow) {
           global.HASREMOTE = arg
-          _this.mainWindow.sendRemoteConnection({content: ip + ':8080', account: arg})
+          _this.mainWindow.sendRemoteConnection({content: ip + ':9016', account: arg})
+        } else {
+          log.error('remoteConnection 网络连接状态异常，请在办公内网环境或网络良好的场景下使用远程协助')
         }
       })
-    })
+    } catch (error) {
+      log.error('remoteConnection check network fail', error)
+    }
   })
 
   // 关闭远程协助
   ipcMain.on('remoteConnectionDiss', function (evt, arg) {
-    _this.remoteConnection = null
-    global.HASREMOTE = null
-    _this.remoteWindow && _this.remoteWindow.close()
-    _this.execProcess('taskkill -f -im "remote-vnc.exe"')
+    try {
+      _this.remoteConnection = null
+      global.HASREMOTE = null
+      _this.remoteWindow && _this.remoteWindow.close()
+      _this.execProcess('taskkill -f -im "remote-vnc.exe"')
+    } catch (error) {
+      console.log('remoteConnectionDiss error', error)
+    }
   })
 
   // 创建远程桌面
   ipcMain.on('remoteConnectionCreate', function (evt, arg) {
-    _this.createRemoteWindow(arg)
+    try {
+      _this.createRemoteWindow(arg)
+    } catch (error) {
+      console.log('remoteConnectionCreate error', error)
+    }
   })
 
   // getSessionId接口出现网络异常时执行附件的bat命令,刷新dns缓存
   ipcMain.on('refreshDns', function (evt, arg) {
-    let batPath = path.join(app.getAppPath(), '/dist/electron/static/addon/network_error/network_exception_repair.bat')
-    exec(batPath, (error, stdout, stderr) => {
+    let batPath = path.join(app.getAppPath(), '/dist/electron/static/addon/network_error/')
+    exec('start network_exception_repair.bat', {cwd: batPath}, (error, stdout, stderr) => {
       if (error) {
         throw error
       } else {
@@ -568,7 +598,11 @@ APP.prototype.initRemoteConnect = function () {
     this.remoteConnection = null
     this.mainWindow.closeRemoteWindow(global.HASREMOTE)
     global.HASREMOTE = null
-    this.execProcess('taskkill -f -im "remote-vnc.exe"')
+    try {
+      this.execProcess('taskkill -f -im "remote-vnc.exe"')
+    } catch (error) {
+      console.log('initRemoteConnect error', error)
+    }
   }
 }
 

@@ -166,7 +166,7 @@ export default {
     }
     const nim = state.nim
     state.sessionlist = nim.mergeSessions(state.sessionlist, sessions)
-    console.log(state.sessionlist)
+    // console.log(state.sessionlist)
     state.sessionlist.sort((a, b) => {
       return b.updateTime - a.updateTime
     })
@@ -183,7 +183,7 @@ export default {
         }
       })
     }
-    console.log(state.sessionlist)
+    // console.log(state.sessionlist)
     callback && callback(sessions[0].id)
     if (sessions[0] && sessions[0].msgReceiptTime) {
       // 修改已读回执状态
