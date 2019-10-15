@@ -186,30 +186,20 @@ export default {
     // console.log(state.sessionlist)
     callback && callback(sessions[0].id)
     if (sessions[0] && sessions[0].msgReceiptTime) {
-      // 修改已读回执状态
-      state.currSessionMsgs.forEach((msg, index) => {
-        if (msg.scene === 'p2p' && msg.flow === 'out') {
-          if (msg.time <= sessions[0].msgReceiptTime) {
-            let copyMsg = Object.assign({}, msg)
-            if (msg.localCustom) {
-              if (!msg.localCustom.isRemoteRead) {
-                copyMsg.localCustom = msg.localCustom
-                copyMsg.localCustom.isRemoteRead = true
-                state.currSessionMsgs.splice(index, 1, copyMsg)
-                store.commit('updateLocalCustomMsg', {
-                  idClient: copyMsg.idClient,
-                  localCustom: copyMsg.localCustom
-                })
-                // 更新本地信息
-                nim.updateLocalMsg({
-                  idClient: copyMsg.idClient,
-                  localCustom: copyMsg.localCustom
-                })
-              }
-            } else {
-              copyMsg.localCustom = {
-                isRemoteRead: true
-              }
+      store.commit('modifyRemoteReadStatus', sessions[0])
+    }
+  },
+  modifyRemoteReadStatus (state, session) {
+    // 修改已读回执状态
+    const nim = state.nim
+    state.currSessionMsgs.forEach((msg, index) => {
+      if (msg.scene === 'p2p' && msg.flow === 'out') {
+        if (msg.time <= session.msgReceiptTime) {
+          let copyMsg = Object.assign({}, msg)
+          if (msg.localCustom) {
+            if (!msg.localCustom.isRemoteRead) {
+              copyMsg.localCustom = msg.localCustom
+              copyMsg.localCustom.isRemoteRead = true
               state.currSessionMsgs.splice(index, 1, copyMsg)
               store.commit('updateLocalCustomMsg', {
                 idClient: copyMsg.idClient,
@@ -221,10 +211,24 @@ export default {
                 localCustom: copyMsg.localCustom
               })
             }
+          } else {
+            copyMsg.localCustom = {
+              isRemoteRead: true
+            }
+            state.currSessionMsgs.splice(index, 1, copyMsg)
+            store.commit('updateLocalCustomMsg', {
+              idClient: copyMsg.idClient,
+              localCustom: copyMsg.localCustom
+            })
+            // 更新本地信息
+            nim.updateLocalMsg({
+              idClient: copyMsg.idClient,
+              localCustom: copyMsg.localCustom
+            })
           }
         }
-      })
-    }
+      }
+    })
   },
   deleteSessions (state, sessionIds) {
     const nim = state.nim
@@ -546,6 +550,11 @@ export default {
           }
         }
       }
+    }
+    // 更新已读回执状态
+    let currSession = state.sessionlist.find(session => session.id === state.currSessionId)
+    if (currSession && currSession.msgReceiptTime) {
+      store.commit('modifyRemoteReadStatus', currSession)
     }
   },
   updateSysMsgs (state, sysMsgs) {
